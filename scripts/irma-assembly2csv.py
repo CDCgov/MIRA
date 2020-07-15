@@ -39,7 +39,7 @@ def alignPositionByPSA(assemblyPath):
     for sample in id_samples(assemblyPath):
         for segment, alignment in alignConsensus2reference(assemblyPath, sample)[sample].items():
             covTable = glob('{}/{}/tables/{}-coverage.txt'.format(assemblyPath, sample, segment))[0]
-            realignmentFile = dirname(dirname(realpath(__file__)))+'/.cache/'+realpath(assemblyPath).replace('/','_')[1:]+'.csv'            
+            realignmentFile = dirname(dirname(realpath(__file__)))+'/cache-data/'+realpath(assemblyPath).replace('/','_')[1:]+'.csv'            
             header = True
             with open(realignmentFile, 'a+') as out:
                 for line in run(['perl', alignByPerl, alignment, covTable], capture_output=True, universal_newlines=True).stdout.split('\n'):
