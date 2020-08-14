@@ -17,6 +17,7 @@ import plotly.express as px
 import pandas as pd
 from math import ceil, log10
 from itertools import cycle
+import pickle
 
 #pio.kaleido.scope.default_format = "svg"
 #external_stylesheets = ['./css/stylesheet-oil-and-gas.css']
@@ -24,9 +25,15 @@ from itertools import cycle
 app = dash.Dash(external_stylesheets=[dbc.themes.FLATLY])
 #app = dash.Dash(__name__)#, external_stylesheets=external_stylesheets)
 app.title = 'IRMA SPY'
+app.config['suppress_callback_exceptions'] = True
 
 def loadData(csvpath):
 	return(pd.read_csv(csvpath))
+
+def loadAssemblyDictionary(pkl_path):
+	with open(pkl_path, 'rb') as p:
+		d = pickle.load(p)
+		return(d)
 
 def returnSegData():
 	segments = df['Reference_Name'].unique()
@@ -51,13 +58,17 @@ def createheatmap(sliderMax=None):
 		sliderMax = df4['Coverage_Depth'].max()
 	#else:
 	#	sliderMax = slider_marks_r[sliderMax]
-	fig = go.Figure(data=go.Heatmap( #px.imshow(df5
-			x=list(df4['Sample']),
-			y=list(df4['Segment']),
-			z=list(df4['Coverage_Depth']), 
-			zmin=0,
-			zmax=sliderMax,
-			colorscale='Cividis_r'))
+	fig = go.Figure(
+			data=go.Heatmap( #px.imshow(df5
+				x=list(df4['Sample']),
+				y=list(df4['Segment']),
+				z=list(df4['Coverage_Depth']), 
+				zmin=0,
+				zmax=sliderMax,
+				colorscale='Cividis_r',
+				hovertemplate='%{y} = %{z:,.0f}x<extra>%{x}<br></extra>'
+				)
+			)
 	fig.update_layout(
 		legend=dict(x=0.4, y=1.2, orientation='h')
 		)
@@ -187,68 +198,99 @@ for k,v in slider_marks.items():
 #print(slider_marks)
 #print(slider_marks_r)
 
-app.layout = html.Div(children=[
-	html.Div(children=[
+app.layout = dbc.Container(
+	fluid=True,
+	children=
+	[
+		dcc.Store(id='store'),
 		html.Img(
 			src=app.get_asset_url('irma-spy.jpg'),
 			height=80,
 			width=80,
-			className='ten.columns'
-		)],
-		style={
-			'border-style':'none none solid none',
-			'border-color':'gray',
-			'position':'sticky'
-		},
-
-	),
-	html.Div(children=[
-		dcc.Loading(
-			id='coverageheat-loading',
-			type='cube',
-			children=[
-				dcc.Graph(	
-				id='coverage-heat',
-				className='eleven.columns'
-				)]
-		)],
-	className='eleven.columns'
-	),
-	#daq.Slider(
-	#	id='heatmap-slider',
-	#	max=log10(sliderMax),
-	#	min=0,
-	#	value=log10(1000),
-	#	#handleLabel={"showCurrentValue": True,"label": "MAX"},
-	#	step=1,
-	#	marks=slider_marks
-	#),
-	html.Div(children=
-		daq.Slider(
-			id='heatmap-slider',
-			max=1000,
-			min=100,
-			value=100,
-			handleLabel={"showCurrentValue": True,"label": "MAX"},
-			step=10
 		),
-		className='offset-by-eleven.columns'
-	),			
-	dcc.Loading(
-		id='coverage-loading',
-		type='cube',
-		children=dcc.Graph(
-			id='coverage',
-			className='twelve columns'
-		)
-	),	
-	html.Div(children=[
-		html.Button('All figures',
-			id='backButton',
-			className='button'
-		)]
-	)
-])
+		#html.Hr(),
+		dbc.Tabs(
+			[
+				dbc.Tab(label='Summary', tab_id='summary'),
+				dbc.Tab(label='Coverage', tab_id='coverage')
+			],
+			id='tabs',
+			active_tab='coverage'
+		),
+		html.Div(id='tab-content')
+	]
+)
+
+@app.callback(
+	Output('tab-content', 'children'),
+	[Input('tabs', 'active_tab'), 
+	Input('store', 'data')]
+)
+def render_tab_content(active_tab, data):
+	print(data)
+	if active_tab:# and data is not None:
+		if active_tab == 'summary':
+			content = dcc.Loading(
+				id='summary-loading',
+				type='cube',
+				children=[
+					dcc.Graph(
+						id='summary-fig'
+					)
+				]
+			)
+			return content
+		elif active_tab == 'coverage':
+			content = html.Div(
+				[dbc.Row(
+					[dbc.Col(
+						dcc.Loading(
+							id='coverageheat-loading',
+							type='cube',
+							children=[
+								dcc.Graph(	
+									id='coverage-heat'
+								)
+							]
+						),
+						width=11,
+						align='end'
+					),
+					dbc.Col(
+						daq.Slider(
+							id='heatmap-slider',
+							marks={'100':'100','300':'300','500':'500','700':'700','900':'900'},
+							max=1000,
+							min=100,
+							value=100,
+							#handleLabel={"showCurrentValue": True,"label": "MAX", 'style':{}},
+							step=50,
+							vertical=True,
+							persistence=True,
+							dots=True
+						),
+						align='center'
+					)],
+					no_gutters=True
+				),
+				dcc.Loading(
+					id='coverage-loading',
+					type='cube',
+					children=dcc.Graph(
+						id='coverage',
+						className='twelve columns'
+					)
+				),
+				html.Div(children=[
+					html.Button('All figures',
+					id='backButton',
+					className='button'
+					)]
+				)
+				]
+			)
+			return content
+
 
 if __name__ == '__main__':
 	app.run_server(debug=True)
