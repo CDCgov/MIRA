@@ -18,6 +18,11 @@ import pandas as pd
 from math import ceil, log10
 from itertools import cycle
 import pickle
+from sys import path, argv
+from os.path import dirname, realpath
+path.append(dirname(realpath(__file__))+'/scripts/')
+import irma2dash
+
 
 #pio.kaleido.scope.default_format = "svg"
 #external_stylesheets = ['./css/stylesheet-oil-and-gas.css']
@@ -37,7 +42,10 @@ def loadAssemblyDictionary(pkl_path):
 
 def returnSegData():
 	segments = df['Reference_Name'].unique()
-	segset = [i.split('_')[1] for i in segments]
+	try:
+		segset = [i.split('_')[1] for i in segments]
+	except IndexError:
+		segset = segments
 	segset = list(set(segset))
 	segcolor = {}
 	for i in range(0, len(segset)):
@@ -45,24 +53,35 @@ def returnSegData():
 	return(segments, segset, segcolor)
 
 def pivot4heatmap():
-	df2 = df[['Sample', 'Reference_Name', 'Coverage_Depth']]
+	if 'Coverage_Depth' in df.columns:
+		cov_header = 'Coverage_Depth'
+	else:
+		cov_header = 'Coverage Depth'
+	df2 = df[['Sample', 'Reference_Name', cov_header]]
 	df3 = df2.groupby(['Sample', 'Reference_Name']).mean().reset_index()
-	df3[['Subtype', 'Segment', 'Group']] = df3['Reference_Name'].str.split('_', expand=True)
-	df4 = df3[['Sample', 'Segment', 'Coverage_Depth']]
+	try:
+		df3[['Subtype', 'Segment', 'Group']] = df3['Reference_Name'].str.split('_', expand=True)
+	except ValueError:
+		df3[['Segment']] = df3['Reference_Name']
+	df4 = df3[['Sample', 'Segment', cov_header]]
 	#df5 = df4.pivot(columns='Sample', index='Segment', values='Coverage_Depth') # Correct format to use with px.imshow()
 	return(df4)
 
 def createheatmap(sliderMax=None):
+	if 'Coverage_Depth' in df.columns:
+		cov_header = 'Coverage_Depth'
+	else:
+		cov_header = 'Coverage Depth'
 	#df4 = pivot4heatmap()
 	if sliderMax is None:
-		sliderMax = df4['Coverage_Depth'].max()
+		sliderMax = df4[cov_header].max()
 	#else:
 	#	sliderMax = slider_marks_r[sliderMax]
 	fig = go.Figure(
 			data=go.Heatmap( #px.imshow(df5
 				x=list(df4['Sample']),
 				y=list(df4['Segment']),
-				z=list(df4['Coverage_Depth']), 
+				z=list(df4[cov_header]), 
 				zmin=0,
 				zmax=sliderMax,
 				colorscale='Cividis_r',
@@ -76,6 +95,10 @@ def createheatmap(sliderMax=None):
 	return(fig)
 
 def createAllCoverageFig():
+	if 'Coverage_Depth' in df.columns:
+		cov_header = 'Coverage_Depth'
+	else:
+		cov_header = 'Coverage Depth'
 	samples = df['Sample'].unique()
 
 	fig_numCols = 4
@@ -99,12 +122,15 @@ def createAllCoverageFig():
 	for s in samples:
 		r,c = next(pickRow), next(pickCol)
 		for g in segments:
-			g_base = g.split('_')[1]
+			try:
+				g_base = g.split('_')[1]
+			except IndexError:
+				g_base = g
 			df2 = df_thin[(df_thin['Sample'] == s) & (df_thin['Reference_Name'] == g)]
 			fig.add_trace(
 				go.Scatter(
 					x = df2['Position'],
-					y = df2['Coverage_Depth'],
+					y = df2[cov_header],
 					mode = 'lines',
 					line = go.scatter.Line(color=segcolor[g_base]),
 					name = g,
@@ -120,15 +146,22 @@ def createAllCoverageFig():
 	return(fig)
 
 def createSampleCoverageFig(sample):
+	if 'Coverage_Depth' in df.columns:
+		cov_header = 'Coverage_Depth'
+	else:
+		cov_header = 'Coverage Depth'
 	df2 = df[df['Sample'] == sample]
 	fig = go.Figure()
 	for g in segments:
-		g_base = g.split('_')[1]
+		try:
+			g_base = g.split('_')[1]
+		except IndexError:
+			g_base = g
 		df3 = df2[df2['Reference_Name'] == g]
 		fig.add_trace(
 			go.Scatter(
 				x = df3['Position'],
-				y = df3['Coverage_Depth'],
+				y = df3[cov_header],
 				mode = 'lines',
 				line = go.scatter.Line(color=segcolor[g_base]),
 				name = g,
@@ -141,10 +174,14 @@ def createSampleCoverageFig(sample):
 		xaxis_title='Position')
 	return(fig)
 
-df = loadData('./test.csv')
+df = irma2dash.dash_irma_coverage_df(argv[1]) #loadData('./test.csv')
 segments, segset, segcolor = returnSegData()
 df4 = pivot4heatmap()
-sliderMax = df4['Coverage_Depth'].max()
+if 'Coverage_Depth' in df4.columns:
+	cov_header = 'Coverage_Depth'
+else:
+	cov_header = 'Coverage Depth'
+sliderMax = df4[cov_header].max()
 allFig = createAllCoverageFig()
 
 
@@ -293,4 +330,4 @@ def render_tab_content(active_tab, data):
 
 
 if __name__ == '__main__':
-	app.run_server(debug=True)
+	app.run_server(host= '0.0.0.0', debug=True)
