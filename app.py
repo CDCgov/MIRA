@@ -8,7 +8,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 #import dash_flexbox_grid as dfx
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 import dash_daq as daq
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
@@ -174,9 +174,14 @@ def createSampleCoverageFig(sample):
 		xaxis_title='Position')
 	return(fig)
 
+
 df = irma2dash.dash_irma_coverage_df(argv[1]) #loadData('./test.csv')
+df.to_parquet(argv[1]+'/coverage.parquet')
+df.to_pickle(argv[1]+'/coverage.pkl')
+
 segments, segset, segcolor = returnSegData()
 df4 = pivot4heatmap()
+df4.to_csv(argv[1]+'/mean_coverages.tsv', sep='\t', index=False)
 if 'Coverage_Depth' in df4.columns:
 	cov_header = 'Coverage_Depth'
 else:
@@ -184,6 +189,16 @@ else:
 sliderMax = df4[cov_header].max()
 allFig = createAllCoverageFig()
 
+@app.callback(Output('output-data-upload', 'children'),
+	Input('upload-data', 'contents'),
+	State('upload-data', 'filename'),
+	State('upload-data', 'last_modified'))
+def update_output(list_of_contents, list_of_names, list_of_dates):
+	if list_of_contents is not None:
+		children = [
+			parse_contents(c, n, d) for c, n, d in
+			zip(list_of_contents, list_of_names, list_of_dates)]
+		return children
 
 @app.callback(
 	dash.dependencies.Output('coverage-heat', 'figure'),
@@ -244,6 +259,16 @@ app.layout = dbc.Container(
 			src=app.get_asset_url('irma-spy.jpg'),
 			height=80,
 			width=80,
+		),
+		#dbc.Button("Choose IRMA directory", id="open", n_clicks=0),
+		#dbc.Input(
+		#	id="irma_directory",
+		#	placeholder="Input full path to IRMA output directories",
+		#	type="text"
+		#),
+		dcc.Upload(
+			id='irma_path',
+			children=html.A('Select DASH.CONNECT file')
 		),
 		#html.Hr(),
 		dbc.Tabs(
