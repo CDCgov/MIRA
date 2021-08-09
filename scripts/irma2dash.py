@@ -10,11 +10,10 @@ def dash_irma_coverage_df(irma_path):
 	coverageFiles = glob(irma_path+'/*/tables/*a2m.txt')
 	a2msamples = [i.split('/')[-3] for i in coverageFiles]
 	otherFiles = [i for i in glob(irma_path+'/*/tables/*coverage.txt')]
-	#if len(coverageFiles) == 0:
-	#	coverageFiles = glob(irma_path+'/*/tables/*coverage.txt')
+	if len(coverageFiles) == 0:
+		coverageFiles = glob(irma_path+'/*/tables/*coverage.txt')
 	if len(coverageFiles) == 0:
 		return 'No coverage files found under {}/*/tables/'.format(irma_path)
-	
 	df = pd.DataFrame()
 	for f in coverageFiles:
 		sample = basename(dirname(dirname(f)))

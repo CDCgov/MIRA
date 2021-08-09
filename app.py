@@ -177,7 +177,7 @@ def createSampleCoverageFig(sample):
 
 df = irma2dash.dash_irma_coverage_df(argv[1]) #loadData('./test.csv')
 df.to_parquet(argv[1]+'/coverage.parquet')
-df.to_pickle(argv[1]+'/coverage.pkl')
+#df.to_pickle(argv[1]+'/coverage.pkl')
 
 segments, segset, segcolor = returnSegData()
 df4 = pivot4heatmap()
