@@ -20,6 +20,8 @@ from itertools import cycle
 import pickle
 from sys import path, argv
 from os.path import dirname, realpath
+import os
+import yaml
 path.append(dirname(realpath(__file__))+'/scripts/')
 import irma2dash
 
@@ -32,13 +34,28 @@ app = dash.Dash(external_stylesheets=[dbc.themes.FLATLY])
 app.title = 'IRMA SPY'
 app.config['suppress_callback_exceptions'] = True
 
-def loadData(csvpath):
-	return(pd.read_csv(csvpath))
+with open(argv[1], 'r') as y:
+	CONFIG = yaml.safe_load(y)
+pathway = CONFIG['PATHWAY']
 
-def loadAssemblyDictionary(pkl_path):
-	with open(pkl_path, 'rb') as p:
-		d = pickle.load(p)
-		return(d)
+@app.callback(
+    Output('select_run', 'options'),
+    Input('select_machine', 'value'))
+def select_run(machine):
+    print(os.path.join(pathway, machine))
+    if not machine or machine == 'Select sequencing instrument: ':
+        raise dash.exceptions.PreventUpdate
+    options = [{'label':i, 'value':i} for i in sorted(os.listdir(os.path.join(pathway ,machine)))] #filesInFolderTree(os.path.join(pathway, machine))]
+    return options
+
+@app.callback(
+    Output('select_run', 'value'),
+    Input('select_run', 'options'))
+def set_run_options(run_options):
+    print(run_options)
+    if not run_options:
+        raise dash.exceptions.PreventUpdate
+    return run_options[0]['value']
 
 def returnSegData():
 	segments = df['Reference_Name'].unique()
@@ -175,13 +192,13 @@ def createSampleCoverageFig(sample):
 	return(fig)
 
 
-df = irma2dash.dash_irma_coverage_df(argv[1]) #loadData('./test.csv')
-df.to_parquet(argv[1]+'/coverage.parquet')
-#df.to_pickle(argv[1]+'/coverage.pkl')
+df = irma2dash.dash_irma_coverage_df(argv[2]) #loadData('./test.csv')
+df.to_parquet(argv[2]+'/coverage.parquet')
+#df.to_pickle(argv[2]+'/coverage.pkl')
 
 segments, segset, segcolor = returnSegData()
 df4 = pivot4heatmap()
-df4.to_csv(argv[1]+'/mean_coverages.tsv', sep='\t', index=False)
+df4.to_csv(argv[2]+'/mean_coverages.tsv', sep='\t', index=False)
 if 'Coverage_Depth' in df4.columns:
 	cov_header = 'Coverage_Depth'
 else:
@@ -227,62 +244,9 @@ def callback_coverage(plotClick, buttonClick):
 		return(createSampleCoverageFig(s))	
 	return(fig)
 
-
 ########################################################
-###################### LAYOUT ##########################
+#################### LAYOUT TABS #######################
 ########################################################
-
-# Layout Functions
-def slider_marks(maxvalue):
-	linearStep = 1
-	i = 1
-	marks = {str(linearStep):str(i)}
-	while i <= maxvalue:
-		linearStep += 1
-		i = i*10
-		marks[str(linearStep)] = str(i)
-	return(marks)
-
-slider_marks = slider_marks(sliderMax)
-slider_marks_r = {}
-for k,v in slider_marks.items():
-	slider_marks_r[v] = k
-#print(slider_marks)
-#print(slider_marks_r)
-
-app.layout = dbc.Container(
-	fluid=True,
-	children=
-	[
-		dcc.Store(id='store'),
-		html.Img(
-			src=app.get_asset_url('irma-spy.jpg'),
-			height=80,
-			width=80,
-		),
-		#dbc.Button("Choose IRMA directory", id="open", n_clicks=0),
-		#dbc.Input(
-		#	id="irma_directory",
-		#	placeholder="Input full path to IRMA output directories",
-		#	type="text"
-		#),
-		dcc.Upload(
-			id='irma_path',
-			children=html.A('Select DASH.CONNECT file')
-		),
-		#html.Hr(),
-		dbc.Tabs(
-			[
-				dbc.Tab(label='Summary', tab_id='summary'),
-				dbc.Tab(label='Coverage', tab_id='coverage')
-			],
-			id='tabs',
-			active_tab='coverage'
-		),
-		html.Div(id='tab-content')
-	]
-)
-
 @app.callback(
 	Output('tab-content', 'children'),
 	[Input('tabs', 'active_tab'), 
@@ -354,5 +318,62 @@ def render_tab_content(active_tab, data):
 			return content
 
 
+
+########################################################
+###################### LAYOUT ##########################
+########################################################
+
+# Layout Functions
+def slider_marks(maxvalue):
+	linearStep = 1
+	i = 1
+	marks = {str(linearStep):str(i)}
+	while i <= maxvalue:
+		linearStep += 1
+		i = i*10
+		marks[str(linearStep)] = str(i)
+	return(marks)
+
+slider_marks = slider_marks(sliderMax)
+slider_marks_r = {}
+for k,v in slider_marks.items():
+	slider_marks_r[v] = k
+#print(slider_marks)
+#print(slider_marks_r)
+
+app.layout = dbc.Container(
+	fluid=True,
+	children=
+	[
+		dcc.Store(id='store'),
+		html.Div([
+			html.Img(
+				src=app.get_asset_url('irma-spy.jpg'),
+				height=80,
+				width=80,
+			),
+			dcc.Dropdown(id='select_machine',
+				options=[{'label':i, 'value':i} for i in sorted(os.listdir(pathway))],
+				placeholder='Select sequencing instrument: ',
+			),
+			dcc.Dropdown(id='select_run',
+				placeholder='Select IRMA output directory: ',
+			),
+		]),
+		dbc.Tabs(
+			[
+				dbc.Tab(label='Summary', tab_id='summary'),
+				dbc.Tab(label='Coverage', tab_id='coverage')
+			],
+			id='tabs',
+			active_tab='coverage'
+		),
+		html.Div(id='tab-content')
+	]
+)
+
+####################################################
+####################### MAIN #######################
+####################################################
 if __name__ == '__main__':
 	app.run_server(host= '0.0.0.0', debug=True)
