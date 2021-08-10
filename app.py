@@ -13,7 +13,7 @@ import dash_daq as daq
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 import plotly.express as px
-#import plotly.io as pio
+import plotly.io as pio
 import pandas as pd
 from math import ceil, log10
 from itertools import cycle
@@ -22,15 +22,11 @@ from sys import path, argv
 from os.path import dirname, realpath
 import os
 import yaml
+import json
 path.append(dirname(realpath(__file__))+'/scripts/')
 import irma2dash
 
-
-#pio.kaleido.scope.default_format = "svg"
-#external_stylesheets = ['./css/stylesheet-oil-and-gas.css']
-
 app = dash.Dash(external_stylesheets=[dbc.themes.FLATLY])
-#app = dash.Dash(__name__)#, external_stylesheets=external_stylesheets)
 app.title = 'IRMA SPY'
 app.config['suppress_callback_exceptions'] = True
 
@@ -42,7 +38,6 @@ pathway = CONFIG['PATHWAY']
     Output('select_run', 'options'),
     Input('select_machine', 'value'))
 def select_run(machine):
-    print(os.path.join(pathway, machine))
     if not machine or machine == 'Select sequencing instrument: ':
         raise dash.exceptions.PreventUpdate
     options = [{'label':i, 'value':i} for i in sorted(os.listdir(os.path.join(pathway ,machine)))] #filesInFolderTree(os.path.join(pathway, machine))]
@@ -52,12 +47,57 @@ def select_run(machine):
     Output('select_run', 'value'),
     Input('select_run', 'options'))
 def set_run_options(run_options):
-    print(run_options)
     if not run_options:
         raise dash.exceptions.PreventUpdate
     return run_options[0]['value']
 
-def returnSegData():
+@app.callback(
+    Output('select_irma', 'options'),
+    [Input('select_machine', 'value'),
+	Input('select_run', 'value')])
+def select_irma(machine, run):
+    if not machine or not run:
+        raise dash.exceptions.PreventUpdate
+    options = [{'label':i, 'value':i} for i in sorted(os.listdir(os.path.join(pathway, machine, run)))] #filesInFolderTree(os.path.join(pathway, machine))]
+    return options
+
+@app.callback(
+    Output('select_irma', 'value'),
+    Input('select_irma', 'options'))
+def set_irma_options(irma_options):
+    if not irma_options:
+        raise dash.exceptions.PreventUpdate
+    return irma_options[0]['value']
+
+@app.callback(
+	Output('df_cache', 'data'),
+	[Input('select_machine', 'value'),
+	Input('select_run', 'value'),
+	Input('select_irma', 'value')])
+def generate_df(machine, run, irma):
+	irma_path = os.path.join(pathway, machine, run, irma)
+	print("irma_path = {}".format(irma_path))
+	df = irma2dash.dash_irma_coverage_df(irma_path) #argv[2]) #loadData('./test.csv')
+	#df.to_parquet(irma_path+'/coverage.parquet')
+	segments, segset, segcolor = returnSegData(df)
+	df4 = pivot4heatmap(df)
+	df4.to_csv(irma_path+'/mean_coverages.tsv', sep='\t', index=False)
+	if 'Coverage_Depth' in df4.columns:
+		cov_header = 'Coverage_Depth'
+	else:
+		cov_header = 'Coverage Depth'
+	sliderMax = df4[cov_header].max()
+	allFig = createAllCoverageFig(df, ','.join(segments), segcolor)
+	return json.dumps({'df':df.to_json(orient='split'), 
+						'df4':df4.to_json(orient='split'), 
+						'cov_header':cov_header, 
+						'sliderMax':sliderMax,
+						'segments':','.join(segments),
+						'segset':','.join(segset),
+						'segcolor':segcolor,
+						'allFig':allFig.to_json()})
+
+def returnSegData(df):
 	segments = df['Reference_Name'].unique()
 	try:
 		segset = [i.split('_')[1] for i in segments]
@@ -69,7 +109,7 @@ def returnSegData():
 				segcolor[segset[i]] = px.colors.qualitative.G10[i] 
 	return(segments, segset, segcolor)
 
-def pivot4heatmap():
+def pivot4heatmap(df):
 	if 'Coverage_Depth' in df.columns:
 		cov_header = 'Coverage_Depth'
 	else:
@@ -84,8 +124,8 @@ def pivot4heatmap():
 	#df5 = df4.pivot(columns='Sample', index='Segment', values='Coverage_Depth') # Correct format to use with px.imshow()
 	return(df4)
 
-def createheatmap(sliderMax=None):
-	if 'Coverage_Depth' in df.columns:
+def createheatmap(df4, sliderMax=None):
+	if 'Coverage_Depth' in df4.columns:
 		cov_header = 'Coverage_Depth'
 	else:
 		cov_header = 'Coverage Depth'
@@ -111,22 +151,18 @@ def createheatmap(sliderMax=None):
 	fig.update_xaxes(side='top')
 	return(fig)
 
-def createAllCoverageFig():
+def createAllCoverageFig(df, segments, segcolor):
 	if 'Coverage_Depth' in df.columns:
 		cov_header = 'Coverage_Depth'
 	else:
 		cov_header = 'Coverage Depth'
 	samples = df['Sample'].unique()
-
 	fig_numCols = 4
 	fig_numRows = ceil(len(samples) / fig_numCols)
-
 	pickCol = cycle(list(range(1,fig_numCols+1))) # next(pickCol)
 	pickRow = cycle(list(range(1, fig_numRows+1))) # next(pickRow)
-	
 	# Take every 10th row of data
 	df_thin = df.iloc[::10, :]
-
 	fig = make_subplots(
 			rows=fig_numRows,
 			cols=fig_numCols,
@@ -135,10 +171,9 @@ def createAllCoverageFig():
 			vertical_spacing = 0.02,
 			horizontal_spacing = 0.02
 			)
-
 	for s in samples:
 		r,c = next(pickRow), next(pickCol)
-		for g in segments:
+		for g in segments.split(','):
 			try:
 				g_base = g.split('_')[1]
 			except IndexError:
@@ -162,14 +197,14 @@ def createAllCoverageFig():
 		showlegend=False)
 	return(fig)
 
-def createSampleCoverageFig(sample):
+def createSampleCoverageFig(sample, df, segments, segcolor):
 	if 'Coverage_Depth' in df.columns:
 		cov_header = 'Coverage_Depth'
 	else:
 		cov_header = 'Coverage Depth'
 	df2 = df[df['Sample'] == sample]
 	fig = go.Figure()
-	for g in segments:
+	for g in segments.split(','):
 		try:
 			g_base = g.split('_')[1]
 		except IndexError:
@@ -191,57 +226,36 @@ def createSampleCoverageFig(sample):
 		xaxis_title='Position')
 	return(fig)
 
-
-df = irma2dash.dash_irma_coverage_df(argv[2]) #loadData('./test.csv')
-df.to_parquet(argv[2]+'/coverage.parquet')
-#df.to_pickle(argv[2]+'/coverage.pkl')
-
-segments, segset, segcolor = returnSegData()
-df4 = pivot4heatmap()
-df4.to_csv(argv[2]+'/mean_coverages.tsv', sep='\t', index=False)
-if 'Coverage_Depth' in df4.columns:
-	cov_header = 'Coverage_Depth'
-else:
-	cov_header = 'Coverage Depth'
-sliderMax = df4[cov_header].max()
-allFig = createAllCoverageFig()
-
-@app.callback(Output('output-data-upload', 'children'),
-	Input('upload-data', 'contents'),
-	State('upload-data', 'filename'),
-	State('upload-data', 'last_modified'))
-def update_output(list_of_contents, list_of_names, list_of_dates):
-	if list_of_contents is not None:
-		children = [
-			parse_contents(c, n, d) for c, n, d in
-			zip(list_of_contents, list_of_names, list_of_dates)]
-		return children
-
 @app.callback(
-	dash.dependencies.Output('coverage-heat', 'figure'),
-	[dash.dependencies.Input('heatmap-slider', 'value')])
-def callback_heatmap(maximumValue):
+	Output('coverage-heat', 'figure'),
+	[Input('heatmap-slider', 'value'),
+	Input('df_cache', 'data')])
+def callback_heatmap(maximumValue, data):
 	#return(createheatmap(int(slider_marks[str(maximumValue)])))
-	return(createheatmap(maximumValue))
+	df = pd.read_json(json.loads(data)['df4'], orient='split')
+	return(createheatmap(df, maximumValue))
 
 previousClick, returnClick = 0,0
 @app.callback(
-	dash.dependencies.Output('coverage', 'figure'),
-	[dash.dependencies.Input('coverage-heat', 'clickData'),
-	dash.dependencies.Input('backButton', 'n_clicks')])
-def callback_coverage(plotClick, buttonClick):
+	Output('coverage', 'figure'),
+	[Input('coverage-heat', 'clickData'),
+	Input('backButton', 'n_clicks'),
+	Input('df_cache', 'data')])
+def callback_coverage(plotClick, buttonClick, data):
+	df = pd.read_json(json.loads(data)['df'], orient='split')
+	allFig = pio.from_json(json.loads(data)['allFig'])
 	global segcolor, previousClick, returnClick
+	segments = json.loads(data)['segments']
+	segcolor = json.loads(data)['segcolor']
 	returnClick = buttonClick
-	print(plotClick)
 	if returnClick is None:
 		returnClick = 0
-	print("return={}\tprevious={}".format(returnClick, previousClick))
 	if plotClick is None or returnClick > previousClick:
 		previousClick = returnClick
 		return(allFig)
 	elif plotClick['points'][0]['x'] != 'all':
 		s = plotClick['points'][0]['x']
-		return(createSampleCoverageFig(s))	
+		return(createSampleCoverageFig(s, df, segments, segcolor))	
 	return(fig)
 
 ########################################################
@@ -253,7 +267,6 @@ def callback_coverage(plotClick, buttonClick):
 	Input('store', 'data')]
 )
 def render_tab_content(active_tab, data):
-	print(data)
 	if active_tab:# and data is not None:
 		if active_tab == 'summary':
 			content = dcc.Loading(
@@ -324,27 +337,26 @@ def render_tab_content(active_tab, data):
 ########################################################
 
 # Layout Functions
-def slider_marks(maxvalue):
-	linearStep = 1
-	i = 1
-	marks = {str(linearStep):str(i)}
-	while i <= maxvalue:
-		linearStep += 1
-		i = i*10
-		marks[str(linearStep)] = str(i)
-	return(marks)
+#def slider_marks(maxvalue):
+#	linearStep = 1
+#	i = 1
+#	marks = {str(linearStep):str(i)}
+#	while i <= maxvalue:
+#		linearStep += 1
+#		i = i*10
+#		marks[str(linearStep)] = str(i)
+#	return(marks)
 
-slider_marks = slider_marks(sliderMax)
-slider_marks_r = {}
-for k,v in slider_marks.items():
-	slider_marks_r[v] = k
-#print(slider_marks)
-#print(slider_marks_r)
+#slider_marks = slider_marks(sliderMax)
+#slider_marks_r = {}
+#for k,v in slider_marks.items():
+#	slider_marks_r[v] = k
 
 app.layout = dbc.Container(
 	fluid=True,
 	children=
 	[
+		dcc.Store(id='df_cache'),
 		dcc.Store(id='store'),
 		html.Div([
 			html.Img(
@@ -357,6 +369,9 @@ app.layout = dbc.Container(
 				placeholder='Select sequencing instrument: ',
 			),
 			dcc.Dropdown(id='select_run',
+				placeholder='Select run directory: ',
+			),
+			dcc.Dropdown(id='select_irma',
 				placeholder='Select IRMA output directory: ',
 			),
 		]),
