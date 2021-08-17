@@ -17,9 +17,11 @@ def dash_irma_coverage_df(irma_path):
 	df = pd.DataFrame()
 	for f in coverageFiles:
 		sample = basename(dirname(dirname(f)))
+		print(sample)
 		df_prime = pd.read_csv(f, sep='\t', index_col=False)
 		df_prime.insert(loc=0, column='Sample', value=sample)
 		df = df.append(df_prime)
 		#for i in args.add_fields_right:
 		#	df[i[0]] = i[1]
+	df.to_parquet(irma_path+'/coverage.parquet')
 	return df	

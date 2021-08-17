@@ -10,37 +10,130 @@ import dash_bootstrap_components as dbc
 #import dash_flexbox_grid as dfx
 from dash.dependencies import Input, Output, State
 import dash_daq as daq
+import dash_table
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 import plotly.express as px
-#import plotly.io as pio
+import plotly.io as pio
 import pandas as pd
 from math import ceil, log10
 from itertools import cycle
 import pickle
 from sys import path, argv
 from os.path import dirname, realpath
+import os
+import yaml
+import json
+from glob import glob
 path.append(dirname(realpath(__file__))+'/scripts/')
 import irma2dash
-
-
-#pio.kaleido.scope.default_format = "svg"
-#external_stylesheets = ['./css/stylesheet-oil-and-gas.css']
+import conditional_color_range_perCol
 
 app = dash.Dash(external_stylesheets=[dbc.themes.FLATLY])
-#app = dash.Dash(__name__)#, external_stylesheets=external_stylesheets)
 app.title = 'IRMA SPY'
 app.config['suppress_callback_exceptions'] = True
 
-def loadData(csvpath):
-	return(pd.read_csv(csvpath))
+with open(argv[1], 'r') as y:
+	CONFIG = yaml.safe_load(y)
+pathway = CONFIG['PATHWAY']
 
-def loadAssemblyDictionary(pkl_path):
-	with open(pkl_path, 'rb') as p:
-		d = pickle.load(p)
-		return(d)
+@app.callback(
+	Output('select_run', 'options'),
+	Input('select_machine', 'value'))
+def select_run(machine):
+	if not machine or machine == 'Select sequencing instrument: ':
+		raise dash.exceptions.PreventUpdate
+	options = [{'label':i, 'value':i} for i in sorted(os.listdir(os.path.join(pathway ,machine)))] #filesInFolderTree(os.path.join(pathway, machine))]
+	return options
 
-def returnSegData():
+@app.callback(
+	[Output('select_run', 'value')],
+	#Output('select_run', 'persistence')],
+	Input('select_run', 'options'))
+def set_run_options(run_options):
+	if not run_options:
+		raise dash.exceptions.PreventUpdate
+	#persistence = run_options[-1]['value']
+	return run_options[0]['value']#, persistence
+
+@app.callback(
+	Output('select_irma', 'options'),
+	[Input('select_machine', 'value'),
+	Input('select_run', 'value')])
+def select_irma(machine, run):
+	if not machine or not run:
+		raise dash.exceptions.PreventUpdate
+	options = [{'label':i, 'value':i} for i in sorted(os.listdir(os.path.join(pathway, machine, run)))] #filesInFolderTree(os.path.join(pathway, machine))]
+	return options
+
+@app.callback(
+	Output('select_irma', 'value'),
+	Input('select_irma', 'options'))
+def set_irma_options(irma_options):
+	if not irma_options:
+		raise dash.exceptions.PreventUpdate
+	return irma_options[0]['value']
+
+@app.callback(
+	Output('df_cache', 'data'),
+	[Input('select_machine', 'value'),
+	Input('select_run', 'value'),
+	Input('select_irma', 'value')])
+def generate_df(machine, run, irma):
+	if not machine or not run or not irma:
+		raise dash.exceptions.PreventUpdate
+	irma_path = os.path.join(pathway, machine, run, irma)
+	print("irma_path = {}".format(irma_path))
+	df = irma2dash.dash_irma_coverage_df(irma_path) #argv[2]) #loadData('./test.csv')
+	#df.to_parquet(irma_path+'/coverage.parquet')
+	segments, segset, segcolor = returnSegData(df)
+	df4 = pivot4heatmap(df)
+	df4.to_csv(irma_path+'/mean_coverages.tsv', sep='\t', index=False)
+	if 'Coverage_Depth' in df4.columns:
+		cov_header = 'Coverage_Depth'
+	else:
+		cov_header = 'Coverage Depth'
+	sliderMax = df4[cov_header].max()
+	allFig = createAllCoverageFig(df, ','.join(segments), segcolor)
+	return json.dumps({'df':df.to_json(orient='split'), 
+						'df4':df4.to_json(orient='split'), 
+						'cov_header':cov_header, 
+						'sliderMax':sliderMax,
+						'segments':','.join(segments),
+						'segset':','.join(segset),
+						'segcolor':segcolor,
+						'allFig':allFig.to_json()})
+
+@app.callback(
+	[Output('illumina_demux_table', 'children'),
+	Output('demux_fig', 'figure')],
+	[Input('select_machine', 'value'),
+	Input('select_run', 'value')])
+def illumina_demux_table(machine, run):
+	if not machine or not run:
+		raise dash.exceptions.PreventUpdate
+	glob_string = '{}/Reports/html/*/all/all/all/*{}*'.format(os.path.join(pathway, machine, run), run)
+	f = glob(glob_string)
+	print('glob_string = {}'.format(glob_string))
+	print('illumina_demux_table = {}'.format(f[0]))
+	df = pd.read_html(f[0])[2]
+	fill_colors = conditional_color_range_perCol.discrete_background_color_bins(df, 10, ['PF Clusters', '% of thelane', '% Perfectbarcode', 'Yield (Mbases)', '% PFClusters', '% >= Q30bases', 'Mean QualityScore', '% One mismatchbarcode'])
+	#print(fill_colors)
+	#print(type(fill_colors))
+	table = html.Div([
+			dash_table.DataTable(
+				columns = [{"name": i, "id": i} for i in df.columns],
+				data = df.to_dict('records'),
+				sort_action='native',
+				style_data_conditional=fill_colors
+			)
+		])
+	fig = px.pie(df, values='PF Clusters', names='Sample')
+	fig.update_layout(margin=dict(t=10, b=10, l=10, r=10))
+	fig.update_traces(showlegend=False, textinfo='none')
+	return table, fig
+
+def returnSegData(df):
 	segments = df['Reference_Name'].unique()
 	try:
 		segset = [i.split('_')[1] for i in segments]
@@ -52,7 +145,7 @@ def returnSegData():
 				segcolor[segset[i]] = px.colors.qualitative.G10[i] 
 	return(segments, segset, segcolor)
 
-def pivot4heatmap():
+def pivot4heatmap(df):
 	if 'Coverage_Depth' in df.columns:
 		cov_header = 'Coverage_Depth'
 	else:
@@ -67,8 +160,8 @@ def pivot4heatmap():
 	#df5 = df4.pivot(columns='Sample', index='Segment', values='Coverage_Depth') # Correct format to use with px.imshow()
 	return(df4)
 
-def createheatmap(sliderMax=None):
-	if 'Coverage_Depth' in df.columns:
+def createheatmap(df4, sliderMax=None):
+	if 'Coverage_Depth' in df4.columns:
 		cov_header = 'Coverage_Depth'
 	else:
 		cov_header = 'Coverage Depth'
@@ -94,34 +187,30 @@ def createheatmap(sliderMax=None):
 	fig.update_xaxes(side='top')
 	return(fig)
 
-def createAllCoverageFig():
+def createAllCoverageFig(df, segments, segcolor):
 	if 'Coverage_Depth' in df.columns:
 		cov_header = 'Coverage_Depth'
 	else:
 		cov_header = 'Coverage Depth'
 	samples = df['Sample'].unique()
-
 	fig_numCols = 4
 	fig_numRows = ceil(len(samples) / fig_numCols)
-
 	pickCol = cycle(list(range(1,fig_numCols+1))) # next(pickCol)
 	pickRow = cycle(list(range(1, fig_numRows+1))) # next(pickRow)
-	
-	# Take every 10th row of data
-	df_thin = df.iloc[::10, :]
-
+	# Take every 20th row of data
+	df_thin = df.iloc[::20, :]
 	fig = make_subplots(
 			rows=fig_numRows,
 			cols=fig_numCols,
 			shared_xaxes='all',
+			shared_yaxes='all',
 			subplot_titles = (samples),
 			vertical_spacing = 0.02,
 			horizontal_spacing = 0.02
 			)
-
 	for s in samples:
 		r,c = next(pickRow), next(pickCol)
-		for g in segments:
+		for g in segments.split(','):
 			try:
 				g_base = g.split('_')[1]
 			except IndexError:
@@ -139,20 +228,25 @@ def createAllCoverageFig():
 				row = r,
 				col = c
 			)
+	def pick_total_height(num_samples):
+		if num_samples <= 40:
+			return 1200
+		else:
+			return 2400
 	fig.update_layout(
 		margin=dict(l=0, r=0, t=40, b=0),
-		height=1200,
+		height=pick_total_height(len(samples)),
 		showlegend=False)
 	return(fig)
 
-def createSampleCoverageFig(sample):
+def createSampleCoverageFig(sample, df, segments, segcolor):
 	if 'Coverage_Depth' in df.columns:
 		cov_header = 'Coverage_Depth'
 	else:
 		cov_header = 'Coverage Depth'
 	df2 = df[df['Sample'] == sample]
 	fig = go.Figure()
-	for g in segments:
+	for g in segments.split(','):
 		try:
 			g_base = g.split('_')[1]
 		except IndexError:
@@ -174,122 +268,47 @@ def createSampleCoverageFig(sample):
 		xaxis_title='Position')
 	return(fig)
 
-
-df = irma2dash.dash_irma_coverage_df(argv[1]) #loadData('./test.csv')
-df.to_parquet(argv[1]+'/coverage.parquet')
-#df.to_pickle(argv[1]+'/coverage.pkl')
-
-segments, segset, segcolor = returnSegData()
-df4 = pivot4heatmap()
-df4.to_csv(argv[1]+'/mean_coverages.tsv', sep='\t', index=False)
-if 'Coverage_Depth' in df4.columns:
-	cov_header = 'Coverage_Depth'
-else:
-	cov_header = 'Coverage Depth'
-sliderMax = df4[cov_header].max()
-allFig = createAllCoverageFig()
-
-@app.callback(Output('output-data-upload', 'children'),
-	Input('upload-data', 'contents'),
-	State('upload-data', 'filename'),
-	State('upload-data', 'last_modified'))
-def update_output(list_of_contents, list_of_names, list_of_dates):
-	if list_of_contents is not None:
-		children = [
-			parse_contents(c, n, d) for c, n, d in
-			zip(list_of_contents, list_of_names, list_of_dates)]
-		return children
-
 @app.callback(
-	dash.dependencies.Output('coverage-heat', 'figure'),
-	[dash.dependencies.Input('heatmap-slider', 'value')])
-def callback_heatmap(maximumValue):
+	Output('coverage-heat', 'figure'),
+	[Input('heatmap-slider', 'value'),
+	Input('df_cache', 'data')])
+def callback_heatmap(maximumValue, data):
 	#return(createheatmap(int(slider_marks[str(maximumValue)])))
-	return(createheatmap(maximumValue))
+	df = pd.read_json(json.loads(data)['df4'], orient='split')
+	return(createheatmap(df, maximumValue))
 
 previousClick, returnClick = 0,0
 @app.callback(
-	dash.dependencies.Output('coverage', 'figure'),
-	[dash.dependencies.Input('coverage-heat', 'clickData'),
-	dash.dependencies.Input('backButton', 'n_clicks')])
-def callback_coverage(plotClick, buttonClick):
+	Output('coverage', 'figure'),
+	[Input('coverage-heat', 'clickData'),
+	Input('backButton', 'n_clicks'),
+	Input('df_cache', 'data')])
+def callback_coverage(plotClick, buttonClick, data):
+	df = pd.read_json(json.loads(data)['df'], orient='split')
+	allFig = pio.from_json(json.loads(data)['allFig'])
 	global segcolor, previousClick, returnClick
+	segments = json.loads(data)['segments']
+	segcolor = json.loads(data)['segcolor']
 	returnClick = buttonClick
-	print(plotClick)
 	if returnClick is None:
 		returnClick = 0
-	print("return={}\tprevious={}".format(returnClick, previousClick))
 	if plotClick is None or returnClick > previousClick:
 		previousClick = returnClick
 		return(allFig)
 	elif plotClick['points'][0]['x'] != 'all':
 		s = plotClick['points'][0]['x']
-		return(createSampleCoverageFig(s))	
+		return(createSampleCoverageFig(s, df, segments, segcolor))	
 	return(fig)
 
-
 ########################################################
-###################### LAYOUT ##########################
+#################### LAYOUT TABS #######################
 ########################################################
-
-# Layout Functions
-def slider_marks(maxvalue):
-	linearStep = 1
-	i = 1
-	marks = {str(linearStep):str(i)}
-	while i <= maxvalue:
-		linearStep += 1
-		i = i*10
-		marks[str(linearStep)] = str(i)
-	return(marks)
-
-slider_marks = slider_marks(sliderMax)
-slider_marks_r = {}
-for k,v in slider_marks.items():
-	slider_marks_r[v] = k
-#print(slider_marks)
-#print(slider_marks_r)
-
-app.layout = dbc.Container(
-	fluid=True,
-	children=
-	[
-		dcc.Store(id='store'),
-		html.Img(
-			src=app.get_asset_url('irma-spy.jpg'),
-			height=80,
-			width=80,
-		),
-		#dbc.Button("Choose IRMA directory", id="open", n_clicks=0),
-		#dbc.Input(
-		#	id="irma_directory",
-		#	placeholder="Input full path to IRMA output directories",
-		#	type="text"
-		#),
-		dcc.Upload(
-			id='irma_path',
-			children=html.A('Select DASH.CONNECT file')
-		),
-		#html.Hr(),
-		dbc.Tabs(
-			[
-				dbc.Tab(label='Summary', tab_id='summary'),
-				dbc.Tab(label='Coverage', tab_id='coverage')
-			],
-			id='tabs',
-			active_tab='coverage'
-		),
-		html.Div(id='tab-content')
-	]
-)
-
 @app.callback(
 	Output('tab-content', 'children'),
 	[Input('tabs', 'active_tab'), 
 	Input('store', 'data')]
 )
 def render_tab_content(active_tab, data):
-	print(data)
 	if active_tab:# and data is not None:
 		if active_tab == 'summary':
 			content = dcc.Loading(
@@ -297,7 +316,10 @@ def render_tab_content(active_tab, data):
 				type='cube',
 				children=[
 					dcc.Graph(
-						id='summary-fig'
+						id='demux_fig'
+					),
+					html.Div(
+						id='illumina_demux_table'
 					)
 				]
 			)
@@ -354,5 +376,59 @@ def render_tab_content(active_tab, data):
 			return content
 
 
+
+########################################################
+###################### LAYOUT ##########################
+########################################################
+
+app.layout = dbc.Container(
+	fluid=True,
+	children=
+	[
+		dcc.Store(id='df_cache'),
+		dcc.Store(id='store'),
+		html.Div([
+			dbc.Row([
+				dbc.Col(
+						html.Img(
+							src=app.get_asset_url('irma-spy.jpg'),
+							height=80,
+							width=80,
+						),
+				),
+				dbc.Col(
+						dcc.Dropdown(id='select_machine',
+							options=[{'label':i, 'value':i} for i in sorted(os.listdir(pathway))],
+							placeholder='Select sequencing instrument: ',
+							persistence=True
+						),
+				),
+				dbc.Col(
+						dcc.Dropdown(id='select_run',
+							placeholder='Select run directory: ',
+						),
+				),
+				dbc.Col(
+						dcc.Dropdown(id='select_irma',
+							placeholder='Select IRMA output directory: ',
+						),
+				)
+			]),
+		]),
+		dbc.Tabs(
+			[
+				dbc.Tab(label='Summary', tab_id='summary'),
+				dbc.Tab(label='Coverage', tab_id='coverage')
+			],
+			id='tabs',
+			active_tab='summary'
+		),
+		html.Div(id='tab-content')
+	]
+)
+
+####################################################
+####################### MAIN #######################
+####################################################
 if __name__ == '__main__':
 	app.run_server(host= '0.0.0.0', debug=True)
