@@ -25,6 +25,7 @@ import os
 import yaml
 import json
 from glob import glob
+from numpy import arange
 path.append(dirname(realpath(__file__))+'/scripts/')
 import irma2dash
 import conditional_color_range_perCol
@@ -83,8 +84,8 @@ def generate_df(machine, run, irma):
 	if not machine or not run or not irma:
 		raise dash.exceptions.PreventUpdate
 	irma_path = os.path.join(pathway, machine, run, irma)
-	print("irma_path = {}".format(irma_path))
 	df = irma2dash.dash_irma_coverage_df(irma_path) #argv[2]) #loadData('./test.csv')
+	read_df = irma2dash.dash_irma_reads_df(irma_path)
 	#df.to_parquet(irma_path+'/coverage.parquet')
 	segments, segset, segcolor = returnSegData(df)
 	df4 = pivot4heatmap(df)
@@ -95,6 +96,8 @@ def generate_df(machine, run, irma):
 		cov_header = 'Coverage Depth'
 	sliderMax = df4[cov_header].max()
 	allFig = createAllCoverageFig(df, ','.join(segments), segcolor)
+	print('creating irma_read_fig')
+	irma_read_fig = create_irma_read_fig(read_df)
 	return json.dumps({'df':df.to_json(orient='split'), 
 						'df4':df4.to_json(orient='split'), 
 						'cov_header':cov_header, 
@@ -102,7 +105,8 @@ def generate_df(machine, run, irma):
 						'segments':','.join(segments),
 						'segset':','.join(segset),
 						'segcolor':segcolor,
-						'allFig':allFig.to_json()})
+						'allFig':allFig.to_json(),
+						'irma_reads_fig':irma_read_fig.to_json()})
 
 @app.callback(
 	[Output('illumina_demux_table', 'children'),
@@ -114,12 +118,8 @@ def illumina_demux_table(machine, run):
 		raise dash.exceptions.PreventUpdate
 	glob_string = '{}/Reports/html/*/all/all/all/*{}*'.format(os.path.join(pathway, machine, run), run)
 	f = glob(glob_string)
-	print('glob_string = {}'.format(glob_string))
-	print('illumina_demux_table = {}'.format(f[0]))
 	df = pd.read_html(f[0])[2]
 	fill_colors = conditional_color_range_perCol.discrete_background_color_bins(df, 10, ['PF Clusters', '% of thelane', '% Perfectbarcode', 'Yield (Mbases)', '% PFClusters', '% >= Q30bases', 'Mean QualityScore', '% One mismatchbarcode'])
-	#print(fill_colors)
-	#print(type(fill_colors))
 	table = html.Div([
 			dash_table.DataTable(
 				columns = [{"name": i, "id": i} for i in df.columns],
@@ -133,6 +133,45 @@ def illumina_demux_table(machine, run):
 	fig.update_traces(showlegend=False, textinfo='none')
 	return table, fig
 
+def create_irma_read_fig(df):
+	columns = 12
+	rows = 24
+	s = '{"type":"domain"} ' * columns
+	specs = []
+	for i in range(0,rows):
+		specs.append([json.loads(a) for a in s.split()])
+	fig = make_subplots(rows, columns, specs=specs)
+	col_n, row_n = cycle([i for i in range(1,columns+1)]), cycle([i for i in range(1,rows+1)])
+	#anno_x, anno_y = cycle([i for i in arange(0,1,1/(columns/3+1))][1:]), cycle([i+0.01 for i in arange(0,1,1/rows)])
+	counter = 0
+	annotations = []
+	for sample in set(list(df['Sample'])):
+		counter += 1
+		if counter % 4 == 1:
+			r = next(row_n)
+		#	y = next(anno_y)
+		#x = next(anno_x)
+		stage_counter = 0
+		for stage in [[2], [3], [4,5]]:
+			c = next(col_n)
+			stage_counter += 1
+			#if stage_counter % 3 == 2:
+			#	annotations.append(dict(text=sample, x=x, y=y, font_size=14))
+			d2 = df[(df['Stage'].isin(stage)) & (df['Sample'] == sample)]
+			fig.add_trace(go.Pie(values=d2['Reads'], labels=d2['Record'], name=sample, meta=[sample],
+								hovertemplate="%{meta[0]} <br> %{label} </br> <br> %{percent} </br> %{value} reads extra></extra> "),
+							row=r, col=c)
+	fig.update_layout(margin=dict(t=0, b=0, l=0, r=0), 
+						height=3200, 
+						hoverlabel=dict(bgcolor='white', 
+										font_size=16, 
+										namelength=-1
+									)#,
+					)
+	fig.update_traces(showlegend=False, textinfo='none')
+	return fig
+		
+
 def returnSegData(df):
 	segments = df['Reference_Name'].unique()
 	try:
@@ -143,7 +182,7 @@ def returnSegData(df):
 	segcolor = {}
 	for i in range(0, len(segset)):
 				segcolor[segset[i]] = px.colors.qualitative.G10[i] 
-	return(segments, segset, segcolor)
+	return segments, segset, segcolor
 
 def pivot4heatmap(df):
 	if 'Coverage_Depth' in df.columns:
@@ -158,7 +197,7 @@ def pivot4heatmap(df):
 		df3[['Segment']] = df3['Reference_Name']
 	df4 = df3[['Sample', 'Segment', cov_header]]
 	#df5 = df4.pivot(columns='Sample', index='Segment', values='Coverage_Depth') # Correct format to use with px.imshow()
-	return(df4)
+	return df4
 
 def createheatmap(df4, sliderMax=None):
 	if 'Coverage_Depth' in df4.columns:
@@ -203,7 +242,7 @@ def createAllCoverageFig(df, segments, segcolor):
 			rows=fig_numRows,
 			cols=fig_numCols,
 			shared_xaxes='all',
-			shared_yaxes='all',
+			shared_yaxes=False,
 			subplot_titles = (samples),
 			vertical_spacing = 0.02,
 			horizontal_spacing = 0.02
@@ -294,11 +333,19 @@ def callback_coverage(plotClick, buttonClick, data):
 		returnClick = 0
 	if plotClick is None or returnClick > previousClick:
 		previousClick = returnClick
-		return(allFig)
+		return allFig
 	elif plotClick['points'][0]['x'] != 'all':
 		s = plotClick['points'][0]['x']
 		return(createSampleCoverageFig(s, df, segments, segcolor))	
-	return(fig)
+	return fig
+
+@app.callback(
+	Output('irma-reads', 'figure'),
+	Input('df_cache', 'data'))
+def callback_irma_read_fig(data):
+	print('callback_irma_read_fig triggered')
+	fig = pio.from_json(json.loads(data)['irma_reads_fig'])
+	return fig
 
 ########################################################
 #################### LAYOUT TABS #######################
@@ -310,9 +357,9 @@ def callback_coverage(plotClick, buttonClick, data):
 )
 def render_tab_content(active_tab, data):
 	if active_tab:# and data is not None:
-		if active_tab == 'summary':
+		if active_tab == 'demux':
 			content = dcc.Loading(
-				id='summary-loading',
+				id='demux-loading',
 				type='cube',
 				children=[
 					dcc.Graph(
@@ -320,6 +367,17 @@ def render_tab_content(active_tab, data):
 					),
 					html.Div(
 						id='illumina_demux_table'
+					)
+				]
+			)
+			return content
+		elif active_tab == 'irma':
+			content = dcc.Loading(
+				id='irma-loading',
+				type='cube',
+				children=[
+					dcc.Graph(
+						id='irma-reads'
 					)
 				]
 			)
@@ -417,11 +475,12 @@ app.layout = dbc.Container(
 		]),
 		dbc.Tabs(
 			[
-				dbc.Tab(label='Summary', tab_id='summary'),
+				dbc.Tab(label='Demux', tab_id='demux'),
+				dbc.Tab(label='IRMA', tab_id='irma'),
 				dbc.Tab(label='Coverage', tab_id='coverage')
 			],
 			id='tabs',
-			active_tab='summary'
+			active_tab='demux'
 		),
 		html.Div(id='tab-content')
 	]
