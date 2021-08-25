@@ -49,13 +49,11 @@ def select_run(machine):
 
 @app.callback(
 	[Output('select_run', 'value')],
-	#Output('select_run', 'persistence')],
 	Input('select_run', 'options'))
 def set_run_options(run_options):
 	if not run_options:
 		raise dash.exceptions.PreventUpdate
-	#persistence = run_options[-1]['value']
-	return run_options[0]['value']#, persistence
+	return run_options[0]['value']
 
 @app.callback(
 	Output('select_irma', 'options'),
@@ -86,7 +84,6 @@ def generate_df(machine, run, irma):
 	irma_path = os.path.join(pathway, machine, run, irma)
 	df = irma2dash.dash_irma_coverage_df(irma_path) #argv[2]) #loadData('./test.csv')
 	read_df = irma2dash.dash_irma_reads_df(irma_path)
-	#df.to_parquet(irma_path+'/coverage.parquet')
 	segments, segset, segcolor = returnSegData(df)
 	df4 = pivot4heatmap(df)
 	df4.to_csv(irma_path+'/mean_coverages.tsv', sep='\t', index=False)
@@ -142,31 +139,26 @@ def create_irma_read_fig(df):
 		specs.append([json.loads(a) for a in s.split()])
 	fig = make_subplots(rows, columns, specs=specs)
 	col_n, row_n = cycle([i for i in range(1,columns+1)]), cycle([i for i in range(1,rows+1)])
-	#anno_x, anno_y = cycle([i for i in arange(0,1,1/(columns/3+1))][1:]), cycle([i+0.01 for i in arange(0,1,1/rows)])
 	counter = 0
 	annotations = []
 	for sample in set(list(df['Sample'])):
 		counter += 1
 		if counter % 4 == 1:
 			r = next(row_n)
-		#	y = next(anno_y)
-		#x = next(anno_x)
 		stage_counter = 0
 		for stage in [[2], [3], [4,5]]:
 			c = next(col_n)
 			stage_counter += 1
-			#if stage_counter % 3 == 2:
-			#	annotations.append(dict(text=sample, x=x, y=y, font_size=14))
 			d2 = df[(df['Stage'].isin(stage)) & (df['Sample'] == sample)]
 			fig.add_trace(go.Pie(values=d2['Reads'], labels=d2['Record'], name=sample, meta=[sample],
-								hovertemplate="%{meta[0]} <br> %{label} </br> <br> %{percent} </br> %{value} reads extra></extra> "),
+								hovertemplate="%{meta[0]} <br> %{label} </br> <br> %{percent} </br> %{value} reads <extra></extra> "),
 							row=r, col=c)
 	fig.update_layout(margin=dict(t=0, b=0, l=0, r=0), 
 						height=3200, 
 						hoverlabel=dict(bgcolor='white', 
 										font_size=16, 
 										namelength=-1
-									)#,
+									)
 					)
 	fig.update_traces(showlegend=False, textinfo='none')
 	return fig
@@ -196,7 +188,6 @@ def pivot4heatmap(df):
 	except ValueError:
 		df3[['Segment']] = df3['Reference_Name']
 	df4 = df3[['Sample', 'Segment', cov_header]]
-	#df5 = df4.pivot(columns='Sample', index='Segment', values='Coverage_Depth') # Correct format to use with px.imshow()
 	return df4
 
 def createheatmap(df4, sliderMax=None):
@@ -204,11 +195,8 @@ def createheatmap(df4, sliderMax=None):
 		cov_header = 'Coverage_Depth'
 	else:
 		cov_header = 'Coverage Depth'
-	#df4 = pivot4heatmap()
 	if sliderMax is None:
 		sliderMax = df4[cov_header].max()
-	#else:
-	#	sliderMax = slider_marks_r[sliderMax]
 	fig = go.Figure(
 			data=go.Heatmap( #px.imshow(df5
 				x=list(df4['Sample']),
@@ -312,7 +300,6 @@ def createSampleCoverageFig(sample, df, segments, segcolor):
 	[Input('heatmap-slider', 'value'),
 	Input('df_cache', 'data')])
 def callback_heatmap(maximumValue, data):
-	#return(createheatmap(int(slider_marks[str(maximumValue)])))
 	df = pd.read_json(json.loads(data)['df4'], orient='split')
 	return(createheatmap(df, maximumValue))
 
