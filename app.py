@@ -20,7 +20,7 @@ from math import ceil, log10
 from itertools import cycle
 import pickle
 from sys import path, argv
-from os.path import dirname, realpath
+from os.path import dirname, realpath, isdir
 import os
 import yaml
 import json
@@ -72,6 +72,14 @@ def set_irma_options(irma_options):
 	if not irma_options:
 		raise dash.exceptions.PreventUpdate
 	return irma_options[0]['value']
+
+@app.callback(
+	Output('select_sample', 'options'),
+	Input('df_cache', 'data'))
+def select_sample(data):
+	df = pd.read_json(json.loads(data)['df4'], orient='split')
+	options = [{'label':i, 'value':i} for i in df['Sample']]
+	return options
 
 @app.callback(
 	Output('df_cache', 'data'),
@@ -324,7 +332,7 @@ def callback_coverage(plotClick, buttonClick, data):
 	elif plotClick['points'][0]['x'] != 'all':
 		s = plotClick['points'][0]['x']
 		return(createSampleCoverageFig(s, df, segments, segcolor))	
-	return fig
+	#return fig
 
 @app.callback(
 	Output('irma-reads', 'figure'),
@@ -333,6 +341,19 @@ def callback_irma_read_fig(data):
 	print('callback_irma_read_fig triggered')
 	fig = pio.from_json(json.loads(data)['irma_reads_fig'])
 	return fig
+
+
+@app.callback(
+	Output('onesamplefigs', 'children'),
+	[Input('select_sample', 'value'),
+	Input('df_cache', 'data')])
+def callback_coverage(sample, data):
+	df = pd.read_json(json.loads(data)['df'], orient='split')
+	segments = json.loads(data)['segments']
+	segcolor = json.loads(data)['segcolor']
+	coveragefig = createSampleCoverageFig(sample, df, segments, segcolor)
+	#createirmareadfig
+	#make html with both
 
 ########################################################
 #################### LAYOUT TABS #######################
@@ -392,7 +413,6 @@ def render_tab_content(active_tab, data):
 							max=1000,
 							min=100,
 							value=100,
-							#handleLabel={"showCurrentValue": True,"label": "MAX", 'style':{}},
 							step=50,
 							vertical=True,
 							persistence=True,
@@ -418,6 +438,10 @@ def render_tab_content(active_tab, data):
 				)
 				]
 			)
+			return content
+		elif active_tab == 'onebyone':
+			print('active tab = {}'.format(active_tab))
+			content = dcc.Dropdown(id='select_sample')
 			return content
 
 
@@ -464,7 +488,8 @@ app.layout = dbc.Container(
 			[
 				dbc.Tab(label='Demux', tab_id='demux'),
 				dbc.Tab(label='IRMA', tab_id='irma'),
-				dbc.Tab(label='Coverage', tab_id='coverage')
+				dbc.Tab(label='Coverage', tab_id='coverage'),
+				dbc.Tab(label='One Sample', tab_id='onebyone')
 			],
 			id='tabs',
 			active_tab='demux'
