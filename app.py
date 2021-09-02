@@ -26,6 +26,7 @@ import yaml
 import json
 from glob import glob
 from numpy import arange
+from flask_caching import Cache
 path.append(dirname(realpath(__file__))+'/scripts/')
 import irma2dash
 import conditional_color_range_perCol
@@ -33,6 +34,11 @@ import conditional_color_range_perCol
 app = dash.Dash(external_stylesheets=[dbc.themes.FLATLY])
 app.title = 'IRMA SPY'
 app.config['suppress_callback_exceptions'] = True
+
+cache = Cache(app.server, config={
+    'CACHE_TYPE': 'filesystem',
+    'CACHE_DIR': 'cache-directory'
+})
 
 with open(argv[1], 'r') as y:
 	CONFIG = yaml.safe_load(y)
@@ -78,14 +84,43 @@ def set_irma_options(irma_options):
 	Input('df_cache', 'data'))
 def select_sample(data):
 	df = pd.read_json(json.loads(data)['df4'], orient='split')
-	options = [{'label':i, 'value':i} for i in df['Sample']]
+	options = [{'label':i, 'value':i} for i in df['Sample'].unique()]
 	return options
+
+@app.callback(
+	Output('single_sample_figs', 'children'),
+	[Input('df_cache', 'data'),
+	Input('select_sample', 'value')])
+def single_sample_fig(data, sample):
+	if not data or not sample:
+		raise dash.exceptions.PreventUpdate
+	df = pd.read_json(json.loads(data)['read_df'], orient='split')
+	df = df[df['Sample'] == sample]
+	sankeyfig = irma2dash.dash_reads_to_sankey(df)
+	df = pd.read_json(json.loads(data)['df'], orient='split')
+	segments, segcolor = json.loads(data)['segments'], json.loads(data)['segcolor']
+	coveragefig = createSampleCoverageFig(sample, df, segments, segcolor)
+	content = html.Div(
+                [dbc.Row(
+                    [dbc.Col(dcc.Graph(figure=sankeyfig),
+                        	width=4,
+                        	align='start')
+                    ,
+					dbc.Col(dcc.Graph(figure=coveragefig),
+						width=8,
+						align='center')
+					],
+					no_gutters=True
+				 )]
+			  )
+	return content
 
 @app.callback(
 	Output('df_cache', 'data'),
 	[Input('select_machine', 'value'),
 	Input('select_run', 'value'),
 	Input('select_irma', 'value')])
+@cache.memoize()
 def generate_df(machine, run, irma):
 	if not machine or not run or not irma:
 		raise dash.exceptions.PreventUpdate
@@ -105,6 +140,7 @@ def generate_df(machine, run, irma):
 	irma_read_fig = create_irma_read_fig(read_df)
 	return json.dumps({'df':df.to_json(orient='split'), 
 						'df4':df4.to_json(orient='split'), 
+						'read_df':read_df.to_json(orient='split'), 
 						'cov_header':cov_header, 
 						'sliderMax':sliderMax,
 						'segments':','.join(segments),
@@ -441,7 +477,10 @@ def render_tab_content(active_tab, data):
 			return content
 		elif active_tab == 'onebyone':
 			print('active tab = {}'.format(active_tab))
-			content = dcc.Dropdown(id='select_sample')
+			content = html.Div(
+						[dcc.Dropdown(id='select_sample', persistence=True),
+						html.Div(id='single_sample_figs')]
+					  )
 			return content
 
 

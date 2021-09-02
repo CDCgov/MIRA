@@ -1,49 +1,74 @@
 import pandas as pd
 from os.path import dirname, basename, isfile
 from glob import glob
+import plotly.express as px
+from re import findall
+import plotly.graph_objects as go
 
-def dash_reads_to_sankey(reads_df):
+def seg(s):
+	return findall(r'HA|NA|MP|NP|NS|PA|PB1|PB2',s) 
+
+def returnStageColors(df):
+	df = df[df['Stage'].isin([4,5])]
+	recs = list(set([seg(i)[0] for i in list(df['Record'])]))
+	reccolor = {}
+	for i in range(0, len(recs)):
+		reccolor[recs[i]] = px.colors.qualitative.G10[i]
+	return reccolor
+
+def dash_reads_to_sankey(df):
+	df = df[df['Stage'] != 0]
+	reccolor = returnStageColors(df)
 	labels = list(df['Record'])
-	x_pos = []
-	y_pos = []
-	x_dic = {'0':0,'1':0.2,'2':0.4,'3':0.6, '4':0.8, '5':0.8}
+	x_pos, y_pos, color = [], [], []
 	for i in labels:
-		x_pos.append(x_dic[i[0]])
-		y_pos.append(0.5)
-	label_dic = {}
-	for i in range(0,len(labels)):
-		label_dic[labels[i]] = i
-	source, target, value = [], [], []
+		if i[0] == '1':
+			x_pos.append(0.05)
+			y_pos.append(0.1)
+			color.append('#8A8A8A')
+		elif i[0] == '2':
+			x_pos.append(0.2)
+			y_pos.append(0.1)
+			color.append('#8A8A8A')
+		elif i[0] == '3':
+			x_pos.append(0.35)
+			y_pos.append(0.1)
+			color.append('#8A8A8A')
+		else:
+			x_pos.append(0.95)
+			y_pos.append(0.01)
+			color.append(reccolor[seg(i)[0]])
+	source, target, value= [], [], []
 	for index, row in df.iterrows():
 		if row['Stage'] == 4 or row['Stage'] == 5:
-			source.append(label_dic['3-match'])
-			target.append(label_dic[row['Record']])
+			source.append(labels.index('3-match'))
+			target.append(labels.index(row['Record'])) 
 			value.append(row['Reads'])
-	for index, row in df.iterrows():
-		if row['Stage'] == 3:
-			source.append(label_dic['2-passQC'])
-			target.append(label_dic[row['Record']])
+		elif row['Stage'] == 3:
+			source.append(labels.index('2-passQC'))
+			target.append(labels.index(row['Record'])) 
 			value.append(row['Reads'])
-	for index, row in df.iterrows():
-		if row['Stage'] == 2:
-			source.append(label_dic['1-initial'])
-			target.append(label_dic[row['Record']])
+		elif row['Stage'] == 2:
+			source.append(labels.index('1-initial')) 
+			target.append(labels.index(row['Record']))
 			value.append(row['Reads'])
 	fig = go.Figure(data=[go.Sankey(
 		arrangement='snap',
 		node = dict(
 		  pad = 15,
 		  thickness = 20,
-		  line = dict(color = "black", width = 0.5),
 		  label = labels,
 		  x = x_pos,
 		  y = y_pos,
-		  color = "blue"
+		  color = color,
+		  hovertemplate = '%{label} %{value} reads <extra></extra>'
 		),
 		link = dict(
 		  source = source, 
 		  target = target,
-		  value = value
+		  value = value,
+		  color = color[1:],
+		  hovertemplate = '<extra></extra>'
 	  ))])
 	return fig
 
