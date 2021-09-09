@@ -7,6 +7,7 @@ import dash
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
+import dash_bio as dbio
 #import dash_flexbox_grid as dfx
 from dash.dependencies import Input, Output, State
 import dash_daq as daq
@@ -35,10 +36,12 @@ app = dash.Dash(external_stylesheets=[dbc.themes.FLATLY])
 app.title = 'IRMA SPY'
 app.config['suppress_callback_exceptions'] = True
 
+cache_timeout = 60*60*24
 cache = Cache(app.server, config={
     'CACHE_TYPE': 'filesystem',
     'CACHE_DIR': 'cache-directory'
 })
+cache.clear()
 
 with open(argv[1], 'r') as y:
 	CONFIG = yaml.safe_load(y)
@@ -50,7 +53,7 @@ pathway = CONFIG['PATHWAY']
 def select_run(machine):
 	if not machine or machine == 'Select sequencing instrument: ':
 		raise dash.exceptions.PreventUpdate
-	options = [{'label':i, 'value':i} for i in sorted(os.listdir(os.path.join(pathway ,machine)))] #filesInFolderTree(os.path.join(pathway, machine))]
+	options = [{'label':i, 'value':i} for i in sorted(os.listdir(os.path.join(pathway ,machine))) if i[0] != '.'] #filesInFolderTree(os.path.join(pathway, machine))]
 	return options
 
 @app.callback(
@@ -79,48 +82,86 @@ def set_irma_options(irma_options):
 		raise dash.exceptions.PreventUpdate
 	return irma_options[0]['value']
 
+previousClick = 0
 @app.callback(
-	Output('select_sample', 'options'),
-	Input('df_cache', 'data'))
-def select_sample(data):
-	df = pd.read_json(json.loads(data)['df4'], orient='split')
-	options = [{'label':i, 'value':i} for i in df['Sample'].unique()]
-	return options
+	[Output('select_sample', 'options'),
+	Output('select_sample', 'value')],
+	[Input('coverage-heat', 'clickData'),
+	Input('select_machine', 'value'),
+	Input('select_run', 'value'),
+	Input('select_irma', 'value')])
+@cache.memoize(timeout=cache_timeout)
+def select_sample(plotClick, machine, run, irma):
+	#df = pd.read_json(json.loads(data)['df4'], orient='split')
+	df = pd.read_json(json.loads(generate_df(machine, run, irma))['df4'], orient='split')
+	samples = df['Sample'].unique()
+	samples.sort()
+	options = [{'label':i, 'value':i} for i in samples]
+	global previousClick
+	if not plotClick:
+		value = samples[0]
+	elif plotClick == previousClick:
+		sample = sample
+	elif plotClick['points'][0]['x'] != 'all':
+		previousClick = plotClick
+		value = plotClick['points'][0]['x']
+	return options, value
+
+#@app.callback(
+#	Output('select_sample', 'value'),
+#	Input('select_sample', 'options'))
+#def set_irma_options(sample_options):
+#	if not sample_options:
+#		raise dash.exceptions.PreventUpdate
+#	return sample_options[0]['value']
 
 @app.callback(
 	Output('single_sample_figs', 'children'),
-	[Input('df_cache', 'data'),
+	[Input('select_machine', 'value'),
+	Input('select_run', 'value'),
+	Input('select_irma', 'value'),
 	Input('select_sample', 'value')])
-def single_sample_fig(data, sample):
-	if not data or not sample:
+@cache.memoize(timeout=cache_timeout)
+def single_sample_fig(machine, run, irma, sample):
+	#print('single_sample_callback triggered mahine={}, run={}, irma={}, sample={}'.format(machine,run,irma,sample))
+	if not machine or not run or not irma or not sample:
+		print('exception raised')
 		raise dash.exceptions.PreventUpdate
-	df = pd.read_json(json.loads(data)['read_df'], orient='split')
+	#print('reading read_df')
+	df = pd.read_json(json.loads(generate_df(machine, run, irma))['read_df'], orient='split')
+	#print('done')
 	df = df[df['Sample'] == sample]
+	#print(df)
 	sankeyfig = irma2dash.dash_reads_to_sankey(df)
-	df = pd.read_json(json.loads(data)['df'], orient='split')
-	segments, segcolor = json.loads(data)['segments'], json.loads(data)['segcolor']
+	#print(sankeyfig)
+	df = pd.read_json(json.loads(generate_df(machine, run, irma))['df'], orient='split')
+	#print(df)
+	#df = pd.read_json(json.loads(data)['df'], orient='split')
+	segments = json.loads(generate_df(machine, run, irma))['segments']
+	segcolor = json.loads(generate_df(machine, run, irma))['segcolor']
+	#segments, segcolor = json.loads(data)['segments'], json.loads(data)['segcolor']
 	coveragefig = createSampleCoverageFig(sample, df, segments, segcolor)
-	content = html.Div(
-                [dbc.Row(
+	#content = html.Div(
+	content = dbc.Row(
                     [dbc.Col(dcc.Graph(figure=sankeyfig),
                         	width=4,
-                        	align='start')
-                    ,
+                        	align='start'),
 					dbc.Col(dcc.Graph(figure=coveragefig),
 						width=8,
 						align='center')
 					],
 					no_gutters=True
-				 )]
-			  )
+				 )
+			#  )
+	#print(content)
 	return content
 
-@app.callback(
-	Output('df_cache', 'data'),
-	[Input('select_machine', 'value'),
-	Input('select_run', 'value'),
-	Input('select_irma', 'value')])
-@cache.memoize()
+#@app.callback(
+#	Output('df_cache', 'data'),
+#	[Input('select_machine', 'value'),
+#	Input('select_run', 'value'),
+#	Input('select_irma', 'value')])
+@cache.memoize(timeout=cache_timeout)
 def generate_df(machine, run, irma):
 	if not machine or not run or not irma:
 		raise dash.exceptions.PreventUpdate
@@ -154,6 +195,7 @@ def generate_df(machine, run, irma):
 	Output('demux_fig', 'figure')],
 	[Input('select_machine', 'value'),
 	Input('select_run', 'value')])
+@cache.memoize(timeout=cache_timeout)
 def illumina_demux_table(machine, run):
 	if not machine or not run:
 		raise dash.exceptions.PreventUpdate
@@ -208,6 +250,7 @@ def create_irma_read_fig(df):
 	return fig
 		
 
+@cache.memoize(timeout=cache_timeout)
 def returnSegData(df):
 	segments = df['Reference_Name'].unique()
 	try:
@@ -220,6 +263,7 @@ def returnSegData(df):
 				segcolor[segset[i]] = px.colors.qualitative.G10[i] 
 	return segments, segset, segcolor
 
+@cache.memoize(timeout=cache_timeout)
 def pivot4heatmap(df):
 	if 'Coverage_Depth' in df.columns:
 		cov_header = 'Coverage_Depth'
@@ -234,6 +278,7 @@ def pivot4heatmap(df):
 	df4 = df3[['Sample', 'Segment', cov_header]]
 	return df4
 
+@cache.memoize(timeout=cache_timeout)
 def createheatmap(df4, sliderMax=None):
 	if 'Coverage_Depth' in df4.columns:
 		cov_header = 'Coverage_Depth'
@@ -310,6 +355,7 @@ def createAllCoverageFig(df, segments, segcolor):
 		showlegend=False)
 	return(fig)
 
+@cache.memoize(timeout=cache_timeout)
 def createSampleCoverageFig(sample, df, segments, segcolor):
 	if 'Coverage_Depth' in df.columns:
 		cov_header = 'Coverage_Depth'
@@ -342,54 +388,73 @@ def createSampleCoverageFig(sample, df, segments, segcolor):
 @app.callback(
 	Output('coverage-heat', 'figure'),
 	[Input('heatmap-slider', 'value'),
-	Input('df_cache', 'data')])
-def callback_heatmap(maximumValue, data):
-	df = pd.read_json(json.loads(data)['df4'], orient='split')
+	Input('select_machine', 'value'),
+	Input('select_run', 'value'),
+	Input('select_irma', 'value')])
+@cache.memoize(timeout=cache_timeout)
+def callback_heatmap(maximumValue, machine, run, irma):
+	df = pd.read_json(json.loads(generate_df(machine, run, irma))['df4'], orient='split')
+	#df = pd.read_json(json.loads(data)['df4'], orient='split')
 	return(createheatmap(df, maximumValue))
 
-previousClick, returnClick = 0,0
 @app.callback(
-	Output('coverage', 'figure'),
-	[Input('coverage-heat', 'clickData'),
-	Input('backButton', 'n_clicks'),
-	Input('df_cache', 'data')])
-def callback_coverage(plotClick, buttonClick, data):
-	df = pd.read_json(json.loads(data)['df'], orient='split')
-	allFig = pio.from_json(json.loads(data)['allFig'])
-	global segcolor, previousClick, returnClick
-	segments = json.loads(data)['segments']
-	segcolor = json.loads(data)['segcolor']
-	returnClick = buttonClick
-	if returnClick is None:
-		returnClick = 0
-	if plotClick is None or returnClick > previousClick:
-		previousClick = returnClick
-		return allFig
-	elif plotClick['points'][0]['x'] != 'all':
-		s = plotClick['points'][0]['x']
-		return(createSampleCoverageFig(s, df, segments, segcolor))	
-	#return fig
+	Output('select_gene', 'options'),
+	[Input('select_machine', 'value'),
+	Input('select_run', 'value'),
+	Input('select_irma', 'value')])
+def select_run(machine, run, irma):
+	if not machine or not run or not irma:
+		raise dash.exceptions.PreventUpdate
+	options = [{'label':i.split('.')[0], 'value':i.split('.')[0]} for i in sorted(os.listdir(os.path.join(pathway ,machine, run,irma))) if 'consensus' not in i and 'fasta' in i ] #filesInFolderTree(os.path.join(pathway, machine))]
+	return options
 
 @app.callback(
-	Output('irma-reads', 'figure'),
-	Input('df_cache', 'data'))
-def callback_irma_read_fig(data):
-	print('callback_irma_read_fig triggered')
-	fig = pio.from_json(json.loads(data)['irma_reads_fig'])
-	return fig
+	[Output('select_gene', 'value')],
+	Input('select_gene', 'options'))
+def set_run_options(gene_options):
+	if not gene_options:
+		raise dash.exceptions.PreventUpdate
+	return gene_options[0]['value']
+
+@app.callback(
+	Output('alignment_fig', 'children'),
+	[Input('select_machine', 'value'),
+	Input('select_run', 'value'),
+	Input('select_irma', 'value'),
+	Input('select_gene', 'value')])
+#@cache.memoize(timeout=cache_timeout)
+def alignment_fig(machine, run, irma, gene):
+	if not machine or not run or not irma or not gene:
+		raise dash.exceptions.PreventUpdate
+	with open(os.path.join(pathway, machine, run, irma, '{}.fasta'.format(gene)), 'r') as d:
+		data = '\n'.join(d.readlines())
+	return dbio.AlignmentChart(data=data, showgap=False, showid=False)
 
 
 @app.callback(
-	Output('onesamplefigs', 'children'),
-	[Input('select_sample', 'value'),
-	Input('df_cache', 'data')])
-def callback_coverage(sample, data):
-	df = pd.read_json(json.loads(data)['df'], orient='split')
-	segments = json.loads(data)['segments']
-	segcolor = json.loads(data)['segcolor']
-	coveragefig = createSampleCoverageFig(sample, df, segments, segcolor)
-	#createirmareadfig
-	#make html with both
+	Output('aa_var_table', 'children'),
+	[Input('select_machine', 'value'),
+	Input('select_run', 'value'),
+	Input('select_irma', 'value')])
+def aa_var_table(machine, run, irma):
+	df = pd.read_csv(os.path.join(pathway, machine, run, irma, 'AAvariants.txt'), sep='\t')
+	table = dash_table.DataTable(
+				columns = [{"name": i, "id": i} for i in df.columns],
+				data = df.to_dict('records'),
+				sort_action='native',
+				filter_action='native',
+				page_size=20
+			)
+	return table
+
+#@app.callback(
+#	Output('irma-reads', 'figure'),
+#	Input('df_cache', 'data'))
+#def callback_irma_read_fig(data):
+#	df = pd.read_json(json.loads(generate_df(machine, run, irma))['df'], orient='split')
+	#fig = pio.from_json(json.loads(data)['irma_reads_fig'])
+#	return fig
+
 
 ########################################################
 #################### LAYOUT TABS #######################
@@ -397,90 +462,80 @@ def callback_coverage(sample, data):
 @app.callback(
 	Output('tab-content', 'children'),
 	[Input('tabs', 'active_tab'), 
-	Input('store', 'data')]
+	#Input('store', 'data')]
+	Input('select_machine', 'value'),
+	Input('select_run', 'value'),
+	Input('select_irma', 'value')]
 )
-def render_tab_content(active_tab, data):
-	if active_tab:# and data is not None:
+def render_tab_content(active_tab, machine, run, irma):
+	if active_tab:
 		if active_tab == 'demux':
-			content = dcc.Loading(
-				id='demux-loading',
-				type='cube',
-				children=[
-					dcc.Graph(
-						id='demux_fig'
-					),
-					html.Div(
-						id='illumina_demux_table'
-					)
-				]
-			)
-			return content
-		elif active_tab == 'irma':
-			content = dcc.Loading(
-				id='irma-loading',
-				type='cube',
-				children=[
-					dcc.Graph(
-						id='irma-reads'
-					)
-				]
-			)
-			return content
-		elif active_tab == 'coverage':
-			content = html.Div(
-				[dbc.Row(
-					[dbc.Col(
-						dcc.Loading(
-							id='coverageheat-loading',
-							type='cube',
-							children=[
-								dcc.Graph(	
-									id='coverage-heat'
-								)
-							]
-						),
-						width=11,
-						align='end'
-					),
-					dbc.Col(
-						daq.Slider(
-							id='heatmap-slider',
-							marks={'100':'100','300':'300','500':'500','700':'700','900':'900'},
-							max=1000,
-							min=100,
-							value=100,
-							step=50,
-							vertical=True,
-							persistence=True,
-							dots=True
-						),
-						align='center'
-					)],
-					no_gutters=True
-				),
-				dcc.Loading(
-					id='coverage-loading',
+			if 'MinION' in machine:
+				with open(glob(os.path.join(pathway, machine, run,'*pycoQC.html'))[0], 'r') as d:
+					raw_html = '\n'.join(d.readlines())
+				content = dcc.Loading(
+					id='demux-ont-loading',
 					type='cube',
-					children=dcc.Graph(
-						id='coverage',
-						className='twelve columns'
-					)
-				),
-				html.Div(children=[
-					html.Button('All figures',
-					id='backButton',
-					className='button'
-					)]
+					children=[
+						html.Iframe(srcDoc=raw_html, height=10000, width=1400)
+					]
 				)
-				]
-			)
-			return content
-		elif active_tab == 'onebyone':
-			print('active tab = {}'.format(active_tab))
+				return content
+			else:
+				content = dcc.Loading(
+					id='demux-loading',
+					type='cube',
+					children=[
+						dcc.Graph(
+							id='demux_fig'
+						),
+						html.Div(
+							id='illumina_demux_table'
+						)
+					]
+				)
+				return content
+		elif active_tab == 'irma':
 			content = html.Div(
-						[dcc.Dropdown(id='select_sample', persistence=True),
+						[dbc.Row(
+							[dbc.Col(
+								dcc.Loading(
+									id='coverageheat-loading',
+									type='cube',
+									children=[
+										dcc.Graph(	
+											id='coverage-heat'
+										)
+									]
+								),
+								width=11,
+								align='end'
+							),
+							dbc.Col(
+								daq.Slider(
+									id='heatmap-slider',
+									marks={'100':'100','300':'300','500':'500','700':'700','900':'900'},
+									max=1000,
+									min=100,
+									value=100,
+									step=50,
+									vertical=True,
+									persistence=True,
+									dots=True
+								),
+								align='center'
+							)],
+							no_gutters=True
+						),
+						dcc.Dropdown(id='select_sample',persistence=True),
 						html.Div(id='single_sample_figs')]
 					  )
+			return content
+		elif active_tab == 'variants':
+			content = [dbc.Row(dbc.Col(id='aa_var_table', width=6), justify='center'),
+						dcc.Dropdown(id='select_gene', persistence=True),
+						html.Div(id='alignment_fig')
+					  ]
 			return content
 
 
@@ -493,8 +548,8 @@ app.layout = dbc.Container(
 	fluid=True,
 	children=
 	[
-		dcc.Store(id='df_cache'),
-		dcc.Store(id='store'),
+		#dcc.Store(id='df_cache'),
+		#dcc.Store(id='store'),
 		html.Div([
 			dbc.Row([
 				dbc.Col(
@@ -527,8 +582,7 @@ app.layout = dbc.Container(
 			[
 				dbc.Tab(label='Demux', tab_id='demux'),
 				dbc.Tab(label='IRMA', tab_id='irma'),
-				dbc.Tab(label='Coverage', tab_id='coverage'),
-				dbc.Tab(label='One Sample', tab_id='onebyone')
+				dbc.Tab(label='Variants', tab_id='variants')
 			],
 			id='tabs',
 			active_tab='demux'

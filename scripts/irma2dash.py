@@ -6,7 +6,7 @@ from re import findall
 import plotly.graph_objects as go
 
 def seg(s):
-	return findall(r'HA|NA|MP|NP|NS|PA|PB1|PB2',s) 
+	return findall(r'HA|NA|MP|NP|NS|PA|PB1|PB2|SARS-CoV-2',s) 
 
 def returnStageColors(df):
 	df = df[df['Stage'].isin([4,5])]
