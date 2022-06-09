@@ -73,8 +73,8 @@ def dash_reads_to_sankey(df):
 	return fig
 
 def dash_irma_reads_df(irma_path):
-	if isfile(irma_path+'/reads.parquet'):
-		df = pd.read_parquet(irma_path+'/reads.parquet')
+	if isfile(irma_path+'/reads.csv.gz'):
+		df = pd.read_csv(irma_path+'/reads.csv.gz')
 		return df
 	readFiles = glob(irma_path+'/*/tables/READ_COUNTS.txt')
 	df = pd.DataFrame()
@@ -84,12 +84,12 @@ def dash_irma_reads_df(irma_path):
 		df_prime.insert(loc=0, column='Sample', value=sample)
 		df = df.append(df_prime)
 	df['Stage'] = df['Record'].apply(lambda x: int(x.split('-')[0]))
-	df.to_parquet(irma_path+'/reads.parquet')
+	df.to_csv(irma_path+'/reads.csv.gz', compression='gzip')
 	return df	
 
 def dash_irma_coverage_df(irma_path):
-	if isfile(irma_path+'/coverage.parquet'):
-		df = pd.read_parquet(irma_path+'/coverage.parquet')
+	if isfile(irma_path+'/coverage.csv.gz'):
+		df = pd.read_csv(irma_path+'/coverage.csv.gz')
 		return df
 	coverageFiles = glob(irma_path+'/*/tables/*a2m.txt')
 	a2msamples = [i.split('/')[-3] for i in coverageFiles]
@@ -107,5 +107,5 @@ def dash_irma_coverage_df(irma_path):
 		df = df.append(df_prime)
 		#for i in args.add_fields_right:
 		#	df[i[0]] = i[1]
-	df.to_parquet(irma_path+'/coverage.parquet')
+	df.to_csv(irma_path+'/coverage.csv.gz', compression='gzip')
 	return df	

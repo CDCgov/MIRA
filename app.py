@@ -149,8 +149,8 @@ def single_sample_fig(machine, run, irma, sample):
 					dbc.Col(dcc.Graph(figure=coveragefig),
 						width=8,
 						align='center')
-					],
-					no_gutters=True
+					]#,
+					#no_gutters=True
 				 )
 			#  )
 	#print(content)
@@ -200,7 +200,10 @@ def illumina_demux_table(machine, run):
 	if not machine or not run:
 		raise dash.exceptions.PreventUpdate
 	glob_string = '{}/Reports/html/*/all/all/all/*{}*'.format(os.path.join(pathway, machine, run), run)
+	glob_string2 = '{}/Reports/html/*/all/all/all/*Barcode*'.format(os.path.join(pathway, machine))
 	f = glob(glob_string)
+	if len(f) == 0:
+		f = glob(glob_string2)
 	df = pd.read_html(f[0])[2]
 	fill_colors = conditional_color_range_perCol.discrete_background_color_bins(df, 10, ['PF Clusters', '% of thelane', '% Perfectbarcode', 'Yield (Mbases)', '% PFClusters', '% >= Q30bases', 'Mean QualityScore', '% One mismatchbarcode'])
 	table = html.Div([
@@ -274,7 +277,7 @@ def pivot4heatmap(df):
 	try:
 		df3[['Subtype', 'Segment', 'Group']] = df3['Reference_Name'].str.split('_', expand=True)
 	except ValueError:
-		df3[['Segment']] = df3['Reference_Name']
+		df3['Segment'] = df3['Reference_Name']
 	df4 = df3[['Sample', 'Segment', cov_header]]
 	return df4
 
@@ -378,6 +381,64 @@ def createSampleCoverageFig(sample, df, segments, segcolor):
 				name = g,
 				customdata = tuple(['all']*len(df3['Sample']))
 			))
+	if segments == 'SARS-CoV-2':
+		fig.add_shape(type='line',
+					x0=26523, x1=27191, y0=-10, y1=-10,
+					line=dict(color=px.colors.qualitative.T10[1],
+							width=20)
+					)
+		fig.add_shape(type='line',
+					x0=29558, x1=29674, y0=-10, y1=-10,
+					line=dict(color=px.colors.qualitative.T10[2],
+							width=20)
+					)
+		fig.add_shape(type='line',
+					x0=266, x1=21555, y0=-10, y1=-10,
+					line=dict(color=px.colors.qualitative.T10[3],
+							width=20)
+					)
+		fig.add_shape(type='line',
+					x0=27394, x1=27759, y0=-10, y1=-10,
+					line=dict(color=px.colors.qualitative.T10[4],
+							width=20)
+					)
+		fig.add_shape(type='line',
+					x0=26245, x1=26472, y0=-10, y1=-10,
+					line=dict(color=px.colors.qualitative.T10[5],
+							width=20)
+					)
+		fig.add_shape(type='line',
+					x0=21563, x1=25384, y0=-10, y1=-10,
+					line=dict(color=px.colors.qualitative.T10[6],
+							width=20)
+					)
+		fig.add_shape(type='line',
+					x0=27894, x1=28259, y0=-10, y1=-10,
+					line=dict(color=px.colors.qualitative.T10[7],
+							width=20)
+					)
+		fig.add_shape(type='line',
+					x0=27202, x1=27387, y0=-10, y1=-10,
+					line=dict(color=px.colors.qualitative.T10[8],
+							width=20)
+					)
+		fig.add_shape(type='line',
+					x0=25393, x1=26220, y0=-10, y1=-10,
+					line=dict(color=px.colors.qualitative.T10[9],
+							width=20)
+					)
+		fig.add_shape(type='line',
+					x0=28274, x1=29533, y0=-10, y1=-10,
+					line=dict(color=px.colors.qualitative.T10[0],
+							width=20)
+					)																																						
+		fig.add_trace(go.Scatter(
+					x=[26523,29558,266,27394,26245,21563,27894,27202,25393,28274],
+					y=[-30]*10,
+					text=['M','orf10','orf1ab','orf7a','E','S','orf8','orf6','orf3a','N'],
+					mode='text',
+					textfont=dict(size=14, family='sans-serif'))
+		)
 	fig.update_layout(
 		height=600,
 		title=sample,
@@ -524,8 +585,8 @@ def render_tab_content(active_tab, machine, run, irma):
 									dots=True
 								),
 								align='center'
-							)],
-							no_gutters=True
+							)]#,
+							#no_gutters=True
 						),
 						dcc.Dropdown(id='select_sample',persistence=True),
 						html.Div(id='single_sample_figs')]
