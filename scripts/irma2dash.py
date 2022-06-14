@@ -53,7 +53,7 @@ def dash_reads_to_sankey(df):
 			target.append(labels.index(row['Record']))
 			value.append(row['Reads'])
 	fig = go.Figure(data=[go.Sankey(
-		arrangement='snap',
+		arrangement='freeform',
 		node = dict(
 		  pad = 15,
 		  thickness = 20,
