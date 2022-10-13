@@ -133,15 +133,11 @@ def single_sample_fig(machine, run, irma, sample):
 	df = df[df['Sample'] == sample]
 	#print(df)
 	sankeyfig = irma2dash.dash_reads_to_sankey(df)
-	#print(sankeyfig)
 	df = pd.read_json(json.loads(generate_df(machine, run, irma))['df'], orient='split')
-	#print(df)
-	#df = pd.read_json(json.loads(data)['df'], orient='split')
 	segments = json.loads(generate_df(machine, run, irma))['segments']
 	segcolor = json.loads(generate_df(machine, run, irma))['segcolor']
 	#segments, segcolor = json.loads(data)['segments'], json.loads(data)['segcolor']
 	coveragefig = createSampleCoverageFig(sample, df, segments, segcolor)
-	#content = html.Div(
 	content = dbc.Row(
                     [dbc.Col(dcc.Graph(figure=sankeyfig),
                         	width=4,
@@ -364,6 +360,10 @@ def createSampleCoverageFig(sample, df, segments, segcolor):
 		cov_header = 'Coverage_Depth'
 	else:
 		cov_header = 'Coverage Depth'
+	if 'HMM_Position' in df.columns:
+		pos_header = 'HMM_Position'
+	else:
+		pos_header = 'Position'
 	df2 = df[df['Sample'] == sample]
 	fig = go.Figure()
 	for g in segments.split(','):
@@ -374,7 +374,7 @@ def createSampleCoverageFig(sample, df, segments, segcolor):
 		df3 = df2[df2['Reference_Name'] == g]
 		fig.add_trace(
 			go.Scatter(
-				x = df3['Position'],
+				x = df3[pos_header],
 				y = df3[cov_header],
 				mode = 'lines',
 				line = go.scatter.Line(color=segcolor[g_base]),
@@ -382,59 +382,64 @@ def createSampleCoverageFig(sample, df, segments, segcolor):
 				customdata = tuple(['all']*len(df3['Sample']))
 			))
 	if segments == 'SARS-CoV-2':
+		#y positions for gene boxes
+		ya = 0-(max(df3[cov_header]) / 10)		
 		fig.add_shape(type='line',
-					x0=26523, x1=27191, y0=-10, y1=-10,
+					x0=26523, x1=27191, y0=ya, y1=ya, 
 					line=dict(color=px.colors.qualitative.T10[1],
 							width=20)
 					)
 		fig.add_shape(type='line',
-					x0=29558, x1=29674, y0=-10, y1=-10,
+					x0=29558, x1=29674, y0=ya, y1=ya,
 					line=dict(color=px.colors.qualitative.T10[2],
 							width=20)
 					)
 		fig.add_shape(type='line',
-					x0=266, x1=21555, y0=-10, y1=-10,
+					x0=266, x1=21555, y0=ya, y1=ya,
 					line=dict(color=px.colors.qualitative.T10[3],
 							width=20)
 					)
 		fig.add_shape(type='line',
-					x0=27394, x1=27759, y0=-10, y1=-10,
+					x0=27394, x1=27759, y0=ya, y1=ya,
 					line=dict(color=px.colors.qualitative.T10[4],
 							width=20)
 					)
 		fig.add_shape(type='line',
-					x0=26245, x1=26472, y0=-10, y1=-10,
+					x0=26245, x1=26472, y0=ya, y1=ya,
 					line=dict(color=px.colors.qualitative.T10[5],
 							width=20)
 					)
 		fig.add_shape(type='line',
-					x0=21563, x1=25384, y0=-10, y1=-10,
+					x0=21563, x1=25384, y0=ya, y1=ya,
 					line=dict(color=px.colors.qualitative.T10[6],
 							width=20)
 					)
 		fig.add_shape(type='line',
-					x0=27894, x1=28259, y0=-10, y1=-10,
+					x0=27894, x1=28259, y0=ya, y1=ya,
 					line=dict(color=px.colors.qualitative.T10[7],
 							width=20)
 					)
 		fig.add_shape(type='line',
-					x0=27202, x1=27387, y0=-10, y1=-10,
+					x0=27202, x1=27387, y0=ya, y1=ya,
 					line=dict(color=px.colors.qualitative.T10[8],
 							width=20)
 					)
 		fig.add_shape(type='line',
-					x0=25393, x1=26220, y0=-10, y1=-10,
+					x0=25393, x1=26220, y0=ya, y1=ya,
 					line=dict(color=px.colors.qualitative.T10[9],
 							width=20)
 					)
 		fig.add_shape(type='line',
-					x0=28274, x1=29533, y0=-10, y1=-10,
+					x0=28274, x1=29533, y0=ya, y1=ya,
 					line=dict(color=px.colors.qualitative.T10[0],
 							width=20)
-					)																																						
+					)
+		#y positions for gene names
+		ya = 0-(max(df3[cov_header]) / 6)
+		yb = 0-(max(df3[cov_header]) / 7)																																						
 		fig.add_trace(go.Scatter(
-					x=[26523,29558,266,27394,26245,21563,27894,27202,25393,28274],
-					y=[-30]*10,
+					x=[26857,29616,10910,27576,26358,23473,28076,27294,25806,28903],
+					y=[ya,yb]*5,
 					text=['M','orf10','orf1ab','orf7a','E','S','orf8','orf6','orf3a','N'],
 					mode='text',
 					textfont=dict(size=14, family='sans-serif'))
@@ -443,7 +448,7 @@ def createSampleCoverageFig(sample, df, segments, segcolor):
 		height=600,
 		title=sample,
 		yaxis_title='Coverage',
-		xaxis_title='Position')
+		xaxis_title='Reference Position')
 	return(fig)
 
 @app.callback(
