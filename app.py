@@ -84,9 +84,9 @@ def select_sample(plotClick, irma_path):
 	Output('single_sample_figs', 'children'),
 	[Input('irma_path', 'value'),
 	Input('select_sample', 'value'),
-	Input('cov_log_y', 'value')])
+	Input('cov_linear_y', 'value')])
 @cache.memoize(timeout=cache_timeout)
-def single_sample_fig(irma_path, sample, cov_log_y):
+def single_sample_fig(irma_path, sample, cov_linear_y):
 	if not irma_path or not sample:
 		print(f'single_sample_fig cannot be created without irma_path ({irma_path}) and sample ({sample})')
 		raise dash.exceptions.PreventUpdate
@@ -97,7 +97,7 @@ def single_sample_fig(irma_path, sample, cov_log_y):
 	segments = json.loads(generate_df(irma_path))['segments']
 	segcolor = json.loads(generate_df(irma_path))['segcolor']
 	#segments, segcolor = json.loads(data)['segments'], json.loads(data)['segcolor']
-	coveragefig = createSampleCoverageFig(sample, df, segments, segcolor, cov_log_y)
+	coveragefig = createSampleCoverageFig(sample, df, segments, segcolor, cov_linear_y)
 	content = dbc.Row(
                     [dbc.Col(dcc.Graph(figure=sankeyfig),
                         	width=4,
@@ -319,7 +319,7 @@ def createAllCoverageFig(df, segments, segcolor):
 	return(fig)
 
 @cache.memoize(timeout=cache_timeout)
-def createSampleCoverageFig(sample, df, segments, segcolor, cov_log_y):
+def createSampleCoverageFig(sample, df, segments, segcolor, cov_linear_y):
 	if 'Coverage_Depth' in df.columns:
 		cov_header = 'Coverage_Depth'
 	else:
@@ -332,17 +332,47 @@ def createSampleCoverageFig(sample, df, segments, segcolor, cov_log_y):
 		if x == 0:
 			return 0.000000000001
 		return x
-	if not cov_log_y:
+	if not cov_linear_y:
 		df[cov_header] = df[cov_header].apply(lambda x : zerolift(x))
 	df2 = df[df['Sample'] == sample]
 	fig = go.Figure()
+	if 'SARS-CoV-2' in segments:
+		#y positions for gene boxes
+		oy=(max(df2[cov_header]) / 10) # This value determines where the top of the ORF box is drawn against the y-axis
+		if not cov_linear_y:
+			ya = 0.9
+		else:
+			ya = 0-(max(df2[cov_header]) / 20)
+		orf_pos = {'orf1ab':(266, 21556),
+					'S':[21563, 25385],
+					'orf3a':[25393, 26221],
+					'E':[26245, 26473],
+					'M':[26523, 27192],
+					'orf6':[27202, 27388],
+					'orf7ab': [27394, 27888],
+					'orf8': [27894, 28260],
+					'N': [28274, 29534],
+					'orf10': [29558, 29675]}
+		color_index=0
+		for orf, pos in orf_pos.items():
+			fig.add_trace(go.Scatter(
+							x=[pos[0],pos[1],pos[1],pos[0],pos[0]],
+							y=[oy,oy,0,0,oy],
+							fill='toself',
+							fillcolor=px.colors.qualitative.T10[color_index],
+							line=dict(color=px.colors.qualitative.T10[color_index]),
+							mode='lines',
+							name=orf,
+							opacity=0.4
+							)
+				)
+			color_index += 1
 	for g in segments.split(','):
 		if g in df2['Reference_Name'].unique():
 			try:
 				g_base = g.split('_')[1]
 			except IndexError:
 				g_base = g
-			dfru = df2['Reference_Name'].unique()
 			df3 = df2[df2['Reference_Name'] == g]
 			fig.add_trace(
 				go.Scatter(
@@ -357,74 +387,8 @@ def createSampleCoverageFig(sample, df, segments, segcolor, cov_log_y):
 				x0=0, x1=df2[pos_header].max(), y0=100, y1=100, 
 				line=dict(color='Black', dash='dash', width=5)
 				)
-	if 'SARS-CoV-2' in segments:
-		#y positions for gene boxes
-		if not cov_log_y:
-			ya = 0.9
-		else:
-			ya = 0-(max(df3[cov_header]) / 10)		
-		fig.add_shape(type='line',
-					x0=26523, x1=27191, y0=ya, y1=ya, 
-					line=dict(color=px.colors.qualitative.T10[1],
-							width=20)
-					)
-		fig.add_shape(type='line',
-					x0=29558, x1=29674, y0=ya, y1=ya,
-					line=dict(color=px.colors.qualitative.T10[2],
-							width=20)
-					)
-		fig.add_shape(type='line',
-					x0=266, x1=21555, y0=ya, y1=ya,
-					line=dict(color=px.colors.qualitative.T10[3],
-							width=20)
-					)
-		fig.add_shape(type='line',
-					x0=27394, x1=27759, y0=ya, y1=ya,
-					line=dict(color=px.colors.qualitative.T10[4],
-							width=20)
-					)
-		fig.add_shape(type='line',
-					x0=26245, x1=26472, y0=ya, y1=ya,
-					line=dict(color=px.colors.qualitative.T10[5],
-							width=20)
-					)
-		fig.add_shape(type='line',
-					x0=21563, x1=25384, y0=ya, y1=ya,
-					line=dict(color=px.colors.qualitative.T10[6],
-							width=20)
-					)
-		fig.add_shape(type='line',
-					x0=27894, x1=28259, y0=ya, y1=ya,
-					line=dict(color=px.colors.qualitative.T10[7],
-							width=20)
-					)
-		fig.add_shape(type='line',
-					x0=27202, x1=27387, y0=ya, y1=ya,
-					line=dict(color=px.colors.qualitative.T10[8],
-							width=20)
-					)
-		fig.add_shape(type='line',
-					x0=25393, x1=26220, y0=ya, y1=ya,
-					line=dict(color=px.colors.qualitative.T10[9],
-							width=20)
-					)
-		fig.add_shape(type='line',
-					x0=28274, x1=29533, y0=ya, y1=ya,
-					line=dict(color=px.colors.qualitative.T10[0],
-							width=20)
-					)
-		#y positions for gene names
-		ya = 0.9-(max(df3[cov_header]) / 6)
-		yb = 0.9-(max(df3[cov_header]) / 7)																																						
-		fig.add_trace(go.Scatter(
-					x=[26857,29616,10910,27576,26358,23473,28076,27294,25806,28903],
-					y=[ya,yb]*5,
-					text=['M','orf10','orf1ab','orf7a','E','S','orf8','orf6','orf3a','N'],
-					mode='text',
-					textfont=dict(size=14, family='sans-serif'))
-		)
 	ymax = df2[cov_header].max()
-	if not cov_log_y:
+	if not cov_linear_y:
 		ya_type='log'
 		ymax = ymax**(1/10)
 	else:
@@ -600,7 +564,7 @@ def render_tab_content(active_tab, irma_path):
 						html.Div(id='single_sample_figs'),
 						dbc.Col(
 							daq.ToggleSwitch(
-								id='cov_log_y',
+								id='cov_linear_y',
 								label='log y ----- linear y	',
 								labelPosition='bottom',
 								value=True
@@ -653,10 +617,10 @@ app.layout = dbc.Container(
 				dbc.Tab(label='IRMA', tab_id='irma'),
 				dbc.Tabs(
 					id='irma',
-					children=[[
+					children=[
 					dbc.Tab(label='Controls', tab_id='controls'),
 					dbc.Tab(label='Coverage', tab_id='coverage')
-					]],
+					],
 				),
 				dbc.Tab(label='Variants', tab_id='variants')
 			],
