@@ -15,19 +15,18 @@ nProc = mp.cpu_count()
 
 def id_samples(assemblyPath):
     samples = [basename(i) for i in glob(assemblyPath+'/*') if isdir(i)]
-    #print("{} samples identified".format(len(samples)))
+    print("{} samples identified".format(len(samples)))
     return(samples)
 
 def id_segments(assemblyPath, sample):
     segments = [basename(i).replace('.fasta','') for i in glob('{}/{}/*fasta'.format(assemblyPath, sample))]
-    #print("{} segments identified".format(segments))
+    print("{} segments identified".format(segments))
     return(segments)
 
 def alignConsensus2reference(assemblyPath, sample):
     alignment_dic = {}
     alignment_dic[sample] = {}
     segs = id_segments(assemblyPath, sample)
-    
     for seg in segs:
         queryfasta = glob('{}/{}/{}.fasta'.format(assemblyPath, sample, seg))[0]
         reffasta = glob('{}/{}/intermediate/0-ITERATIVE-REFERENCES/R0-{}.ref'.format(assemblyPath, sample, seg))[0]
@@ -39,7 +38,7 @@ def alignPositionByPSA(assemblyPath):
     for sample in id_samples(assemblyPath):
         for segment, alignment in alignConsensus2reference(assemblyPath, sample)[sample].items():
             covTable = glob('{}/{}/tables/{}-coverage.txt'.format(assemblyPath, sample, segment))[0]
-            realignmentFile = dirname(dirname(realpath(__file__)))+'/cache-data/'+realpath(assemblyPath).replace('/','_')[1:]+'.csv'            
+            realignmentFile = dirname(dirname(realpath(__file__)))+'/cache-directory/'+realpath(assemblyPath).replace('/','_')[1:]+'.csv'            
             header = True
             with open(realignmentFile, 'a+') as out:
                 for line in run(['perl', alignByPerl, alignment, covTable], capture_output=True, universal_newlines=True).stdout.split('\n'):
@@ -56,7 +55,7 @@ def alignPositionByPSA(assemblyPath):
 
 
 if __name__ == '__main__':
-    try:
-        alignPositionByPSA(argv[1])
-    except IndexError:
-        print("\n\tUSAGE: {} <assemblyPath>\n\n".format(argv[0]))
+    #try:
+    alignPositionByPSA(argv[1])
+    #except Exception as e:
+    #    print(f"\n\tUSAGE: {argv[0]} <assemblyPath>\n\nEXCEPTION == {e}")

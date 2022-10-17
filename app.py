@@ -17,7 +17,7 @@ import plotly.graph_objects as go
 import plotly.express as px
 import plotly.io as pio
 import pandas as pd
-from math import ceil, log10
+from math import ceil, log10, sqrt
 from itertools import cycle
 import pickle
 from sys import path, argv
@@ -31,6 +31,7 @@ from flask_caching import Cache
 path.append(dirname(realpath(__file__))+'/scripts/')
 import irma2dash
 import conditional_color_range_perCol
+import base64
 
 app = dash.Dash(external_stylesheets=[dbc.themes.FLATLY])
 app.title = 'IRMA SPY'
@@ -43,57 +44,20 @@ cache = Cache(app.server, config={
 })
 cache.clear()
 
-with open(argv[1], 'r') as y:
-	CONFIG = yaml.safe_load(y)
-pathway = CONFIG['PATHWAY']
-
-@app.callback(
-	Output('select_run', 'options'),
-	Input('select_machine', 'value'))
-def select_run(machine):
-	if not machine or machine == 'Select sequencing instrument: ':
-		raise dash.exceptions.PreventUpdate
-	options = [{'label':i, 'value':i} for i in sorted(os.listdir(os.path.join(pathway ,machine))) if i[0] != '.'] #filesInFolderTree(os.path.join(pathway, machine))]
-	return options
-
-@app.callback(
-	[Output('select_run', 'value')],
-	Input('select_run', 'options'))
-def set_run_options(run_options):
-	if not run_options:
-		raise dash.exceptions.PreventUpdate
-	return run_options[0]['value']
-
-@app.callback(
-	Output('select_irma', 'options'),
-	[Input('select_machine', 'value'),
-	Input('select_run', 'value')])
-def select_irma(machine, run):
-	if not machine or not run:
-		raise dash.exceptions.PreventUpdate
-	options = [{'label':i, 'value':i} for i in sorted(os.listdir(os.path.join(pathway, machine, run)))] #filesInFolderTree(os.path.join(pathway, machine))]
-	return options
-
-@app.callback(
-	Output('select_irma', 'value'),
-	Input('select_irma', 'options'))
-def set_irma_options(irma_options):
-	if not irma_options:
-		raise dash.exceptions.PreventUpdate
-	return irma_options[0]['value']
+#with open(argv[1], 'r') as y:
+#	CONFIG = yaml.safe_load(y)
+#pathway = CONFIG['PATHWAY']
 
 previousClick = 0
 @app.callback(
 	[Output('select_sample', 'options'),
 	Output('select_sample', 'value')],
 	[Input('coverage-heat', 'clickData'),
-	Input('select_machine', 'value'),
-	Input('select_run', 'value'),
-	Input('select_irma', 'value')])
+	Input('irma_path', 'value')])
 @cache.memoize(timeout=cache_timeout)
-def select_sample(plotClick, machine, run, irma):
+def select_sample(plotClick, irma_path):
 	#df = pd.read_json(json.loads(data)['df4'], orient='split')
-	df = pd.read_json(json.loads(generate_df(machine, run, irma))['df4'], orient='split')
+	df = pd.read_json(json.loads(generate_df(irma_path))['df4'], orient='split')
 	samples = df['Sample'].unique()
 	samples.sort()
 	options = [{'label':i, 'value':i} for i in samples]
@@ -115,29 +79,25 @@ def select_sample(plotClick, machine, run, irma):
 #		raise dash.exceptions.PreventUpdate
 #	return sample_options[0]['value']
 
+
 @app.callback(
 	Output('single_sample_figs', 'children'),
-	[Input('select_machine', 'value'),
-	Input('select_run', 'value'),
-	Input('select_irma', 'value'),
-	Input('select_sample', 'value')])
+	[Input('irma_path', 'value'),
+	Input('select_sample', 'value'),
+	Input('cov_log_y', 'value')])
 @cache.memoize(timeout=cache_timeout)
-def single_sample_fig(machine, run, irma, sample):
-	#print('single_sample_callback triggered mahine={}, run={}, irma={}, sample={}'.format(machine,run,irma,sample))
-	if not machine or not run or not irma or not sample:
-		print('exception raised')
+def single_sample_fig(irma_path, sample, cov_log_y):
+	if not irma_path or not sample:
+		print(f'single_sample_fig cannot be created without irma_path ({irma_path}) and sample ({sample})')
 		raise dash.exceptions.PreventUpdate
-	#print('reading read_df')
-	df = pd.read_json(json.loads(generate_df(machine, run, irma))['read_df'], orient='split')
-	#print('done')
+	df = pd.read_json(json.loads(generate_df(irma_path))['read_df'], orient='split')
 	df = df[df['Sample'] == sample]
-	#print(df)
 	sankeyfig = irma2dash.dash_reads_to_sankey(df)
-	df = pd.read_json(json.loads(generate_df(machine, run, irma))['df'], orient='split')
-	segments = json.loads(generate_df(machine, run, irma))['segments']
-	segcolor = json.loads(generate_df(machine, run, irma))['segcolor']
+	df = pd.read_json(json.loads(generate_df(irma_path))['df'], orient='split')
+	segments = json.loads(generate_df(irma_path))['segments']
+	segcolor = json.loads(generate_df(irma_path))['segcolor']
 	#segments, segcolor = json.loads(data)['segments'], json.loads(data)['segcolor']
-	coveragefig = createSampleCoverageFig(sample, df, segments, segcolor)
+	coveragefig = createSampleCoverageFig(sample, df, segments, segcolor, cov_log_y)
 	content = dbc.Row(
                     [dbc.Col(dcc.Graph(figure=sankeyfig),
                         	width=4,
@@ -158,10 +118,10 @@ def single_sample_fig(machine, run, irma, sample):
 #	Input('select_run', 'value'),
 #	Input('select_irma', 'value')])
 @cache.memoize(timeout=cache_timeout)
-def generate_df(machine, run, irma):
-	if not machine or not run or not irma:
+def generate_df(irma_path):
+	if not irma_path:
 		raise dash.exceptions.PreventUpdate
-	irma_path = os.path.join(pathway, machine, run, irma)
+	irma_path = os.path.join(irma_path)
 	df = irma2dash.dash_irma_coverage_df(irma_path) #argv[2]) #loadData('./test.csv')
 	read_df = irma2dash.dash_irma_reads_df(irma_path)
 	segments, segset, segcolor = returnSegData(df)
@@ -189,25 +149,29 @@ def generate_df(machine, run, irma):
 @app.callback(
 	[Output('illumina_demux_table', 'children'),
 	Output('demux_fig', 'figure')],
-	[Input('select_machine', 'value'),
-	Input('select_run', 'value')])
+	[Input('demux_file', 'contents')])
 @cache.memoize(timeout=cache_timeout)
-def illumina_demux_table(machine, run):
-	if not machine or not run:
+def illumina_demux_table(demux_file):
+	if not demux_file:
 		raise dash.exceptions.PreventUpdate
-	glob_string = '{}/Reports/html/*/all/all/all/*{}*'.format(os.path.join(pathway, machine, run), run)
-	glob_string2 = '{}/Reports/html/*/all/all/all/*Barcode*'.format(os.path.join(pathway, machine))
-	f = glob(glob_string)
-	if len(f) == 0:
-		f = glob(glob_string2)
-	df = pd.read_html(f[0])[2]
+	#glob_string = '{}/../../Reports/html/*/all/all/all/*{}*'.format(os.path.join(irma_path))
+	#glob_string2 = '{}/../../Reports/html/*/all/all/all/*Barcode*'.format(os.path.join(irma_path))
+	#f = glob(glob_string)
+	#if len(f) == 0:
+	#	f = glob(glob_string2)
+	#demf=base64.b64decode(demux_file[22:]).decode('ascii')
+	#print(f'demux_file == {demf}')
+	#with open(demux_file, 'r') as f:
+	#	print(f.readlines(10))
+	df = pd.read_html(base64.b64decode(demux_file[22:]).decode('ascii'))[2]
 	fill_colors = conditional_color_range_perCol.discrete_background_color_bins(df, 10, ['PF Clusters', '% of thelane', '% Perfectbarcode', 'Yield (Mbases)', '% PFClusters', '% >= Q30bases', 'Mean QualityScore', '% One mismatchbarcode'])
 	table = html.Div([
 			dash_table.DataTable(
 				columns = [{"name": i, "id": i} for i in df.columns],
 				data = df.to_dict('records'),
 				sort_action='native',
-				style_data_conditional=fill_colors
+				style_data_conditional=fill_colors,
+				persistence=True
 			)
 		])
 	fig = px.pie(df, values='PF Clusters', names='Sample')
@@ -355,7 +319,7 @@ def createAllCoverageFig(df, segments, segcolor):
 	return(fig)
 
 @cache.memoize(timeout=cache_timeout)
-def createSampleCoverageFig(sample, df, segments, segcolor):
+def createSampleCoverageFig(sample, df, segments, segcolor, cov_log_y):
 	if 'Coverage_Depth' in df.columns:
 		cov_header = 'Coverage_Depth'
 	else:
@@ -364,26 +328,41 @@ def createSampleCoverageFig(sample, df, segments, segcolor):
 		pos_header = 'HMM_Position'
 	else:
 		pos_header = 'Position'
+	def zerolift(x):
+		if x == 0:
+			return 0.000000000001
+		return x
+	if not cov_log_y:
+		df[cov_header] = df[cov_header].apply(lambda x : zerolift(x))
 	df2 = df[df['Sample'] == sample]
 	fig = go.Figure()
 	for g in segments.split(','):
-		try:
-			g_base = g.split('_')[1]
-		except IndexError:
-			g_base = g
-		df3 = df2[df2['Reference_Name'] == g]
-		fig.add_trace(
-			go.Scatter(
-				x = df3[pos_header],
-				y = df3[cov_header],
-				mode = 'lines',
-				line = go.scatter.Line(color=segcolor[g_base]),
-				name = g,
-				customdata = tuple(['all']*len(df3['Sample']))
-			))
-	if segments == 'SARS-CoV-2':
+		if g in df2['Reference_Name'].unique():
+			try:
+				g_base = g.split('_')[1]
+			except IndexError:
+				g_base = g
+			dfru = df2['Reference_Name'].unique()
+			df3 = df2[df2['Reference_Name'] == g]
+			fig.add_trace(
+				go.Scatter(
+					x = df3[pos_header],
+					y = df3[cov_header],
+					mode = 'lines',
+					line = go.scatter.Line(color=segcolor[g_base]),
+					name = g,
+					customdata = tuple(['all']*len(df3['Sample']))
+				))
+	fig.add_shape(type='line',
+				x0=0, x1=df2[pos_header].max(), y0=100, y1=100, 
+				line=dict(color='Black', dash='dash', width=5)
+				)
+	if 'SARS-CoV-2' in segments:
 		#y positions for gene boxes
-		ya = 0-(max(df3[cov_header]) / 10)		
+		if not cov_log_y:
+			ya = 0.9
+		else:
+			ya = 0-(max(df3[cov_header]) / 10)		
 		fig.add_shape(type='line',
 					x0=26523, x1=27191, y0=ya, y1=ya, 
 					line=dict(color=px.colors.qualitative.T10[1],
@@ -435,8 +414,8 @@ def createSampleCoverageFig(sample, df, segments, segcolor):
 							width=20)
 					)
 		#y positions for gene names
-		ya = 0-(max(df3[cov_header]) / 6)
-		yb = 0-(max(df3[cov_header]) / 7)																																						
+		ya = 0.9-(max(df3[cov_header]) / 6)
+		yb = 0.9-(max(df3[cov_header]) / 7)																																						
 		fig.add_trace(go.Scatter(
 					x=[26857,29616,10910,27576,26358,23473,28076,27294,25806,28903],
 					y=[ya,yb]*5,
@@ -444,22 +423,30 @@ def createSampleCoverageFig(sample, df, segments, segcolor):
 					mode='text',
 					textfont=dict(size=14, family='sans-serif'))
 		)
+	ymax = df2[cov_header].max()
+	if not cov_log_y:
+		ya_type='log'
+		ymax = ymax**(1/10)
+	else:
+		ya_type='linear'
+	#print(f'ymax == {ymax}')
+	#print(df2[df2[cov_header] == ymax])
 	fig.update_layout(
 		height=600,
 		title=sample,
 		yaxis_title='Coverage',
-		xaxis_title='Reference Position')
+		xaxis_title='Reference Position',
+		yaxis_type=ya_type,
+		yaxis_range=[0,ymax])
 	return(fig)
 
 @app.callback(
 	Output('coverage-heat', 'figure'),
 	[Input('heatmap-slider', 'value'),
-	Input('select_machine', 'value'),
-	Input('select_run', 'value'),
-	Input('select_irma', 'value')])
+	Input('irma_path', 'value')])
 @cache.memoize(timeout=cache_timeout)
-def callback_heatmap(maximumValue, machine, run, irma):
-	df = pd.read_json(json.loads(generate_df(machine, run, irma))['df4'], orient='split')
+def callback_heatmap(maximumValue, irma_path):
+	df = pd.read_json(json.loads(generate_df(irma_path))['df4'], orient='split')
 	#df = pd.read_json(json.loads(data)['df4'], orient='split')
 	return(createheatmap(df, maximumValue))
 
@@ -468,10 +455,10 @@ def callback_heatmap(maximumValue, machine, run, irma):
 	[Input('select_machine', 'value'),
 	Input('select_run', 'value'),
 	Input('select_irma', 'value')])
-def select_run(machine, run, irma):
-	if not machine or not run or not irma:
+def select_run(irma_path):
+	if not irma_path:
 		raise dash.exceptions.PreventUpdate
-	options = [{'label':i.split('.')[0], 'value':i.split('.')[0]} for i in sorted(os.listdir(os.path.join(pathway ,machine, run,irma))) if 'consensus' not in i and 'fasta' in i ] #filesInFolderTree(os.path.join(pathway, machine))]
+	options = [{'label':i.split('.')[0], 'value':i.split('.')[0]} for i in sorted(os.listdir(os.path.join(irma_path))) if 'consensus' not in i and 'fasta' in i ] #filesInFolderTree(os.path.join(pathway, machine))]
 	return options
 
 @app.callback(
@@ -484,26 +471,22 @@ def set_run_options(gene_options):
 
 @app.callback(
 	Output('alignment_fig', 'children'),
-	[Input('select_machine', 'value'),
-	Input('select_run', 'value'),
-	Input('select_irma', 'value'),
+	[Input('irma_path', 'value'),
 	Input('select_gene', 'value')])
 #@cache.memoize(timeout=cache_timeout)
-def alignment_fig(machine, run, irma, gene):
-	if not machine or not run or not irma or not gene:
+def alignment_fig(irma_path, gene):
+	if not irma_path or not gene:
 		raise dash.exceptions.PreventUpdate
-	with open(os.path.join(pathway, machine, run, irma, '{}.fasta'.format(gene)), 'r') as d:
+	with open(os.path.join(irma_path, '{}.fasta'.format(gene)), 'r') as d:
 		data = '\n'.join(d.readlines())
 	return dbio.AlignmentChart(data=data, showgap=False, showid=False)
 
 
 @app.callback(
 	Output('aa_var_table', 'children'),
-	[Input('select_machine', 'value'),
-	Input('select_run', 'value'),
-	Input('select_irma', 'value')])
-def aa_var_table(machine, run, irma):
-	df = pd.read_csv(os.path.join(pathway, machine, run, irma, 'AAvariants.txt'), sep='\t')
+	[Input('irma_path', 'value')])
+def aa_var_table(irma_path):
+	df = pd.read_csv(os.path.join(irma_path, 'AAvariants.txt'), sep='\t')
 	table = dash_table.DataTable(
 				columns = [{"name": i, "id": i} for i in df.columns],
 				data = df.to_dict('records'),
@@ -517,7 +500,7 @@ def aa_var_table(machine, run, irma):
 #	Output('irma-reads', 'figure'),
 #	Input('df_cache', 'data'))
 #def callback_irma_read_fig(data):
-#	df = pd.read_json(json.loads(generate_df(machine, run, irma))['df'], orient='split')
+#	df = pd.read_json(json.loads(generate_df(irma_path))['df'], orient='split')
 	#fig = pio.from_json(json.loads(data)['irma_reads_fig'])
 #	return fig
 
@@ -529,15 +512,13 @@ def aa_var_table(machine, run, irma):
 	Output('tab-content', 'children'),
 	[Input('tabs', 'active_tab'), 
 	#Input('store', 'data')]
-	Input('select_machine', 'value'),
-	Input('select_run', 'value'),
-	Input('select_irma', 'value')]
+	Input('irma_path', 'value')]
 )
-def render_tab_content(active_tab, machine, run, irma):
+def render_tab_content(active_tab, irma_path):
 	if active_tab:
 		if active_tab == 'demux':
-			if 'MinION' in machine:
-				with open(glob(os.path.join(pathway, machine, run,'*pycoQC.html'))[0], 'r') as d:
+			if 'MinION' in irma_path:
+				with open(glob(os.path.join(irma_path,'*pycoQC.html'))[0], 'r') as d:
 					raw_html = '\n'.join(d.readlines())
 				content = dcc.Loading(
 					id='demux-ont-loading',
@@ -548,18 +529,40 @@ def render_tab_content(active_tab, machine, run, irma):
 				)
 				return content
 			else:
-				content = dcc.Loading(
-					id='demux-loading',
-					type='cube',
-					children=[
-						dcc.Graph(
-							id='demux_fig'
+				content = html.Div([
+					dbc.Row(
+						dcc.Upload(id='demux_file',
+						children=html.Div([
+						            'Drag and Drop or ',
+						            html.A('Select demux file from instrument')
+						        ]),
+						        style={
+						            'width': '30%',
+						            'height': '20px',
+						            'lineHeight': '20px',
+						            'borderWidth': '1px',
+						            'borderStyle': 'dashed',
+						            'borderRadius': '5px',
+						            'textAlign': 'center',
+						            'margin': '10px'
+						        }
 						),
-						html.Div(
-							id='illumina_demux_table'
+					),
+					dbc.Row(
+						dcc.Loading(
+							id='demux-loading',
+							type='cube',
+							children=[
+								dcc.Graph(
+									id='demux_fig'
+								),
+								html.Div(
+									id='illumina_demux_table'
+								)
+							]
 						)
-					]
-				)
+					)
+				])
 				return content
 		elif active_tab == 'irma':
 			content = html.Div(
@@ -594,7 +597,17 @@ def render_tab_content(active_tab, machine, run, irma):
 							#no_gutters=True
 						),
 						dcc.Dropdown(id='select_sample',persistence=True),
-						html.Div(id='single_sample_figs')]
+						html.Div(id='single_sample_figs'),
+						dbc.Col(
+							daq.ToggleSwitch(
+								id='cov_log_y',
+								label='log y ----- linear y	',
+								labelPosition='bottom',
+								value=True
+							),
+							width=8,
+							align='right'
+						)]
 					  )
 			return content
 		elif active_tab == 'variants':
@@ -626,20 +639,10 @@ app.layout = dbc.Container(
 						),
 				),
 				dbc.Col(
-						dcc.Dropdown(id='select_machine',
-							options=[{'label':i, 'value':i} for i in sorted(os.listdir(pathway))],
-							placeholder='Select sequencing instrument: ',
-							persistence=True
-						),
-				),
-				dbc.Col(
-						dcc.Dropdown(id='select_run',
-							placeholder='Select run directory: ',
-						),
-				),
-				dbc.Col(
-						dcc.Dropdown(id='select_irma',
-							placeholder='Select IRMA output directory: ',
+						dcc.Input(id='irma_path',
+							placeholder='TYPE /path/to/irma-output-dirs',
+							persistence=True,
+							debounce=True
 						),
 				)
 			]),
@@ -648,10 +651,19 @@ app.layout = dbc.Container(
 			[
 				dbc.Tab(label='Demux', tab_id='demux'),
 				dbc.Tab(label='IRMA', tab_id='irma'),
+				dbc.Tabs(
+					id='irma',
+					children=[[
+					dbc.Tab(label='Controls', tab_id='controls'),
+					dbc.Tab(label='Coverage', tab_id='coverage')
+					]],
+				),
 				dbc.Tab(label='Variants', tab_id='variants')
 			],
 			id='tabs',
-			active_tab='demux'
+			active_tab='demux',
+			persistence=True,
+			persistence_type='session'
 		),
 		html.Div(id='tab-content')
 	]
