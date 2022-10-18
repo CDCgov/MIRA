@@ -154,15 +154,6 @@ def generate_df(irma_path):
 def illumina_demux_table(demux_file):
 	if not demux_file:
 		raise dash.exceptions.PreventUpdate
-	#glob_string = '{}/../../Reports/html/*/all/all/all/*{}*'.format(os.path.join(irma_path))
-	#glob_string2 = '{}/../../Reports/html/*/all/all/all/*Barcode*'.format(os.path.join(irma_path))
-	#f = glob(glob_string)
-	#if len(f) == 0:
-	#	f = glob(glob_string2)
-	#demf=base64.b64decode(demux_file[22:]).decode('ascii')
-	#print(f'demux_file == {demf}')
-	#with open(demux_file, 'r') as f:
-	#	print(f.readlines(10))
 	df = pd.read_html(base64.b64decode(demux_file[22:]).decode('ascii'))[2]
 	fill_colors = conditional_color_range_perCol.discrete_background_color_bins(df, 10, ['PF Clusters', '% of thelane', '% Perfectbarcode', 'Yield (Mbases)', '% PFClusters', '% >= Q30bases', 'Mean QualityScore', '% One mismatchbarcode'])
 	table = html.Div([
@@ -179,6 +170,50 @@ def illumina_demux_table(demux_file):
 	fig.update_traces(showlegend=False, textinfo='none')
 	return table, fig
 
+def negative_qc_statement(df, negative_list=''):
+	if negative_list == '':
+		sample_list = list(df['Sample'].unique())
+		print(sample_list)
+		negative_list = [i for i in sample_list if 'PCR' in i]
+	df = df.pivot('Sample', columns='Record', values='Reads')
+	df['Percent Mapping'] = (df['3-match']+df['3-altmatch']) / df['1-initial']
+	statement = [html.Br()]
+	for s in negative_list:
+		reads_mapping = df.loc[s, 'Percent Mapping']*100
+		if reads_mapping >= 0.01:
+			statement.extend([f'You negative sample {s} FAILS QC with {reads_mapping:.2f}% mapping to reference', html.Br()])
+		else:
+			statement.extend([f'You negative sample {s} passes QC with {reads_mapping:.2f}% mapping to reference', html.Br()])
+	statement.extend([html.Br()])
+	return html.P(statement)
+
+@app.callback(
+	[Output('negative_qc_statement', 'children'),
+	Output('irma_stat_table', 'children')],
+	Input('irma_path', 'value'))
+def control_qc(irma_path):
+	if not irma_path :
+		raise dash.exceptions.PreventUpdate
+	df = pd.read_json(json.loads(generate_df(irma_path))['read_df'], orient='split')
+	qc_statement = negative_qc_statement(df) #### NEED TO IDENTIFY NEGATIVES
+	print(qc_statement)
+	df = df.pivot('Sample', columns='Record', values='Reads')
+	select_cols = [i for i in df.columns if i[0] != '4' and i[0] != '5' and i[0] != '0']
+	df = df[select_cols]
+	df = df.reset_index()
+	fill_colors = conditional_color_range_perCol.discrete_background_color_bins(df, 10, select_cols)
+	table = html.Div([
+		dash_table.DataTable(
+			columns = [{"name": i, "id": i} for i in df.columns],
+			data = df.to_dict('records'),
+			sort_action='native',
+			style_data_conditional=fill_colors,
+			persistence=True
+		)
+	])
+	return qc_statement, table
+
+@cache.memoize(timeout=cache_timeout)
 def create_irma_read_fig(df):
 	columns = 12
 	rows = 24
@@ -211,7 +246,6 @@ def create_irma_read_fig(df):
 					)
 	fig.update_traces(showlegend=False, textinfo='none')
 	return fig
-		
 
 @cache.memoize(timeout=cache_timeout)
 def returnSegData(df):
@@ -530,7 +564,12 @@ def render_tab_content(active_tab, irma_path):
 				return content
 		elif active_tab == 'irma':
 			content = html.Div(
-						[dbc.Row(
+						[
+						dbc.Row(
+							[html.Div(id='negative_qc_statement'),
+							html.Div(id='irma_stat_table')]
+						),
+						dbc.Row(
 							[dbc.Col(
 								dcc.Loading(
 									id='coverageheat-loading',
@@ -606,7 +645,8 @@ app.layout = dbc.Container(
 						dcc.Input(id='irma_path',
 							placeholder='TYPE /path/to/irma-output-dirs',
 							persistence=True,
-							debounce=True
+							debounce=True,
+							size='80'
 						),
 				)
 			]),
@@ -615,13 +655,6 @@ app.layout = dbc.Container(
 			[
 				dbc.Tab(label='Demux', tab_id='demux'),
 				dbc.Tab(label='IRMA', tab_id='irma'),
-				dbc.Tabs(
-					id='irma',
-					children=[
-					dbc.Tab(label='Controls', tab_id='controls'),
-					dbc.Tab(label='Coverage', tab_id='coverage')
-					],
-				),
 				dbc.Tab(label='Variants', tab_id='variants')
 			],
 			id='tabs',
