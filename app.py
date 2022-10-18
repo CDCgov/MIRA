@@ -71,15 +71,6 @@ def select_sample(plotClick, irma_path):
 		value = plotClick['points'][0]['x']
 	return options, value
 
-#@app.callback(
-#	Output('select_sample', 'value'),
-#	Input('select_sample', 'options'))
-#def set_irma_options(sample_options):
-#	if not sample_options:
-#		raise dash.exceptions.PreventUpdate
-#	return sample_options[0]['value']
-
-
 @app.callback(
 	Output('single_sample_figs', 'children'),
 	[Input('irma_path', 'value'),
@@ -112,11 +103,6 @@ def single_sample_fig(irma_path, sample, cov_linear_y):
 	#print(content)
 	return content
 
-#@app.callback(
-#	Output('df_cache', 'data'),
-#	[Input('select_machine', 'value'),
-#	Input('select_run', 'value'),
-#	Input('select_irma', 'value')])
 @cache.memoize(timeout=cache_timeout)
 def generate_df(irma_path):
 	if not irma_path:
@@ -190,12 +176,17 @@ def negative_qc_statement(df, negative_list=''):
 @app.callback(
 	[Output('negative_qc_statement', 'children'),
 	Output('irma_stat_table', 'children')],
-	Input('irma_path', 'value'))
-def control_qc(irma_path):
-	if not irma_path :
+	[Input('irma_path', 'value'),
+	Input('samplesheet_table', 'data'),
+	Input('samplesheet_table', 'columns')]
+	)
+def control_qc(irma_path, ssrows, sscols):
+	if not irma_path or not ssrows or not sscols:
 		raise dash.exceptions.PreventUpdate
 	df = pd.read_json(json.loads(generate_df(irma_path))['read_df'], orient='split')
-	qc_statement = negative_qc_statement(df) #### NEED TO IDENTIFY NEGATIVES
+	ss_df = pd.DataFrame(ssrows, columns=[c['name'] for c in sscols])
+	neg_controls = list(ss_df[ss_df['Sample Type'] == '- Control']['Sample ID'])
+	qc_statement = negative_qc_statement(df, neg_controls) 
 	print(qc_statement)
 	df = df.pivot('Sample', columns='Record', values='Reads')
 	select_cols = [i for i in df.columns if i[0] != '4' and i[0] != '5' and i[0] != '0']
@@ -514,7 +505,30 @@ def aa_var_table(irma_path):
 )
 def render_tab_content(active_tab, irma_path):
 	if active_tab:
-		if active_tab == 'demux':
+		if active_tab == 'samplesheet':
+			content = html.Div([
+				dash_table.DataTable(
+					id='samplesheet_table',
+					columns=[{'id':'Barcode #', 'name':'Barcode #'}, 
+							{'id':'Sample ID', 'name':'Sample ID'},
+							{'id':'Sample Type', 'name':'Sample Type', 'presentation':'dropdown'}],
+					data=[dict(**{'Barcode #':f'{i:.0f}', 'Sample ID':'', 'Sample Type':'Test'}) for i in range(1,97)],
+					editable=True,
+					dropdown={
+						'Sample Type':{
+							'options':[
+								{'label':i, 'value':i} 
+								for i in ['+ Control', '- Control', 'Test']
+							]
+						}
+					},
+					export_format='xlsx',
+					export_headers='display',
+					merge_duplicate_headers=True
+				)
+			])
+			return content
+		elif active_tab == 'demux':
 			if 'MinION' in irma_path:
 				with open(glob(os.path.join(irma_path,'*pycoQC.html'))[0], 'r') as d:
 					raw_html = '\n'.join(d.readlines())
@@ -653,6 +667,7 @@ app.layout = dbc.Container(
 		]),
 		dbc.Tabs(
 			[
+				dbc.Tab(label='Samplesheet', tab_id='samplesheet'),
 				dbc.Tab(label='Demux', tab_id='demux'),
 				dbc.Tab(label='IRMA', tab_id='irma'),
 				dbc.Tab(label='Variants', tab_id='variants')
