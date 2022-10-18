@@ -199,7 +199,7 @@ def control_qc(irma_path, ssrows, sscols):
 			data = df.to_dict('records'),
 			sort_action='native',
 			style_data_conditional=fill_colors,
-			persistence=True
+			#persistence=True
 		)
 	])
 	return qc_statement, table
@@ -485,63 +485,91 @@ def aa_var_table(irma_path):
 			)
 	return table
 
-#@app.callback(
-#	Output('irma-reads', 'figure'),
-#	Input('df_cache', 'data'))
-#def callback_irma_read_fig(data):
-#	df = pd.read_json(json.loads(generate_df(irma_path))['df'], orient='split')
-	#fig = pio.from_json(json.loads(data)['irma_reads_fig'])
-#	return fig
-
 
 ########################################################
-#################### LAYOUT TABS #######################
+###################### LAYOUT ##########################
 ########################################################
-@app.callback(
-	Output('tab-content', 'children'),
-	[Input('tabs', 'active_tab'), 
-	#Input('store', 'data')]
-	Input('irma_path', 'value')]
+SIDEBAR_STYLE = {
+    "position": "fixed",
+    "top": 0,
+    "left": 0,
+    "bottom": 0,
+    "width": "22rem",
+    "padding": "2rem 1rem",
+    "background-color": "#f8f9fa",
+}
+
+# the styles for the main content position it to the right of the sidebar and
+# add some padding.
+CONTENT_STYLE = {
+    "margin-left": "24rem",
+    "margin-right": "2rem",
+    "padding": "2rem 1rem",
+}
+
+sidebar = html.Div(
+    [
+        html.Img(
+			src=app.get_asset_url('irma-spy.jpg'),
+			height=80,
+			width=80,
+		),
+		html.H2("IRMA Spy", className="display-4"),
+        html.P(
+            "LOREM IPSUM", className="lead"
+        ),
+		html.Hr(),
+        dbc.Nav(
+            [
+                dbc.NavLink("Samplesheet", href="#samplesheet_head", external_link=True),
+                dbc.NavLink("Barcode Assignment", href="#demux_head",external_link=True),
+                dbc.NavLink("IRMA Summary", href="#irma_head",external_link=True),
+                dbc.NavLink("Reference Coverage", href="#coverage_head",external_link=True),
+                dbc.NavLink("Variants", href="#variants_head",external_link=True),
+            ],
+            vertical=True,
+            pills=True,
+        ),
+    ],
+    style=SIDEBAR_STYLE,
 )
-def render_tab_content(active_tab, irma_path):
-	if active_tab:
-		if active_tab == 'samplesheet':
-			content = html.Div([
-				dash_table.DataTable(
-					id='samplesheet_table',
-					columns=[{'id':'Barcode #', 'name':'Barcode #'}, 
-							{'id':'Sample ID', 'name':'Sample ID'},
-							{'id':'Sample Type', 'name':'Sample Type', 'presentation':'dropdown'}],
-					data=[dict(**{'Barcode #':f'{i:.0f}', 'Sample ID':'', 'Sample Type':'Test'}) for i in range(1,97)],
-					editable=True,
-					dropdown={
-						'Sample Type':{
-							'options':[
-								{'label':i, 'value':i} 
-								for i in ['+ Control', '- Control', 'Test']
-							]
-						}
-					},
-					export_format='xlsx',
-					export_headers='display',
-					merge_duplicate_headers=True
-				)
-			])
-			return content
-		elif active_tab == 'demux':
-			if 'MinION' in irma_path:
-				with open(glob(os.path.join(irma_path,'*pycoQC.html'))[0], 'r') as d:
-					raw_html = '\n'.join(d.readlines())
-				content = dcc.Loading(
-					id='demux-ont-loading',
-					type='cube',
-					children=[
-						html.Iframe(srcDoc=raw_html, height=10000, width=1400)
-					]
-				)
-				return content
-			else:
-				content = html.Div([
+
+content = html.Div(
+			id='page-content',
+			style=CONTENT_STYLE,
+			children=
+				[dbc.Row(dcc.Input(id='irma_path',
+							placeholder='FIRST copy and paste your local /path/to/irma-output-dirs',
+							#persistence=True,
+							debounce=True
+							)	
+						)]+
+				[html.P('Samplesheet', id='samplesheet_head', className='display-6')]+
+				[html.Br()]+
+				[html.Div([
+					dash_table.DataTable(
+						id='samplesheet_table',
+						columns=[{'id':'Barcode #', 'name':'Barcode #'}, 
+								{'id':'Sample ID', 'name':'Sample ID'},
+								{'id':'Sample Type', 'name':'Sample Type', 'presentation':'dropdown'}],
+						data=[dict(**{'Barcode #':f'{i:.0f}', 'Sample ID':'', 'Sample Type':'Test'}) for i in range(1,97)],
+						editable=True,
+						dropdown={
+							'Sample Type':{
+								'options':[
+									{'label':i, 'value':i} 
+									for i in ['+ Control', '- Control', 'Test']
+								]
+							}
+						},
+						export_format='xlsx',
+						export_headers='display',
+						merge_duplicate_headers=True
+					)])]+
+				[html.Br()]+
+				[html.P('Barcode Assignment', id='demux_head', className='display-6')]+
+				[html.Br()]+
+				[html.Div([
 					dbc.Row(
 						dcc.Upload(id='demux_file',
 						children=html.Div([
@@ -573,113 +601,71 @@ def render_tab_content(active_tab, irma_path):
 								)
 							]
 						)
-					)
-				])
-				return content
-		elif active_tab == 'irma':
-			content = html.Div(
-						[
-						dbc.Row(
-							[html.Div(id='negative_qc_statement'),
-							html.Div(id='irma_stat_table')]
-						),
-						dbc.Row(
-							[dbc.Col(
-								dcc.Loading(
-									id='coverageheat-loading',
-									type='cube',
-									children=[
-										dcc.Graph(	
-											id='coverage-heat'
-										)
-									]
-								),
-								width=11,
-								align='end'
+					)])]+
+				[html.Br()]+
+				[html.P('IRMA Summary', id='irma_head', className='display-6')]+
+				[html.Br()]+
+				[dbc.Row(
+					[html.Div(id='negative_qc_statement'),
+					html.Div(id='irma_stat_table')]
+				)]+
+				[html.Br()]+
+				[html.P('Reference Coverage', id='coverage_head', className='display-6')]+
+				[html.Br()]+
+				[html.Div(
+					[dbc.Row(
+						[dbc.Col(
+							dcc.Loading(
+								id='coverageheat-loading',
+								type='cube',
+								children=[
+									dcc.Graph(	
+										id='coverage-heat'
+									)
+								]
 							),
-							dbc.Col(
-								daq.Slider(
-									id='heatmap-slider',
-									marks={'100':'100','300':'300','500':'500','700':'700','900':'900'},
-									max=1000,
-									min=100,
-									value=100,
-									step=50,
-									vertical=True,
-									persistence=True,
-									dots=True
-								),
-								align='center'
-							)]#,
-							#no_gutters=True
+							width=11,
+							align='end'
 						),
-						dcc.Dropdown(id='select_sample',persistence=True),
-						html.Div(id='single_sample_figs'),
 						dbc.Col(
-							daq.ToggleSwitch(
-								id='cov_linear_y',
-								label='log y ----- linear y	',
-								labelPosition='bottom',
-								value=True
+							daq.Slider(
+								id='heatmap-slider',
+								marks={'100':'100','300':'300','500':'500','700':'700','900':'900'},
+								max=1000,
+								min=100,
+								value=100,
+								step=50,
+								vertical=True,
+								persistence=True,
+								dots=True
 							),
-							width=8,
-							align='right'
-						)]
-					  )
-			return content
-		elif active_tab == 'variants':
-			content = [dbc.Row(dbc.Col(id='aa_var_table', width=6), justify='center'),
+							align='center'
+						)]#,
+						#no_gutters=True
+					),
+					dcc.Dropdown(id='select_sample',persistence=True),
+					html.Div(id='single_sample_figs'),
+					dbc.Col(
+						daq.ToggleSwitch(
+							id='cov_linear_y',
+							label='log y ----- linear y	',
+							labelPosition='bottom',
+							value=True
+						),
+						width=8,
+						align='right'
+					)])]+
+				[html.Br()]+
+				[html.P('Variants', id='variants_head', className='display-6')]+
+				[html.Br()]+
+				[dbc.Row(dbc.Col(id='aa_var_table', width=6), justify='center'),
 						dcc.Dropdown(id='select_gene', persistence=True),
 						html.Div(id='alignment_fig')
-					  ]
-			return content
+					  ]+
+				[html.Br()]
+			)
 
-
-
-########################################################
-###################### LAYOUT ##########################
-########################################################
-
-app.layout = dbc.Container(
-	fluid=True,
-	children=
-	[
-		#dcc.Store(id='df_cache'),
-		#dcc.Store(id='store'),
-		html.Div([
-			dbc.Row([
-				dbc.Col(
-						html.Img(
-							src=app.get_asset_url('irma-spy.jpg'),
-							height=80,
-							width=80,
-						),
-				),
-				dbc.Col(
-						dcc.Input(id='irma_path',
-							placeholder='TYPE /path/to/irma-output-dirs',
-							persistence=True,
-							debounce=True,
-							size='80'
-						),
-				)
-			]),
-		]),
-		dbc.Tabs(
-			[
-				dbc.Tab(label='Samplesheet', tab_id='samplesheet'),
-				dbc.Tab(label='Demux', tab_id='demux'),
-				dbc.Tab(label='IRMA', tab_id='irma'),
-				dbc.Tab(label='Variants', tab_id='variants')
-			],
-			id='tabs',
-			active_tab='demux',
-			persistence=True,
-			persistence_type='session'
-		),
-		html.Div(id='tab-content')
-	]
-)
+app.layout = html.Div([sidebar, content])
 
 ####################################################
 ####################### MAIN #######################
