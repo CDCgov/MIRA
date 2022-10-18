@@ -29,8 +29,8 @@ from glob import glob
 from numpy import arange
 from flask_caching import Cache
 path.append(dirname(realpath(__file__))+'/scripts/')
-import irma2dash
-import conditional_color_range_perCol
+import irma2dash # type: ignore
+import conditional_color_range_perCol # type: ignore
 import base64
 
 app = dash.Dash(external_stylesheets=[dbc.themes.FLATLY])
