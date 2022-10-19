@@ -108,4 +108,18 @@ def dash_irma_coverage_df(irma_path):
 		#for i in args.add_fields_right:
 		#	df[i[0]] = i[1]
 	df.to_csv(irma_path+'/coverage.csv.gz', compression='gzip')
-	return df	
+	return df
+
+def dash_irma_alleles_df(irma_path):
+	if isfile(irma_path+'/alleles.csv.gz'):
+		df = pd.read_csv(irma_path+'/alleles.csv.gz')
+		return df
+	alleleFiles = glob(irma_path+'/*/tables/*variants.txt')
+	df = pd.DataFrame()
+	for f in alleleFiles:
+		sample = basename(dirname(dirname(f)))
+		df_prime = pd.read_csv(f, sep='\t', index_col=False)
+		df_prime.insert(loc=0, column='Sample', value=sample)
+		df = df.append(df_prime)
+	df.to_csv(irma_path+'/alleles.csv.gz', compression='gzip')
+	return df

@@ -19,7 +19,6 @@ import plotly.io as pio
 import pandas as pd
 from math import ceil, log10, sqrt
 from itertools import cycle
-import pickle
 from sys import path, argv
 from os.path import dirname, realpath, isdir
 import os
@@ -27,11 +26,13 @@ import yaml
 import json
 from glob import glob
 from numpy import arange
+import base64
+import io
 from flask_caching import Cache
 path.append(dirname(realpath(__file__))+'/scripts/')
 import irma2dash # type: ignore
 import conditional_color_range_perCol # type: ignore
-import base64
+
 
 app = dash.Dash(external_stylesheets=[dbc.themes.FLATLY])
 app.title = 'IRMA SPY'
@@ -79,7 +80,6 @@ def select_sample(plotClick, irma_path):
 @cache.memoize(timeout=cache_timeout)
 def single_sample_fig(irma_path, sample, cov_linear_y):
 	if not irma_path or not sample:
-		print(f'single_sample_fig cannot be created without irma_path ({irma_path}) and sample ({sample})')
 		raise dash.exceptions.PreventUpdate
 	df = pd.read_json(json.loads(generate_df(irma_path))['read_df'], orient='split')
 	df = df[df['Sample'] == sample]
@@ -100,7 +100,6 @@ def single_sample_fig(irma_path, sample, cov_linear_y):
 					#no_gutters=True
 				 )
 			#  )
-	#print(content)
 	return content
 
 @cache.memoize(timeout=cache_timeout)
@@ -110,6 +109,7 @@ def generate_df(irma_path):
 	irma_path = os.path.join(irma_path)
 	df = irma2dash.dash_irma_coverage_df(irma_path) #argv[2]) #loadData('./test.csv')
 	read_df = irma2dash.dash_irma_reads_df(irma_path)
+	alleles_df = irma2dash.dash_irma_alleles_df(irma_path)
 	segments, segset, segcolor = returnSegData(df)
 	df4 = pivot4heatmap(df)
 	df4.to_csv(irma_path+'/mean_coverages.tsv', sep='\t', index=False)
@@ -119,11 +119,11 @@ def generate_df(irma_path):
 		cov_header = 'Coverage Depth'
 	sliderMax = df4[cov_header].max()
 	allFig = createAllCoverageFig(df, ','.join(segments), segcolor)
-	print('creating irma_read_fig')
 	irma_read_fig = create_irma_read_fig(read_df)
 	return json.dumps({'df':df.to_json(orient='split'), 
 						'df4':df4.to_json(orient='split'), 
-						'read_df':read_df.to_json(orient='split'), 
+						'read_df':read_df.to_json(orient='split'),
+						'alleles_df':alleles_df.to_json(orient='split'), 
 						'cov_header':cov_header, 
 						'sliderMax':sliderMax,
 						'segments':','.join(segments),
@@ -133,25 +133,103 @@ def generate_df(irma_path):
 						'irma_reads_fig':irma_read_fig.to_json()})
 
 @app.callback(
+	Output('samplesheet', 'children'), 
+	Input('sample_number', 'value'))
+def generate_samplesheet(sample_number):
+	if not sample_number:
+		raise dash.exceptions.PreventUpdate
+	table = [
+		dash_table.DataTable(
+			id='samplesheet_table',
+			columns=[{'id':'Barcode #', 'name':'Barcode #'}, 
+					{'id':'Sample ID', 'name':'Sample ID'},
+					{'id':'Sample Type', 'name':'Sample Type', 'presentation':'dropdown'}],
+			data=[dict(**{'Barcode #':f'{i:.0f}', 'Sample ID':'', 'Sample Type':'Test'}) for i in range(1,sample_number+1)],
+			editable=True,
+			dropdown={
+				'Sample Type':{
+					'options':[
+						{'label':i, 'value':i} 
+						for i in ['+ Control', '- Control', 'Test']
+					]
+				}
+			},
+			export_format='xlsx',
+			export_headers='display',
+			merge_duplicate_headers=True
+		)]
+	return table
+
+@app.callback(
+	[Output('minor_alleles_table', 'children'),
+	Input('irma_path', 'value')]
+)
+def alleles_table(irma_path):
+	if not irma_path:
+		raise dash.exceptions.PreventUpdate
+	df = pd.read_json(json.loads(generate_df(irma_path))['alleles_df'], orient='split')
+	table = [html.Div([
+			dash_table.DataTable(
+				columns = [{"name": i, "id": i} for i in df.columns],
+				data = df.to_dict('records'),
+				sort_action='native',
+				filter_action='native',
+				persistence=True,
+				page_size=10,
+				export_format='xlsx',
+				export_headers='display'
+			)
+		])]
+	return table
+
+@app.callback(
 	[Output('illumina_demux_table', 'children'),
 	Output('demux_fig', 'figure')],
-	[Input('demux_file', 'contents')])
+	[Input('demux_file', 'contents'),
+	State('demux_file', 'filename')])
 @cache.memoize(timeout=cache_timeout)
-def illumina_demux_table(demux_file):
+def illumina_demux_table(demux_file, filename):
 	if not demux_file:
 		raise dash.exceptions.PreventUpdate
-	df = pd.read_html(base64.b64decode(demux_file[22:]).decode('ascii'))[2]
-	fill_colors = conditional_color_range_perCol.discrete_background_color_bins(df, 10, ['PF Clusters', '% of thelane', '% Perfectbarcode', 'Yield (Mbases)', '% PFClusters', '% >= Q30bases', 'Mean QualityScore', '% One mismatchbarcode'])
+	if 'sequencing_summary' in filename:
+		df = pd.read_csv(io.StringIO(base64.b64decode(demux_file.split(',')[1]).decode('utf-8')), sep='\t')
+	else:
+		df = pd.read_html(base64.b64decode(demux_file[22:]).decode('ascii'))[2]
+	ont=False
+	if 'filename_fast5' in df.columns:
+		ont=True
+		df = df.groupby(['alias','barcode_arrangement']).agg({'filename_fastq':'count', 'sequence_length_template':'mean', 
+															'mean_qscore_template':'mean', 'barcode_score':'mean'})
+		df = df.reset_index()
+		df = df.rename(columns={'barcode_arrangement':'Barcode', 'alias':'Sample ID', 
+						'filename_fastq':'# Reads', 'sequence_length_template': 'Mean Read Length', 
+						'mean_qscore_template':'Mean Mean Qscore', 'barcode_score':'Mean Barcode Identity'})
+		def flfor(x, digits):
+			return float(f'{x:.{digits}f}')
+		df[['Mean Mean Qscore' ,'Mean Barcode Identity']] = df[['Mean Mean Qscore' ,'Mean Barcode Identity']].applymap(lambda x: flfor(x, 2))
+		df[['Mean Read Length']] = df[['Mean Read Length']].applymap(lambda x: flfor(x, 0))
+		fill_colors = conditional_color_range_perCol.discrete_background_color_bins(df, 10)
+	else:
+		fill_colors = conditional_color_range_perCol.discrete_background_color_bins(df, 10, ['PF Clusters', '% of thelane', 
+																					'% Perfectbarcode', 'Yield (Mbases)', 
+																					'% PFClusters', '% >= Q30bases', 
+																					'Mean QualityScore', '% One mismatchbarcode'])
 	table = html.Div([
 			dash_table.DataTable(
 				columns = [{"name": i, "id": i} for i in df.columns],
 				data = df.to_dict('records'),
 				sort_action='native',
 				style_data_conditional=fill_colors,
-				persistence=True
+				persistence=True,
+				export_format='xlsx',
+				export_headers='display',
+				merge_duplicate_headers=True
 			)
 		])
-	fig = px.pie(df, values='PF Clusters', names='Sample')
+	if ont:
+		fig = px.pie(df, values='# Reads', names='Sample ID')
+	else:
+		fig = px.pie(df, values='PF Clusters', names='Sample')
 	fig.update_layout(margin=dict(t=10, b=10, l=10, r=10))
 	fig.update_traces(showlegend=False, textinfo='none')
 	return table, fig
@@ -159,10 +237,12 @@ def illumina_demux_table(demux_file):
 def negative_qc_statement(df, negative_list=''):
 	if negative_list == '':
 		sample_list = list(df['Sample'].unique())
-		print(sample_list)
 		negative_list = [i for i in sample_list if 'PCR' in i]
 	df = df.pivot('Sample', columns='Record', values='Reads')
-	df['Percent Mapping'] = (df['3-match']+df['3-altmatch']) / df['1-initial']
+	if '3-altmatch' in df.columns:
+		df['Percent Mapping'] = (df['3-match']+df['3-altmatch']) / df['1-initial']
+	else:
+		df['Percent Mapping'] = df['3-match'] / df['1-initial']
 	statement = [html.Br()]
 	for s in negative_list:
 		reads_mapping = df.loc[s, 'Percent Mapping']*100
@@ -187,7 +267,6 @@ def control_qc(irma_path, ssrows, sscols):
 	ss_df = pd.DataFrame(ssrows, columns=[c['name'] for c in sscols])
 	neg_controls = list(ss_df[ss_df['Sample Type'] == '- Control']['Sample ID'])
 	qc_statement = negative_qc_statement(df, neg_controls) 
-	print(qc_statement)
 	df = df.pivot('Sample', columns='Record', values='Reads')
 	select_cols = [i for i in df.columns if i[0] != '4' and i[0] != '5' and i[0] != '0']
 	df = df[select_cols]
@@ -199,7 +278,10 @@ def control_qc(irma_path, ssrows, sscols):
 			data = df.to_dict('records'),
 			sort_action='native',
 			style_data_conditional=fill_colors,
-			#persistence=True
+			persistence=True,
+			export_format='xlsx',
+			export_headers='display',
+			merge_duplicate_headers=True
 		)
 	])
 	return qc_statement, table
@@ -418,8 +500,6 @@ def createSampleCoverageFig(sample, df, segments, segcolor, cov_linear_y):
 		ymax = ymax**(1/10)
 	else:
 		ya_type='linear'
-	#print(f'ymax == {ymax}')
-	#print(df2[df2[cov_header] == ymax])
 	fig.update_layout(
 		height=600,
 		title=sample,
@@ -470,7 +550,6 @@ def alignment_fig(irma_path, gene):
 		data = '\n'.join(d.readlines())
 	return dbio.AlignmentChart(data=data, showgap=False, showid=False)
 
-
 @app.callback(
 	Output('aa_var_table', 'children'),
 	[Input('irma_path', 'value')])
@@ -515,9 +594,7 @@ sidebar = html.Div(
 			width=80,
 		),
 		html.H2("IRMA Spy", className="display-4"),
-        html.P(
-            "LOREM IPSUM", className="lead"
-        ),
+        html.P("\"Time is a Pony Ride\"", className="display-7"),
 		html.Hr(),
         dbc.Nav(
             [
@@ -525,6 +602,7 @@ sidebar = html.Div(
                 dbc.NavLink("Barcode Assignment", href="#demux_head",external_link=True),
                 dbc.NavLink("IRMA Summary", href="#irma_head",external_link=True),
                 dbc.NavLink("Reference Coverage", href="#coverage_head",external_link=True),
+                dbc.NavLink("Minor Alleles", href="#alleles_head",external_link=True),
                 dbc.NavLink("Variants", href="#variants_head",external_link=True),
             ],
             vertical=True,
@@ -540,32 +618,19 @@ content = html.Div(
 			children=
 				[dbc.Row(dcc.Input(id='irma_path',
 							placeholder='FIRST copy and paste your local /path/to/irma-output-dirs',
-							#persistence=True,
+							persistence=True,
 							debounce=True
 							)	
 						)]+
 				[html.P('Samplesheet', id='samplesheet_head', className='display-6')]+
+				[html.Div(
+					dcc.Input(id='sample_number',
+							type='number',
+							placeholder='Enter your number of samples')
+					)]+
 				[html.Br()]+
-				[html.Div([
-					dash_table.DataTable(
-						id='samplesheet_table',
-						columns=[{'id':'Barcode #', 'name':'Barcode #'}, 
-								{'id':'Sample ID', 'name':'Sample ID'},
-								{'id':'Sample Type', 'name':'Sample Type', 'presentation':'dropdown'}],
-						data=[dict(**{'Barcode #':f'{i:.0f}', 'Sample ID':'', 'Sample Type':'Test'}) for i in range(1,97)],
-						editable=True,
-						dropdown={
-							'Sample Type':{
-								'options':[
-									{'label':i, 'value':i} 
-									for i in ['+ Control', '- Control', 'Test']
-								]
-							}
-						},
-						export_format='xlsx',
-						export_headers='display',
-						merge_duplicate_headers=True
-					)])]+
+				[html.Div(
+					id='samplesheet')]+
 				[html.Br()]+
 				[html.P('Barcode Assignment', id='demux_head', className='display-6')]+
 				[html.Br()]+
@@ -655,6 +720,12 @@ content = html.Div(
 						width=8,
 						align='right'
 					)])]+
+				[html.Br()]+
+				[html.P('Minor Alleles', id='alleles_head', className='display-6')]+
+				[html.Br()]+
+				[dbc.Row(
+					html.Div(id='minor_alleles_table')
+				)]+
 				[html.Br()]+
 				[html.P('Variants', id='variants_head', className='display-6')]+
 				[html.Br()]+
