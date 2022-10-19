@@ -28,6 +28,7 @@ from glob import glob
 from numpy import arange
 import base64
 import io
+import subprocess
 from flask_caching import Cache
 path.append(dirname(realpath(__file__))+'/scripts/')
 import irma2dash # type: ignore
@@ -143,8 +144,11 @@ def generate_samplesheet(sample_number):
 			id='samplesheet_table',
 			columns=[{'id':'Barcode #', 'name':'Barcode #'}, 
 					{'id':'Sample ID', 'name':'Sample ID'},
-					{'id':'Sample Type', 'name':'Sample Type', 'presentation':'dropdown'}],
-			data=[dict(**{'Barcode #':f'{i:.0f}', 'Sample ID':'', 'Sample Type':'Test'}) for i in range(1,sample_number+1)],
+					{'id':'Sample Type', 'name':'Sample Type', 'presentation':'dropdown'},
+					{'id': 'Flow Cell ID', 'name':'Flow Cell ID'},
+					{'id': 'Flow Cell Product Code', 'name':'Flow Cell Product Code'},
+					{'id': 'Barcode Expansion Pack', 'name':'Barcode Expansion Pack', 'presentation':'dropdown'}],
+			data=[dict(**{'Barcode #':f'{i:.0f}', 'Sample ID':'', 'Sample Type':'Test','Flow Cell ID':'','Flow Cell Product Code':'','Barcode Expansion Pack':'EXP-PBC096'}) for i in range(1,sample_number+1)],
 			editable=True,
 			dropdown={
 				'Sample Type':{
@@ -152,13 +156,44 @@ def generate_samplesheet(sample_number):
 						{'label':i, 'value':i} 
 						for i in ['+ Control', '- Control', 'Test']
 					]
+				},
+				'Barcode Expansion Pack':{
+					'options':[
+						{'label':i, 'value':i}
+						for i in ['EXP-PBC096', 'LSK-109', 'SQK-NSK007', 'SQK-PBK004']
+
+					]
 				}
 			},
-			export_format='xlsx',
+			export_format='csv',
 			export_headers='display',
 			merge_duplicate_headers=True
 		)]
 	return table
+
+@cache.memoize(timeout=cache_timeout)
+@app.callback(
+    dash.dependencies.Output('output-container-button', 'children'),
+    [dash.dependencies.Input('assembly-button', 'n_clicks'),
+	Input('samplesheet_path', 'value'),
+	Input('data_path', 'value')])
+def run_snake_script_onClick(n_clicks, samplesheet_path, data_path):
+    #print('[DEBUG] n_clicks:', n_clicks)
+    
+    if not n_clicks:
+        #raise dash.exceptions.PreventUpdate
+        return dash.no_update
+    if not samplesheet_path:
+        raise dash.exceptions.PreventUpdate
+    if not data_path:
+        raise dash.exceptions.PreventUpdate
+    
+    result = subprocess.check_output(['python', 'scripts/config_create.py', samplesheet_path, data_path])  
+
+    # convert bytes to string
+    result = result.decode()  
+    
+    return result	
 
 @app.callback(
 	[Output('minor_alleles_table', 'children'),
@@ -632,6 +667,21 @@ content = html.Div(
 				[html.Div(
 					id='samplesheet')]+
 				[html.Br()]+
+				[dbc.Row(
+					
+					dcc.Input(id='samplesheet_path',
+						placeholder='Paste path to generated samplesheet',
+						persistence=True,
+						debounce=True))]+
+				[dbc.Row(
+					dcc.Input(id='data_path',
+						placeholder='Paste path to demuxed data',
+						persistence=True,
+						debounce=True))
+				    ]+
+				[html.Button('Start Genome Assembly', id='assembly-button', n_clicks=0),
+				html.Div(id='output-container-button', children='Hit the button to update.')
+				]+
 				[html.P('Barcode Assignment', id='demux_head', className='display-6')]+
 				[html.Br()]+
 				[html.Div([
