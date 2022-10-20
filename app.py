@@ -207,7 +207,7 @@ def alleles_table(irma_path):
 				data = df.to_dict('records'),
 				sort_action='native',
 				filter_action='native',
-				persistence=True,
+				#persistence=True,
 				page_size=10,
 				export_format='xlsx',
 				export_headers='display'

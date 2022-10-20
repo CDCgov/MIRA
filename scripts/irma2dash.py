@@ -110,7 +110,7 @@ def dash_irma_coverage_df(irma_path):
 	df.to_csv(irma_path+'/coverage.csv.gz', compression='gzip')
 	return df
 
-def dash_irma_alleles_df(irma_path):
+def dash_irma_alleles_df(irma_path, full=False):
 	if isfile(irma_path+'/alleles.csv.gz'):
 		df = pd.read_csv(irma_path+'/alleles.csv.gz')
 		return df
@@ -121,5 +121,20 @@ def dash_irma_alleles_df(irma_path):
 		df_prime = pd.read_csv(f, sep='\t', index_col=False)
 		df_prime.insert(loc=0, column='Sample', value=sample)
 		df = df.append(df_prime)
+	if not full:
+		if 'HMM_Position' in df.columns:
+			ref_heads = ['Sample', 'Reference_Name', 'HMM_Position', 
+			'Position', 'Total', 'Consensus_Allele', 'Minority_Allele', 
+			'Consensus_Count', 'Minority_Count', 'Minority_Frequency']
+		else:
+			ref_heads = ['Sample', 
+			'Position', 'Total', 'Consensus_Allele', 'Minority_Allele', 
+			'Consensus_Count', 'Minority_Count', 'Minority_Frequency']
+		df = df[ref_heads]
+		df = df.rename(columns={'Reference_Name':'Reference', 'HMM_Position':'Reference Position', 
+					'Position':'Sample Position', 'Total':'Coverage', 'Consensus_Allele':'Consensus Allele', 
+					'Minority_Allele':'Minority Allele', 'Consensus_Count':'Consensus Count', 
+					'Minority_Count':'Minority Count', 'Minority_Frequency':'Minority Frequency'})
+		print(df)
 	df.to_csv(irma_path+'/alleles.csv.gz', compression='gzip')
 	return df
