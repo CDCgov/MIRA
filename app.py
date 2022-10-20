@@ -145,10 +145,8 @@ def generate_samplesheet(sample_number):
 			columns=[{'id':'Barcode #', 'name':'Barcode #'}, 
 					{'id':'Sample ID', 'name':'Sample ID'},
 					{'id':'Sample Type', 'name':'Sample Type', 'presentation':'dropdown'},
-					{'id': 'Flow Cell ID', 'name':'Flow Cell ID'},
-					{'id': 'Flow Cell Product Code', 'name':'Flow Cell Product Code'},
 					{'id': 'Barcode Expansion Pack', 'name':'Barcode Expansion Pack', 'presentation':'dropdown'}],
-			data=[dict(**{'Barcode #':f'{i:.0f}', 'Sample ID':'', 'Sample Type':'Test','Flow Cell ID':'','Flow Cell Product Code':'','Barcode Expansion Pack':'EXP-PBC096'}) for i in range(1,sample_number+1)],
+			data=[dict(**{'Barcode #':f'barcode{i:02}', 'Sample ID':'', 'Sample Type':'Test','Barcode Expansion Pack':'EXP-PBC096'}) for i in range(1,sample_number+1)],
 			editable=True,
 			dropdown={
 				'Sample Type':{
