@@ -111,6 +111,7 @@ def generate_df(irma_path):
 	df = irma2dash.dash_irma_coverage_df(irma_path) #argv[2]) #loadData('./test.csv')
 	read_df = irma2dash.dash_irma_reads_df(irma_path)
 	alleles_df = irma2dash.dash_irma_alleles_df(irma_path)
+	indels_df = irma2dash.dash_irma_indels_df(irma_path)
 	segments, segset, segcolor = returnSegData(df)
 	df4 = pivot4heatmap(df)
 	df4.to_csv(irma_path+'/mean_coverages.tsv', sep='\t', index=False)
@@ -124,6 +125,7 @@ def generate_df(irma_path):
 	return json.dumps({'df':df.to_json(orient='split'), 
 						'df4':df4.to_json(orient='split'), 
 						'read_df':read_df.to_json(orient='split'),
+						'indels_df':indels_df.to_json(orient='split'),
 						'alleles_df':alleles_df.to_json(orient='split'), 
 						'cov_header':cov_header, 
 						'sliderMax':sliderMax,
@@ -287,24 +289,43 @@ def negative_qc_statement(df, negative_list=''):
 	return html.P(statement)
 
 @app.callback(
-	[Output('negative_qc_statement', 'children'),
-	Output('irma_stat_table', 'children')],
+	[Output('irma_neg_statment', 'children'),
+	Output('irma_summary', 'children')],
 	[Input('irma_path', 'value'),
 	Input('samplesheet_table', 'data'),
 	Input('samplesheet_table', 'columns')]
 	)
-def control_qc(irma_path, ssrows, sscols):
+def irma_summary(irma_path, ssrows, sscols):
 	if not irma_path or not ssrows or not sscols:
 		raise dash.exceptions.PreventUpdate
-	df = pd.read_json(json.loads(generate_df(irma_path))['read_df'], orient='split')
 	ss_df = pd.DataFrame(ssrows, columns=[c['name'] for c in sscols])
 	neg_controls = list(ss_df[ss_df['Sample Type'] == '- Control']['Sample ID'])
-	qc_statement = negative_qc_statement(df, neg_controls) 
-	df = df.pivot('Sample', columns='Record', values='Reads')
-	select_cols = [i for i in df.columns if i[0] != '4' and i[0] != '5' and i[0] != '0']
-	df = df[select_cols]
-	df = df.reset_index()
-	fill_colors = conditional_color_range_perCol.discrete_background_color_bins(df, 10, select_cols)
+	reads = pd.read_json(json.loads(generate_df(irma_path))['read_df'], orient='split')
+	qc_statement = negative_qc_statement(reads, neg_controls) 
+	reads = reads.pivot('Sample', columns='Record', values='Reads')
+	indels = pd.read_json(json.loads(generate_df(irma_path))['indels_df'], orient='split')
+	indels = indels[indels['Frequency'] >= 0.05]\
+		.groupby('Sample')\
+		.agg({'Sample':'count'})\
+		.rename(columns={'Sample':'Count of Indels >= 0.05'})\
+		.reset_index()
+	alleles = pd.read_json(json.loads(generate_df(irma_path))['alleles_df'], orient='split')
+	alleles = alleles[alleles['Minority Frequency'] >= 0.05]\
+		.groupby('Sample')\
+		.agg({'Sample':'count'})\
+		.rename(columns={'Sample':'Count of Minor SNVs >= 0.05'})\
+		.reset_index()
+	coverage = pd.read_json(json.loads(generate_df(irma_path))['df'], orient='split')
+	coverage = coverage\
+		.groupby(['Sample','Reference_Name'])\
+		.agg({'Coverage Depth':'mean'})\
+		.reset_index()\
+		.pivot(index='Sample', columns='Reference_Name', values='Coverage Depth')\
+		.rename(columns=lambda x: f'Mean Coverage ({x})')\
+		.reset_index()
+	df = reads[['1-initial','2-passQC', '3-match']].rename(columns={'1-initial':'Total Reads', '2-passQC':'Pass QC', '3-match':'Match Reference'}).reset_index()
+	df = df.merge(alleles).merge(indels).merge(coverage)
+	fill_colors = conditional_color_range_perCol.discrete_background_color_bins(df, 10)
 	table = html.Div([
 		dash_table.DataTable(
 			columns = [{"name": i, "id": i} for i in df.columns],
@@ -719,8 +740,8 @@ content = html.Div(
 				[html.P('IRMA Summary', id='irma_head', className='display-6')]+
 				[html.Br()]+
 				[dbc.Row(
-					[html.Div(id='negative_qc_statement'),
-					html.Div(id='irma_stat_table')]
+					[html.Div(id='irma_neg_statment'),
+					html.Div(id='irma_summary')]
 				)]+
 				[html.Br()]+
 				[html.P('Reference Coverage', id='coverage_head', className='display-6')]+

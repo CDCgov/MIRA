@@ -22,7 +22,6 @@ def discrete_background_color_bins(df, n_bins=5, columns='all'):
 			max_bound = ranges[column][i]
 			backgroundColor = colorlover.scales[str(n_bins)]['div']['RdYlBu'][i - 1]
 			color = 'white' if i > len(bounds) / 2. else 'inherit'
-
 			styles.append({
 				'if': {
 					'filter_query': (
@@ -34,17 +33,4 @@ def discrete_background_color_bins(df, n_bins=5, columns='all'):
 				'backgroundColor': backgroundColor,
 				'color': color
 			})
-		#legend.append(
-		#	html.Div(style={'display': 'inline-block', 'width': '60px'}, children=[
-		#		html.Div(
-		#			style={
-		#				'backgroundColor': backgroundColor,
-		#				'borderLeft': '1px rgb(50, 50, 50) solid',
-		#				'height': '10px'
-		#			}
-		#		),
-		#		html.Small(round(min_bound, 2), style={'paddingLeft': '2px'})
-		#	])
-		#)
-
 	return styles #, html.Div(legend, style={'padding': '5px 0 5px 0'}))

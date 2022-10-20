@@ -1,3 +1,4 @@
+from pickletools import read_decimalnl_short
 import pandas as pd
 from os.path import dirname, basename, isfile
 from glob import glob
@@ -72,17 +73,22 @@ def dash_reads_to_sankey(df):
 	  ))])
 	return fig
 
+def irmatable2df(irmaFiles):
+	df = pd.DataFrame()
+	for f in irmaFiles:
+		sample = basename(dirname(dirname(f)))
+		df_prime = pd.read_csv(f, sep='\t', index_col=False)
+		df_prime.insert(loc=0, column='Sample', value=sample)
+		df = df.append(df_prime)
+	return df
+
 def dash_irma_reads_df(irma_path):
 	if isfile(irma_path+'/reads.csv.gz'):
 		df = pd.read_csv(irma_path+'/reads.csv.gz')
 		return df
 	readFiles = glob(irma_path+'/*/tables/READ_COUNTS.txt')
 	df = pd.DataFrame()
-	for f in readFiles:
-		sample = basename(dirname(dirname(f)))
-		df_prime = pd.read_csv(f, sep='\t', index_col=False)
-		df_prime.insert(loc=0, column='Sample', value=sample)
-		df = df.append(df_prime)
+	df = irmatable2df(readFiles)
 	df['Stage'] = df['Record'].apply(lambda x: int(x.split('-')[0]))
 	df.to_csv(irma_path+'/reads.csv.gz', compression='gzip')
 	return df	
@@ -92,21 +98,13 @@ def dash_irma_coverage_df(irma_path):
 		df = pd.read_csv(irma_path+'/coverage.csv.gz')
 		return df
 	coverageFiles = glob(irma_path+'/*/tables/*a2m.txt')
-	a2msamples = [i.split('/')[-3] for i in coverageFiles]
-	otherFiles = [i for i in glob(irma_path+'/*/tables/*coverage.txt')]
+	#a2msamples = [i.split('/')[-3] for i in coverageFiles]
+	#otherFiles = [i for i in glob(irma_path+'/*/tables/*coverage.txt')]
 	if len(coverageFiles) == 0:
 		coverageFiles = glob(irma_path+'/*/tables/*coverage.txt')
 	if len(coverageFiles) == 0:
 		return 'No coverage files found under {}/*/tables/'.format(irma_path)
-	df = pd.DataFrame()
-	for f in coverageFiles:
-		sample = basename(dirname(dirname(f)))
-		print(sample, f)
-		df_prime = pd.read_csv(f, sep='\t', index_col=False)
-		df_prime.insert(loc=0, column='Sample', value=sample)
-		df = df.append(df_prime)
-		#for i in args.add_fields_right:
-		#	df[i[0]] = i[1]
+	df = irmatable2df(coverageFiles)
 	df.to_csv(irma_path+'/coverage.csv.gz', compression='gzip')
 	return df
 
@@ -115,12 +113,7 @@ def dash_irma_alleles_df(irma_path, full=False):
 		df = pd.read_csv(irma_path+'/alleles.csv.gz')
 		return df
 	alleleFiles = glob(irma_path+'/*/tables/*variants.txt')
-	df = pd.DataFrame()
-	for f in alleleFiles:
-		sample = basename(dirname(dirname(f)))
-		df_prime = pd.read_csv(f, sep='\t', index_col=False)
-		df_prime.insert(loc=0, column='Sample', value=sample)
-		df = df.append(df_prime)
+	df = irmatable2df(alleleFiles)
 	if not full:
 		if 'HMM_Position' in df.columns:
 			ref_heads = ['Sample', 'Reference_Name', 'HMM_Position', 
@@ -137,4 +130,30 @@ def dash_irma_alleles_df(irma_path, full=False):
 					'Minority_Count':'Minority Count', 'Minority_Frequency':'Minority Frequency'})
 		print(df)
 	df.to_csv(irma_path+'/alleles.csv.gz', compression='gzip')
+	return df
+
+def dash_irma_indels_df(irma_path, full=False):
+	if isfile(irma_path+'/indels.csv.gz'):
+		df = read_csv(irma_path+'/indels.csv.gz')
+		return df
+	insertionFiles = glob(irma_path+'/*/tables/*insertions.txt')
+	deletionFiles = glob(irma_path+'/*/tables/*deletions.txt')
+	idf = irmatable2df(insertionFiles)
+	ddf = irmatable2df(deletionFiles)
+	df = pd.concat([idf,ddf])
+	if 'HMM_Position' in df.columns:
+		df = df.rename(columns={'Reference_Name':'Reference', 
+					'Upstream_Position':'Sample - Upstream Position', 
+					'HMM_Position':'Reference - Upstream Position',
+					'Total':'Upstream Base Coverage'})
+		df = df[['Sample', 'Sample - Upstream Position', 'Reference', 
+		'Reference - Upstream Position', 'Context', 'Length', 
+		'Insert', 'Count', 'Upstream Base Coverage', 'Frequency']]
+	else:
+		df = df.rename(columns={'Reference_Name':'Reference', 
+					'Upstream_Position':'Sample - Upstream Position', 
+					'Total':'Upstream Base Coverage'})
+		df = df[['Sample', 'Sample - Upstream Position', 'Reference', 
+		 'Context', 'Length', 
+		'Insert', 'Count', 'Upstream Base Coverage', 'Frequency']]
 	return df
