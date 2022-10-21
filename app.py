@@ -179,8 +179,9 @@ def generate_samplesheet(sample_number):
     dash.dependencies.Output('output-container-button', 'children'),
     [dash.dependencies.Input('assembly-button', 'n_clicks'),
 	Input('samplesheet_path', 'value'),
-	Input('data_path', 'value')])
-def run_snake_script_onClick(n_clicks, samplesheet_path, data_path):
+	Input('data_path', 'value'),
+	Input('experiment_type', 'value')])
+def run_snake_script_onClick(n_clicks, samplesheet_path, data_path, experiment_type):
     #print('[DEBUG] n_clicks:', n_clicks)
     
     if not n_clicks:
@@ -190,8 +191,9 @@ def run_snake_script_onClick(n_clicks, samplesheet_path, data_path):
         raise dash.exceptions.PreventUpdate
     if not data_path:
         raise dash.exceptions.PreventUpdate
-    
-    result = subprocess.check_output(['python', 'scripts/config_create.py', samplesheet_path, data_path])  
+    if not experiment_type:
+        raise dash.exceptions.PreventUpdate
+    result = subprocess.check_output(['python', 'scripts/config_create.py', samplesheet_path, data_path, experiment_type])  
 
     # convert bytes to string
     result = result.decode()  
@@ -742,6 +744,12 @@ content = html.Div(
 						persistence=True,
 						debounce=True))
 				    ]+
+				[dbc.Row(
+					dcc.Input(id='experiment_type',
+						placeholder='What kind of data is this?',
+						persistence=True,
+						debounce=True))
+					]+
 				[html.Button('Start Genome Assembly', id='assembly-button', n_clicks=0),
 				html.Div(id='output-container-button', children='Hit the button to update.')
 				]+
