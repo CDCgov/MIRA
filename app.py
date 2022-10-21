@@ -183,7 +183,7 @@ def generate_samplesheet(sample_number):
 	Input('experiment_type', 'value')])
 def run_snake_script_onClick(n_clicks, samplesheet_path, data_path, experiment_type):
     #print('[DEBUG] n_clicks:', n_clicks)
-    
+    #solution from https://stackoverflow.com/questions/66874460/run-python-script-when-a-button-is-clicked-in-dash
     if not n_clicks:
         #raise dash.exceptions.PreventUpdate
         return dash.no_update
@@ -745,10 +745,8 @@ content = html.Div(
 						debounce=True))
 				    ]+
 				[dbc.Row(
-					dcc.Input(id='experiment_type',
-						placeholder='What kind of data is this?',
-						persistence=True,
-						debounce=True))
+					dcc.Dropdown(['Flu-ONT','SC2-ONT','Flu-Illumina'],id='experiment_type',
+						placeholder='What kind of data is this?'))
 					]+
 				[html.Button('Start Genome Assembly', id='assembly-button', n_clicks=0),
 				html.Div(id='output-container-button', children='Hit the button to update.')
