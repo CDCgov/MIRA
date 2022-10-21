@@ -7,7 +7,9 @@ output:
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-
+```{r setup, include=FALSE, echo=FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(message=FALSE, comment="#>", fig.width=8, fig.height=8, fig.align="center")
+```
 
 ## Dockerize Irma-Spy (Development Version)
 

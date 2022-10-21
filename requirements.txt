@@ -1,0 +1,15 @@
+dash
+dash-core-components
+dash-html-components
+dash-bootstrap-components
+dash-bio
+dash_flexbox_grid
+dash-daq
+dash-table
+plotly
+pandas
+pyyaml
+numpy
+flask
+flask-caching
+

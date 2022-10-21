@@ -1,0 +1,19 @@
+
+docker build  -t irma-spy-prod:v1.0.0 --target prod .
+
+docker build  -t irma-spy-dev:v1.0.0 --target dev .
+
+docker run -v /c/users/snu3-su/irma-spy:/irma-spy-container/ -d -p 8050:8050 --name irma-spy-prod irma-spy-prod:v1.0.0 
+
+docker run -v /c/users/snu3-su/irma-spy:/irma-spy/ -d -p 8080:8050 --name irma-spy-dev irma-spy-dev:v1.0.0
+
+
+## Testing with download external links from wget
+
+docker build  -t irma-spy-prod:v2.0.0 --target prod .
+
+docker build  -t irma-spy-dev:v2.0.0 --target dev .
+
+docker run -v /c/users/snu3-su/Github/irma-spy:/irma-spy-container/ --rm -p 8000:8050 --name irma-spy-prod irma-spy-prod:v2.0.0 -d
+
+docker run -v /c/users/snu3-su/Github/irma-spy:/irma-spy/ --rm -p 8888:8050 --name irma-spy-dev2 irma-spy-dev:v2.0.0 -d
