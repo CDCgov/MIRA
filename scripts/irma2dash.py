@@ -121,7 +121,7 @@ def dash_irma_alleles_df(irma_path, full=False):
 			'Position', 'Total', 'Consensus_Allele', 'Minority_Allele', 
 			'Consensus_Count', 'Minority_Count', 'Minority_Frequency']
 		else:
-			ref_heads = ['Sample', 
+			ref_heads = ['Sample', 'Reference_Name',
 			'Position', 'Total', 'Consensus_Allele', 'Minority_Allele', 
 			'Consensus_Count', 'Minority_Count', 'Minority_Frequency']
 		df = df[ref_heads]
