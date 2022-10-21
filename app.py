@@ -3,6 +3,7 @@
 # Run this app with `python app.py` and
 # visit http://127.0.0.1:8050/ in your web browser.
 
+from symbol import comp_for
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
@@ -112,6 +113,7 @@ def generate_df(irma_path):
 	read_df = irma2dash.dash_irma_reads_df(irma_path)
 	alleles_df = irma2dash.dash_irma_alleles_df(irma_path)
 	indels_df = irma2dash.dash_irma_indels_df(irma_path)
+	ref_lens = irma2dash.reference_lens(irma_path)
 	segments, segset, segcolor = returnSegData(df)
 	df4 = pivot4heatmap(df)
 	df4.to_csv(irma_path+'/mean_coverages.tsv', sep='\t', index=False)
@@ -127,6 +129,7 @@ def generate_df(irma_path):
 						'read_df':read_df.to_json(orient='split'),
 						'indels_df':indels_df.to_json(orient='split'),
 						'alleles_df':alleles_df.to_json(orient='split'), 
+						'ref_lens':ref_lens, 
 						'cov_header':cov_header, 
 						'sliderMax':sliderMax,
 						'segments':','.join(segments),
@@ -218,6 +221,28 @@ def alleles_table(irma_path):
 	return table
 
 @app.callback(
+	[Output('indels_table', 'children'),
+	Input('irma_path', 'value')]
+)
+def indels_table(irma_path):
+	if not irma_path:
+		raise dash.exceptions.PreventUpdate
+	df = pd.read_json(json.loads(generate_df(irma_path))['indels_df'], orient='split')
+	table = [html.Div([
+			dash_table.DataTable(
+				columns = [{"name": i, "id": i} for i in df.columns],
+				data = df.to_dict('records'),
+				sort_action='native',
+				filter_action='native',
+				#persistence=True,
+				page_size=10,
+				export_format='xlsx',
+				export_headers='display'
+			)
+		])]
+	return table
+
+@app.callback(
 	[Output('illumina_demux_table', 'children'),
 	Output('demux_fig', 'figure')],
 	[Input('demux_file', 'contents'),
@@ -243,9 +268,9 @@ def illumina_demux_table(demux_file, filename):
 			return float(f'{x:.{digits}f}')
 		df[['Mean Mean Qscore' ,'Mean Barcode Identity']] = df[['Mean Mean Qscore' ,'Mean Barcode Identity']].applymap(lambda x: flfor(x, 2))
 		df[['Mean Read Length']] = df[['Mean Read Length']].applymap(lambda x: flfor(x, 0))
-		fill_colors = conditional_color_range_perCol.discrete_background_color_bins(df, 10)
+		fill_colors = conditional_color_range_perCol.discrete_background_color_bins(df, 8)
 	else:
-		fill_colors = conditional_color_range_perCol.discrete_background_color_bins(df, 10, ['PF Clusters', '% of thelane', 
+		fill_colors = conditional_color_range_perCol.discrete_background_color_bins(df, 8, ['PF Clusters', '% of thelane', 
 																					'% Perfectbarcode', 'Yield (Mbases)', 
 																					'% PFClusters', '% >= Q30bases', 
 																					'Mean QualityScore', '% One mismatchbarcode'])
@@ -316,16 +341,34 @@ def irma_summary(irma_path, ssrows, sscols):
 		.rename(columns={'Sample':'Count of Minor SNVs >= 0.05'})\
 		.reset_index()
 	coverage = pd.read_json(json.loads(generate_df(irma_path))['df'], orient='split')
+	# Compute the % of reference mapped from IRMAs coverage table and lengths of /intermediate/0-*/0*.ref seq lengths
+	ref_lens = json.loads(generate_df(irma_path))['ref_lens']
+	cov_ref_lens = coverage[~coverage['Consensus']\
+		.isin(['-','N','a','c','t','g'])]\
+		.groupby(['Sample', 'Reference_Name'])\
+		.agg({'Sample':'count'})\
+		.rename(columns={'Sample':'maplen'})\
+		.reset_index()
+	def perc_len(maplen,ref):
+		return maplen/ref_lens[ref]
+	cov_ref_lens['% Reference Covered'] = cov_ref_lens\
+		.apply(lambda x: perc_len(x['maplen'], x['Reference_Name']), axis=1)
+	cov_ref_lens['% Reference Covered'] = cov_ref_lens['% Reference Covered'].map(lambda x: f'{x:.4f}')
+	cov_ref_lens = cov_ref_lens[['Sample', '% Reference Covered']]
 	coverage = coverage\
 		.groupby(['Sample','Reference_Name'])\
 		.agg({'Coverage Depth':'mean'})\
 		.reset_index()\
 		.pivot(index='Sample', columns='Reference_Name', values='Coverage Depth')\
 		.rename(columns=lambda x: f'Mean Coverage ({x})')\
+		.reset_index()\
+		.round(0)
+	print(coverage)
+	df = reads[['1-initial','2-passQC', '3-match']]\
+		.rename(columns={'1-initial':'Total Reads', '2-passQC':'Pass QC', '3-match':'Match Reference'})\
 		.reset_index()
-	df = reads[['1-initial','2-passQC', '3-match']].rename(columns={'1-initial':'Total Reads', '2-passQC':'Pass QC', '3-match':'Match Reference'}).reset_index()
-	df = df.merge(alleles).merge(indels).merge(coverage)
-	fill_colors = conditional_color_range_perCol.discrete_background_color_bins(df, 10)
+	df = df.merge(cov_ref_lens, 'left').merge(alleles, 'left').merge(indels, 'left').merge(coverage, 'left')
+	fill_colors = conditional_color_range_perCol.discrete_background_color_bins(df, 8)
 	table = html.Div([
 		dash_table.DataTable(
 			columns = [{"name": i, "id": i} for i in df.columns],
@@ -417,7 +460,7 @@ def createheatmap(df4, sliderMax=None):
 				z=list(df4[cov_header]), 
 				zmin=0,
 				zmax=sliderMax,
-				colorscale='Cividis_r',
+				colorscale='Blugrn',
 				hovertemplate='%{y} = %{z:,.0f}x<extra>%{x}<br></extra>'
 				)
 			)
@@ -656,7 +699,8 @@ sidebar = html.Div(
                 dbc.NavLink("Barcode Assignment", href="#demux_head",external_link=True),
                 dbc.NavLink("IRMA Summary", href="#irma_head",external_link=True),
                 dbc.NavLink("Reference Coverage", href="#coverage_head",external_link=True),
-                dbc.NavLink("Minor Alleles", href="#alleles_head",external_link=True),
+                dbc.NavLink("Minor SNVs", href="#alleles_head",external_link=True),
+                dbc.NavLink("Indels", href="#indels_head",external_link=True),
                 dbc.NavLink("Variants", href="#variants_head",external_link=True),
             ],
             vertical=True,
@@ -790,10 +834,16 @@ content = html.Div(
 						align='right'
 					)])]+
 				[html.Br()]+
-				[html.P('Minor Alleles', id='alleles_head', className='display-6')]+
+				[html.P('Minor SNVs', id='alleles_head', className='display-6')]+
 				[html.Br()]+
 				[dbc.Row(
 					html.Div(id='minor_alleles_table')
+				)]+
+				[html.Br()]+
+				[html.P('Insertions and Deletions', id='indels_head', className='display-6')]+
+				[html.Br()]+
+				[dbc.Row(
+					html.Div(id='indels_table')
 				)]+
 				[html.Br()]+
 				[html.P('Variants', id='variants_head', className='display-6')]+

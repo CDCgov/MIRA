@@ -111,6 +111,7 @@ def dash_irma_coverage_df(irma_path):
 def dash_irma_alleles_df(irma_path, full=False):
 	if isfile(irma_path+'/alleles.csv.gz'):
 		df = pd.read_csv(irma_path+'/alleles.csv.gz')
+		df = df.loc[:,df.columns!='Unnamed: 0']
 		return df
 	alleleFiles = glob(irma_path+'/*/tables/*variants.txt')
 	df = irmatable2df(alleleFiles)
@@ -128,7 +129,6 @@ def dash_irma_alleles_df(irma_path, full=False):
 					'Position':'Sample Position', 'Total':'Coverage', 'Consensus_Allele':'Consensus Allele', 
 					'Minority_Allele':'Minority Allele', 'Consensus_Count':'Consensus Count', 
 					'Minority_Count':'Minority Count', 'Minority_Frequency':'Minority Frequency'})
-		print(df)
 	df.to_csv(irma_path+'/alleles.csv.gz', compression='gzip')
 	return df
 
@@ -157,3 +157,17 @@ def dash_irma_indels_df(irma_path, full=False):
 		 'Context', 'Length', 
 		'Insert', 'Count', 'Upstream Base Coverage', 'Frequency']]
 	return df
+
+def reference_lens(irma_path):
+	reffiles = glob(irma_path+'/*/intermediate/0-ITERATIVE-REFERENCES/R0*ref')
+	ref_lens = {}
+	for f in reffiles:
+		ref = basename(f)[3:-4]
+		if ref not in ref_lens.keys():
+			with open(f, 'r') as d:
+				seq = ''
+				for line in d:
+					if not line[0] == '>':
+						seq += line.strip()
+			ref_lens[ref] = len(seq)
+	return ref_lens					
