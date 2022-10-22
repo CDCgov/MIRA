@@ -1,5 +1,4 @@
 
-
 #!/bin/bash
 # Wrapper to download packages from the web
 
@@ -14,6 +13,6 @@ then
 	awk NF < ${external_package_orig} > ${external_package_clean}
 
 	# wget the file and install the package
-	cat ${external_package_clean} | awk '{ print $0 }' | wget -i - -q -O ${RESOURCE_ROOT}/fetched_package.tar.gz | tar -zxf ${RESOURCE_ROOT}/fetched_test.tar.gz
+	cat ${external_package_clean} | awk '{ print $0 }' | wget -i - -q -O ${RESOURCE_ROOT}/fetched_package.tar.gz | tar -zxf ${RESOURCE_ROOT}/fetched_package.tar.gz
 
 fi
