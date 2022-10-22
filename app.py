@@ -221,16 +221,13 @@ def generate_samplesheet(sample_number):
 
 @cache.memoize(timeout=cache_timeout)
 @app.callback(
-    dash.dependencies.Output("output-container-button", "children"),
-    [
-        dash.dependencies.Input("assembly-button", "n_clicks"),
-        Input("samplesheet_path", "value"),
-        Input("data_path", "value"),
-    ],
-)
-def run_snake_script_onClick(n_clicks, samplesheet_path, data_path):
+    Output("output-container-button", "children"),
+    [Input("assembly-button", "n_clicks"),
+    Input("samplesheet_path", "value"),
+    Input("data_path", "value"),
+    Input('experiment_type', 'value')])
+def run_snake_script_onClick(n_clicks, samplesheet_path, data_path, experiment_type):
     # print('[DEBUG] n_clicks:', n_clicks)
-
     if not n_clicks:
         # raise dash.exceptions.PreventUpdate
         return dash.no_update
@@ -238,14 +235,13 @@ def run_snake_script_onClick(n_clicks, samplesheet_path, data_path):
         raise dash.exceptions.PreventUpdate
     if not data_path:
         raise dash.exceptions.PreventUpdate
-
+    if not experiment_type:
+        raise dash.exceptions.PreventUpdate
     result = subprocess.check_output(
-        ["python", "scripts/config_create.py", samplesheet_path, data_path]
+        ["python", "scripts/config_create.py", samplesheet_path, data_path, experiment_type]
     )
-
     # convert bytes to string
     result = result.decode()
-
     return result
 
 
@@ -955,6 +951,11 @@ content = html.Div(
             )
         )
     ]
+    #+ [
+        #dbc.Row(
+        #    dcc.Dropdown(['Flu-ONT','SC2-ONT','Flu-Illumina'],id='experiment_type',placeholder='What kind of data is this?')
+        #)
+    #]
     + [
         html.Button("Start Genome Assembly", id="assembly-button", n_clicks=0),
         html.Div(id="output-container-button", children="Hit the button to update."),
