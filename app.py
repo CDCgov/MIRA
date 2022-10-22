@@ -200,11 +200,10 @@ def generate_samplesheet(sample_number):
     dash.dependencies.Output('output-container-button', 'children'),
     [dash.dependencies.Input('assembly-button', 'n_clicks'),
 	Input('samplesheet_path', 'value'),
-	Input('data_path', 'value'),
-	Input('experiment_type', 'value')])
-def run_snake_script_onClick(n_clicks, samplesheet_path, data_path, experiment_type):
+	Input('data_path', 'value')])
+def run_snake_script_onClick(n_clicks, samplesheet_path, data_path):
     #print('[DEBUG] n_clicks:', n_clicks)
-    #solution from https://stackoverflow.com/questions/66874460/run-python-script-when-a-button-is-clicked-in-dash
+    
     if not n_clicks:
         #raise dash.exceptions.PreventUpdate
         return dash.no_update
@@ -212,9 +211,8 @@ def run_snake_script_onClick(n_clicks, samplesheet_path, data_path, experiment_t
         raise dash.exceptions.PreventUpdate
     if not data_path:
         raise dash.exceptions.PreventUpdate
-    if not experiment_type:
-        raise dash.exceptions.PreventUpdate
-    result = subprocess.check_output(['python', 'scripts/config_create.py', samplesheet_path, data_path, experiment_type])  
+    
+    result = subprocess.check_output(['python', 'scripts/config_create.py', samplesheet_path, data_path])  
 
     # convert bytes to string
     result = result.decode()  
@@ -777,10 +775,6 @@ content = html.Div(
 						persistence=True,
 						debounce=True))
 				    ]+
-				[dbc.Row(
-					dcc.Dropdown(['Flu-ONT','SC2-ONT','Flu-Illumina'],id='experiment_type',
-						placeholder='What kind of data is this?'))
-					]+
 				[html.Button('Start Genome Assembly', id='assembly-button', n_clicks=0),
 				html.Div(id='output-container-button', children='Hit the button to update.')
 				]+
