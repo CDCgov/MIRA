@@ -21,7 +21,7 @@ import pandas as pd
 from math import ceil, log10, sqrt
 from itertools import cycle
 from sys import path, argv
-from os.path import dirname, realpath, isdir
+from os.path import dirname, realpath, isdir, isfile
 import os
 import yaml
 import json
@@ -140,34 +140,38 @@ def generate_df(irma_path):
 
 @app.callback(
 	Output('samplesheet', 'children'), 
-	[Input('sample_number', 'value'),
-	Input('samplesheet_lock', 'value')])
-def generate_samplesheet(sample_number, lock):
-	if not sample_number:
+	Input('sample_number', 'value'))
+def generate_samplesheet(sample_number):
+	if not sample_number :
 		raise dash.exceptions.PreventUpdate
-	str_num_list = ''.join(sample_number).split(',')
-	bc_numbers = []
-	try:
-		for i in str_num_list:
-			i=i.strip()
-			if '-' in i:
-				start, stop = map(int, i.split('-'))
-				bc_numbers.extend([n for n in range(start,stop+1)])
-			else:
-				bc_numbers.append(int(i))
-		bc_numbers = list(set(bc_numbers))
-	except Exception as E:
-		table = html.Div(f'Please fix the formatting of your number entry. A comma-seperated list of numbers and number-ranges is required.')
-		return table
-	table = [
-		dash_table.DataTable(
+	if isfile('samplesheet.csv'):
+		data = pd.read_csv('samplesheet.csv').to_dict('records')
+	else:
+		str_num_list = ''.join(sample_number).split(',')
+		bc_numbers = []
+		try:
+			for i in str_num_list:
+				i=i.strip()
+				if '-' in i:
+					start, stop = map(int, i.split('-'))
+					bc_numbers.extend([n for n in range(start,stop+1)])
+				else:
+					bc_numbers.append(int(i))
+			bc_numbers = list(set(bc_numbers))
+			bc_numbers.sort()
+		except Exception as E:
+			table = html.Div(f'Please fix the formatting of your number entry. A comma-seperated list of numbers and number-ranges is required.')
+			return table
+		data = [dict(**{'Barcode #':f'barcode{i:02}', 'Sample ID':'', 'Sample Type':'Test','Barcode Expansion Pack':'LSK-109'}) for i in bc_numbers]
+		print(data, type(data))
+	ss = dash_table.DataTable(
 			id='samplesheet_table',
 			columns=[{'id':'Barcode #', 'name':'Barcode #'}, 
 					{'id':'Sample ID', 'name':'Sample ID'},
 					{'id':'Sample Type', 'name':'Sample Type', 'presentation':'dropdown'},
 					{'id': 'Barcode Expansion Pack', 'name':'Barcode Expansion Pack', 'presentation':'dropdown'}],
-			data=[dict(**{'Barcode #':f'barcode{i:02}', 'Sample ID':'', 'Sample Type':'Test','Barcode Expansion Pack':'LSK-109'}) for i in bc_numbers],
-			editable=lock,
+			data=data,
+			editable=True,
 			dropdown={
 				'Sample Type':{
 					'options':[
@@ -185,8 +189,10 @@ def generate_samplesheet(sample_number, lock):
 			},
 			export_format='csv',
 			export_headers='display',
-			merge_duplicate_headers=True
-		)]
+			merge_duplicate_headers=True,
+			persistence=True
+		)
+	table = ss
 	return table
 
 @cache.memoize(timeout=cache_timeout)
@@ -751,19 +757,8 @@ content = html.Div(
 							type='text',
 							placeholder='ie. 1-10,15,16,20-29',
 							debounce=True
-							),
-					dbc.Col(
-						daq.ToggleSwitch(
-							id='samplesheet_lock',
-							label='Lock ------- Edit	',
-							labelPosition='top',
-							value=False
-						),
-						width=2,
-						align='right'
-					)
-					]
-					)]+
+							)]
+				)]+
 				[html.Br()]+
 				[html.Div(
 					id='samplesheet')]+
