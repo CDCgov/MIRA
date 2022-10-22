@@ -21,7 +21,7 @@ import pandas as pd
 from math import ceil, log10, sqrt
 from itertools import cycle
 from sys import path, argv
-from os.path import dirname, realpath, isdir
+from os.path import dirname, realpath, isdir, isfile
 import os
 import yaml
 import json
@@ -142,16 +142,35 @@ def generate_df(irma_path):
 	Output('samplesheet', 'children'), 
 	Input('sample_number', 'value'))
 def generate_samplesheet(sample_number):
-	if not sample_number:
+	if not sample_number :
 		raise dash.exceptions.PreventUpdate
-	table = [
-		dash_table.DataTable(
+	if isfile('samplesheet.csv'):
+		data = pd.read_csv('samplesheet.csv').to_dict('records')
+	else:
+		str_num_list = ''.join(sample_number).split(',')
+		bc_numbers = []
+		try:
+			for i in str_num_list:
+				i=i.strip()
+				if '-' in i:
+					start, stop = map(int, i.split('-'))
+					bc_numbers.extend([n for n in range(start,stop+1)])
+				else:
+					bc_numbers.append(int(i))
+			bc_numbers = list(set(bc_numbers))
+			bc_numbers.sort()
+		except Exception as E:
+			table = html.Div(f'Please fix the formatting of your number entry. A comma-seperated list of numbers and number-ranges is required.')
+			return table
+		data = [dict(**{'Barcode #':f'barcode{i:02}', 'Sample ID':'', 'Sample Type':'Test','Barcode Expansion Pack':'LSK-109'}) for i in bc_numbers]
+		print(data, type(data))
+	ss = dash_table.DataTable(
 			id='samplesheet_table',
 			columns=[{'id':'Barcode #', 'name':'Barcode #'}, 
 					{'id':'Sample ID', 'name':'Sample ID'},
 					{'id':'Sample Type', 'name':'Sample Type', 'presentation':'dropdown'},
 					{'id': 'Barcode Expansion Pack', 'name':'Barcode Expansion Pack', 'presentation':'dropdown'}],
-			data=[dict(**{'Barcode #':f'barcode{i:02}', 'Sample ID':'', 'Sample Type':'Test','Barcode Expansion Pack':'EXP-PBC096'}) for i in range(1,sample_number+1)],
+			data=data,
 			editable=True,
 			dropdown={
 				'Sample Type':{
@@ -170,8 +189,10 @@ def generate_samplesheet(sample_number):
 			},
 			export_format='csv',
 			export_headers='display',
-			merge_duplicate_headers=True
-		)]
+			merge_duplicate_headers=True,
+			persistence=True
+		)
+	table = ss
 	return table
 
 @cache.memoize(timeout=cache_timeout)
@@ -309,9 +330,9 @@ def negative_qc_statement(df, negative_list=''):
 	for s in negative_list:
 		reads_mapping = df.loc[s, 'Percent Mapping']*100
 		if reads_mapping >= 0.01:
-			statement.extend([f'You negative sample {s} FAILS QC with {reads_mapping:.2f}% mapping to reference', html.Br()])
+			statement.extend([f'You negative sample ', html.Strong(f'{s} FAILS QC ', className='display-7') ,f'with {reads_mapping:.2f}% reads mapping to reference.', html.Br()])
 		else:
-			statement.extend([f'You negative sample {s} passes QC with {reads_mapping:.2f}% mapping to reference', html.Br()])
+			statement.extend([f'You negative sample {s} passes QC with {reads_mapping:.2f}% reads mapping to reference.', html.Br()])
 	statement.extend([html.Br()])
 	return html.P(statement)
 
@@ -329,16 +350,27 @@ def irma_summary(irma_path, ssrows, sscols):
 	neg_controls = list(ss_df[ss_df['Sample Type'] == '- Control']['Sample ID'])
 	reads = pd.read_json(json.loads(generate_df(irma_path))['read_df'], orient='split')
 	qc_statement = negative_qc_statement(reads, neg_controls) 
-	reads = reads.pivot('Sample', columns='Record', values='Reads')
+	reads = reads[reads['Record'].str.contains('^1|^2-p|^4')]\
+		.pivot('Sample', columns='Record', values='Reads')\
+		.reset_index()\
+		.melt(id_vars=['Sample','1-initial','2-passQC'])\
+		.rename(columns={'1-initial':'Total Reads', '2-passQC':'Pass QC', 'Record': 'Reference', 'value': 'Reads Mapped'})
+	reads = reads[~reads['Reads Mapped'].isnull()]
+	reads['Reference'] = reads['Reference']\
+							.map(lambda x: x[2:])
+	reads[['Total Reads','Pass QC', 'Reads Mapped']] = reads[['Total Reads','Pass QC', 'Reads Mapped']]\
+															.astype('int')\
+															.applymap(lambda x: f'{x:,d}')
+	reads = reads[['Sample', 'Total Reads', 'Pass QC' ,'Reads Mapped' ,'Reference']]
 	indels = pd.read_json(json.loads(generate_df(irma_path))['indels_df'], orient='split')
 	indels = indels[indels['Frequency'] >= 0.05]\
-		.groupby('Sample')\
+		.groupby(['Sample', 'Reference'])\
 		.agg({'Sample':'count'})\
 		.rename(columns={'Sample':'Count of Indels >= 0.05'})\
 		.reset_index()
 	alleles = pd.read_json(json.loads(generate_df(irma_path))['alleles_df'], orient='split')
 	alleles = alleles[alleles['Minority Frequency'] >= 0.05]\
-		.groupby('Sample')\
+		.groupby(['Sample', 'Reference'])\
 		.agg({'Sample':'count'})\
 		.rename(columns={'Sample':'Count of Minor SNVs >= 0.05'})\
 		.reset_index()
@@ -352,24 +384,20 @@ def irma_summary(irma_path, ssrows, sscols):
 		.rename(columns={'Sample':'maplen'})\
 		.reset_index()
 	def perc_len(maplen,ref):
-		return maplen/ref_lens[ref]
+		return maplen/ref_lens[ref]*100
 	cov_ref_lens['% Reference Covered'] = cov_ref_lens\
 		.apply(lambda x: perc_len(x['maplen'], x['Reference_Name']), axis=1)
-	cov_ref_lens['% Reference Covered'] = cov_ref_lens['% Reference Covered'].map(lambda x: f'{x:.4f}')
-	cov_ref_lens = cov_ref_lens[['Sample', '% Reference Covered']]
+	cov_ref_lens['% Reference Covered'] = cov_ref_lens['% Reference Covered'].map(lambda x: f'{x:.2f}')
+	cov_ref_lens = cov_ref_lens[['Sample', 'Reference_Name','% Reference Covered']].rename(columns={'Reference_Name':'Reference'})
 	coverage = coverage\
 		.groupby(['Sample','Reference_Name'])\
 		.agg({'Coverage Depth':'mean'})\
 		.reset_index()\
-		.pivot(index='Sample', columns='Reference_Name', values='Coverage Depth')\
-		.rename(columns=lambda x: f'Mean Coverage ({x})')\
-		.reset_index()\
-		.round(0)
-	print(coverage)
-	df = reads[['1-initial','2-passQC', '3-match']]\
-		.rename(columns={'1-initial':'Total Reads', '2-passQC':'Pass QC', '3-match':'Match Reference'})\
-		.reset_index()
-	df = df.merge(cov_ref_lens, 'left').merge(alleles, 'left').merge(indels, 'left').merge(coverage, 'left')
+		.rename(columns={'Coverage Depth': 'Mean Coverage', 'Reference_Name':'Reference'})
+	coverage[['Mean Coverage']] = coverage[['Mean Coverage']]\
+									.astype('int')\
+									.applymap(lambda x: f'{x:,d}')
+	df = reads.merge(cov_ref_lens, 'left').merge(coverage, 'left').merge(alleles, 'left').merge(indels, 'left')
 	fill_colors = conditional_color_range_perCol.discrete_background_color_bins(df, 8)
 	table = html.Div([
 		dash_table.DataTable(
@@ -723,11 +751,16 @@ content = html.Div(
 							)	
 						)]+
 				[html.P('Samplesheet', id='samplesheet_head', className='display-6')]+
-				[html.Div(
+				[html.Div([
+					html.P('Enter your barcode numbers to be used below:',
+						id='sample_number_info'
+								),
 					dcc.Input(id='sample_number',
-							type='number',
-							placeholder='Enter your number of samples')
-					)]+
+							type='text',
+							placeholder='ie. 1-10,15,16,20-29',
+							debounce=True
+							)]
+				)]+
 				[html.Br()]+
 				[html.Div(
 					id='samplesheet')]+
