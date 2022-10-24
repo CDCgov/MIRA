@@ -9,8 +9,6 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 import dash_bio as dbio
-
-# import dash_flexbox_grid as dfx
 from dash.dependencies import Input, Output, State
 import dash_daq as daq
 import dash_table
@@ -35,6 +33,7 @@ from flask_caching import Cache
 
 path.append(dirname(realpath(__file__)) + "/scripts/")
 import irma2dash  # type: ignore
+import dais2dash # type: ignore
 import conditional_color_range_perCol  # type: ignore
 
 
@@ -128,6 +127,9 @@ def generate_df(irma_path):
     sliderMax = df4[cov_header].max()
     allFig = createAllCoverageFig(df, ",".join(segments), segcolor)
     irma_read_fig = create_irma_read_fig(read_df)
+    dais_ins_df = dais2dash.ins_df(results_path=irma_path+'/dais_results')
+    dais_dels_df = dais2dash.dels_df(results_path=irma_path+'/dais_results')
+    dais_seq_df = dais2dash.seq_df(results_path=irma_path+'/dais_results')
     return json.dumps(
         {
             "df": df.to_json(orient="split"),
@@ -135,6 +137,9 @@ def generate_df(irma_path):
             "read_df": read_df.to_json(orient="split"),
             "indels_df": indels_df.to_json(orient="split"),
             "alleles_df": alleles_df.to_json(orient="split"),
+            "dais_ins_df": dais_ins_df.to_json(orient="split"),
+            "dais_dels_df": dais_dels_df.to_json(orient="split"),
+            "dais_seq_df": dais_seq_df.to_json(orient="split"),
             "ref_lens": ref_lens,
             "cov_header": cov_header,
             "sliderMax": sliderMax,
@@ -947,15 +952,15 @@ content = html.Div(
                 id="data_path",
                 placeholder="Paste path to demuxed data",
                 persistence=True,
-                debounce=True,
+                debounce=True
             )
         )
     ]
-    #+ [
-        #dbc.Row(
-        #    dcc.Dropdown(['Flu-ONT','SC2-ONT','Flu-Illumina'],id='experiment_type',placeholder='What kind of data is this?')
-        #)
-    #]
+    + [
+        dbc.Row(
+            dcc.Dropdown(options=['Flu-ONT','SC2-ONT','Flu-Illumina'],id="experiment_type",placeholder="What kind of data is this?")
+        )
+    ]
     + [
         html.Button("Start Genome Assembly", id="assembly-button", n_clicks=0),
         html.Div(id="output-container-button", children="Hit the button to update."),

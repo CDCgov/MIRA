@@ -1,4 +1,3 @@
-from pickletools import read_decimalnl_short
 import pandas as pd
 from os.path import dirname, basename, isfile
 from glob import glob
@@ -134,7 +133,7 @@ def dash_irma_alleles_df(irma_path, full=False):
 
 def dash_irma_indels_df(irma_path, full=False):
 	if isfile(irma_path+'/indels.csv.gz'):
-		df = read_csv(irma_path+'/indels.csv.gz')
+		df = pd.read_csv(irma_path+'/indels.csv.gz')
 		return df
 	insertionFiles = glob(irma_path+'/*/tables/*insertions.txt')
 	deletionFiles = glob(irma_path+'/*/tables/*deletions.txt')
