@@ -3,69 +3,153 @@ from os.path import dirname, realpath, basename, isfile
 from glob import glob
 from re import findall
 
-spath=(realpath(__file__))
+spath = realpath(__file__)
+
 
 def fasta2dic(fasta, dais_ref_format=False):
     seq_dic = {}
-    with open(fasta, 'r') as d:
+    with open(fasta, "r") as d:
         for line in d.readline():
-            if line[0] == '>':
+            if line[0] == ">":
                 if dais_ref_format:
-                    seq_handle = '|'.join(line[1:].strip().split('|')[:2])
+                    seq_handle = "|".join(line[1:].strip().split("|")[:2])
                 else:
                     seq_handle = line[1:].strip()
-                seq_dic[seq_handle] = ''
+                seq_dic[seq_handle] = ""
             else:
                 seq_dic[seq_handle] += line.strip()
     return seq_dic
 
-def run_dais_with_ref(irma_path, dais_executable, references=f'{spath}/data/references/dais_references.fasta', dais_ref_format=True):
-    #cat dais_reference seq with irma_path/
-    ref_seqs = fasta2dic(references, dais_ref_format)
-    amended_consensus_files = glob(f'{irma_path}/*/amended_consensus/*fa')
 
-inscols = ['ID', 'C_type', 'Ref_ID', 'Protein', 'Upstream_aa', 'Inserted_nucleotides', 
-        'Inserted_residues', 'Upstream_nt', 'Codon_shift']
-inscols_rename = {'ID':'Sample','Ref_ID':'Reference','Protein':'Protein',
-        'Upstream_aa':'Upstream AA Position','Inserted_nucleotides':'Inserted Nucleotides',
-        'Inserted_residues':'Inserted AAs','Upstream_nt':'Upstream NT','Codon_shift':'In Frame'}
-delcols = ['ID', 'C_type', 'Ref_ID', 'Protein', 'VH', 'Del_AA_start', 
-        'Del_AA_end', 'Del_AA_len', 'In_frame', 'CDS_ID', 'Del_CDS_start', 
-        'Del_CDS_end', 'Del_CDS_len']
-delcols_rename = {'ID':'Sample','Ref_ID':'Reference','Protein':'Protein',
-        'Del_AA_start':'Del Start AA Position','Del_AA_end':'Del End AA Position',
-        'Del_AA_len':'Del AA Length','In_frame':'In Frame',
-        'Del_CDS_start':'Del Start CDS Posistion','Del_CDS_end':'Del End CDS Posistion'}
-seqcols = ['ID', 'C_type', 'Ref_ID', 'Protein', 'VH', 'AA_seq', 'AA_aln', 'CDS_id', 
-        'Insertion', 'Shift_Insert', 'CDS_seq', 'CDS_aln', 'Query_nt_coordinates', 
-        'CDS_nt_coordinates']
-seqcols_rename = {'ID':'Sample','Ref_ID':'Reference','Protein':'Protein', 'AA_seq':'AA Sequence',
-        'AA_aln':'Aligned AA Sequence','Insertion':'Insertion','Shift_Insert':'Insertion Shifts Frame',
-        'CDS_seq':'CDS Sequence','CDS_aln':'Aligned CDS Sequence',
-        'Query_nt_coordinates':'Reference NT Positions','CDS_nt_coordinates':'Sample NT Positions'}
+inscols = [
+    "ID",
+    "C_type",
+    "Ref_ID",
+    "Protein",
+    "Upstream_aa",
+    "Inserted_nucleotides",
+    "Inserted_residues",
+    "Upstream_nt",
+    "Codon_shift",
+]
+inscols_rename = {
+    "ID": "Sample",
+    "Ref_ID": "Reference",
+    "Protein": "Protein",
+    "Upstream_aa": "Upstream AA Position",
+    "Inserted_nucleotides": "Inserted Nucleotides",
+    "Inserted_residues": "Inserted AAs",
+    "Upstream_nt": "Upstream NT",
+    "Codon_shift": "In Frame",
+}
+delcols = [
+    "ID",
+    "C_type",
+    "Ref_ID",
+    "Protein",
+    "VH",
+    "Del_AA_start",
+    "Del_AA_end",
+    "Del_AA_len",
+    "In_frame",
+    "CDS_ID",
+    "Del_CDS_start",
+    "Del_CDS_end",
+    "Del_CDS_len",
+]
+delcols_rename = {
+    "ID": "Sample",
+    "Ref_ID": "Reference",
+    "Protein": "Protein",
+    "Del_AA_start": "Del Start AA Position",
+    "Del_AA_end": "Del End AA Position",
+    "Del_AA_len": "Del AA Length",
+    "In_frame": "In Frame",
+    "Del_CDS_start": "Del Start CDS Posistion",
+    "Del_CDS_end": "Del End CDS Posistion",
+}
+seqcols = [
+    "ID",
+    "C_type",
+    "Ref_ID",
+    "Protein",
+    "VH",
+    "AA_seq",
+    "AA_aln",
+    "CDS_id",
+    "Insertion",
+    "Shift_Insert",
+    "CDS_seq",
+    "CDS_aln",
+    "Query_nt_coordinates",
+    "CDS_nt_coordinates",
+]
+seqcols_rename = {
+    "ID": "Sample",
+    "Ref_ID": "Reference",
+    "Protein": "Protein",
+    "AA_seq": "AA Sequence",
+    "AA_aln": "Aligned AA Sequence",
+    "Insertion": "Insertion",
+    "Shift_Insert": "Insertion Shifts Frame",
+    "CDS_seq": "CDS Sequence",
+    "CDS_aln": "Aligned CDS Sequence",
+    "Query_nt_coordinates": "Reference NT Positions",
+    "CDS_nt_coordinates": "Sample NT Positions",
+}
+
 
 def dais2df(results_path, colnames, col_renames, dais_suffix, full=False):
-    files = glob(f'*{dais_suffix}')
+    files = glob(f"{results_path}/*{dais_suffix}")
     df = pd.DataFrame()
     for f in files:
-        df = df.append(pd.read_csv(f, sep='\t', names=colnames))
+        df = df.append(pd.read_csv(f, sep="\t", names=colnames, keep_default_na=False))
     if full:
         return df
     else:
-        df = df[col_renames.keys()]
+        select_cols = [i for i in col_renames.keys()]
+        df = df[select_cols]
         df = df.rename(columns=col_renames)
-        return df
+    return df
+
 
 def dels_df(results_path):
-    return dais2df(results_path, delcols, delcols_rename, '.del')
+    return dais2df(results_path, delcols, delcols_rename, ".del")
+
 
 def ins_df(results_path):
-    return dais2df(results_path, inscols, inscols_rename, '.ins')
+    return dais2df(results_path, inscols, inscols_rename, ".ins")
+
 
 def seq_df(results_path):
-    return dais2df(results_path, seqcols, seqcols_rename, '.seq')
+    return dais2df(results_path, seqcols, seqcols_rename, ".seq")
 
-'''original app effort functions. Possibly useful for printing out AA fastas
+
+def ref_seqs():
+    return dais2df(f"{spath}/data/references/", seqcols, seqcols_rename, ".seq")
+
+
+def AAvars(refseq, sampseq):
+    vars = []
+    pos = 1
+    for r, s in zip(refseq, sampseq):
+        if r != s:
+            vars.append(f"{r}{pos}{s}")
+        pos += 1
+
+
+def compute_dais_variants(results_path):
+    refs = ref_seqs()
+    ref_dic = (
+        refs.groupby(["Sample", "Protein"]).agg(lambda x: x.tolist()).to_dict("index")
+    )
+    seqs = seq_df(results_path)
+    seq_dic = (
+        seqs.groupby(["Sample", "Protein"]).agg(lambda x: x.tolist()).to_dict("index")
+    )
+
+
+"""original app effort functions. Possibly useful for printing out AA fastas
 def dais2fasta(dais_seq_file, outpath='.'):
     seqs = {}
     with open(daisfile, 'r') as d:
@@ -104,4 +188,4 @@ if __name__ == '__main__':
     print('Producing fasta files from {}'.format(argv[1]))
     seqs2table(dais2fasta(argv[1]), argv[2])
     print('Finished')
-'''
+"""

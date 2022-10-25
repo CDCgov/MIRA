@@ -187,7 +187,7 @@ def generate_samplesheet(sample_number):
             )
             for i in bc_numbers
         ]
-        print(data, type(data))
+        #print(data, type(data))
     ss = dash_table.DataTable(
         id="samplesheet_table",
         columns=[
