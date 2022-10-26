@@ -52,18 +52,19 @@ if 'fastq_pass' in runpath:
     with open(runpath.replace('fastq_pass','') + '/config.yaml', 'w') as out:
         yaml.dump(data, out, default_flow_style=False)
 
-    snakefile_path = '../SC2-spike-seq/workflow/'
+    
 if 'ont' in experiment_type.lower():
+    snakefile_path = '/home/$(whoami)/SC2-spike-seq/workflow/'
     if 'flu' in experiment_type.lower():
         snakefile_path += 'influenza_snakefile'
     elif 'sc2' in experiment_type.lower():
         snakefile_path += 'sc2_spike_snakefile'
-    snake_cmd = 'snakemake -s ' + snakefile_path + ' --use-conda --configfile config.yaml --cores 1 --conda-frontend conda'
+    snake_cmd = 'snakemake -s ' + snakefile_path + ' --configfile config.yaml --cores 4 '
     os.chdir(runpath.replace('fastq_pass',''))
     subprocess.call(snake_cmd, shell=True)
 else:
     illumina = True
     os.chdir(runpath)
-    bash_cmd = 'bash ../SC2-spike-seq/workflow/illumina_influenza.sh -s Data.csv -d ' + runpath
+    bash_cmd = 'bash /home/$(whoami)/SC2-spike-seq/workflow/illumina_influenza.sh -s' + argv[1] + ' -d ' + runpath
     subprocess.call(bash_cmd, shell=True)
     
