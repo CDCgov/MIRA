@@ -127,9 +127,7 @@ def generate_df(irma_path):
     sliderMax = df4[cov_header].max()
     allFig = createAllCoverageFig(df, ",".join(segments), segcolor)
     irma_read_fig = create_irma_read_fig(read_df)
-    dais_ins_df = dais2dash.ins_df(results_path=irma_path+'/dais_results')
-    dais_dels_df = dais2dash.dels_df(results_path=irma_path+'/dais_results')
-    dais_seq_df = dais2dash.seq_df(results_path=irma_path+'/dais_results')
+    dais_vars = dais2dash.compute_dais_variants(results_path=irma_path+'/dais_results')
     return json.dumps(
         {
             "df": df.to_json(orient="split"),
@@ -137,9 +135,7 @@ def generate_df(irma_path):
             "read_df": read_df.to_json(orient="split"),
             "indels_df": indels_df.to_json(orient="split"),
             "alleles_df": alleles_df.to_json(orient="split"),
-            "dais_ins_df": dais_ins_df.to_json(orient="split"),
-            "dais_dels_df": dais_dels_df.to_json(orient="split"),
-            "dais_seq_df": dais_seq_df.to_json(orient="split"),
+            "dais_vars": dais_vars.to_json(orient="split"),
             "ref_lens": ref_lens,
             "cov_header": cov_header,
             "sliderMax": sliderMax,
@@ -267,6 +263,17 @@ def alleles_table(irma_path):
                     page_size=10,
                     export_format="xlsx",
                     export_headers="display",
+                    style_cell={'overflow':'hidden',
+                                'textOverflow':'ellipsis',
+                                'textAlign':'left',
+                                'maxWidth':0},
+                        tooltip_data=[
+        {
+            column: {'value': str(value), 'type': 'markdown'}
+            for column, value in row.items()
+        } for row in df.to_dict('records')
+    ],
+    tooltip_duration=None                
                 )
             ]
         )
@@ -291,12 +298,56 @@ def indels_table(irma_path):
                     page_size=10,
                     export_format="xlsx",
                     export_headers="display",
+                    style_cell={'overflow':'hidden',
+                                'textOverflow':'ellipsis',
+                                'textAlign':'left',
+                                'maxWidth':0},
+                        tooltip_data=[
+        {
+            column: {'value': str(value), 'type': 'markdown'}
+            for column, value in row.items()
+        } for row in df.to_dict('records')
+    ],
+    tooltip_duration=None                    
                 )
             ]
         )
     ]
     return table
 
+@app.callback([Output("vars_table", "children"), Input("irma_path", "value")])
+def vars_table(irma_path):
+    if not irma_path:
+        raise dash.exceptions.PreventUpdate
+    df = pd.read_json(json.loads(generate_df(irma_path))["dais_vars"], orient="split")
+    table = [
+        html.Div(
+            [
+                dash_table.DataTable(
+                    columns=[{"name": i, "id": i} for i in df.columns],
+                    data=df.to_dict("records"),
+                    sort_action="native",
+                    filter_action="native",
+                    # persistence=True,
+                    page_size=10,
+                    export_format="xlsx",
+                    export_headers="display",
+                    style_cell={'overflow':'hidden',
+                                'textOverflow':'ellipsis',
+                                'textAlign':'left',
+                                'maxWidth':0},
+                        tooltip_data=[
+        {
+            column: {'value': str(value), 'type': 'markdown'}
+            for column, value in row.items()
+        } for row in df.to_dict('records')
+    ],
+    tooltip_duration=None
+                )
+            ]
+        )
+    ]
+    return table
 
 @app.callback(
     [Output("illumina_demux_table", "children"), Output("demux_fig", "figure")],
@@ -1074,11 +1125,7 @@ content = html.Div(
     + [html.Br()]
     + [html.P("Variants", id="variants_head", className="display-6")]
     + [html.Br()]
-    + [
-        dbc.Row(dbc.Col(id="aa_var_table", width=6), justify="center"),
-        dcc.Dropdown(id="select_gene", persistence=True),
-        html.Div(id="alignment_fig"),
-    ]
+    + [dbc.Row(html.Div(id="vars_table"))]
     + [html.Br()],
 )
 
