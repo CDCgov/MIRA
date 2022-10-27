@@ -130,6 +130,9 @@ def seq_df(results_path):
 def ref_seqs():
     return dais2df(f"{repo_path}/data/references/", seqcols, seqcols_rename, ".seq")
 
+#def chunks(lst,chunk_size):
+#    for i in range(0,len(lst),chunk_size):
+#        yield ','.join(lst[i:i+chunk_size])
 
 def AAvars(refseq, sampseq):
     vars = []
@@ -138,7 +141,7 @@ def AAvars(refseq, sampseq):
         if r != s:
             vars.append(f"{r}{pos}{s}")
         pos += 1
-    return ','.join(vars)
+    return ', '.join(vars)
 
 
 def compute_dais_variants(results_path):

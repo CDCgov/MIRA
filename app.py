@@ -5,13 +5,11 @@
 
 from symbol import comp_for
 import dash
-import dash_core_components as dcc
-import dash_html_components as html
+from dash import dcc, dash_table, html
 import dash_bootstrap_components as dbc
 import dash_bio as dbio
 from dash.dependencies import Input, Output, State
 import dash_daq as daq
-import dash_table
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 import plotly.express as px
@@ -33,7 +31,7 @@ from flask_caching import Cache
 
 path.append(dirname(realpath(__file__)) + "/scripts/")
 import irma2dash  # type: ignore
-import dais2dash # type: ignore
+import dais2dash  # type: ignore
 import conditional_color_range_perCol  # type: ignore
 
 
@@ -127,7 +125,9 @@ def generate_df(irma_path):
     sliderMax = df4[cov_header].max()
     allFig = createAllCoverageFig(df, ",".join(segments), segcolor)
     irma_read_fig = create_irma_read_fig(read_df)
-    dais_vars = dais2dash.compute_dais_variants(results_path=irma_path+'/dais_results')
+    dais_vars = dais2dash.compute_dais_variants(
+        results_path=irma_path + "/dais_results"
+    )
     return json.dumps(
         {
             "df": df.to_json(orient="split"),
@@ -183,7 +183,7 @@ def generate_samplesheet(sample_number):
             )
             for i in bc_numbers
         ]
-        #print(data, type(data))
+        # print(data, type(data))
     ss = dash_table.DataTable(
         id="samplesheet_table",
         columns=[
@@ -223,10 +223,13 @@ def generate_samplesheet(sample_number):
 @cache.memoize(timeout=cache_timeout)
 @app.callback(
     Output("output-container-button", "children"),
-    [Input("assembly-button", "n_clicks"),
-    Input("samplesheet_path", "value"),
-    Input("data_path", "value"),
-    Input('experiment_type', 'value')])
+    [
+        Input("assembly-button", "n_clicks"),
+        Input("samplesheet_path", "value"),
+        Input("data_path", "value"),
+        Input("experiment_type", "value"),
+    ],
+)
 def run_snake_script_onClick(n_clicks, samplesheet_path, data_path, experiment_type):
     # print('[DEBUG] n_clicks:', n_clicks)
     if not n_clicks:
@@ -239,11 +242,21 @@ def run_snake_script_onClick(n_clicks, samplesheet_path, data_path, experiment_t
     if not experiment_type:
         raise dash.exceptions.PreventUpdate
     result = subprocess.check_output(
-        ["python", "scripts/config_create.py", samplesheet_path, data_path, experiment_type]
+        [
+            "python",
+            "scripts/config_create.py",
+            samplesheet_path,
+            data_path,
+            experiment_type,
+        ]
     )
     # convert bytes to string
     result = result.decode()
     return result
+
+
+def flfor(x, digits):
+    return float(f"{x:.{digits}f}")
 
 
 @app.callback([Output("minor_alleles_table", "children"), Input("irma_path", "value")])
@@ -263,17 +276,7 @@ def alleles_table(irma_path):
                     page_size=10,
                     export_format="xlsx",
                     export_headers="display",
-                    style_cell={'overflow':'hidden',
-                                'textOverflow':'ellipsis',
-                                'textAlign':'left',
-                                'maxWidth':0},
-                        tooltip_data=[
-        {
-            column: {'value': str(value), 'type': 'markdown'}
-            for column, value in row.items()
-        } for row in df.to_dict('records')
-    ],
-    tooltip_duration=None                
+                    style_cell={"textAlign": "left", "height": "auto"},
                 )
             ]
         )
@@ -298,22 +301,13 @@ def indels_table(irma_path):
                     page_size=10,
                     export_format="xlsx",
                     export_headers="display",
-                    style_cell={'overflow':'hidden',
-                                'textOverflow':'ellipsis',
-                                'textAlign':'left',
-                                'maxWidth':0},
-                        tooltip_data=[
-        {
-            column: {'value': str(value), 'type': 'markdown'}
-            for column, value in row.items()
-        } for row in df.to_dict('records')
-    ],
-    tooltip_duration=None                    
+                    style_cell={"textAlign": "left", "height": "auto"},
                 )
             ]
         )
     ]
     return table
+
 
 @app.callback([Output("vars_table", "children"), Input("irma_path", "value")])
 def vars_table(irma_path):
@@ -332,31 +326,28 @@ def vars_table(irma_path):
                     page_size=10,
                     export_format="xlsx",
                     export_headers="display",
-                    style_cell={'overflow':'hidden',
-                                'textOverflow':'ellipsis',
-                                'textAlign':'left',
-                                'maxWidth':0},
-                        tooltip_data=[
-        {
-            column: {'value': str(value), 'type': 'markdown'}
-            for column, value in row.items()
-        } for row in df.to_dict('records')
-    ],
-    tooltip_duration=None
+                    style_cell={
+                        "whiteSpace": "normal",
+                        "textAlign": "left",
+                        "height": 40,
+                    },
                 )
             ]
         )
     ]
     return table
 
+
 @app.callback(
     [Output("illumina_demux_table", "children"), Output("demux_fig", "figure")],
     [Input("demux_file", "contents"), State("demux_file", "filename")],
+        prevent_initial_call=True,
 )
 @cache.memoize(timeout=cache_timeout)
 def illumina_demux_table(demux_file, filename):
     if not demux_file:
         raise dash.exceptions.PreventUpdate
+    print(f"filename = {filename}")
     if "sequencing_summary" in filename:
         df = pd.read_csv(
             io.StringIO(base64.b64decode(demux_file.split(",")[1]).decode("utf-8")),
@@ -386,10 +377,6 @@ def illumina_demux_table(demux_file, filename):
                 "barcode_score": "Mean Barcode Identity",
             }
         )
-
-        def flfor(x, digits):
-            return float(f"{x:.{digits}f}")
-
         df[["Mean Mean Qscore", "Mean Barcode Identity"]] = df[
             ["Mean Mean Qscore", "Mean Barcode Identity"]
         ].applymap(lambda x: flfor(x, 2))
@@ -593,8 +580,9 @@ def create_irma_read_fig(df):
     for i in range(0, rows):
         specs.append([json.loads(a) for a in s.split()])
     fig = make_subplots(rows, columns, specs=specs)
-    col_n, row_n = cycle([i for i in range(1, columns + 1)]), cycle(
-        [i for i in range(1, rows + 1)]
+    col_n, row_n = (
+        cycle([i for i in range(1, columns + 1)]),
+        cycle([i for i in range(1, rows + 1)]),
     )
     counter = 0
     annotations = []
@@ -887,17 +875,16 @@ def alignment_fig(irma_path, gene):
     return dbio.AlignmentChart(data=data, showgap=False, showid=False)
 
 
-@app.callback(Output("aa_var_table", "children"), [Input("irma_path", "value")])
-def aa_var_table(irma_path):
-    df = pd.read_csv(os.path.join(irma_path, "AAvariants.txt"), sep="\t")
-    table = dash_table.DataTable(
-        columns=[{"name": i, "id": i} for i in df.columns],
-        data=df.to_dict("records"),
-        sort_action="native",
-        filter_action="native",
-        page_size=20,
+@app.callback(
+    Output("download_fasta", "data"),
+    [Input("irma_path", "value"), Input("fasta_dl_button", "n_clicks")],
+    prevent_initial_call=True,
+)
+def download_fastas(irma_path, n_clicks):
+    return dict(
+        content=open(f"{irma_path}/dais_results/amended_consensus.fasta").read(),
+        filename=f"{irma_path.split('/')[-1]}_amended_consensus.fasta",
     )
-    return table
 
 
 ########################################################
@@ -923,11 +910,7 @@ CONTENT_STYLE = {
 
 sidebar = html.Div(
     [
-        html.Img(
-            src=app.get_asset_url("irma-spy.jpg"),
-            height=80,
-            width=80,
-        ),
+        html.Img(src=app.get_asset_url("irma-spy.jpg"), height=80, width=80,),
         html.H2("IRMA Spy", className="display-4"),
         html.P('"Time is a Pony Ride"', className="display-7"),
         html.Hr(),
@@ -943,9 +926,9 @@ sidebar = html.Div(
                 dbc.NavLink(
                     "Reference Coverage", href="#coverage_head", external_link=True
                 ),
+                dbc.NavLink("Variants", href="#variants_head", external_link=True),
                 dbc.NavLink("Minor SNVs", href="#alleles_head", external_link=True),
                 dbc.NavLink("Indels", href="#indels_head", external_link=True),
-                dbc.NavLink("Variants", href="#variants_head", external_link=True),
             ],
             vertical=True,
             pills=True,
@@ -1003,13 +986,17 @@ content = html.Div(
                 id="data_path",
                 placeholder="Paste path to demuxed data",
                 persistence=True,
-                debounce=True
+                debounce=True,
             )
         )
     ]
     + [
         dbc.Row(
-            dcc.Dropdown(options=['Flu-ONT','SC2-ONT','Flu-Illumina'],id="experiment_type",placeholder="What kind of data is this?")
+            dcc.Dropdown(
+                options=["Flu-ONT", "SC2-ONT", "Flu-Illumina"],
+                id="experiment_type",
+                placeholder="What kind of data is this?",
+            )
         )
     ]
     + [
@@ -1115,6 +1102,10 @@ content = html.Div(
         )
     ]
     + [html.Br()]
+    + [html.P("Variants", id="variants_head", className="display-6")]
+    + [html.Br()]
+    + [dbc.Row(html.Div(id="vars_table"))]
+    + [html.Br()]
     + [html.P("Minor SNVs", id="alleles_head", className="display-6")]
     + [html.Br()]
     + [dbc.Row(html.Div(id="minor_alleles_table"))]
@@ -1123,10 +1114,14 @@ content = html.Div(
     + [html.Br()]
     + [dbc.Row(html.Div(id="indels_table"))]
     + [html.Br()]
-    + [html.P("Variants", id="variants_head", className="display-6")]
-    + [html.Br()]
-    + [dbc.Row(html.Div(id="vars_table"))]
-    + [html.Br()],
+    + [
+        html.Div(
+            [
+                html.Button("Download Fasta", id="fasta_dl_button"),
+                dcc.Download(id="download_fasta"),
+            ]
+        )
+    ],
 )
 
 app.layout = html.Div([sidebar, content])
