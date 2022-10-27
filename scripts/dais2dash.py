@@ -112,6 +112,7 @@ def dais2df(results_path, colnames, col_renames, dais_suffix, full=False):
         select_cols = [i for i in col_renames.keys()]
         df = df[select_cols]
         df = df.rename(columns=col_renames)
+    df[df['Protein'] != '\\N']
     return df
 
 

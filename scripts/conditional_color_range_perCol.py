@@ -1,5 +1,5 @@
 def discrete_background_color_bins(df, n_bins=5, columns='all'):
-	import dash_html_components as html
+	#from dash import html
 	import colorlover
 	bounds = [i * (1.0 / n_bins) for i in range(n_bins + 1)]
 	if columns == 'all':
