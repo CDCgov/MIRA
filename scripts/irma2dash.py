@@ -128,6 +128,7 @@ def dash_irma_alleles_df(irma_path, full=False):
 					'Position':'Sample Position', 'Total':'Coverage', 'Consensus_Allele':'Consensus Allele', 
 					'Minority_Allele':'Minority Allele', 'Consensus_Count':'Consensus Count', 
 					'Minority_Count':'Minority Count', 'Minority_Frequency':'Minority Frequency'})
+		df['Minority Frequency'] = df[['Minority Frequency']].applymap(lambda x: float(f"{float(x):.{3}f}"))
 	df.to_csv(irma_path+'/alleles.csv.gz', compression='gzip')
 	return df
 
@@ -155,6 +156,7 @@ def dash_irma_indels_df(irma_path, full=False):
 		df = df[['Sample', 'Sample - Upstream Position', 'Reference', 
 		 'Context', 'Length', 
 		'Insert', 'Count', 'Upstream Base Coverage', 'Frequency']]
+	df['Frequency'] = df[['Frequency']].applymap(lambda x: float(f"{float(x):.{3}f}"))
 	return df
 
 def reference_lens(irma_path):
