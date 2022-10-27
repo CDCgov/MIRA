@@ -344,7 +344,7 @@ def vars_table(irma_path):
         prevent_initial_call=True,
 )
 @cache.memoize(timeout=cache_timeout)
-def illumina_demux_table(demux_file, filename):
+def demux_table(demux_file, filename):
     if not demux_file:
         raise dash.exceptions.PreventUpdate
     print(f"filename = {filename}")
@@ -937,6 +937,13 @@ sidebar = html.Div(
     style=SIDEBAR_STYLE,
 )
 
+def blank_fig():
+    fig = go.Figure(go.Scatter(x=[], y = []))
+    fig.update_layout(template = None)
+    fig.update_xaxes(showgrid = False, showticklabels = False, zeroline=False)
+    fig.update_yaxes(showgrid = False, showticklabels = False, zeroline=False)
+    return fig
+
 content = html.Div(
     id="page-content",
     style=CONTENT_STYLE,
@@ -1034,7 +1041,7 @@ content = html.Div(
                         id="demux-loading",
                         type="cube",
                         children=[
-                            dcc.Graph(id="demux_fig"),
+                            dcc.Graph(id="demux_fig", figure=blank_fig()),
                             html.Div(id="illumina_demux_table"),
                         ],
                     )
@@ -1058,7 +1065,7 @@ content = html.Div(
                             dcc.Loading(
                                 id="coverageheat-loading",
                                 type="cube",
-                                children=[dcc.Graph(id="coverage-heat")],
+                                children=[dcc.Graph(id="coverage-heat", figure=blank_fig())],
                             ),
                             width=11,
                             align="end",
