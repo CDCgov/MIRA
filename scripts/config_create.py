@@ -27,6 +27,11 @@ if "fastq_pass" in runpath:
         "barcodes": {},
     }
 
+if 'ont' in experiment_type.lower():
+    if 'fastq_pass' in runpath:
+        data = {'runid':runpath.split('/')[runpath.split('/').index('fastq_pass') -1], 'barcodes':{}}
+    else:
+        data = {'runid':runpath, 'barcodes':{}}
     def reverse_complement(seq):
         rev = {"A": "T", "T": "A", "C": "G", "G": "C", ",": ","}
         seq = seq[::-1]
@@ -44,8 +49,11 @@ if "fastq_pass" in runpath:
         ) as y:
             barseqs = yaml.safe_load(y)
     for d in dfd.values():
-        fastq_pass = glob(runpath + "/*/")
-        if d["Barcode #"] in [x.split("/")[-2] for x in fastq_pass]:
+        if 'fastq_pass' in runpath:
+            fastq_pass = glob(runpath + '/*/')
+        else:
+            fastq_pass = glob(runpath + '/fastq_pass/*/')
+        if d['Barcode #'] in [x.split("/")[-2] for x in fastq_pass]:
 
             data["barcodes"][d["Sample ID"]] = {
                 "sample_type": d["Sample Type"],
