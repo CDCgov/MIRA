@@ -77,7 +77,7 @@ if "ont" in experiment_type.lower():
     elif "sc2" in experiment_type.lower():
         snakefile_path += "sc2_spike_snakefile"
     snake_cmd = (
-        "snakemake -s " + snakefile_path + " --configfile config.yaml --cores 4 "
+        "snakemake -s " + snakefile_path + " --configfile config.yaml --cores 4 --printshellcmds"
     )
     os.chdir(runpath.replace("fastq_pass", ""))
     subprocess.call(snake_cmd, shell=True)
