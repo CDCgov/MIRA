@@ -21,12 +21,6 @@ except (IndexError, ValueError):
 df = pd.read_csv(argv[1])
 dfd = df.to_dict("index")
 
-if "fastq_pass" in runpath:
-    data = {
-        "runid": runpath.split("/")[runpath.split("/").index("fastq_pass") - 1],
-        "barcodes": {},
-    }
-
 if 'ont' in experiment_type.lower():
     if 'fastq_pass' in runpath:
         data = {'runid':runpath.split('/')[runpath.split('/').index('fastq_pass') -1], 'barcodes':{}}
@@ -66,29 +60,27 @@ if 'ont' in experiment_type.lower():
 
     if len(failures) > 1:
         print("failed samples detected: Barcodes\n", failures.strip())
-    with open(runpath.replace("fastq_pass", "") + "/config.yaml", "w") as out:
-        yaml.dump(data, out, default_flow_style=False)
+else:
+    data = {'runid':runpath, 'samples':{}}
+    for d in dfd.values():
+        data["samples"][d["Sample ID"]] = {
+                "sample_type": d["Sample Type"]
+            }
+with open(runpath.replace("fastq_pass", "") + "/config.yaml", "w") as out:
+    yaml.dump(data, out, default_flow_style=False)
 
-
+snakefile_path = f"{root}/../SC2-spike-seq/workflow/"
 if "ont" in experiment_type.lower():
-    snakefile_path = f"{root}/../SC2-spike-seq/workflow/"
+
     if "flu" in experiment_type.lower():
         snakefile_path += "influenza_snakefile"
     elif "sc2" in experiment_type.lower():
         snakefile_path += "sc2_spike_snakefile"
-    snake_cmd = (
+else:
+    snakefile_path += "illumina_influenza_snakefile"
+snake_cmd = (
         "snakemake -s " + snakefile_path + " --configfile config.yaml --cores 4 "
     )
-    os.chdir(runpath.replace("fastq_pass", ""))
-    subprocess.call(snake_cmd, shell=True)
-else:
-    illumina = True
-    os.chdir(runpath)
-    bash_cmd = (
-        f"bash {root}/../SC2-spike-seq/workflow/illumina_influenza.sh -s"
-        + argv[1]
-        + " -d "
-        + runpath
-    )
-    subprocess.call(bash_cmd, shell=True)
+os.chdir(runpath.replace("fastq_pass", ""))
+subprocess.call(snake_cmd, shell=True)
 
