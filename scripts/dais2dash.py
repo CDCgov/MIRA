@@ -113,6 +113,7 @@ def dais2df(results_path, colnames, col_renames, dais_suffix, full=False):
         df = df[select_cols]
         df = df.rename(columns=col_renames)
     df = df[df['Protein'] != '\\N']
+    df = df[df['Sample NT Positions'] != '\\N']
     return df
 
 

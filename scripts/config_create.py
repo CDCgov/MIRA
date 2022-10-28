@@ -54,7 +54,7 @@ if 'fastq_pass' in runpath:
 
     
 if 'ont' in experiment_type.lower():
-    snakefile_path = '/home/$(whoami)/SC2-spike-seq/workflow/'
+    snakefile_path = f'{root}/../SC2-spike-seq/workflow/'
     if 'flu' in experiment_type.lower():
         snakefile_path += 'influenza_snakefile'
     elif 'sc2' in experiment_type.lower():
@@ -65,6 +65,6 @@ if 'ont' in experiment_type.lower():
 else:
     illumina = True
     os.chdir(runpath)
-    bash_cmd = 'bash /home/$(whoami)/SC2-spike-seq/workflow/illumina_influenza.sh -s' + argv[1] + ' -d ' + runpath
+    bash_cmd = f'bash {root}/../SC2-spike-seq/workflow/illumina_influenza.sh -s' + argv[1] + ' -d ' + runpath
     subprocess.call(bash_cmd, shell=True)
     

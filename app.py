@@ -109,7 +109,7 @@ def single_sample_fig(irma_path, sample, cov_linear_y):
 def generate_df(irma_path):
     if not irma_path:
         raise dash.exceptions.PreventUpdate
-    irma_path = os.path.join(irma_path)
+    irma_path = os.path.join(irma_path, 'IRMA')
     df = irma2dash.dash_irma_coverage_df(irma_path)  # argv[2]) #loadData('./test.csv')
     read_df = irma2dash.dash_irma_reads_df(irma_path)
     alleles_df = irma2dash.dash_irma_alleles_df(irma_path)
@@ -148,12 +148,12 @@ def generate_df(irma_path):
     )
 
 
-@app.callback(Output("samplesheet", "children"), Input("sample_number", "value"))
-def generate_samplesheet(sample_number):
+@app.callback(Output("samplesheet", "children"), [Input("sample_number", "value"), Input("irma_path", "value")])
+def generate_samplesheet(sample_number, irma_path):
     if not sample_number:
         raise dash.exceptions.PreventUpdate
-    if isfile("samplesheet.csv"):
-        data = pd.read_csv("samplesheet.csv").to_dict("records")
+    if isfile(f"{irma_path}/samplesheet.csv"):
+        data = pd.read_csv(f"{irma_path}/samplesheet.csv").to_dict("records")
     else:
         str_num_list = "".join(sample_number).split(",")
         bc_numbers = []
@@ -882,7 +882,7 @@ def alignment_fig(irma_path, gene):
 )
 def download_fastas(irma_path, n_clicks):
     return dict(
-        content=open(f"{irma_path}/dais_results/amended_consensus.fasta").read(),
+        content=open(f"{irma_path}/IRMA/dais_results/DAIS_ribosome_input.fasta").read(),
         filename=f"{irma_path.split('/')[-1]}_amended_consensus.fasta",
     )
 
