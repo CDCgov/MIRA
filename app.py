@@ -3,6 +3,7 @@
 # Run this app with `python app.py` and
 # visit http://127.0.0.1:8050/ in your web browser.
 
+from cProfile import run
 from symbol import comp_for
 import dash
 from dash import dcc, dash_table, html
@@ -148,12 +149,12 @@ def generate_df(run_path):
     )
 
 
-@app.callback(Output("samplesheet", "children"), [Input("sample_number", "value"), Input("run_path", "value")])
-def generate_samplesheet(sample_number, run_path):
+@app.callback(Output("samplesheet", "children"), [Input("sample_number", "value"), Input("select_run", "value")])
+def generate_samplesheet(sample_number, run):
     if not sample_number:
         raise dash.exceptions.PreventUpdate
-    if isfile(f"{run_path}/samplesheet.csv"):
-        data = pd.read_csv(f"{run_path}/samplesheet.csv").to_dict("records")
+    if isfile(f"{data_root}/{run}/samplesheet.csv"):
+        data = pd.read_csv(f"{data_root}/{run}/samplesheet.csv").to_dict("records")
     else:
         str_num_list = "".join(sample_number).split(",")
         bc_numbers = []
@@ -225,19 +226,16 @@ def generate_samplesheet(sample_number, run_path):
     Output("output-container-button", "children"),
     [
         Input("assembly-button", "n_clicks"),
-        Input("samplesheet_path", "value"),
-        Input("data_path", "value"),
+        Input("select_run", "value"),
         Input("experiment_type", "value"),
     ],
 )
-def run_snake_script_onClick(n_clicks, samplesheet_path, data_path, experiment_type):
+def run_snake_script_onClick(n_clicks, run, experiment_type):
     # print('[DEBUG] n_clicks:', n_clicks)
     if not n_clicks:
         # raise dash.exceptions.PreventUpdate
         return dash.no_update
-    if not samplesheet_path:
-        raise dash.exceptions.PreventUpdate
-    if not data_path:
+    if not run:
         raise dash.exceptions.PreventUpdate
     if not experiment_type:
         raise dash.exceptions.PreventUpdate
@@ -245,8 +243,8 @@ def run_snake_script_onClick(n_clicks, samplesheet_path, data_path, experiment_t
         [
             "python",
             "scripts/config_create.py",
-            samplesheet_path,
-            data_path,
+            f"{data_root}/{run}/samplesheet.csv",
+            f"{data_root}/{run}",
             experiment_type,
         ]
     )
@@ -259,11 +257,11 @@ def flfor(x, digits):
     return float(f"{x:.{digits}f}")
 
 
-@app.callback([Output("minor_alleles_table", "children"), Input("run_path", "value")])
-def alleles_table(run_path):
-    if not run_path:
+@app.callback([Output("minor_alleles_table", "children"), Input("select_run", "value")])
+def alleles_table(run):
+    if not run:
         raise dash.exceptions.PreventUpdate
-    df = pd.read_json(json.loads(generate_df(run_path))["alleles_df"], orient="split")
+    df = pd.read_json(json.loads(generate_df(f"{data_root}/{run}"))["alleles_df"], orient="split")
     table = [
         html.Div(
             [
@@ -284,11 +282,11 @@ def alleles_table(run_path):
     return table
 
 
-@app.callback([Output("indels_table", "children"), Input("run_path", "value")])
-def indels_table(run_path):
-    if not run_path:
+@app.callback([Output("indels_table", "children"), Input("select_run", "value")])
+def indels_table(run):
+    if not run:
         raise dash.exceptions.PreventUpdate
-    df = pd.read_json(json.loads(generate_df(run_path))["indels_df"], orient="split")
+    df = pd.read_json(json.loads(generate_df(f"{data_root}/{run}"))["indels_df"], orient="split")
     table = [
         html.Div(
             [
@@ -309,11 +307,11 @@ def indels_table(run_path):
     return table
 
 
-@app.callback([Output("vars_table", "children"), Input("run_path", "value")])
-def vars_table(run_path):
-    if not run_path:
+@app.callback([Output("vars_table", "children"), Input("select_run", "value")])
+def vars_table(run):
+    if not run:
         raise dash.exceptions.PreventUpdate
-    df = pd.read_json(json.loads(generate_df(run_path))["dais_vars"], orient="split")
+    df = pd.read_json(json.loads(generate_df(f"{data_root}/{run}"))["dais_vars"], orient="split")
     table = [
         html.Div(
             [
@@ -347,7 +345,6 @@ def vars_table(run_path):
 def demux_table(demux_file, filename):
     if not demux_file:
         raise dash.exceptions.PreventUpdate
-    print(f"filename = {filename}")
     if "sequencing_summary" in filename:
         df = pd.read_csv(
             io.StringIO(base64.b64decode(demux_file.split(",")[1]).decode("utf-8")),
@@ -459,17 +456,17 @@ def negative_qc_statement(df, negative_list=""):
 @app.callback(
     [Output("irma_neg_statment", "children"), Output("irma_summary", "children")],
     [
-        Input("run_path", "value"),
+        Input("select_run", "value"),
         Input("samplesheet_table", "data"),
         Input("samplesheet_table", "columns"),
     ],
 )
-def irma_summary(run_path, ssrows, sscols):
-    if not run_path or not ssrows or not sscols:
+def irma_summary(run, ssrows, sscols):
+    if not run or not ssrows or not sscols:
         raise dash.exceptions.PreventUpdate
     ss_df = pd.DataFrame(ssrows, columns=[c["name"] for c in sscols])
     neg_controls = list(ss_df[ss_df["Sample Type"] == "- Control"]["Sample ID"])
-    reads = pd.read_json(json.loads(generate_df(run_path))["read_df"], orient="split")
+    reads = pd.read_json(json.loads(generate_df(f"{data_root}/{run}"))["read_df"], orient="split")
     qc_statement = negative_qc_statement(reads, neg_controls)
     reads = (
         reads[reads["Record"].str.contains("^1|^2-p|^4")]
@@ -494,7 +491,7 @@ def irma_summary(run_path, ssrows, sscols):
     )
     reads = reads[["Sample", "Total Reads", "Pass QC", "Reads Mapped", "Reference"]]
     indels = pd.read_json(
-        json.loads(generate_df(run_path))["indels_df"], orient="split"
+        json.loads(generate_df(f"{data_root}/{run}"))["indels_df"], orient="split"
     )
     indels = (
         indels[indels["Frequency"] >= 0.05]
@@ -504,7 +501,7 @@ def irma_summary(run_path, ssrows, sscols):
         .reset_index()
     )
     alleles = pd.read_json(
-        json.loads(generate_df(run_path))["alleles_df"], orient="split"
+        json.loads(generate_df(f"{data_root}/{run}"))["alleles_df"], orient="split"
     )
     alleles = (
         alleles[alleles["Minority Frequency"] >= 0.05]
@@ -513,9 +510,9 @@ def irma_summary(run_path, ssrows, sscols):
         .rename(columns={"Sample": "Count of Minor SNVs >= 0.05"})
         .reset_index()
     )
-    coverage = pd.read_json(json.loads(generate_df(run_path))["df"], orient="split")
+    coverage = pd.read_json(json.loads(generate_df(f"{data_root}/{run}"))["df"], orient="split")
     # Compute the % of reference mapped from IRMAs coverage table and lengths of /intermediate/0-*/0*.ref seq lengths
-    ref_lens = json.loads(generate_df(run_path))["ref_lens"]
+    ref_lens = json.loads(generate_df(f"{data_root}/{run}"))["ref_lens"]
     cov_ref_lens = (
         coverage[~coverage["Consensus"].isin(["-", "N", "a", "c", "t", "g"])]
         .groupby(["Sample", "Reference_Name"])
@@ -827,11 +824,11 @@ def createSampleCoverageFig(sample, df, segments, segcolor, cov_linear_y):
 
 @app.callback(
     Output("coverage-heat", "figure"),
-    [Input("heatmap-slider", "value"), Input("run_path", "value")],
+    [Input("heatmap-slider", "value"), Input("select_run", "value")],
 )
 @cache.memoize(timeout=cache_timeout)
-def callback_heatmap(maximumValue, run_path):
-    df = pd.read_json(json.loads(generate_df(run_path))["df4"], orient="split")
+def callback_heatmap(maximumValue, run):
+    df = pd.read_json(json.loads(generate_df(f"{data_root}/{run}"))["df4"], orient="split")
     # df = pd.read_json(json.loads(data)['df4'], orient='split')
     return createheatmap(df, maximumValue)
 
@@ -864,13 +861,13 @@ def set_run_options(gene_options):
 
 @app.callback(
     Output("download_fasta", "data"),
-    [Input("run_path", "value"), Input("fasta_dl_button", "n_clicks")],
+    [Input("select_run", "value"), Input("fasta_dl_button", "n_clicks")],
     prevent_initial_call=True,
 )
-def download_fastas(run_path, n_clicks):
+def download_fastas(run, n_clicks):
     return dict(
-        content=open(f"{run_path}/IRMA/dais_results/DAIS_ribosome_input.fasta").read(),
-        filename=f"{run_path.split('/')[-1]}_amended_consensus.fasta",
+        content=open(f"{data_root}/{run}/IRMA/dais_results/DAIS_ribosome_input.fasta").read(),
+        filename=f"{run}_amended_consensus.fasta",
     )
 
 
