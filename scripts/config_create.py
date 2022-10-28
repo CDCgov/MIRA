@@ -19,8 +19,11 @@ except (IndexError, ValueError):
 df = pd.read_csv(argv[1])
 dfd = df.to_dict('index')
 
-if 'fastq_pass' in runpath:
-    data = {'runid':runpath.split('/')[runpath.split('/').index('fastq_pass') -1], 'barcodes':{}}
+if 'ont' in experiment_type.lower():
+    if 'fastq_pass' in runpath:
+        data = {'runid':runpath.split('/')[runpath.split('/').index('fastq_pass') -1], 'barcodes':{}}
+    else:
+        data = {'runid':runpath, 'barcodes':{}}
     def reverse_complement(seq):
         rev = {'A':'T','T':'A','C':'G','G':'C',',':','}
         seq = seq[::-1]
@@ -34,7 +37,10 @@ if 'fastq_pass' in runpath:
         with open('{}/lib/{}.yaml'.format(root, dfd[0]['Barcode Expansion Pack']), 'r') as y:
             barseqs = yaml.safe_load(y)
     for d in dfd.values():
-        fastq_pass = glob(runpath + '/*/')
+        if 'fastq_pass' in runpath:
+            fastq_pass = glob(runpath + '/*/')
+        else:
+            fastq_pass = glob(runpath + '/fastq_pass/*/')
         if d['Barcode #'] in [x.split("/")[-2] for x in fastq_pass]:
 
             data['barcodes'][d['Sample ID']] = {
