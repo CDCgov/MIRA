@@ -112,7 +112,8 @@ def dais2df(results_path, colnames, col_renames, dais_suffix, full=False):
         select_cols = [i for i in col_renames.keys()]
         df = df[select_cols]
         df = df.rename(columns=col_renames)
-    df = df[df['Protein'] != '\\N']
+    df = df[df["Protein"] != "\\N"]
+    df = df[df["Sample NT Positions"] != "\\N"]
     return df
 
 
@@ -131,9 +132,6 @@ def seq_df(results_path):
 def ref_seqs():
     return dais2df(f"{repo_path}/data/references/", seqcols, seqcols_rename, ".seq")
 
-#def chunks(lst,chunk_size):
-#    for i in range(0,len(lst),chunk_size):
-#        yield ','.join(lst[i:i+chunk_size])
 
 def AAvars(refseq, sampseq):
     vars = []
@@ -142,7 +140,7 @@ def AAvars(refseq, sampseq):
         if r != s:
             vars.append(f"{r}{pos}{s}")
         pos += 1
-    return ', '.join(vars)
+    return ", ".join(vars)
 
 
 def compute_dais_variants(results_path):
@@ -161,8 +159,8 @@ def compute_dais_variants(results_path):
         ),
         axis=1,
     )
-    seqs['AA Variant Count'] = seqs['AA Variants'].map(lambda x: len(x.split(',')))
-    seqs = seqs[['Sample', 'Reference', 'Protein', 'AA Variant Count', 'AA Variants']]
+    seqs["AA Variant Count"] = seqs["AA Variants"].map(lambda x: len(x.split(",")))
+    seqs = seqs[["Sample", "Reference", "Protein", "AA Variant Count", "AA Variants"]]
     return seqs
 
 
