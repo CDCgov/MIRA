@@ -39,7 +39,7 @@ import conditional_color_range_perCol  # type: ignore
 with open(argv[1], "r") as y:
     CONFIG = yaml.safe_load(y)
 data_root = CONFIG["DATA_ROOT"]
-
+DEBUG = CONFIG["DEBUG"]
 
 app = dash.Dash(external_stylesheets=[dbc.themes.FLATLY])
 app.title = "IRMA SPY"
@@ -1173,4 +1173,4 @@ app.layout = html.Div([sidebar, content])
 ####################### MAIN #######################
 ####################################################
 if __name__ == "__main__":
-    app.run_server(host="0.0.0.0", debug=True)
+    app.run_server(host="0.0.0.0", debug=DEBUG)

@@ -58,7 +58,7 @@ EXPOSE 8050
 RUN apt-get autoremove -y && apt-get clean -y && rm -rf /var/lib/apt/lists/*
 
 # Execute the pipeline 
-ENTRYPOINT ["/bin/bash", "irma-spy.sh"]
+ENTRYPOINT ["/bin/bash", "irma-spy.sh", "dev"]
 
 ############# Build Stage: Production ##################
 
@@ -125,7 +125,7 @@ EXPOSE 8050
 RUN apt-get autoremove -y && apt-get clean -y && rm -rf /var/lib/apt/lists/*
 
 # Execute the pipeline 
-ENTRYPOINT ["/bin/bash", "/irma-spy/irma-spy.sh"]
+ENTRYPOINT ["/bin/bash", "/irma-spy/irma-spy.sh", "prod"]
 
 
 
