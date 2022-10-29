@@ -3,6 +3,7 @@
 # Run this app with `python app.py` and
 # visit http://127.0.0.1:8050/ in your web browser.
 
+from cProfile import run
 from symbol import comp_for
 import dash
 from dash import dcc, dash_table, html
@@ -28,40 +29,47 @@ import base64
 import io
 import subprocess
 from flask_caching import Cache
+import time
 
 path.append(dirname(realpath(__file__)) + "/scripts/")
 import irma2dash  # type: ignore
 import dais2dash  # type: ignore
 import conditional_color_range_perCol  # type: ignore
 
+with open(argv[1], "r") as y:
+    CONFIG = yaml.safe_load(y)
+data_root = CONFIG["DATA_ROOT"]
+
 
 app = dash.Dash(external_stylesheets=[dbc.themes.FLATLY])
 app.title = "IRMA SPY"
 app.config["suppress_callback_exceptions"] = True
 
-cache_timeout = 60 * 60 * 24
+cache_timeout = 60 * 60 * 24 * 28
 cache = Cache(
-    app.server, config={"CACHE_TYPE": "filesystem", "CACHE_DIR": "cache-directory"}
+    app.server,
+    config={"CACHE_TYPE": "filesystem", "CACHE_DIR": f"{data_root}/cache-directory"},
 )
-cache.clear()
+# cache.clear()
 
-# with open(argv[1], 'r') as y:
-# 	CONFIG = yaml.safe_load(y)
-# pathway = CONFIG['PATHWAY']
 
 previousClick = 0
 
 
 @app.callback(
     [Output("select_sample", "options"), Output("select_sample", "value")],
-    [Input("coverage-heat", "clickData"), Input("irma_path", "value")],
+    [Input("coverage-heat", "clickData"), Input("select_run", "value")],
 )
 @cache.memoize(timeout=cache_timeout)
-def select_sample(plotClick, irma_path):
-    # df = pd.read_json(json.loads(data)['df4'], orient='split')
-    df = pd.read_json(json.loads(generate_df(irma_path))["df4"], orient="split")
+def select_sample(plotClick, run):
+    if not run:
+        raise
+    df = pd.read_json(
+        json.loads(generate_df(f"{data_root}/{run}"))["df4"], orient="split"
+    )
     samples = df["Sample"].unique()
     samples.sort()
+    print(samples)
     options = [{"label": i, "value": i} for i in samples]
     global previousClick
     if not plotClick:
@@ -77,60 +85,61 @@ def select_sample(plotClick, irma_path):
 @app.callback(
     Output("single_sample_figs", "children"),
     [
-        Input("irma_path", "value"),
+        Input("select_run", "value"),
         Input("select_sample", "value"),
         Input("cov_linear_y", "value"),
     ],
 )
 @cache.memoize(timeout=cache_timeout)
-def single_sample_fig(irma_path, sample, cov_linear_y):
-    if not irma_path or not sample:
+def single_sample_fig(run, sample, cov_linear_y):
+    if not run or not sample:
         raise dash.exceptions.PreventUpdate
-    df = pd.read_json(json.loads(generate_df(irma_path))["read_df"], orient="split")
+    df = pd.read_json(
+        json.loads(generate_df(f"{data_root}/{run}"))["read_df"], orient="split"
+    )
     df = df[df["Sample"] == sample]
     sankeyfig = irma2dash.dash_reads_to_sankey(df)
-    df = pd.read_json(json.loads(generate_df(irma_path))["df"], orient="split")
-    segments = json.loads(generate_df(irma_path))["segments"]
-    segcolor = json.loads(generate_df(irma_path))["segcolor"]
-    # segments, segcolor = json.loads(data)['segments'], json.loads(data)['segcolor']
+    df = pd.read_json(
+        json.loads(generate_df(f"{data_root}/{run}"))["df"], orient="split"
+    )
+    segments = json.loads(generate_df(f"{data_root}/{run}"))["segments"]
+    segcolor = json.loads(generate_df(f"{data_root}/{run}"))["segcolor"]
     coveragefig = createSampleCoverageFig(sample, df, segments, segcolor, cov_linear_y)
     content = dbc.Row(
         [
             dbc.Col(dcc.Graph(figure=sankeyfig), width=4, align="start"),
             dbc.Col(dcc.Graph(figure=coveragefig), width=8, align="center"),
-        ]  # ,
-        # no_gutters=True
+        ]
     )
-    #  )
     return content
 
 
 @cache.memoize(timeout=cache_timeout)
-def generate_df(irma_path):
-    if not irma_path:
+def generate_df(run_path):
+    if not run_path:
         raise dash.exceptions.PreventUpdate
-    irma_path = os.path.join(irma_path)
-    df = irma2dash.dash_irma_coverage_df(irma_path)  # argv[2]) #loadData('./test.csv')
-    read_df = irma2dash.dash_irma_reads_df(irma_path)
-    alleles_df = irma2dash.dash_irma_alleles_df(irma_path)
-    indels_df = irma2dash.dash_irma_indels_df(irma_path)
-    ref_lens = irma2dash.reference_lens(irma_path)
-    segments, segset, segcolor = returnSegData(df)
-    df4 = pivot4heatmap(df)
-    df4.to_csv(irma_path + "/mean_coverages.tsv", sep="\t", index=False)
+    run_path = os.path.join(run_path, "IRMA")
+    coverage_df = irma2dash.dash_irma_coverage_df(
+        run_path
+    )  # argv[2]) #loadData('./test.csv')
+    read_df = irma2dash.dash_irma_reads_df(run_path)
+    alleles_df = irma2dash.dash_irma_alleles_df(run_path)
+    indels_df = irma2dash.dash_irma_indels_df(run_path)
+    ref_lens = irma2dash.reference_lens(run_path)
+    segments, segset, segcolor = returnSegData(coverage_df)
+    df4 = pivot4heatmap(coverage_df)
+    df4.to_csv(run_path + "/mean_coverages.tsv", sep="\t", index=False)
     if "Coverage_Depth" in df4.columns:
         cov_header = "Coverage_Depth"
     else:
         cov_header = "Coverage Depth"
     sliderMax = df4[cov_header].max()
-    allFig = createAllCoverageFig(df, ",".join(segments), segcolor)
+    # allFig = createAllCoverageFig(df, ",".join(segments), segcolor)
     irma_read_fig = create_irma_read_fig(read_df)
-    dais_vars = dais2dash.compute_dais_variants(
-        results_path=irma_path + "/dais_results"
-    )
+    dais_vars = dais2dash.compute_dais_variants(results_path=run_path + "/dais_results")
     return json.dumps(
         {
-            "df": df.to_json(orient="split"),
+            "df": coverage_df.to_json(orient="split"),
             "df4": df4.to_json(orient="split"),
             "read_df": read_df.to_json(orient="split"),
             "indels_df": indels_df.to_json(orient="split"),
@@ -142,18 +151,21 @@ def generate_df(irma_path):
             "segments": ",".join(segments),
             "segset": ",".join(segset),
             "segcolor": segcolor,
-            "allFig": allFig.to_json(),
+            # "allFig": allFig.to_json(),
             "irma_reads_fig": irma_read_fig.to_json(),
         }
     )
 
 
-@app.callback(Output("samplesheet", "children"), Input("sample_number", "value"))
-def generate_samplesheet(sample_number):
+@app.callback(
+    Output("samplesheet", "children"),
+    [Input("sample_number", "value"), Input("select_run", "value")],
+)
+def generate_samplesheet(sample_number, run):
     if not sample_number:
         raise dash.exceptions.PreventUpdate
-    if isfile("samplesheet.csv"):
-        data = pd.read_csv("samplesheet.csv").to_dict("records")
+    if isfile(f"{data_root}/{run}/samplesheet.csv"):
+        data = pd.read_csv(f"{data_root}/{run}/samplesheet.csv").to_dict("records")
     else:
         str_num_list = "".join(sample_number).split(",")
         bc_numbers = []
@@ -225,19 +237,16 @@ def generate_samplesheet(sample_number):
     Output("output-container-button", "children"),
     [
         Input("assembly-button", "n_clicks"),
-        Input("samplesheet_path", "value"),
-        Input("data_path", "value"),
+        Input("select_run", "value"),
         Input("experiment_type", "value"),
     ],
 )
-def run_snake_script_onClick(n_clicks, samplesheet_path, data_path, experiment_type):
+def run_snake_script_onClick(n_clicks, run, experiment_type):
     # print('[DEBUG] n_clicks:', n_clicks)
     if not n_clicks:
         # raise dash.exceptions.PreventUpdate
         return dash.no_update
-    if not samplesheet_path:
-        raise dash.exceptions.PreventUpdate
-    if not data_path:
+    if not run:
         raise dash.exceptions.PreventUpdate
     if not experiment_type:
         raise dash.exceptions.PreventUpdate
@@ -245,8 +254,8 @@ def run_snake_script_onClick(n_clicks, samplesheet_path, data_path, experiment_t
         [
             "python",
             "scripts/config_create.py",
-            samplesheet_path,
-            data_path,
+            f"{data_root}/{run}/samplesheet.csv",
+            f"{data_root}/{run}",
             experiment_type,
         ]
     )
@@ -259,11 +268,13 @@ def flfor(x, digits):
     return float(f"{x:.{digits}f}")
 
 
-@app.callback([Output("minor_alleles_table", "children"), Input("irma_path", "value")])
-def alleles_table(irma_path):
-    if not irma_path:
+@app.callback([Output("minor_alleles_table", "children"), Input("select_run", "value")])
+def alleles_table(run):
+    if not run:
         raise dash.exceptions.PreventUpdate
-    df = pd.read_json(json.loads(generate_df(irma_path))["alleles_df"], orient="split")
+    df = pd.read_json(
+        json.loads(generate_df(f"{data_root}/{run}"))["alleles_df"], orient="split"
+    )
     table = [
         html.Div(
             [
@@ -284,11 +295,13 @@ def alleles_table(irma_path):
     return table
 
 
-@app.callback([Output("indels_table", "children"), Input("irma_path", "value")])
-def indels_table(irma_path):
-    if not irma_path:
+@app.callback([Output("indels_table", "children"), Input("select_run", "value")])
+def indels_table(run):
+    if not run:
         raise dash.exceptions.PreventUpdate
-    df = pd.read_json(json.loads(generate_df(irma_path))["indels_df"], orient="split")
+    df = pd.read_json(
+        json.loads(generate_df(f"{data_root}/{run}"))["indels_df"], orient="split"
+    )
     table = [
         html.Div(
             [
@@ -309,11 +322,13 @@ def indels_table(irma_path):
     return table
 
 
-@app.callback([Output("vars_table", "children"), Input("irma_path", "value")])
-def vars_table(irma_path):
-    if not irma_path:
+@app.callback([Output("vars_table", "children"), Input("select_run", "value")])
+def vars_table(run):
+    if not run:
         raise dash.exceptions.PreventUpdate
-    df = pd.read_json(json.loads(generate_df(irma_path))["dais_vars"], orient="split")
+    df = pd.read_json(
+        json.loads(generate_df(f"{data_root}/{run}"))["dais_vars"], orient="split"
+    )
     table = [
         html.Div(
             [
@@ -338,25 +353,67 @@ def vars_table(irma_path):
     return table
 
 
+def pandas_read_csv_progress(file, sep, usecols, engine="c", chunksize=100000):
+    rc = sum(1 for row in open(file))
+    # if usecols != "":
+    df_iterator = pd.read_csv(
+        file,
+        usecols=usecols,
+        sep=sep,
+        engine=engine,
+        iterator=True,
+        chunksize=chunksize,
+    )
+    df = pd.DataFrame()
+    chunk_count = chunksize
+    for chunk in df_iterator:
+        df = pd.concat([df, chunk])
+        print(f"Reading {file} :: {(chunk_count/rc)*100:.0f}%")
+        chunk_count += chunksize
+    return df
+
+
 @app.callback(
     [Output("illumina_demux_table", "children"), Output("demux_fig", "figure")],
-    [Input("demux_file", "contents"), State("demux_file", "filename")],
-        prevent_initial_call=True,
+    [Input("select_run", "value"),],
+    prevent_initial_call=True,
 )
 @cache.memoize(timeout=cache_timeout)
-def demux_table(demux_file, filename):
-    if not demux_file:
-        raise dash.exceptions.PreventUpdate
-    print(f"filename = {filename}")
-    if "sequencing_summary" in filename:
-        df = pd.read_csv(
-            io.StringIO(base64.b64decode(demux_file.split(",")[1]).decode("utf-8")),
-            sep="\t",
-        )
-    else:
-        df = pd.read_html(base64.b64decode(demux_file[22:]).decode("ascii"))[2]
+def demux_table(run):
+    # if not demux_file:
+    # raise dash.exceptions.PreventUpdate
+    glob_files = [
+        f
+        for f_ in [
+            glob(n)
+            for n in [
+                f"{data_root}/{run}/sequencing_summary_*txt",
+                f"{data_root}/{run}/laneBarcode.html",
+            ]
+        ]
+        for f in f_
+    ]
+    print(f"start reading {glob_files[0]}")
+    start = time.perf_counter()
+    if len(glob_files) == 1:
+        if "sequencing_summary" in glob_files[0]:
+            df = pandas_read_csv_progress(
+                glob_files[0],
+                sep="\t",
+                usecols=[
+                    "alias",
+                    "barcode_arrangement",
+                    "filename_fastq",
+                    "sequence_length_template",
+                    "mean_qscore_template",
+                    "barcode_score",
+                ],
+            )
+        else:
+            df = pd.read_html(glob_files[0])[2]
     ont = False
-    if "filename_fast5" in df.columns:
+    print(f"reading in {glob_files[0]} took {time.perf_counter() - start} seconds.")
+    if "filename_fastq" in df.columns:
         ont = True
         df = df.groupby(["alias", "barcode_arrangement"]).agg(
             {
@@ -459,17 +516,19 @@ def negative_qc_statement(df, negative_list=""):
 @app.callback(
     [Output("irma_neg_statment", "children"), Output("irma_summary", "children")],
     [
-        Input("irma_path", "value"),
+        Input("select_run", "value"),
         Input("samplesheet_table", "data"),
         Input("samplesheet_table", "columns"),
     ],
 )
-def irma_summary(irma_path, ssrows, sscols):
-    if not irma_path or not ssrows or not sscols:
+def irma_summary(run, ssrows, sscols):
+    if not run or not ssrows or not sscols:
         raise dash.exceptions.PreventUpdate
     ss_df = pd.DataFrame(ssrows, columns=[c["name"] for c in sscols])
     neg_controls = list(ss_df[ss_df["Sample Type"] == "- Control"]["Sample ID"])
-    reads = pd.read_json(json.loads(generate_df(irma_path))["read_df"], orient="split")
+    reads = pd.read_json(
+        json.loads(generate_df(f"{data_root}/{run}"))["read_df"], orient="split"
+    )
     qc_statement = negative_qc_statement(reads, neg_controls)
     reads = (
         reads[reads["Record"].str.contains("^1|^2-p|^4")]
@@ -494,17 +553,17 @@ def irma_summary(irma_path, ssrows, sscols):
     )
     reads = reads[["Sample", "Total Reads", "Pass QC", "Reads Mapped", "Reference"]]
     indels = pd.read_json(
-        json.loads(generate_df(irma_path))["indels_df"], orient="split"
+        json.loads(generate_df(f"{data_root}/{run}"))["indels_df"], orient="split"
     )
     indels = (
         indels[indels["Frequency"] >= 0.05]
         .groupby(["Sample", "Reference"])
         .agg({"Sample": "count"})
-        .rename(columns={"Sample": "Count of Indels >= 0.05"})
+        .rename(columns={"Sample": "Count of Minor Indels >= 0.05"})
         .reset_index()
     )
     alleles = pd.read_json(
-        json.loads(generate_df(irma_path))["alleles_df"], orient="split"
+        json.loads(generate_df(f"{data_root}/{run}"))["alleles_df"], orient="split"
     )
     alleles = (
         alleles[alleles["Minority Frequency"] >= 0.05]
@@ -513,9 +572,11 @@ def irma_summary(irma_path, ssrows, sscols):
         .rename(columns={"Sample": "Count of Minor SNVs >= 0.05"})
         .reset_index()
     )
-    coverage = pd.read_json(json.loads(generate_df(irma_path))["df"], orient="split")
+    coverage = pd.read_json(
+        json.loads(generate_df(f"{data_root}/{run}"))["df"], orient="split"
+    )
     # Compute the % of reference mapped from IRMAs coverage table and lengths of /intermediate/0-*/0*.ref seq lengths
-    ref_lens = json.loads(generate_df(irma_path))["ref_lens"]
+    ref_lens = json.loads(generate_df(f"{data_root}/{run}"))["ref_lens"]
     cov_ref_lens = (
         coverage[~coverage["Consensus"].isin(["-", "N", "a", "c", "t", "g"])]
         .groupby(["Sample", "Reference_Name"])
@@ -827,11 +888,15 @@ def createSampleCoverageFig(sample, df, segments, segcolor, cov_linear_y):
 
 @app.callback(
     Output("coverage-heat", "figure"),
-    [Input("heatmap-slider", "value"), Input("irma_path", "value")],
+    [Input("heatmap-slider", "value"), Input("select_run", "value")],
 )
 @cache.memoize(timeout=cache_timeout)
-def callback_heatmap(maximumValue, irma_path):
-    df = pd.read_json(json.loads(generate_df(irma_path))["df4"], orient="split")
+def callback_heatmap(maximumValue, run):
+    if not run:
+        raise dash.exceptions.PreventUpdate
+    df = pd.read_json(
+        json.loads(generate_df(f"{data_root}/{run}"))["df4"], orient="split"
+    )
     # df = pd.read_json(json.loads(data)['df4'], orient='split')
     return createheatmap(df, maximumValue)
 
@@ -844,12 +909,12 @@ def callback_heatmap(maximumValue, irma_path):
         Input("select_irma", "value"),
     ],
 )
-def select_run(irma_path):
-    if not irma_path:
+def select_run(run_path):
+    if not run_path:
         raise dash.exceptions.PreventUpdate
     options = [
         {"label": i.split(".")[0], "value": i.split(".")[0]}
-        for i in sorted(os.listdir(os.path.join(irma_path)))
+        for i in sorted(os.listdir(os.path.join(run_path)))
         if "consensus" not in i and "fasta" in i
     ]  # filesInFolderTree(os.path.join(pathway, machine))]
     return options
@@ -862,29 +927,26 @@ def set_run_options(gene_options):
     return gene_options[0]["value"]
 
 
-@app.callback(
-    Output("alignment_fig", "children"),
-    [Input("irma_path", "value"), Input("select_gene", "value")],
-)
-# @cache.memoize(timeout=cache_timeout)
-def alignment_fig(irma_path, gene):
-    if not irma_path or not gene:
-        raise dash.exceptions.PreventUpdate
-    with open(os.path.join(irma_path, "{}.fasta".format(gene)), "r") as d:
-        data = "\n".join(d.readlines())
-    return dbio.AlignmentChart(data=data, showgap=False, showid=False)
+dl_fasta_clicks = 0
 
 
 @app.callback(
     Output("download_fasta", "data"),
-    [Input("irma_path", "value"), Input("fasta_dl_button", "n_clicks")],
+    [Input("select_run", "value"), Input("fasta_dl_button", "n_clicks")],
     prevent_initial_call=True,
 )
-def download_fastas(irma_path, n_clicks):
-    return dict(
-        content=open(f"{irma_path}/dais_results/amended_consensus.fasta").read(),
-        filename=f"{irma_path.split('/')[-1]}_amended_consensus.fasta",
-    )
+def download_fastas(run, n_clicks):
+    if not n_clicks:
+        raise dash.exceptions.PreventUpdate
+    global dl_fasta_clicks
+    if n_clicks > dl_fasta_clicks:
+        dl_fasta_clicks = n_clicks
+        return dict(
+            content=open(
+                f"{data_root}/{run}/IRMA/dais_results/DAIS_ribosome_input.fasta"
+            ).read(),
+            filename=f"{run}_amended_consensus.fasta",
+        )
 
 
 ########################################################
@@ -926,9 +988,11 @@ sidebar = html.Div(
                 dbc.NavLink(
                     "Reference Coverage", href="#coverage_head", external_link=True
                 ),
-                dbc.NavLink("Variants", href="#variants_head", external_link=True),
+                dbc.NavLink(
+                    "Reference Variants", href="#variants_head", external_link=True
+                ),
                 dbc.NavLink("Minor SNVs", href="#alleles_head", external_link=True),
-                dbc.NavLink("Indels", href="#indels_head", external_link=True),
+                dbc.NavLink("Minor Indels", href="#indels_head", external_link=True),
             ],
             vertical=True,
             pills=True,
@@ -937,23 +1001,30 @@ sidebar = html.Div(
     style=SIDEBAR_STYLE,
 )
 
+
 def blank_fig():
-    fig = go.Figure(go.Scatter(x=[], y = []))
-    fig.update_layout(template = None)
-    fig.update_xaxes(showgrid = False, showticklabels = False, zeroline=False)
-    fig.update_yaxes(showgrid = False, showticklabels = False, zeroline=False)
+    fig = go.Figure(go.Scatter(x=[], y=[]))
+    fig.update_layout(template=None)
+    fig.update_xaxes(showgrid=False, showticklabels=False, zeroline=False)
+    fig.update_yaxes(showgrid=False, showticklabels=False, zeroline=False)
     return fig
 
+
+# import dash_uploader as du
 content = html.Div(
     id="page-content",
     style=CONTENT_STYLE,
     children=[
         dbc.Row(
-            dcc.Input(
-                id="irma_path",
-                placeholder="FIRST copy and paste your local /path/to/irma-output-dirs",
-                persistence=True,
-                debounce=True,
+            dbc.Col(
+                dcc.Dropdown(
+                    id="select_run",
+                    options=[
+                        {"label": i, "value": i} for i in sorted(os.listdir(data_root))
+                    ],
+                    placeholder="Select sequencing run: ",
+                    # persistence=True
+                ),
             )
         )
     ]
@@ -979,26 +1050,6 @@ content = html.Div(
     + [html.Br()]
     + [
         dbc.Row(
-            dcc.Input(
-                id="samplesheet_path",
-                placeholder="Paste path to generated samplesheet",
-                persistence=True,
-                debounce=True,
-            )
-        )
-    ]
-    + [
-        dbc.Row(
-            dcc.Input(
-                id="data_path",
-                placeholder="Paste path to demuxed data",
-                persistence=True,
-                debounce=True,
-            )
-        )
-    ]
-    + [
-        dbc.Row(
             dcc.Dropdown(
                 options=["Flu-ONT", "SC2-ONT", "Flu-Illumina"],
                 id="experiment_type",
@@ -1015,27 +1066,6 @@ content = html.Div(
     + [
         html.Div(
             [
-                dbc.Row(
-                    dcc.Upload(
-                        id="demux_file",
-                        children=html.Div(
-                            [
-                                "Drag and Drop or ",
-                                html.A("Select demux file from instrument"),
-                            ]
-                        ),
-                        style={
-                            "width": "30%",
-                            "height": "20px",
-                            "lineHeight": "20px",
-                            "borderWidth": "1px",
-                            "borderStyle": "dashed",
-                            "borderRadius": "5px",
-                            "textAlign": "center",
-                            "margin": "10px",
-                        },
-                    ),
-                ),
                 dbc.Row(
                     dcc.Loading(
                         id="demux-loading",
@@ -1065,7 +1095,9 @@ content = html.Div(
                             dcc.Loading(
                                 id="coverageheat-loading",
                                 type="cube",
-                                children=[dcc.Graph(id="coverage-heat", figure=blank_fig())],
+                                children=[
+                                    dcc.Graph(id="coverage-heat", figure=blank_fig())
+                                ],
                             ),
                             width=11,
                             align="end",
@@ -1109,7 +1141,7 @@ content = html.Div(
         )
     ]
     + [html.Br()]
-    + [html.P("Variants", id="variants_head", className="display-6")]
+    + [html.P("Reference Variants", id="variants_head", className="display-6")]
     + [html.Br()]
     + [dbc.Row(html.Div(id="vars_table"))]
     + [html.Br()]
@@ -1117,7 +1149,11 @@ content = html.Div(
     + [html.Br()]
     + [dbc.Row(html.Div(id="minor_alleles_table"))]
     + [html.Br()]
-    + [html.P("Insertions and Deletions", id="indels_head", className="display-6")]
+    + [
+        html.P(
+            "Minor Insertions and Deletions", id="indels_head", className="display-6"
+        )
+    ]
     + [html.Br()]
     + [dbc.Row(html.Div(id="indels_table"))]
     + [html.Br()]

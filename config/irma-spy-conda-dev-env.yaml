@@ -26,7 +26,7 @@ dependencies:
   - dash-daq=0.5.0
   - dataclasses=0.8
   - fastparquet=0.4.1
-  - flask=1.1.2
+  - flask=2.1.0
   - flask-caching=1.10.1
   - html5lib=1.1
   - icu=58.2
@@ -146,7 +146,7 @@ dependencies:
     - toposort==1.7
     - traitlets==5.5.0
     - urllib3==1.26.12
-    - werkzeug==1.0.1
+    - werkzeug==2.0.3
     - wrapt==1.14.1
     - xopen==1.6.0
     - yte==1.5.1
