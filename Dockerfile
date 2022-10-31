@@ -1,72 +1,67 @@
+
+# Create a build argument
+ARG BUILD_STAGE
+ARG BUILD_STAGE=${BUILD_STAGE:-prod}
+
+############# Build Stage: Dependencies ##################
+
+# Start from a base image
+FROM python:3.7.6 as base
+
+# Define a system argument
+ARG DEBIAN_FRONTEND=noninteractive
+
+# Start from a base image
+FROM python:3.7.6 as base
+
+# Define a system argument
+ARG DEBIAN_FRONTEND=interactive
+
+# Install system libraries of general use
+RUN apt-get update --allow-releaseinfo-change && apt-get install -y --no-install-recommends build-essential \ 
+    iptables \
+    libdevmapper1.02.1 \
+    dpkg \
+    sudo \
+    wget \
+    curl \
+    dos2unix
+
 ############# Build Stage: Development ##################
 
-# Get python docker image
-FROM python:3.7.6 as dev
+# Build from the base image for dev
+FROM base as dev
 
 # Create working directory variable
 ENV WORKDIR=/irma-spy
 
-# Set up volume directory in docker
-VOLUME ${WORKDIR}
+# Create a stage enviroment
+ENV STAGE=dev
 
-# Set up working directory in docker
-WORKDIR ${WORKDIR}
+# Create a directory to store data
+RUN mkdir /data
 
-# Define a system argument
-ARG DEBIAN_FRONTEND=noninteractive
-
-# Install system libraries of general use
-# Install system libraries of general use
-RUN apt-get update && apt-get install -y --no-install-recommends build-essential \
-    wget \
-    dos2unix
-
-# Copy python requirements file to docker images
-COPY external_package_links.txt /irma-spy/external_package_links.txt
-
-# Copy python requirements file to docker images
-COPY install_external_packages.sh /irma-spy/install_external_packages.sh
-
-# Allow permission to excute the bash scripts
-RUN chmod a+x /irma-spy/install_external_packages.sh
-
-# excute bash script to wget the files and build the packages
-CMD ["/bin/bash", "/irma-spy/install_external_packages.sh"]
-
-# Copy python requirements file to docker images
-COPY requirements.txt ${WORKDIR}/requirements.txt
-
-# Install python requirements
-RUN pip install --no-cache-dir -r ${WORKDIR}/requirements.txt
-
-# Copy python requirements file to docker images
-COPY irma-spy.sh ${WORKDIR}/irma-spy.sh
-
-# Convert irma-spy.sh from Windows style line endings to Unix-like control characters
-RUN dos2unix ${WORKDIR}/irma-spy.sh
-
-# Allow permission to excute the bash scripts
-RUN chmod a+x ${WORKDIR}/irma-spy.sh
-
-# Allow permission to read, write, and execute files in irma-spy directory
-RUN chmod -R a+rw ${WORKDIR}
-
-# Make the app available at port 8050
-EXPOSE 8050
-
-# Clean up
-RUN apt-get autoremove -y && apt-get clean -y && rm -rf /var/lib/apt/lists/*
-
-# Execute the pipeline 
-ENTRYPOINT ["/bin/bash", "irma-spy.sh"]
+# Allow permission to read and write files to data directory
+RUN chmod -R a+rwx /data
 
 ############# Build Stage: Production ##################
 
-# Get python docker image
-FROM python:3.7.6 as prod
+# Build from the base image for prod
+FROM base as prod
 
 # Create working directory variable
-ENV WORKDIR=/irma-spy-container
+ENV WORKDIR=/data
+
+# Create a stage enviroment
+ENV STAGE=prod
+
+# Copy all scripts to docker images
+COPY . /irma-spy
+
+############# Build Stage: Final ##################
+
+# Build the final image 
+FROM ${BUILD_STAGE} as final
 
 # Set up volume directory in docker
 VOLUME ${WORKDIR}
@@ -74,36 +69,40 @@ VOLUME ${WORKDIR}
 # Set up working directory in docker
 WORKDIR ${WORKDIR}
 
-# Define a system argument
-ARG DEBIAN_FRONTEND=noninteractive
+# Allow permission to read and write files to current working directory
+RUN chmod -R a+rw ${WORKDIR}
 
-# Install system libraries of general use
-RUN apt-get update && apt-get install -y --no-install-recommends build-essential \
-    wget \
-    dos2unix
+############# Install Docker ##################
 
-# Copy python requirements file to docker images
-COPY external_package_links.txt /irma-spy/external_package_links.txt
+# Copy all files to docker images
+COPY docker /irma-spy/docker
 
-# Copy python requirements file to docker images
-COPY install_external_packages.sh /irma-spy/install_external_packages.sh
+# Copy all files to docker images
+COPY install_docker.sh /irma-spy/install_docker.sh
 
-# Allow permission to excute the bash scripts
-RUN chmod a+x /irma-spy/install_external_packages.sh
+# Convert bash script from Windows style line endings to Unix-like control characters
+RUN dos2unix /irma-spy/install_docker.sh
 
-# Excute bash script to wget the files and build the packages
-CMD ["/bin/bash", "/irma-spy/install_external_packages.sh"]
+# Allow permission to excute the bash script
+RUN chmod a+x /irma-spy/install_docker.sh
+
+# Execute bash script to install the package
+RUN bash /irma-spy/install_docker.sh
+
+############# Install python packages ##################
+
+# Upgrade pip
+CMD python -m pip --upgrade pip
 
 # Copy python requirements file to docker images
 COPY requirements.txt /irma-spy/requirements.txt
 
 # Install python requirements
-RUN pip install --no-cache-dir -r /irma-spy/requirements.txt
+RUN pip install -r /irma-spy/requirements.txt
+
+############# Launch irma-spy dashboard ##################
 
 # Copy all files to docker images
-COPY . /irma-spy/
-
-# Copy execute files to launch irma-spy to docker images
 COPY irma-spy.sh /irma-spy/irma-spy.sh
 
 # Convert irma-spy.sh from Windows style line endings to Unix-like control characters
@@ -112,11 +111,8 @@ RUN dos2unix /irma-spy/irma-spy.sh
 # Allow permission to excute the bash scripts
 RUN chmod a+x /irma-spy/irma-spy.sh
 
-# Allow permission to read, write, and execute files in irma-spy directory
+# Allow permission to read and write files to irma-spy directory
 RUN chmod -R a+rw /irma-spy
-
-# Allow permission to read, write, and execute files in irma-spy directory
-RUN chmod -R a+rw ${WORKDIR}
 
 # Make the app available at port 8050
 EXPOSE 8050
@@ -126,9 +122,4 @@ RUN apt-get autoremove -y && apt-get clean -y && rm -rf /var/lib/apt/lists/*
 
 # Execute the pipeline 
 ENTRYPOINT ["/bin/bash", "/irma-spy/irma-spy.sh"]
-
-
-
-
-
 
