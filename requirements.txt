@@ -12,4 +12,4 @@ pyyaml
 numpy
 flask
 flask-caching
-colorlover
+
