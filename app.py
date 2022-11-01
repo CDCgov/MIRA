@@ -6,7 +6,7 @@
 from cProfile import run
 from symbol import comp_for
 import dash
-from dash import dcc, dash_table, html, DiskcacheManager
+from dash import dcc, dash_table, html
 import dash_bootstrap_components as dbc
 import dash_bio as dbio
 from dash.dependencies import Input, Output, State
@@ -39,25 +39,18 @@ import conditional_color_range_perCol  # type: ignore
 with open(argv[1], "r") as y:
     CONFIG = yaml.safe_load(y)
 data_root = CONFIG["DATA_ROOT"]
-DEBUG = CONFIG["DEBUG"]
+
 
 app = dash.Dash(external_stylesheets=[dbc.themes.FLATLY])
 app.title = "IRMA SPY"
 app.config["suppress_callback_exceptions"] = True
 
-# Function caching
 cache_timeout = 60 * 60 * 24 * 28
 cache = Cache(
     app.server,
     config={"CACHE_TYPE": "filesystem", "CACHE_DIR": f"{data_root}/cache-directory"},
 )
 # cache.clear()
-
-# Callback caching
-if DEBUG:
-    import diskcache
-    callback_cache = diskcache.Cache(f"{data_root}/cache-directory")
-    bkgnd_callback_manager = DiskcacheManager(callback_cache)
 
 
 previousClick = 0
@@ -360,7 +353,7 @@ def vars_table(run):
     return table
 
 
-def pandas_read_csv_progress(file, sep, usecols, set_progress, engine="c", chunksize=100000):
+def pandas_read_csv_progress(file, sep, usecols, engine="c", chunksize=100000):
     rc = sum(1 for row in open(file))
     # if usecols != "":
     df_iterator = pd.read_csv(
@@ -375,47 +368,18 @@ def pandas_read_csv_progress(file, sep, usecols, set_progress, engine="c", chunk
     chunk_count = chunksize
     for chunk in df_iterator:
         df = pd.concat([df, chunk])
-        set_progress(make_progress_graph(f"{(chunk_count/rc)*100:.0f}", 100))
         print(f"Reading {file} :: {(chunk_count/rc)*100:.0f}%")
         chunk_count += chunksize
     return df
-
-def make_progress_graph(progress, total):
-    print(f"progress == {progress}; total == {total}")
-    progress_graph = (
-        go.Figure(data=[go.Bar(x=[progress])])
-        .update_xaxes(range=[0, total])
-        .update_yaxes(
-            showticklabels=False,
-        )
-        .update_layout(height=100, margin=dict(t=20, b=40))
-    )
-    return progress_graph
 
 
 @app.callback(
     [Output("illumina_demux_table", "children"), Output("demux_fig", "figure")],
     [Input("select_run", "value"),],
     prevent_initial_call=True,
-    background=True,
-    manager=bkgnd_callback_manager,
-    running=[
-        (
-            Output("paragraph_id", "style"),
-            {"visibility": "hidden"},
-            {"visibility": "visible"},
-        ),
-        (
-            Output("progress_bar_graph", "style"),
-            {"visibility": "visible"},
-            {"visibility": "hidden"},
-        ),
-    ],
-    progress=Output("progress_bar_graph", "figure"),
-    progress_default=make_progress_graph(0, 100)
 )
 @cache.memoize(timeout=cache_timeout)
-def demux_table(set_progress, run):
+def demux_table(run):
     # if not demux_file:
     # raise dash.exceptions.PreventUpdate
     glob_files = [
@@ -444,7 +408,6 @@ def demux_table(set_progress, run):
                     "mean_qscore_template",
                     "barcode_score",
                 ],
-                set_progress=set_progress
             )
         else:
             df = pd.read_html(glob_files[0])[2]
@@ -1099,12 +1062,6 @@ content = html.Div(
         html.Div(id="output-container-button", children="Hit the button to update."),
     ]
     + [html.P("Barcode Assignment", id="demux_head", className="display-6")]
-    + [html.Div(
-            [
-                html.P(id="paragraph_id", children=["Button not clicked"]),
-                dcc.Graph(id="progress_bar_graph", figure=blank_fig()),
-            ]
-        )]
     + [html.Br()]
     + [
         html.Div(
@@ -1216,4 +1173,4 @@ app.layout = html.Div([sidebar, content])
 ####################### MAIN #######################
 ####################################################
 if __name__ == "__main__":
-    app.run_server(host="0.0.0.0", debug=DEBUG)
+    app.run_server(host="0.0.0.0", debug=True)
