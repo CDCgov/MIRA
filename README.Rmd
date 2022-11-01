@@ -11,14 +11,18 @@ output:
 knitr::opts_chunk$set(message=FALSE, comment="#>", fig.width=8, fig.height=8, fig.align="center")
 ```
 
-## Dockerize Irma-Spy (Development Version)
-
-This version allows you to mount the code base that is needed to develop the `irma-spy` dashboard. Any updates or changes to the code will automatically reflects the changes inside the Docker container. This allows continuous integration (CI) of the application.
-
 ### Requirements
 
 - Docker version >= 18
 - Git version >= 2.21.0
+
+### Container Dependencies
+ - sc2-spike-seq (see [our Gitlab repo ](https://github.com/nbx0/SC2-spike-seq))
+
+## Dockerize Irma-Spy (Development Version)
+
+This version allows you to mount the code base that is needed to develop the `irma-spy` dashboard. Any updates or changes to the code will automatically reflects the changes inside the Docker container. This allows continuous integration (CI) of the application.
+
 
 ### (1) Clone this respitory
 
@@ -31,11 +35,11 @@ git clone https://git.biotech.cdc.gov/nbx0/irma-spy.git
 __NOTE:__ `Dockerfile` contains a list of instructions and steps of how to build and run the `irma-spy` dashboard.
 
 ```
-docker build -t irma-spy-dev:v1.0.0 --target dev .
+docker build -t irma-spy-dev:v1.0.0 --build-arg BUILD_STAGE=dev .
 ```
 
 **-t**: add a tag to an image such as the version of the application, e.g. *irma-spy-dev:v1.0.0* or *irma-spy-dev:latest* <br>
-**`--`target**: set the target build stage for the docker image. In this case, we want to build the **development** stage. <br>
+**`--`build-arg**: set the build stage for the docker image. In this case, we want to build the **development** stage. <br>
 
 _The image took approximately < 5 mins to build_
 
@@ -51,10 +55,13 @@ irma-spy-dev      v1.0.0     2c22887402d3    2 hours ago    1.49GB
 ### (4) To run the `irma-spy-dev` container
 
 ```    
-docker run -v /path/to/irma-spy:/irma-spy -d -p 8080:8050 --name irma-spy-dev irma-spy-dev:v1.0.0 
+docker run -v /path/to/data:/data -v /path/to/irma-spy:/irma-spy -v /var/run/docker.sock:/var/run/docker.sock -d -p 8080:8050 --name irma-spy-dev irma-spy-dev:v1.0.0 
 ```
 
-**NOTE:** Change __/path/to/irma-spy__ to your local `irma-spy` directory. This directory must contain all of the code base and data files needed to build the `irma-spy` dashboard
+**NOTE:** 
+- Change __/path/to/data__ to your local directory where it contains all data files needed to feed into the `irma-spy` dashboard. This directory is mounted to `/data` directory inside the container. <br>
+- Change __/path/to/irma-spy__ to your local `irma-spy` directory. This directory must contain all of the code base needed to build the `irma-spy` dashboard. <br>
+- **/var/run/docker.sock:/var/run/docker.sock** is used to connect the host's docker.socket to container's docker.socket where you can run a container inside of another container. <br>
 
 **-d**: run the container in detached mode <br>
 **-v**: mount code base and data files from host directory to container directory **[host_div]:[container_dir]**. By exposing the host directory to docker container, docker will be able to access data files within that mounted directory and use it to fire up the `irma-spy` dashboard.  <br>
@@ -94,11 +101,10 @@ git clone https://git.biotech.cdc.gov/nbx0/irma-spy.git
 ### (2) CD to `irma-spy` folder where `Dockerfile` file is stored and build the docker image. 
 
 ```
-docker build -t irma-spy-prod:v1.0.0 --target prod .
+docker build -t irma-spy-prod:v1.0.0 .
 ```
 
 **-t**: add a tag to an image such as the version of the application, e.g. *irma-spy-prod:v1.0.0* or *irma-spy-prod:latest* <br>
-**`--`target**: set the target build stage for the docker image. In this case, we want to build the **production** stage. <br>
 
 _The image took approximately < 5 mins to build_
 
@@ -114,10 +120,11 @@ irma-spy-prod     v1.0.0     6dab1b639b9a    2 hours ago    1.49GB
 ### (4) To run the `irma-spy-prod` container
 
 ```    
-docker run -v /path/to/data:/irma-spy-container -d -p 8050:8050 --name irma-spy-prod irma-spy-prod:v1.0.0 
+docker run -v /path/to/data:/data -v /var/run/docker.sock:/var/run/docker.sock -d -p 8050:8050 --name irma-spy-prod irma-spy-prod:v1.0.0 
 ```
-
-**NOTE:** Change __/path/to/data__ to path of where you store all of the data files needed to feed into `irma-spy` dashboard. This part is a bit different from the **development** version as it does not allow you to access the code base of `irma-spy`. You can only access the `irma-spy-container` directory inside the docker container.
+**NOTE:** 
+- Change __/path/to/data__ to your local directory where it contains all data files needed to feed into the `irma-spy` dashboard. This directory is mounted to `/data` directory inside the container. <br>
+- **/var/run/docker.sock:/var/run/docker.sock** is used to connect the host's docker.socket to container's docker.socket where you can run a container inside of another container<br>
 
 **-d**: run the container in detached mode <br>
 **-v**: mount code base and data files from host directory to container directory **[host_div]:[container_dir]**. By exposing the host directory to docker container, docker will be able to access data files within that mounted directory and use it to feed to the `irma-spy` dashboard. <br>

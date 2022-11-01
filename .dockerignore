@@ -1,0 +1,9 @@
+**/.git
+**/.gitignore
+*.Rmd
+*.html
+*.md
+*docs
+Dockerfile
+.dockerignore
+docker.compose.yml

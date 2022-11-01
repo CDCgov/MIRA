@@ -16,4 +16,7 @@ docker build  -t irma-spy-dev:v2.0.0 --target dev .
 
 docker run -v /c/users/snu3-su/Github/irma-spy:/irma-spy-container/ --rm -p 8000:8050 --name irma-spy-prod irma-spy-prod:v2.0.0 -d
 
-docker run -v /c/users/snu3-su/Github/irma-spy:/irma-spy/ --rm -p 8888:8050 --name irma-spy-dev2 irma-spy-dev:v2.0.0 -d
+docker run -v /c/users/snu3-su/Github/irma-spy:/irma-spy --rm -p 8888:8050 --name irma-spy-dev irma-spy-dev:v1.0.0 -d
+
+
+docker run -v /c/users/snu3-su/Github/SC2-spike-seq:/SC2-spike-seq -v /var/run/docker.sock:/var/run/docker.sock -it sc2-spike-seq-dev:v1.0.0 bash
