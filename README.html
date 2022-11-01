@@ -359,13 +359,6 @@ display: none;
 
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-<div id="dockerize-irma-spy-development-version" class="section level2">
-<h2>Dockerize Irma-Spy (Development Version)</h2>
-<p>This version allows you to mount the code base that is needed to
-develop the <code>irma-spy</code> dashboard. Any updates or changes to
-the code will automatically reflects the changes inside the Docker
-container. This allows continuous integration (CI) of the
-application.</p>
 <div id="requirements" class="section level3">
 <h3>Requirements</h3>
 <ul>
@@ -373,6 +366,19 @@ application.</p>
 <li>Git version &gt;= 2.21.0</li>
 </ul>
 </div>
+<div id="container-dependencies" class="section level3">
+<h3>Container Dependencies</h3>
+<ul>
+<li>sc2-spike-seq (see <a href="https://github.com/nbx0/SC2-spike-seq">our Gitlab repo</a>)</li>
+</ul>
+</div>
+<div id="dockerize-irma-spy-development-version" class="section level2">
+<h2>Dockerize Irma-Spy (Development Version)</h2>
+<p>This version allows you to mount the code base that is needed to
+develop the <code>irma-spy</code> dashboard. Any updates or changes to
+the code will automatically reflects the changes inside the Docker
+container. This allows continuous integration (CI) of the
+application.</p>
 <div id="clone-this-respitory" class="section level3">
 <h3>(1) Clone this respitory</h3>
 <pre><code>git clone https://git.biotech.cdc.gov/nbx0/irma-spy.git</code></pre>
@@ -383,12 +389,12 @@ file is stored and build the docker image.</h3>
 <p><strong>NOTE:</strong> <code>Dockerfile</code> contains a list of
 instructions and steps of how to build and run the <code>irma-spy</code>
 dashboard.</p>
-<pre><code>docker build -t irma-spy-dev:v1.0.0 --target dev .</code></pre>
+<pre><code>docker build -t irma-spy-dev:v1.0.0 --build-arg BUILD_STAGE=dev .</code></pre>
 <p><strong>-t</strong>: add a tag to an image such as the version of the
 application, e.g. <em>irma-spy-dev:v1.0.0</em> or
 <em>irma-spy-dev:latest</em> <br>
-<strong><code>--</code>target</strong>: set the target build stage for
-the docker image. In this case, we want to build the
+<strong><code>--</code>build-arg</strong>: set the build stage for the
+docker image. In this case, we want to build the
 <strong>development</strong> stage. <br></p>
 <p><em>The image took approximately &lt; 5 mins to build</em></p>
 </div>
@@ -402,11 +408,17 @@ irma-spy-dev      v1.0.0     2c22887402d3    2 hours ago    1.49GB</code></pre>
 </div>
 <div id="to-run-the-irma-spy-dev-container" class="section level3">
 <h3>(4) To run the <code>irma-spy-dev</code> container</h3>
-<pre><code>docker run -v /path/to/irma-spy:/irma-spy -d -p 8080:8050 --name irma-spy-dev irma-spy-dev:v1.0.0 </code></pre>
-<p><strong>NOTE:</strong> Change <strong>/path/to/irma-spy</strong> to
-your local <code>irma-spy</code> directory. This directory must contain
-all of the code base and data files needed to build the
-<code>irma-spy</code> dashboard</p>
+<pre><code>docker run -v /path/to/data:/data -v /path/to/irma-spy:/irma-spy -v /var/run/docker.sock:/var/run/docker.sock -d -p 8080:8050 --name irma-spy-dev irma-spy-dev:v1.0.0 </code></pre>
+<p><strong>NOTE:</strong> - Change <strong>/path/to/data</strong> to
+your local directory where it contains all data files needed to feed
+into the <code>irma-spy</code> dashboard. This directory is mounted to
+<code>/data</code> directory inside the container. <br> - Change
+<strong>/path/to/irma-spy</strong> to your local <code>irma-spy</code>
+directory. This directory must contain all of the code base needed to
+build the <code>irma-spy</code> dashboard. <br> -
+<strong>/var/run/docker.sock:/var/run/docker.sock</strong> is used to
+connect the host’s docker.socket to container’s docker.socket where you
+can run a container inside of another container. <br></p>
 <p><strong>-d</strong>: run the container in detached mode <br>
 <strong>-v</strong>: mount code base and data files from host directory
 to container directory <strong>[host_div]:[container_dir]</strong>. By
@@ -455,13 +467,10 @@ ultimately break the program.</p>
 <div id="cd-to-irma-spy-folder-where-dockerfile-file-is-stored-and-build-the-docker-image.-1" class="section level3">
 <h3>(2) CD to <code>irma-spy</code> folder where <code>Dockerfile</code>
 file is stored and build the docker image.</h3>
-<pre><code>docker build -t irma-spy-prod:v1.0.0 --target prod .</code></pre>
+<pre><code>docker build -t irma-spy-prod:v1.0.0 .</code></pre>
 <p><strong>-t</strong>: add a tag to an image such as the version of the
 application, e.g. <em>irma-spy-prod:v1.0.0</em> or
-<em>irma-spy-prod:latest</em> <br>
-<strong><code>--</code>target</strong>: set the target build stage for
-the docker image. In this case, we want to build the
-<strong>production</strong> stage. <br></p>
+<em>irma-spy-prod:latest</em> <br></p>
 <p><em>The image took approximately &lt; 5 mins to build</em></p>
 </div>
 <div id="after-the-build-is-completed-you-can-check-if-the-image-is-built-successfully." class="section level3">
@@ -474,14 +483,14 @@ irma-spy-prod     v1.0.0     6dab1b639b9a    2 hours ago    1.49GB</code></pre>
 </div>
 <div id="to-run-the-irma-spy-prod-container" class="section level3">
 <h3>(4) To run the <code>irma-spy-prod</code> container</h3>
-<pre><code>docker run -v /path/to/data:/irma-spy-container -d -p 8050:8050 --name irma-spy-prod irma-spy-prod:v1.0.0 </code></pre>
-<p><strong>NOTE:</strong> Change <strong>/path/to/data</strong> to path
-of where you store all of the data files needed to feed into
-<code>irma-spy</code> dashboard. This part is a bit different from the
-<strong>development</strong> version as it does not allow you to access
-the code base of <code>irma-spy</code>. You can only access the
-<code>irma-spy-container</code> directory inside the docker
-container.</p>
+<pre><code>docker run -v /path/to/data:/data -v /var/run/docker.sock:/var/run/docker.sock -d -p 8050:8050 --name irma-spy-prod irma-spy-prod:v1.0.0 </code></pre>
+<p><strong>NOTE:</strong> - Change <strong>/path/to/data</strong> to
+your local directory where it contains all data files needed to feed
+into the <code>irma-spy</code> dashboard. This directory is mounted to
+<code>/data</code> directory inside the container. <br> -
+<strong>/var/run/docker.sock:/var/run/docker.sock</strong> is used to
+connect the host’s docker.socket to container’s docker.socket where you
+can run a container inside of another container<br></p>
 <p><strong>-d</strong>: run the container in detached mode <br>
 <strong>-v</strong>: mount code base and data files from host directory
 to container directory <strong>[host_div]:[container_dir]</strong>. By
