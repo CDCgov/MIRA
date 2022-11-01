@@ -5,5 +5,4 @@
 # Run whatever Bash commands here
 RESOURCE_ROOT=/irma-spy
 
-# Launch the irma-spy dashboard
-python $RESOURCE_ROOT/app.py
+python $RESOURCE_ROOT/app.py $RESOURCE_ROOT/config/container.yaml
