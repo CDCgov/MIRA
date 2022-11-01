@@ -52,13 +52,11 @@ FROM base as prod
 # Create working directory variable
 ENV WORKDIR=/data
 
-<<<<<<< Dockerfile
 # Execute the pipeline 
 ENTRYPOINT ["/bin/bash", "irma-spy.sh"]
-=======
+
 # Create a stage enviroment
 ENV STAGE=prod
->>>>>>> Dockerfile
 
 # Copy all scripts to docker images
 COPY . /irma-spy
@@ -127,12 +125,3 @@ RUN apt-get autoremove -y && apt-get clean -y && rm -rf /var/lib/apt/lists/*
 
 # Execute the pipeline 
 ENTRYPOINT ["/bin/bash", "/irma-spy/irma-spy.sh"]
-<<<<<<< Dockerfile
-
-
-
-
-
-=======
->>>>>>> Dockerfile
-
