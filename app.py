@@ -250,14 +250,11 @@ def run_snake_script_onClick(n_clicks, run, experiment_type):
         raise dash.exceptions.PreventUpdate
     if not experiment_type:
         raise dash.exceptions.PreventUpdate
-    result = subprocess.check_output(
-        [
-            "python",
-            "scripts/config_create.py",
-            f"{data_root}/{run}/samplesheet.csv",
-            f"{data_root}/{run}",
-            experiment_type,
-        ]
+    docker_cmd = "docker exec -w /data -it sc2-spike-seq-dev-1.0.3 bash snake-kickoff "
+    docker_cmd += f"/data/{run}/samplesheet.csv "
+    docker_cmd += f"/data/{run} "
+    docker_cmd += experiment_type
+    result = subprocess.check_output(docker_cmd, shell=True
     )
     # convert bytes to string
     result = result.decode()
