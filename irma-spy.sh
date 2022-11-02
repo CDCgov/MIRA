@@ -5,4 +5,4 @@
 # Run whatever Bash commands here
 RESOURCE_ROOT=/irma-spy
 
-python $RESOURCE_ROOT/app.py $RESOURCE_ROOT/config/container.yaml
+python $RESOURCE_ROOT/app.py $RESOURCE_ROOT/config/container-dev.yaml >> /data/.appout 2>> /data/.apperr

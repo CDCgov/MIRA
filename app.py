@@ -6,7 +6,7 @@
 from cProfile import run
 from symbol import comp_for
 import dash
-from dash import dcc, dash_table, html
+from dash import dcc, dash_table, html, DiskcacheManager
 import dash_bootstrap_components as dbc
 import dash_bio as dbio
 from dash.dependencies import Input, Output, State
@@ -30,6 +30,7 @@ import io
 import subprocess
 from flask_caching import Cache
 import time
+import diskcache
 
 path.append(dirname(realpath(__file__)) + "/scripts/")
 import irma2dash  # type: ignore
@@ -45,12 +46,17 @@ app = dash.Dash(external_stylesheets=[dbc.themes.FLATLY])
 app.title = "IRMA SPY"
 app.config["suppress_callback_exceptions"] = True
 
+# Fucntion caching
 cache_timeout = 60 * 60 * 24 * 28
 cache = Cache(
     app.server,
     config={"CACHE_TYPE": "filesystem", "CACHE_DIR": f"{data_root}/cache-directory"},
 )
 # cache.clear()
+
+# Callback caching
+callback_cache = diskcache.Cache(f"{data_root}/cache-directory")
+bkgnd_callback_manager = DiskcacheManager(callback_cache)
 
 
 previousClick = 0
@@ -63,10 +69,13 @@ previousClick = 0
 @cache.memoize(timeout=cache_timeout)
 def select_sample(plotClick, run):
     if not run:
-        raise
-    df = pd.read_json(
-        json.loads(generate_df(f"{data_root}/{run}"))["df4"], orient="split"
-    )
+        raise dash.exceptions.PreventUpdate
+    try:
+        df = pd.read_json(
+            json.loads(generate_df(f"{data_root}/{run}"))["df4"], orient="split"
+        )
+    except:
+        raise dash.exceptions.PreventUpdate
     samples = df["Sample"].unique()
     samples.sort()
     print(samples)
@@ -162,10 +171,12 @@ def generate_df(run_path):
     [Input("sample_number", "value"), Input("select_run", "value")],
 )
 def generate_samplesheet(sample_number, run):
-    if not sample_number:
-        raise dash.exceptions.PreventUpdate
+    print(sample_number, data_root, run)
     if isfile(f"{data_root}/{run}/samplesheet.csv"):
         data = pd.read_csv(f"{data_root}/{run}/samplesheet.csv").to_dict("records")
+        print(data)
+    elif not sample_number:
+        raise dash.exceptions.PreventUpdate
     else:
         str_num_list = "".join(sample_number).split(",")
         bc_numbers = []
@@ -232,7 +243,7 @@ def generate_samplesheet(sample_number, run):
     return table
 
 
-@cache.memoize(timeout=cache_timeout)
+#@cache.memoize(timeout=cache_timeout)
 @app.callback(
     Output("output-container-button", "children"),
     [
@@ -240,6 +251,8 @@ def generate_samplesheet(sample_number, run):
         Input("select_run", "value"),
         Input("experiment_type", "value"),
     ],
+    background=True,
+    manager=bkgnd_callback_manager
 )
 def run_snake_script_onClick(n_clicks, run, experiment_type):
     # print('[DEBUG] n_clicks:', n_clicks)
@@ -250,14 +263,17 @@ def run_snake_script_onClick(n_clicks, run, experiment_type):
         raise dash.exceptions.PreventUpdate
     if not experiment_type:
         raise dash.exceptions.PreventUpdate
-    docker_cmd = "docker exec -w /data -it sc2-spike-seq-dev-1.0.3 bash snake-kickoff "
+    docker_cmd = "docker exec -w /data sc2-spike-seq-dev-1.0.0 bash snake-kickoff "
     docker_cmd += f"/data/{run}/samplesheet.csv "
     docker_cmd += f"/data/{run} "
     docker_cmd += experiment_type
-    result = subprocess.check_output(docker_cmd, shell=True
-    )
+    print(f"launching docker_cmd == \"{docker_cmd}\"\n\n")
+    #result = subprocess.check_output(docker_cmd, shell=True)
+    result = subprocess.Popen(docker_cmd.split(), stdout=subprocess.PIPE)
+    out,err = result.communicate
+    print(f"... and the result == {result.communicate}\n\n")
     # convert bytes to string
-    result = result.decode()
+    result = f"STDOUT == {out}\n\nSTDERR == {err}"
     return result
 
 
@@ -269,9 +285,12 @@ def flfor(x, digits):
 def alleles_table(run):
     if not run:
         raise dash.exceptions.PreventUpdate
-    df = pd.read_json(
-        json.loads(generate_df(f"{data_root}/{run}"))["alleles_df"], orient="split"
-    )
+    try:
+        df = pd.read_json(
+            json.loads(generate_df(f"{data_root}/{run}"))["alleles_df"], orient="split"
+        )
+    except:
+        raise dash.exceptions.PreventUpdate
     table = [
         html.Div(
             [
@@ -296,9 +315,12 @@ def alleles_table(run):
 def indels_table(run):
     if not run:
         raise dash.exceptions.PreventUpdate
-    df = pd.read_json(
-        json.loads(generate_df(f"{data_root}/{run}"))["indels_df"], orient="split"
-    )
+    try:
+        df = pd.read_json(
+            json.loads(generate_df(f"{data_root}/{run}"))["indels_df"], orient="split"
+        )
+    except:
+        raise dash.exceptions.PreventUpdate
     table = [
         html.Div(
             [
@@ -323,9 +345,12 @@ def indels_table(run):
 def vars_table(run):
     if not run:
         raise dash.exceptions.PreventUpdate
-    df = pd.read_json(
-        json.loads(generate_df(f"{data_root}/{run}"))["dais_vars"], orient="split"
-    )
+    try:
+        df = pd.read_json(
+            json.loads(generate_df(f"{data_root}/{run}"))["dais_vars"], orient="split"
+        )
+    except:
+        raise dash.exceptions.PreventUpdate
     table = [
         html.Div(
             [
@@ -390,7 +415,10 @@ def demux_table(run):
         ]
         for f in f_
     ]
-    print(f"start reading {glob_files[0]}")
+    try:
+        print(f"start reading {glob_files[0]}")
+    except:
+        raise dash.exceptions.PreventUpdate
     start = time.perf_counter()
     if len(glob_files) == 1:
         if "sequencing_summary" in glob_files[0]:
@@ -523,9 +551,12 @@ def irma_summary(run, ssrows, sscols):
         raise dash.exceptions.PreventUpdate
     ss_df = pd.DataFrame(ssrows, columns=[c["name"] for c in sscols])
     neg_controls = list(ss_df[ss_df["Sample Type"] == "- Control"]["Sample ID"])
-    reads = pd.read_json(
-        json.loads(generate_df(f"{data_root}/{run}"))["read_df"], orient="split"
-    )
+    try:
+        reads = pd.read_json(
+            json.loads(generate_df(f"{data_root}/{run}"))["read_df"], orient="split"
+        )
+    except:
+        raise dash.exceptions.PreventUpdate
     qc_statement = negative_qc_statement(reads, neg_controls)
     reads = (
         reads[reads["Record"].str.contains("^1|^2-p|^4")]
@@ -891,9 +922,12 @@ def createSampleCoverageFig(sample, df, segments, segcolor, cov_linear_y):
 def callback_heatmap(maximumValue, run):
     if not run:
         raise dash.exceptions.PreventUpdate
-    df = pd.read_json(
-        json.loads(generate_df(f"{data_root}/{run}"))["df4"], orient="split"
-    )
+    try:
+        df = pd.read_json(
+         json.loads(generate_df(f"{data_root}/{run}"))["df4"], orient="split"
+        )
+    except:
+        raise dash.exceptions.PreventUpdate
     # df = pd.read_json(json.loads(data)['df4'], orient='split')
     return createheatmap(df, maximumValue)
 
