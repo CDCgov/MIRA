@@ -270,10 +270,10 @@ def run_snake_script_onClick(n_clicks, run, experiment_type):
     print(f"launching docker_cmd == \"{docker_cmd}\"\n\n")
     #result = subprocess.check_output(docker_cmd, shell=True)
     result = subprocess.Popen(docker_cmd.split(), stdout=subprocess.PIPE)
-    out,err = result.communicate
+    out,err = result.communicate()
     print(f"... and the result == {result.communicate}\n\n")
     # convert bytes to string
-    result = f"STDOUT == {out}\n\nSTDERR == {err}"
+    result = f"STDOUT == {out}{html.Br()}STDERR == {err}"
     return result
 
 
@@ -290,7 +290,8 @@ def alleles_table(run):
             json.loads(generate_df(f"{data_root}/{run}"))["alleles_df"], orient="split"
         )
     except:
-        raise dash.exceptions.PreventUpdate
+        #raise dash.exceptions.PreventUpdate
+        return blank_fig()
     table = [
         html.Div(
             [
@@ -320,7 +321,8 @@ def indels_table(run):
             json.loads(generate_df(f"{data_root}/{run}"))["indels_df"], orient="split"
         )
     except:
-        raise dash.exceptions.PreventUpdate
+        #raise dash.exceptions.PreventUpdate
+        return blank_fig()
     table = [
         html.Div(
             [
@@ -350,7 +352,8 @@ def vars_table(run):
             json.loads(generate_df(f"{data_root}/{run}"))["dais_vars"], orient="split"
         )
     except:
-        raise dash.exceptions.PreventUpdate
+        #raise dash.exceptions.PreventUpdate
+        return blank_fig()
     table = [
         html.Div(
             [
@@ -409,7 +412,7 @@ def demux_table(run):
         for f_ in [
             glob(n)
             for n in [
-                f"{data_root}/{run}/sequencing_summary_*txt",
+                f"{data_root}/{run}/sequencing_summary*txt",
                 f"{data_root}/{run}/laneBarcode.html",
             ]
         ]
@@ -418,7 +421,7 @@ def demux_table(run):
     try:
         print(f"start reading {glob_files[0]}")
     except:
-        raise dash.exceptions.PreventUpdate
+        return blank_fig(), blank_fig()
     start = time.perf_counter()
     if len(glob_files) == 1:
         if "sequencing_summary" in glob_files[0]:
@@ -556,7 +559,8 @@ def irma_summary(run, ssrows, sscols):
             json.loads(generate_df(f"{data_root}/{run}"))["read_df"], orient="split"
         )
     except:
-        raise dash.exceptions.PreventUpdate
+        #raise dash.exceptions.PreventUpdate
+        return "... waiting for IRMA results...", blank_fig()
     qc_statement = negative_qc_statement(reads, neg_controls)
     reads = (
         reads[reads["Record"].str.contains("^1|^2-p|^4")]
