@@ -378,7 +378,7 @@ def vars_table(run):
     return table
 
 
-def pandas_read_csv_progress(file, sep, usecols, engine="c", chunksize=100000):
+def pandas_read_csv_progress(file, sep, usecols, setprogress, engine="c", chunksize=100000):
     rc = sum(1 for row in open(file))
     # if usecols != "":
     df_iterator = pd.read_csv(
@@ -393,18 +393,48 @@ def pandas_read_csv_progress(file, sep, usecols, engine="c", chunksize=100000):
     chunk_count = chunksize
     for chunk in df_iterator:
         df = pd.concat([df, chunk])
-        print(f"Reading {file} :: {(chunk_count/rc)*100:.0f}%")
+        set_progress(make_progress_graph(f"{(chunk_count/rc)*100:.0f}", 100))
+        #print(f"Reading {file} :: {(chunk_count/rc)*100:.0f}%")
         chunk_count += chunksize
     return df
+
+def make_progress_graph(progress, total):
+    print(f"progress == {progress}; total == {total}")
+    progress_graph = (
+        go.Figure(data=[go.Bar(x=[progress])])
+        .update_xaxes(range=[0, total])
+        .update_yaxes(
+            showticklabels=False,
+        )
+        .update_layout(height=100, margin=dict(t=20, b=40))
+    )
+    return progress_graph
 
 
 @app.callback(
     [Output("illumina_demux_table", "children"), Output("demux_fig", "figure")],
     [Input("select_run", "value"),],
     prevent_initial_call=True,
+    background=True,
+    manager=bkgnd_callback_manager,
+    running=[
+        (
+            Output("paragraph_id", "style"),
+            {"visibility": "hidden"},
+            {"visibility": "visible"},
+        ),
+        (
+            Output("progress_bar_graph", "style"),
+            {"visibility": "visible"},
+            {"visibility": "hidden"},
+        ),
+    ],
+    progress=Output("progress_bar_graph", "figure"),
+    progress_default=make_progress_graph(0, 100)
+
 )
 @cache.memoize(timeout=cache_timeout)
-def demux_table(run):
+def demux_table(set_progress, run):
     # if not demux_file:
     # raise dash.exceptions.PreventUpdate
     glob_files = [
@@ -436,6 +466,7 @@ def demux_table(run):
                     "mean_qscore_template",
                     "barcode_score",
                 ],
+                set_progress=set_progress
             )
         else:
             df = pd.read_html(glob_files[0])[2]
@@ -1097,6 +1128,12 @@ content = html.Div(
         html.Div(id="output-container-button", children="Hit the button to update."),
     ]
     + [html.P("Barcode Assignment", id="demux_head", className="display-6")]
+    + [html.Div(
+            [
+                html.P(id="paragraph_id", children=["Button not clicked"]),
+                dcc.Graph(id="progress_bar_graph", figure=blank_fig()),
+            ]
+        )]
     + [html.Br()]
     + [
         html.Div(
