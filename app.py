@@ -6,7 +6,7 @@
 from cProfile import run
 from symbol import comp_for
 import dash
-from dash import dcc, dash_table, html, DiskcacheManager
+from dash import dcc, dash_table, html, DiskcacheManager, ctx
 import dash_bootstrap_components as dbc
 import dash_bio as dbio
 from dash.dependencies import Input, Output, State
@@ -50,12 +50,15 @@ app.config["suppress_callback_exceptions"] = True
 cache_timeout = 60 * 60 * 24 * 28
 cache = Cache(
     app.server,
-    config={"CACHE_TYPE": "filesystem", "CACHE_DIR": f"{data_root}/cache-directory"},
+    config={
+        "CACHE_TYPE": "filesystem",
+        "CACHE_DIR": f"{data_root}/.cache-directory_fn",
+    },
 )
-# cache.clear()
+cache.clear()
 
 # Callback caching
-callback_cache = diskcache.Cache(f"{data_root}/cache-directory")
+callback_cache = diskcache.Cache(f"{data_root}/.cache-directory_cb")
 bkgnd_callback_manager = DiskcacheManager(callback_cache)
 
 
@@ -78,7 +81,6 @@ def select_sample(plotClick, run):
         raise dash.exceptions.PreventUpdate
     samples = df["Sample"].unique()
     samples.sort()
-    print(samples)
     options = [{"label": i, "value": i} for i in samples]
     global previousClick
     if not plotClick:
@@ -171,10 +173,8 @@ def generate_df(run_path):
     [Input("sample_number", "value"), Input("select_run", "value")],
 )
 def generate_samplesheet(sample_number, run):
-    print(sample_number, data_root, run)
     if isfile(f"{data_root}/{run}/samplesheet.csv"):
         data = pd.read_csv(f"{data_root}/{run}/samplesheet.csv").to_dict("records")
-        print(data)
     elif not sample_number:
         raise dash.exceptions.PreventUpdate
     else:
@@ -206,7 +206,6 @@ def generate_samplesheet(sample_number, run):
             )
             for i in bc_numbers
         ]
-        # print(data, type(data))
     ss = dash_table.DataTable(
         id="samplesheet_table",
         columns=[
@@ -243,7 +242,7 @@ def generate_samplesheet(sample_number, run):
     return table
 
 
-#@cache.memoize(timeout=cache_timeout)
+# @cache.memoize(timeout=cache_timeout)
 @app.callback(
     Output("output-container-button", "children"),
     [
@@ -252,10 +251,9 @@ def generate_samplesheet(sample_number, run):
         Input("experiment_type", "value"),
     ],
     background=True,
-    manager=bkgnd_callback_manager
+    manager=bkgnd_callback_manager,
 )
 def run_snake_script_onClick(n_clicks, run, experiment_type):
-    # print('[DEBUG] n_clicks:', n_clicks)
     if not n_clicks:
         # raise dash.exceptions.PreventUpdate
         return dash.no_update
@@ -267,31 +265,86 @@ def run_snake_script_onClick(n_clicks, run, experiment_type):
     docker_cmd += f"/data/{run}/samplesheet.csv "
     docker_cmd += f"/data/{run} "
     docker_cmd += experiment_type
-    print(f"launching docker_cmd == \"{docker_cmd}\"\n\n")
-    #result = subprocess.check_output(docker_cmd, shell=True)
+    print(f'launching docker_cmd == "{docker_cmd}"\n\n')
+    # result = subprocess.check_output(docker_cmd, shell=True)
     result = subprocess.Popen(docker_cmd.split(), stdout=subprocess.PIPE)
-    out,err = result.communicate()
+    out, err = result.communicate()
     print(f"... and the result == {result.communicate}\n\n")
     # convert bytes to string
     result = f"STDOUT == {out}{html.Br()}STDERR == {err}"
     return result
 
 
+@app.callback(
+    Output("irma-progress", "children"),
+    [
+        Input("select_run", "value"),
+        Input("watch-irma-progress", "value"),
+        Input("irma-progress-interval", "n_intervals"),
+    ],
+)
+def display_irma_progress(run, toggle, n_intervals):
+    if not toggle:
+        return html.Div()
+    logs = glob(f"{data_root}/{run}/logs/*irma*out.log")
+    log_dic = {}
+    for l in logs:
+        sample = l.split("/")[-1].split(".")[0]
+        with open(l, "r") as d:
+            log_dic[sample] = "".join(d.readlines())
+    finished_samples = [i for i in log_dic.keys() if "finished!" in log_dic[i].lower()]
+    running_samples = {
+        i: f"  ".join(j.split('\t'))
+        for i, j in log_dic.items()
+        if i not in finished_samples
+    }
+    df = pd.DataFrame.from_dict(running_samples, orient="index")
+    df = df.reset_index()
+    df.columns = ['Sample', 'IRMA Stage']
+    out = html.Div(
+        [
+            html.Div(f"IRMA finished samples: {', '.join(finished_samples)}"),
+            html.Div(
+                #[dbc.Row(
+                    #[dbc.Col(
+                        dash_table.DataTable(
+                        columns=[{"name": i, "id": i} for i in df.columns],
+                        data=df.to_dict('records'),
+                        style_data={
+                        'whiteSpace': 'pre-line',
+                        'height': 'auto',
+                        'lineHeight': '15px',
+                        'text_align':'left'}
+                        )
+                    #, width={"size":4, "offset":0})])]
+            ),
+        ]
+    )
+    return out
+
+
 def flfor(x, digits):
     return float(f"{x:.{digits}f}")
 
 
-@app.callback([Output("minor_alleles_table", "children"), Input("select_run", "value")])
-def alleles_table(run):
+@app.callback(
+    [
+        Output("minor_alleles_table", "children"),
+        [Input("select_run", "value"), Input("irma-results-button", "n_clicks")],
+    ]
+)
+def alleles_table(run, n_clicks):
     if not run:
         raise dash.exceptions.PreventUpdate
+    if not n_clicks:
+        dash.exceptions.PreventUpdate
     try:
         df = pd.read_json(
             json.loads(generate_df(f"{data_root}/{run}"))["alleles_df"], orient="split"
         )
     except:
-        #raise dash.exceptions.PreventUpdate
-        return blank_fig()
+        raise dash.exceptions.PreventUpdate
+        # return blank_fig()
     table = [
         html.Div(
             [
@@ -312,17 +365,24 @@ def alleles_table(run):
     return table
 
 
-@app.callback([Output("indels_table", "children"), Input("select_run", "value")])
-def indels_table(run):
+@app.callback(
+    [
+        Output("indels_table", "children"),
+        [Input("select_run", "value"), Input("irma-results-button", "n_clicks")],
+    ]
+)
+def indels_table(run, n_clicks):
     if not run:
         raise dash.exceptions.PreventUpdate
+    if not n_clicks:
+        dash.exceptions.PreventUpdate
     try:
         df = pd.read_json(
             json.loads(generate_df(f"{data_root}/{run}"))["indels_df"], orient="split"
         )
     except:
-        #raise dash.exceptions.PreventUpdate
-        return blank_fig()
+        raise dash.exceptions.PreventUpdate
+        # return blank_fig()
     table = [
         html.Div(
             [
@@ -343,17 +403,24 @@ def indels_table(run):
     return table
 
 
-@app.callback([Output("vars_table", "children"), Input("select_run", "value")])
-def vars_table(run):
+@app.callback(
+    [
+        Output("vars_table", "children"),
+        [Input("select_run", "value"), Input("irma-results-button", "n_clicks")],
+    ]
+)
+def vars_table(run, n_clicks):
     if not run:
         raise dash.exceptions.PreventUpdate
+    if not n_clicks:
+        dash.exceptions.PreventUpdate
     try:
         df = pd.read_json(
             json.loads(generate_df(f"{data_root}/{run}"))["dais_vars"], orient="split"
         )
     except:
-        #raise dash.exceptions.PreventUpdate
-        return blank_fig()
+        raise dash.exceptions.PreventUpdate
+        # return blank_fig()
     table = [
         html.Div(
             [
@@ -378,65 +445,15 @@ def vars_table(run):
     return table
 
 
-def pandas_read_csv_progress(file, sep, usecols, setprogress, engine="c", chunksize=100000):
-    rc = sum(1 for row in open(file))
-    # if usecols != "":
-    df_iterator = pd.read_csv(
-        file,
-        usecols=usecols,
-        sep=sep,
-        engine=engine,
-        iterator=True,
-        chunksize=chunksize,
-    )
-    df = pd.DataFrame()
-    chunk_count = chunksize
-    for chunk in df_iterator:
-        df = pd.concat([df, chunk])
-        set_progress(make_progress_graph(f"{(chunk_count/rc)*100:.0f}", 100))
-        #print(f"Reading {file} :: {(chunk_count/rc)*100:.0f}%")
-        chunk_count += chunksize
-    return df
-
-def make_progress_graph(progress, total):
-    print(f"progress == {progress}; total == {total}")
-    progress_graph = (
-        go.Figure(data=[go.Bar(x=[progress])])
-        .update_xaxes(range=[0, total])
-        .update_yaxes(
-            showticklabels=False,
-        )
-        .update_layout(height=100, margin=dict(t=20, b=40))
-    )
-    return progress_graph
-
-
 @app.callback(
     [Output("illumina_demux_table", "children"), Output("demux_fig", "figure")],
     [Input("select_run", "value"),],
     prevent_initial_call=True,
     background=True,
-    manager=bkgnd_callback_manager,
-    running=[
-        (
-            Output("paragraph_id", "style"),
-            {"visibility": "hidden"},
-            {"visibility": "visible"},
-        ),
-        (
-            Output("progress_bar_graph", "style"),
-            {"visibility": "visible"},
-            {"visibility": "hidden"},
-        ),
-    ],
-    progress=Output("progress_bar_graph", "figure"),
-    progress_default=make_progress_graph(0, 100)
-
+    manager=bkgnd_callback_manager
 )
 @cache.memoize(timeout=cache_timeout)
-def demux_table(set_progress, run):
-    # if not demux_file:
-    # raise dash.exceptions.PreventUpdate
+def demux_table(run):
     glob_files = [
         f
         for f_ in [
@@ -452,53 +469,38 @@ def demux_table(set_progress, run):
         print(f"start reading {glob_files[0]}")
     except:
         return blank_fig(), blank_fig()
-    start = time.perf_counter()
+    ont = False
     if len(glob_files) == 1:
         if "sequencing_summary" in glob_files[0]:
-            df = pandas_read_csv_progress(
-                glob_files[0],
-                sep="\t",
-                usecols=[
+            ont = True
+            rc = sum(1 for row in open(glob_files[0]))
+            def f(g):
+                return pd.DataFrame({'# Reads': [g.shape[0]], 'read_len_sum': [g['sequence_length_template'].sum()],  'mean_q_sum':[g['mean_qscore_template'].sum()], 'mean_barid_sum':[g['barcode_score'].sum()]})
+            df = pd.DataFrame({})
+            chunksize=50000
+            chunknum=chunksize
+            reader = pd.read_csv(glob_files[0], chunksize=chunksize, sep="\t",usecols=[
                     "alias",
                     "barcode_arrangement",
                     "filename_fastq",
                     "sequence_length_template",
                     "mean_qscore_template",
-                    "barcode_score",
-                ],
-                set_progress=set_progress
-            )
+                    "barcode_score"])
+            for chunk in reader:
+                df = df.add(chunk.groupby(['barcode_arrangement']).apply(f).reset_index(level=1,drop=True),fill_value=0)
+                print(f"rc = {rc} chunksize = {chunknum}")
+                print(f"Reading {glob_files[0]} :: {float(chunknum)/float(rc)*100}%")
+                chunknum += chunksize
+            df = df.reset_index()
+            df['Mean Read Length'] = df['read_len_sum']/df['# Reads']
+            df['Mean Mean Qscore'] = df['mean_q_sum']/df['# Reads']
+            df['Mean Barcode Identity'] = df['mean_barid_sum']/df['# Reads']
+            df = df.rename(columns={'barcode_arrangement': 'Barcode'})
+            df = df[['Barcode', '# Reads', 'Mean Read Length', 'Mean Mean Qscore', 'Mean Barcode Identity']]
+            df[["Mean Mean Qscore", "Mean Barcode Identity"]] = df[["Mean Mean Qscore", "Mean Barcode Identity"]].applymap(lambda x: flfor(x, 2))
+            df[["# Reads","Mean Read Length"]] = df[["# Reads", "Mean Read Length"]].applymap(lambda x: int(x))
         else:
             df = pd.read_html(glob_files[0])[2]
-    ont = False
-    print(f"reading in {glob_files[0]} took {time.perf_counter() - start} seconds.")
-    if "filename_fastq" in df.columns:
-        ont = True
-        df = df.groupby(["alias", "barcode_arrangement"]).agg(
-            {
-                "filename_fastq": "count",
-                "sequence_length_template": "mean",
-                "mean_qscore_template": "mean",
-                "barcode_score": "mean",
-            }
-        )
-        df = df.reset_index()
-        df = df.rename(
-            columns={
-                "barcode_arrangement": "Barcode",
-                "alias": "Sample ID",
-                "filename_fastq": "# Reads",
-                "sequence_length_template": "Mean Read Length",
-                "mean_qscore_template": "Mean Mean Qscore",
-                "barcode_score": "Mean Barcode Identity",
-            }
-        )
-        df[["Mean Mean Qscore", "Mean Barcode Identity"]] = df[
-            ["Mean Mean Qscore", "Mean Barcode Identity"]
-        ].applymap(lambda x: flfor(x, 2))
-        df[["Mean Read Length"]] = df[["Mean Read Length"]].applymap(
-            lambda x: flfor(x, 0)
-        )
         fill_colors = conditional_color_range_perCol.discrete_background_color_bins(
             df, 8
         )
@@ -532,7 +534,7 @@ def demux_table(set_progress, run):
         ]
     )
     if ont:
-        fig = px.pie(df, values="# Reads", names="Sample ID")
+        fig = px.pie(df, values="# Reads", names="Barcode")
     else:
         fig = px.pie(df, values="PF Clusters", names="Sample")
     fig.update_layout(margin=dict(t=10, b=10, l=10, r=10))
@@ -578,20 +580,23 @@ def negative_qc_statement(df, negative_list=""):
         Input("select_run", "value"),
         Input("samplesheet_table", "data"),
         Input("samplesheet_table", "columns"),
+        Input("irma-results-button", "n_clicks"),
     ],
 )
-def irma_summary(run, ssrows, sscols):
+def irma_summary(run, ssrows, sscols, n_clicks):
     if not run or not ssrows or not sscols:
         raise dash.exceptions.PreventUpdate
     ss_df = pd.DataFrame(ssrows, columns=[c["name"] for c in sscols])
     neg_controls = list(ss_df[ss_df["Sample Type"] == "- Control"]["Sample ID"])
+    if not n_clicks:
+        raise dash.exceptions.PreventUpdate
     try:
         reads = pd.read_json(
             json.loads(generate_df(f"{data_root}/{run}"))["read_df"], orient="split"
         )
     except:
-        #raise dash.exceptions.PreventUpdate
-        return "... waiting for IRMA results...", blank_fig()
+        raise dash.exceptions.PreventUpdate
+        # return "... waiting for IRMA results...", blank_fig()
     qc_statement = negative_qc_statement(reads, neg_controls)
     reads = (
         reads[reads["Record"].str.contains("^1|^2-p|^4")]
@@ -959,7 +964,7 @@ def callback_heatmap(maximumValue, run):
         raise dash.exceptions.PreventUpdate
     try:
         df = pd.read_json(
-         json.loads(generate_df(f"{data_root}/{run}"))["df4"], orient="split"
+            json.loads(generate_df(f"{data_root}/{run}"))["df4"], orient="split"
         )
     except:
         raise dash.exceptions.PreventUpdate
@@ -1086,7 +1091,9 @@ content = html.Div(
                 dcc.Dropdown(
                     id="select_run",
                     options=[
-                        {"label": i, "value": i} for i in sorted(os.listdir(data_root))
+                        {"label": i, "value": i}
+                        for i in sorted(os.listdir(data_root))
+                        if "." not in i
                     ],
                     placeholder="Select sequencing run: ",
                     # persistence=True
@@ -1125,15 +1132,25 @@ content = html.Div(
     ]
     + [
         html.Button("Start Genome Assembly", id="assembly-button", n_clicks=0),
-        html.Div(id="output-container-button", children="Hit the button to update."),
+        #html.Div(id="output-container-button"),
+        dcc.Interval(id="irma-progress-interval", interval=3000),
+        html.Div(
+            [dbc.Row(
+                dbc.Col(
+                    daq.ToggleSwitch(
+                        id="watch-irma-progress",
+                        label="Watch IRMA progress",
+                        labelPosition="right",
+                        value=False,
+                    )
+                    ,width=2
+                )
+            )]
+        ),
+        html.Div(id="irma-progress"),
+        html.Button("Display IRMA results", id="irma-results-button", n_clicks=0),
     ]
     + [html.P("Barcode Assignment", id="demux_head", className="display-6")]
-    + [html.Div(
-            [
-                html.P(id="paragraph_id", children=["Button not clicked"]),
-                dcc.Graph(id="progress_bar_graph", figure=blank_fig()),
-            ]
-        )]
     + [html.Br()]
     + [
         html.Div(
