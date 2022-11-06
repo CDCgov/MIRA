@@ -99,12 +99,16 @@ def select_sample(plotClick, run):
         Input("select_run", "value"),
         Input("select_sample", "value"),
         Input("cov_linear_y", "value"),
+        Input("irma-results-button", "n_clicks")
     ],
 )
 @cache.memoize(timeout=cache_timeout)
-def single_sample_fig(run, sample, cov_linear_y):
+def single_sample_fig(run, sample, cov_linear_y, n_clicks):
     if not run or not sample:
-        raise dash.exceptions.PreventUpdate
+        return html.Div()
+        #raise dash.exceptions.PreventUpdate
+    if not n_clicks:
+        return html.Div()
     df = pd.read_json(
         json.loads(generate_df(f"{data_root}/{run}"))["read_df"], orient="split"
     )
@@ -269,10 +273,10 @@ def run_snake_script_onClick(n_clicks, run, experiment_type):
     # result = subprocess.check_output(docker_cmd, shell=True)
     result = subprocess.Popen(docker_cmd.split(), stdout=subprocess.PIPE)
     out, err = result.communicate()
-    print(f"... and the result == {result.communicate}\n\n")
     # convert bytes to string
     result = f"STDOUT == {out}{html.Br()}STDERR == {err}"
-    return result
+    print(f"... and the result == {result}\n\n")
+    return html.Div("IRMA finished!") #result
 
 
 @app.callback(
@@ -287,6 +291,8 @@ def display_irma_progress(run, toggle, n_intervals):
     if not toggle:
         return html.Div()
     logs = glob(f"{data_root}/{run}/logs/*irma*out.log")
+    if len(logs) == 0:
+        return html.Div("No IRMA data is available")
     log_dic = {}
     for l in logs:
         sample = l.split("/")[-1].split(".")[0]
@@ -298,6 +304,8 @@ def display_irma_progress(run, toggle, n_intervals):
         for i, j in log_dic.items()
         if i not in finished_samples
     }
+    if len(running_samples.keys()) == 0:
+        return html.Div("IRMA has finished running")
     df = pd.DataFrame.from_dict(running_samples, orient="index")
     df = df.reset_index()
     df.columns = ['Sample', 'IRMA Stage']
@@ -310,7 +318,7 @@ def display_irma_progress(run, toggle, n_intervals):
                         dash_table.DataTable(
                         columns=[{"name": i, "id": i} for i in df.columns],
                         data=df.to_dict('records'),
-                        style_data={
+                        style_cell={
                         'whiteSpace': 'pre-line',
                         'height': 'auto',
                         'lineHeight': '15px',
@@ -526,10 +534,12 @@ def demux_table(run):
                 data=df.to_dict("records"),
                 sort_action="native",
                 style_data_conditional=fill_colors,
-                persistence=True,
+                #persistence=True,
                 export_format="xlsx",
                 export_headers="display",
                 merge_duplicate_headers=True,
+                filter_action="native",
+
             )
         ]
     )
@@ -595,8 +605,8 @@ def irma_summary(run, ssrows, sscols, n_clicks):
             json.loads(generate_df(f"{data_root}/{run}"))["read_df"], orient="split"
         )
     except:
-        raise dash.exceptions.PreventUpdate
-        # return "... waiting for IRMA results...", blank_fig()
+        #raise dash.exceptions.PreventUpdate
+        return "... waiting for IRMA results...", html.Div()
     qc_statement = negative_qc_statement(reads, neg_controls)
     reads = (
         reads[reads["Record"].str.contains("^1|^2-p|^4")]
@@ -690,10 +700,11 @@ def irma_summary(run, ssrows, sscols, n_clicks):
                 data=df.to_dict("records"),
                 sort_action="native",
                 style_data_conditional=fill_colors,
-                persistence=True,
+                #persistence=True,
                 export_format="xlsx",
                 export_headers="display",
                 merge_duplicate_headers=True,
+                filter_action="native",
             )
         ]
     )
@@ -1045,7 +1056,7 @@ sidebar = html.Div(
     [
         html.Img(src=app.get_asset_url("irma-spy.jpg"), height=80, width=80,),
         html.H2("IRMA Spy", className="display-4"),
-        html.P('"Time is a Pony Ride"', className="display-7"),
+        #html.P('"Time is a Pony Ride"', className="display-7"),
         html.Hr(),
         dbc.Nav(
             [
@@ -1132,7 +1143,7 @@ content = html.Div(
     ]
     + [
         html.Button("Start Genome Assembly", id="assembly-button", n_clicks=0),
-        #html.Div(id="output-container-button"),
+        html.Div(id="output-container-button"),
         dcc.Interval(id="irma-progress-interval", interval=3000),
         html.Div(
             [dbc.Row(
@@ -1148,7 +1159,6 @@ content = html.Div(
             )]
         ),
         html.Div(id="irma-progress"),
-        html.Button("Display IRMA results", id="irma-results-button", n_clicks=0),
     ]
     + [html.P("Barcode Assignment", id="demux_head", className="display-6")]
     + [html.Br()]
@@ -1171,6 +1181,8 @@ content = html.Div(
     + [html.Br()]
     + [html.P("IRMA Summary", id="irma_head", className="display-6")]
     + [html.Br()]
+    + [html.Div(        html.Button("Display IRMA results", id="irma-results-button", n_clicks=0),
+)]
     + [dbc.Row([html.Div(id="irma_neg_statment"), html.Div(id="irma_summary")])]
     + [html.Br()]
     + [html.P("Reference Coverage", id="coverage_head", className="display-6")]
