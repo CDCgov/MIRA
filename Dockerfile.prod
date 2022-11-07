@@ -6,12 +6,6 @@ ARG BUILD_STAGE=${BUILD_STAGE:-prod}
 ############# Build Stage: Dependencies ##################
 
 # Start from a base image
-FROM python:3.7.6 as base
-
-# Define a system argument
-ARG DEBIAN_FRONTEND=noninteractive
-
-# Start from a base image
 FROM --platform=linux/amd64 ubuntu:focal as base
 
 # Define a system argument
@@ -31,17 +25,6 @@ RUN apt-get update --allow-releaseinfo-change && apt-get install --no-install-re
     wget \
     curl \
     dos2unix
-
-############# Build Stage: Development ##################
-
-# Build from the base image for dev
-FROM base as dev
-
-# Create working directory variable
-ENV WORKDIR=/data
-
-# Create a stage enviroment
-ENV STAGE=dev
 
 ############# Build Stage: Production ##################
 

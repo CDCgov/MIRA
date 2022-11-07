@@ -1,15 +1,9 @@
 
 # Create a build argument
 ARG BUILD_STAGE
-ARG BUILD_STAGE=${BUILD_STAGE:-prod}
+ARG BUILD_STAGE=${BUILD_STAGE:-dev}
 
 ############# Build Stage: Dependencies ##################
-
-# Start from a base image
-FROM python:3.7.6 as base
-
-# Define a system argument
-ARG DEBIAN_FRONTEND=noninteractive
 
 # Start from a base image
 FROM --platform=linux/amd64 ubuntu:focal as base
@@ -42,20 +36,6 @@ ENV WORKDIR=/data
 
 # Create a stage enviroment
 ENV STAGE=dev
-
-############# Build Stage: Production ##################
-
-# Build from the base image for prod
-FROM base as prod
-
-# Create working directory variable
-ENV WORKDIR=/data
-
-# Create a stage enviroment
-ENV STAGE=prod
-
-# Copy all scripts to docker images
-COPY . /irma-spy
 
 ############# Build Stage: Final ##################
 

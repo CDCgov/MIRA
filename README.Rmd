@@ -17,6 +17,7 @@ knitr::opts_chunk$set(message=FALSE, comment="#>", fig.width=8, fig.height=8, fi
 - Git version >= 2.21.0
 
 ### Container Dependencies
+
  - sc2-spike-seq (see [our Gitlab repo ](https://github.com/nbx0/SC2-spike-seq))
 
 ## Dockerize Irma-Spy (Development Version)

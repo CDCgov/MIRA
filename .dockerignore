@@ -3,7 +3,12 @@
 *.Rmd
 *.html
 *.md
+*.Rhistory
 *docs
-Dockerfile
+*Dockerfile
 .dockerignore
 docker.compose.yml
+containers
+data
+cache-directory
+config
