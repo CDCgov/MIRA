@@ -6,7 +6,3 @@
 *.Rhistory
 *docs
 docker.compose.yml
-containers
-data
-cache-directory
-config
