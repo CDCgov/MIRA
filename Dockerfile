@@ -6,12 +6,6 @@ ARG BUILD_STAGE=${BUILD_STAGE:-prod}
 ############# Build Stage: Dependencies ##################
 
 # Start from a base image
-FROM python:3.7.6 as base
-
-# Define a system argument
-ARG DEBIAN_FRONTEND=noninteractive
-
-# Start from a base image
 FROM --platform=linux/amd64 ubuntu:focal as base
 
 # Define a system argument
