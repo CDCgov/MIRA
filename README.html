@@ -389,14 +389,23 @@ file is stored and build the docker image.</h3>
 <p><strong>NOTE:</strong> <code>Dockerfile</code> contains a list of
 instructions and steps of how to build and run the <code>irma-spy</code>
 dashboard.</p>
+<ul>
+<li>Using a build-arg</li>
+</ul>
 <pre><code>docker build -t irma-spy-dev:v1.0.0 --build-arg BUILD_STAGE=dev .</code></pre>
+<ul>
+<li>Using a specific dockerfile for development stage
+(e.g. <code>Dockerfile.dev</code>)</li>
+</ul>
+<pre><code>docker build -t irma-spy-dev:v1.0.0 -f Dockerfile.dev .</code></pre>
 <p><strong>-t</strong>: add a tag to an image such as the version of the
 application, e.g. <em>irma-spy-dev:v1.0.0</em> or
-<em>irma-spy-dev:latest</em> <br>
+<em>irma-spy-dev:latest</em> <br> <strong><code>--</code>file,
+-f</strong>: name of the Dockerfile <br>
 <strong><code>--</code>build-arg</strong>: set the build stage for the
 docker image. In this case, we want to build the
 <strong>development</strong> stage. <br></p>
-<p><em>The image took approximately &lt; 5 mins to build</em></p>
+<p><em>The image took approximately &lt; 10 mins to build</em></p>
 </div>
 <div id="after-the-build-is-completed-you-can-check-if-the-image-is-built-successfully" class="section level3">
 <h3>(3) After the build is completed, you can check if the image is
@@ -404,7 +413,7 @@ built successfully</h3>
 <pre><code>docker images
 
 REPOSITORY        TAG        IMAGE ID        CREATED        SIZE
-irma-spy-dev      v1.0.0     2c22887402d3    2 hours ago    1.49GB</code></pre>
+irma-spy-dev      v1.0.0     2c22887402d3    2 hours ago    1.63GB</code></pre>
 </div>
 <div id="to-run-the-irma-spy-dev-container" class="section level3">
 <h3>(4) To run the <code>irma-spy-dev</code> container</h3>
@@ -437,13 +446,14 @@ reference</a></p>
 <pre><code>docker container ps
 
 
-CONTAINER ID   IMAGE                   COMMAND                  CREATED        STATUS        PORTS                    NAMES
-b37b6b19c4e8   irma-spy-dev:v1.0.0     &quot;/bin/bash irma-spy.…&quot;   5 hours ago    Up 5 hours    0.0.0.0:8080-&gt;8050/tcp   irma-spy-dev
+CONTAINER ID   IMAGE                   COMMAND                    CREATED        STATUS        PORTS                    NAMES
+b37b6b19c4e8   irma-spy-dev:v1.0.0     &quot;bash dashboard-kickoff&quot;   5 hours ago    Up 5 hours    0.0.0.0:8080-&gt;8050/tcp   irma-spy-dev
 </code></pre>
 <p><strong>NOTE:</strong> Here the <code>irma-spy-dev</code> container
 is published on port <strong>8080</strong> on the host machine, and
 <strong>8050</strong> is the port of where the <code>irma-spy</code> is
-published inside the container.</p>
+published inside the container. All the requests that are made to the
+host port will be redirected to the Docker container.</p>
 </div>
 </div>
 <div id="access-the-irma-spy-dashboard-on-the-host-network" class="section level3">
@@ -467,11 +477,20 @@ ultimately break the program.</p>
 <div id="cd-to-irma-spy-folder-where-dockerfile-file-is-stored-and-build-the-docker-image.-1" class="section level3">
 <h3>(2) CD to <code>irma-spy</code> folder where <code>Dockerfile</code>
 file is stored and build the docker image.</h3>
+<ul>
+<li>By DEFAULT,</li>
+</ul>
 <pre><code>docker build -t irma-spy-prod:v1.0.0 .</code></pre>
+<ul>
+<li>Using a specific dockerfile for production stage
+(e.g. <code>Dockerfile.prod</code>)</li>
+</ul>
+<pre><code>docker build -t irma-spy-prod:v1.0.0 -f Dockerfile.prod .</code></pre>
 <p><strong>-t</strong>: add a tag to an image such as the version of the
 application, e.g. <em>irma-spy-prod:v1.0.0</em> or
-<em>irma-spy-prod:latest</em> <br></p>
-<p><em>The image took approximately &lt; 5 mins to build</em></p>
+<em>irma-spy-prod:latest</em> <br> <strong><code>--</code>file,
+-f</strong>: name of the Dockerfile</p>
+<p><em>The image took approximately &lt; 10 mins to build</em></p>
 </div>
 <div id="after-the-build-is-completed-you-can-check-if-the-image-is-built-successfully." class="section level3">
 <h3>(3) After the build is completed, you can check if the image is
@@ -479,7 +498,7 @@ built successfully.</h3>
 <pre><code>docker images
 
 REPOSITORY        TAG        IMAGE ID        CREATED        SIZE
-irma-spy-prod     v1.0.0     6dab1b639b9a    2 hours ago    1.49GB</code></pre>
+irma-spy-prod     v1.0.0     6dab1b639b9a    2 hours ago    1.63GB</code></pre>
 </div>
 <div id="to-run-the-irma-spy-prod-container" class="section level3">
 <h3>(4) To run the <code>irma-spy-prod</code> container</h3>
@@ -509,8 +528,8 @@ reference</a></p>
 <pre><code>docker container ps
 
 
-CONTAINER ID   IMAGE                   COMMAND                  CREATED        STATUS        PORTS                    NAMES
-b37b6b19c4e8   irma-spy-dev:v1.0.0     &quot;/bin/bash irma-spy.…&quot;   5 hours ago    Up 5 hours    0.0.0.0:8050-&gt;8050/tcp   irma-spy-prod
+CONTAINER ID   IMAGE                   COMMAND                     CREATED        STATUS        PORTS                    NAMES
+717b0825bc66   irma-spy-prod:v1.0.0     &quot;bash dashboard-kickoff&quot;   5 hours ago    Up 5 hours    0.0.0.0:8050-&gt;8050/tcp   irma-spy-prod
 </code></pre>
 <p><strong>NOTE:</strong> Here we are publishing the
 <code>irma-spy-prod</code> container on port <strong>8050</strong> on
