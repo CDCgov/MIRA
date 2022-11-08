@@ -3,7 +3,6 @@
 *.Rmd
 *.html
 *.md
+*.Rhistory
 *docs
-Dockerfile
-.dockerignore
 docker.compose.yml
