@@ -9,7 +9,7 @@ ARG BUILD_STAGE=${BUILD_STAGE:-prod}
 FROM --platform=linux/amd64 ubuntu:focal as base
 
 # Define a system argument
-ARG DEBIAN_FRONTEND=interactive
+ARG DEBIAN_FRONTEND=noninteractive
 
 # Install system libraries of general use
 RUN apt-get update --allow-releaseinfo-change && apt-get install --no-install-recommends -y \
