@@ -265,7 +265,7 @@ def run_snake_script_onClick(n_clicks, run, experiment_type):
         raise dash.exceptions.PreventUpdate
     if not experiment_type:
         raise dash.exceptions.PreventUpdate
-    docker_cmd = "docker exec -w /data sc2-spike-seq-dev-1.0.0 bash snake-kickoff "
+    docker_cmd = "docker exec -w /data sc2-spike-seq bash snake-kickoff "
     docker_cmd += f"/data/{run}/samplesheet.csv "
     docker_cmd += f"/data/{run} "
     docker_cmd += experiment_type
@@ -769,7 +769,7 @@ def returnSegData(df):
     return segments, segset, segcolor
 
 
-@cache.memoize(timeout=cache_timeout)
+#@cache.memoize(timeout=cache_timeout)
 def pivot4heatmap(df):
     if "Coverage_Depth" in df.columns:
         cov_header = "Coverage_Depth"
@@ -787,7 +787,7 @@ def pivot4heatmap(df):
     return df4
 
 
-@cache.memoize(timeout=cache_timeout)
+#@cache.memoize(timeout=cache_timeout)
 def createheatmap(df4, sliderMax=None):
     if "Coverage_Depth" in df4.columns:
         cov_header = "Coverage_Depth"
