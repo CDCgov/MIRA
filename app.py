@@ -66,6 +66,18 @@ previousClick = 0
 
 
 @app.callback(
+    Output("select_run", "options"),
+    Input("run-refresh-button","n_clicks")
+)
+def refreshRuns(n_clicks):
+    options=[
+        {"label": i, "value": i}
+        for i in sorted(os.listdir(data_root))
+        if "." not in i
+    ]
+    return options
+
+@app.callback(
     [Output("select_sample", "options"), Output("select_sample", "value")],
     [Input("coverage-heat", "clickData"), Input("select_run", "value")],
 )
@@ -178,14 +190,11 @@ def generate_df(run_path):
 )
 def generate_samplesheet(sample_number, run):
     ss_glob = [i for i in glob(f"{data_root}/{run}/*.csv*") if "samplesheet" in i.lower() or "data" in i.lower()]
-    print(f"ss_glob == {ss_glob}")
     if len(ss_glob) == 1:
         ss_filename = ss_glob[0]
-        print(ss_filename)
         with open(ss_filename, 'rb') as d:
             originalByteList = d.readlines()
         noCarriageReturn = ''.join([i.decode().replace('\r','') for i in originalByteList])
-        print(f"OG:\n{originalByteList}\n\nNEW:\n{noCarriageReturn}")
         with open(ss_filename, 'w') as d:
             d.write(noCarriageReturn)
         data = pd.read_csv(ss_filename).to_dict("records")
@@ -1022,22 +1031,45 @@ def set_run_options(gene_options):
 
 dl_fasta_clicks = 0
 
+flu_numbers = {"A":{"1":"PB2","2":"PB1","3":"PA","4":"HA","5":"NP","6":"NA","7":"MP","8":"NS"},
+                "B":{"1":"PB1","2":"PB2","3":"PA","4":"HA","5":"NP","6":"NA","7":"MP","8":"NS"}}
 
 @app.callback(
     Output("download_fasta", "data"),
-    [Input("select_run", "value"), Input("fasta_dl_button", "n_clicks")],
+    [Input("select_run", "value"), 
+    Input("fasta_dl_button", "n_clicks"),
+    Input("experiment_type", "value"),
+    ],
     prevent_initial_call=True,
 )
-def download_fastas(run, n_clicks):
+def download_fastas(run, n_clicks, exp_type):
     if not n_clicks:
         raise dash.exceptions.PreventUpdate
     global dl_fasta_clicks
     if n_clicks > dl_fasta_clicks:
         dl_fasta_clicks = n_clicks
+        if "sc2" in exp_type.lower():
+            content = open(f"{data_root}/{run}/IRMA/dais_results/DAIS_ribosome_input.fasta").read()
+        else:
+            fastas = glob(f"{data_root}/{run}/IRMA/*/*fasta")
+            flu_type = {}
+            for fasta in fastas:
+                sample = fasta.split('/')[-2]
+                flu_type[sample] = fasta.split('/')[-1].split('_')[0]
+            content = []
+            with open(f"{data_root}/{run}/IRMA/dais_results/DAIS_ribosome_input.fasta","r") as d:
+                for line in d:
+                    line = line.strip()
+                    if line[0] == '>':
+                        sample = line[1:-2]
+                        seg_num = line[-1]
+                        line = f">{sample}_{flu_numbers[flu_type[sample]][seg_num]}"
+                        content.append(line)
+                    else:
+                        content.append(line)
+            content = '\n'.join(content)
         return dict(
-            content=open(
-                f"{data_root}/{run}/IRMA/dais_results/DAIS_ribosome_input.fasta"
-            ).read(),
+            content=content,
             filename=f"{run}_amended_consensus.fasta",
         )
 
@@ -1109,7 +1141,7 @@ content = html.Div(
     style=CONTENT_STYLE,
     children=[
         dbc.Row(
-            dbc.Col(
+            [dbc.Col(
                 dcc.Dropdown(
                     id="select_run",
                     options=[
@@ -1118,9 +1150,11 @@ content = html.Div(
                         if "." not in i
                     ],
                     placeholder="Select sequencing run: ",
-                    # persistence=True
+                    persistence=True
                 ),
-            )
+                width=4
+            ),
+            dbc.Col(html.Button("Refresh Run Listing", id="run-refresh-button", n_clicks=0))]
         )
     ]
     + [html.P("Samplesheet", id="samplesheet_head", className="display-6")]
@@ -1149,6 +1183,7 @@ content = html.Div(
                 options=["Flu-ONT", "SC2-ONT", "Flu-Illumina"],
                 id="experiment_type",
                 placeholder="What kind of data is this?",
+                persistence=True
             )
         )
     ]
