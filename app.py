@@ -177,8 +177,18 @@ def generate_df(run_path):
     [Input("sample_number", "value"), Input("select_run", "value")],
 )
 def generate_samplesheet(sample_number, run):
-    if isfile(f"{data_root}/{run}/samplesheet.csv"):
-        data = pd.read_csv(f"{data_root}/{run}/samplesheet.csv").to_dict("records")
+    ss_glob = [i for i in glob(f"{data_root}/{run}/*.csv*") if "samplesheet" in i.lower() or "data" in i.lower()]
+    print(f"ss_glob == {ss_glob}")
+    if len(ss_glob) == 1:
+        ss_filename = ss_glob[0]
+        print(ss_filename)
+        with open(ss_filename, 'rb') as d:
+            originalByteList = d.readlines()
+        noCarriageReturn = ''.join([i.decode().replace('\r','') for i in originalByteList])
+        print(f"OG:\n{originalByteList}\n\nNEW:\n{noCarriageReturn}")
+        with open(ss_filename, 'w') as d:
+            d.write(noCarriageReturn)
+        data = pd.read_csv(ss_filename).to_dict("records")
     elif not sample_number:
         raise dash.exceptions.PreventUpdate
     else:
@@ -265,6 +275,7 @@ def run_snake_script_onClick(n_clicks, run, experiment_type):
         raise dash.exceptions.PreventUpdate
     if not experiment_type:
         raise dash.exceptions.PreventUpdate
+    
     docker_cmd = "docker exec -w /data sc2-spike-seq bash snake-kickoff "
     docker_cmd += f"/data/{run}/samplesheet.csv "
     docker_cmd += f"/data/{run} "
@@ -1055,8 +1066,8 @@ CONTENT_STYLE = {
 sidebar = html.Div(
     [
         html.Img(src=app.get_asset_url("irma-spy.jpg"), height=80, width=80,),
-        html.H2("IRMA Spy", className="display-4"),
-        #html.P('"Time is a Pony Ride"', className="display-7"),
+        html.H2("IRMA SPY", className="display-4"),
+        html.P(['Sequences', html.Br(), 'Prepared by', html.Br(), 'You'], className="display-7"),
         html.Hr(),
         dbc.Nav(
             [
