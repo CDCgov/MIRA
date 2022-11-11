@@ -65,17 +65,13 @@ bkgnd_callback_manager = DiskcacheManager(callback_cache)
 previousClick = 0
 
 
-@app.callback(
-    Output("select_run", "options"),
-    Input("run-refresh-button","n_clicks")
-)
+@app.callback(Output("select_run", "options"), Input("run-refresh-button", "n_clicks"))
 def refreshRuns(n_clicks):
-    options=[
-        {"label": i, "value": i}
-        for i in sorted(os.listdir(data_root))
-        if "." not in i
+    options = [
+        {"label": i, "value": i} for i in sorted(os.listdir(data_root)) if "." not in i
     ]
     return options
+
 
 @app.callback(
     [Output("select_sample", "options"), Output("select_sample", "value")],
@@ -111,14 +107,14 @@ def select_sample(plotClick, run):
         Input("select_run", "value"),
         Input("select_sample", "value"),
         Input("cov_linear_y", "value"),
-        Input("irma-results-button", "n_clicks")
+        Input("irma-results-button", "n_clicks"),
     ],
 )
 @cache.memoize(timeout=cache_timeout)
 def single_sample_fig(run, sample, cov_linear_y, n_clicks):
     if not run or not sample:
         return html.Div()
-        #raise dash.exceptions.PreventUpdate
+        # raise dash.exceptions.PreventUpdate
     if not n_clicks:
         return html.Div()
     df = pd.read_json(
@@ -189,13 +185,19 @@ def generate_df(run_path):
     [Input("sample_number", "value"), Input("select_run", "value")],
 )
 def generate_samplesheet(sample_number, run):
-    ss_glob = [i for i in glob(f"{data_root}/{run}/*.csv*") if "samplesheet" in i.lower() or "data" in i.lower()]
+    ss_glob = [
+        i
+        for i in glob(f"{data_root}/{run}/*.csv*")
+        if "samplesheet" in i.lower() or "data" in i.lower()
+    ]
     if len(ss_glob) == 1:
         ss_filename = ss_glob[0]
-        with open(ss_filename, 'rb') as d:
+        with open(ss_filename, "rb") as d:
             originalByteList = d.readlines()
-        noCarriageReturn = ''.join([i.decode().replace('\r','') for i in originalByteList])
-        with open(ss_filename, 'w') as d:
+        noCarriageReturn = "".join(
+            [i.decode().replace("\r", "") for i in originalByteList]
+        )
+        with open(ss_filename, "w") as d:
             d.write(noCarriageReturn)
         data = pd.read_csv(ss_filename).to_dict("records")
     elif not sample_number:
@@ -284,7 +286,7 @@ def run_snake_script_onClick(n_clicks, run, experiment_type):
         raise dash.exceptions.PreventUpdate
     if not experiment_type:
         raise dash.exceptions.PreventUpdate
-    
+
     docker_cmd = "docker exec -w /data sc2-spike-seq bash snake-kickoff "
     docker_cmd += f"/data/{run}/samplesheet.csv "
     docker_cmd += f"/data/{run} "
@@ -296,7 +298,7 @@ def run_snake_script_onClick(n_clicks, run, experiment_type):
     # convert bytes to string
     result = f"STDOUT == {out}{html.Br()}STDERR == {err}"
     print(f"... and the result == {result}\n\n")
-    return html.Div("IRMA finished!") #result
+    return html.Div("IRMA finished!")  # result
 
 
 @app.callback(
@@ -320,7 +322,7 @@ def display_irma_progress(run, toggle, n_intervals):
             log_dic[sample] = "".join(d.readlines())
     finished_samples = [i for i in log_dic.keys() if "finished!" in log_dic[i].lower()]
     running_samples = {
-        i: f"  ".join(j.split('\t'))
+        i: f"  ".join(j.split("\t"))
         for i, j in log_dic.items()
         if i not in finished_samples
     }
@@ -328,23 +330,24 @@ def display_irma_progress(run, toggle, n_intervals):
         return html.Div("IRMA has finished running")
     df = pd.DataFrame.from_dict(running_samples, orient="index")
     df = df.reset_index()
-    df.columns = ['Sample', 'IRMA Stage']
+    df.columns = ["Sample", "IRMA Stage"]
     out = html.Div(
         [
             html.Div(f"IRMA finished samples: {', '.join(finished_samples)}"),
             html.Div(
-                #[dbc.Row(
-                    #[dbc.Col(
-                        dash_table.DataTable(
-                        columns=[{"name": i, "id": i} for i in df.columns],
-                        data=df.to_dict('records'),
-                        style_cell={
-                        'whiteSpace': 'pre-line',
-                        'height': 'auto',
-                        'lineHeight': '15px',
-                        'text_align':'left'}
-                        )
-                    #, width={"size":4, "offset":0})])]
+                # [dbc.Row(
+                # [dbc.Col(
+                dash_table.DataTable(
+                    columns=[{"name": i, "id": i} for i in df.columns],
+                    data=df.to_dict("records"),
+                    style_cell={
+                        "whiteSpace": "pre-line",
+                        "height": "auto",
+                        "lineHeight": "15px",
+                        "text_align": "left",
+                    },
+                )
+                # , width={"size":4, "offset":0})])]
             ),
         ]
     )
@@ -475,10 +478,12 @@ def vars_table(run, n_clicks):
 
 @app.callback(
     [Output("illumina_demux_table", "children"), Output("demux_fig", "figure")],
-    [Input("select_run", "value"),],
+    [
+        Input("select_run", "value"),
+    ],
     prevent_initial_call=True,
     background=True,
-    manager=bkgnd_callback_manager
+    manager=bkgnd_callback_manager,
 )
 @cache.memoize(timeout=cache_timeout)
 def demux_table(run):
@@ -502,31 +507,63 @@ def demux_table(run):
         if "sequencing_summary" in glob_files[0]:
             ont = True
             rc = sum(1 for row in open(glob_files[0]))
+
             def f(g):
-                return pd.DataFrame({'# Reads': [g.shape[0]], 'read_len_sum': [g['sequence_length_template'].sum()],  'mean_q_sum':[g['mean_qscore_template'].sum()], 'mean_barid_sum':[g['barcode_score'].sum()]})
+                return pd.DataFrame(
+                    {
+                        "# Reads": [g.shape[0]],
+                        "read_len_sum": [g["sequence_length_template"].sum()],
+                        "mean_q_sum": [g["mean_qscore_template"].sum()],
+                        "mean_barid_sum": [g["barcode_score"].sum()],
+                    }
+                )
+
             df = pd.DataFrame({})
-            chunksize=50000
-            chunknum=chunksize
-            reader = pd.read_csv(glob_files[0], chunksize=chunksize, sep="\t",usecols=[
+            chunksize = 50000
+            chunknum = chunksize
+            reader = pd.read_csv(
+                glob_files[0],
+                chunksize=chunksize,
+                sep="\t",
+                usecols=[
                     "alias",
                     "barcode_arrangement",
                     "filename_fastq",
                     "sequence_length_template",
                     "mean_qscore_template",
-                    "barcode_score"])
+                    "barcode_score",
+                ],
+            )
             for chunk in reader:
-                df = df.add(chunk.groupby(['barcode_arrangement']).apply(f).reset_index(level=1,drop=True),fill_value=0)
+                df = df.add(
+                    chunk.groupby(["barcode_arrangement"])
+                    .apply(f)
+                    .reset_index(level=1, drop=True),
+                    fill_value=0,
+                )
                 print(f"rc = {rc} chunksize = {chunknum}")
                 print(f"Reading {glob_files[0]} :: {float(chunknum)/float(rc)*100}%")
                 chunknum += chunksize
             df = df.reset_index()
-            df['Mean Read Length'] = df['read_len_sum']/df['# Reads']
-            df['Mean Mean Qscore'] = df['mean_q_sum']/df['# Reads']
-            df['Mean Barcode Identity'] = df['mean_barid_sum']/df['# Reads']
-            df = df.rename(columns={'barcode_arrangement': 'Barcode'})
-            df = df[['Barcode', '# Reads', 'Mean Read Length', 'Mean Mean Qscore', 'Mean Barcode Identity']]
-            df[["Mean Mean Qscore", "Mean Barcode Identity"]] = df[["Mean Mean Qscore", "Mean Barcode Identity"]].applymap(lambda x: flfor(x, 2))
-            df[["# Reads","Mean Read Length"]] = df[["# Reads", "Mean Read Length"]].applymap(lambda x: int(x))
+            df["Mean Read Length"] = df["read_len_sum"] / df["# Reads"]
+            df["Mean Mean Qscore"] = df["mean_q_sum"] / df["# Reads"]
+            df["Mean Barcode Identity"] = df["mean_barid_sum"] / df["# Reads"]
+            df = df.rename(columns={"barcode_arrangement": "Barcode"})
+            df = df[
+                [
+                    "Barcode",
+                    "# Reads",
+                    "Mean Read Length",
+                    "Mean Mean Qscore",
+                    "Mean Barcode Identity",
+                ]
+            ]
+            df[["Mean Mean Qscore", "Mean Barcode Identity"]] = df[
+                ["Mean Mean Qscore", "Mean Barcode Identity"]
+            ].applymap(lambda x: flfor(x, 2))
+            df[["# Reads", "Mean Read Length"]] = df[
+                ["# Reads", "Mean Read Length"]
+            ].applymap(lambda x: int(x))
         else:
             df = pd.read_html(glob_files[0])[2]
         fill_colors = conditional_color_range_perCol.discrete_background_color_bins(
@@ -554,12 +591,11 @@ def demux_table(run):
                 data=df.to_dict("records"),
                 sort_action="native",
                 style_data_conditional=fill_colors,
-                #persistence=True,
+                # persistence=True,
                 export_format="xlsx",
                 export_headers="display",
                 merge_duplicate_headers=True,
                 filter_action="native",
-
             )
         ]
     )
@@ -625,7 +661,7 @@ def irma_summary(run, ssrows, sscols, n_clicks):
             json.loads(generate_df(f"{data_root}/{run}"))["read_df"], orient="split"
         )
     except:
-        #raise dash.exceptions.PreventUpdate
+        # raise dash.exceptions.PreventUpdate
         return "... waiting for IRMA results...", html.Div()
     qc_statement = negative_qc_statement(reads, neg_controls)
     reads = (
@@ -720,7 +756,7 @@ def irma_summary(run, ssrows, sscols, n_clicks):
                 data=df.to_dict("records"),
                 sort_action="native",
                 style_data_conditional=fill_colors,
-                #persistence=True,
+                # persistence=True,
                 export_format="xlsx",
                 export_headers="display",
                 merge_duplicate_headers=True,
@@ -789,7 +825,7 @@ def returnSegData(df):
     return segments, segset, segcolor
 
 
-#@cache.memoize(timeout=cache_timeout)
+# @cache.memoize(timeout=cache_timeout)
 def pivot4heatmap(df):
     if "Coverage_Depth" in df.columns:
         cov_header = "Coverage_Depth"
@@ -807,7 +843,7 @@ def pivot4heatmap(df):
     return df4
 
 
-#@cache.memoize(timeout=cache_timeout)
+# @cache.memoize(timeout=cache_timeout)
 def createheatmap(df4, sliderMax=None):
     if "Coverage_Depth" in df4.columns:
         cov_header = "Coverage_Depth"
@@ -1031,14 +1067,36 @@ def set_run_options(gene_options):
 
 dl_fasta_clicks = 0
 
-flu_numbers = {"A":{"1":"PB2","2":"PB1","3":"PA","4":"HA","5":"NP","6":"NA","7":"MP","8":"NS"},
-                "B":{"1":"PB1","2":"PB2","3":"PA","4":"HA","5":"NP","6":"NA","7":"MP","8":"NS"}}
+flu_numbers = {
+    "A": {
+        "1": "PB2",
+        "2": "PB1",
+        "3": "PA",
+        "4": "HA",
+        "5": "NP",
+        "6": "NA",
+        "7": "MP",
+        "8": "NS",
+    },
+    "B": {
+        "1": "PB1",
+        "2": "PB2",
+        "3": "PA",
+        "4": "HA",
+        "5": "NP",
+        "6": "NA",
+        "7": "MP",
+        "8": "NS",
+    },
+}
+
 
 @app.callback(
     Output("download_fasta", "data"),
-    [Input("select_run", "value"), 
-    Input("fasta_dl_button", "n_clicks"),
-    Input("experiment_type", "value"),
+    [
+        Input("select_run", "value"),
+        Input("fasta_dl_button", "n_clicks"),
+        Input("experiment_type", "value"),
     ],
     prevent_initial_call=True,
 )
@@ -1049,25 +1107,29 @@ def download_fastas(run, n_clicks, exp_type):
     if n_clicks > dl_fasta_clicks:
         dl_fasta_clicks = n_clicks
         if "sc2" in exp_type.lower():
-            content = open(f"{data_root}/{run}/IRMA/dais_results/DAIS_ribosome_input.fasta").read()
+            content = open(
+                f"{data_root}/{run}/IRMA/dais_results/DAIS_ribosome_input.fasta"
+            ).read()
         else:
             fastas = glob(f"{data_root}/{run}/IRMA/*/*fasta")
             flu_type = {}
             for fasta in fastas:
-                sample = fasta.split('/')[-2]
-                flu_type[sample] = fasta.split('/')[-1].split('_')[0]
+                sample = fasta.split("/")[-2]
+                flu_type[sample] = fasta.split("/")[-1].split("_")[0]
             content = []
-            with open(f"{data_root}/{run}/IRMA/dais_results/DAIS_ribosome_input.fasta","r") as d:
+            with open(
+                f"{data_root}/{run}/IRMA/dais_results/DAIS_ribosome_input.fasta", "r"
+            ) as d:
                 for line in d:
                     line = line.strip()
-                    if line[0] == '>':
+                    if line[0] == ">":
                         sample = line[1:-2]
                         seg_num = line[-1]
                         line = f">{sample}_{flu_numbers[flu_type[sample]][seg_num]}"
                         content.append(line)
                     else:
                         content.append(line)
-            content = '\n'.join(content)
+            content = "\n".join(content)
         return dict(
             content=content,
             filename=f"{run}_amended_consensus.fasta",
@@ -1097,9 +1159,16 @@ CONTENT_STYLE = {
 
 sidebar = html.Div(
     [
-        html.Img(src=app.get_asset_url("irma-spy.jpg"), height=80, width=80,),
+        html.Img(
+            src=app.get_asset_url("irma-spy.jpg"),
+            height=80,
+            width=80,
+        ),
         html.H2("IRMA SPY", className="display-4"),
-        html.P(['Sequences', html.Br(), 'Prepared by', html.Br(), 'You'], className="display-7"),
+        html.P(
+            ["Sequences", html.Br(), "Prepared by", html.Br(), "You"],
+            className="display-7",
+        ),
         html.Hr(),
         dbc.Nav(
             [
@@ -1141,20 +1210,26 @@ content = html.Div(
     style=CONTENT_STYLE,
     children=[
         dbc.Row(
-            [dbc.Col(
-                dcc.Dropdown(
-                    id="select_run",
-                    options=[
-                        {"label": i, "value": i}
-                        for i in sorted(os.listdir(data_root))
-                        if "." not in i
-                    ],
-                    placeholder="Select sequencing run: ",
-                    persistence=True
+            [
+                dbc.Col(
+                    dcc.Dropdown(
+                        id="select_run",
+                        options=[
+                            {"label": i, "value": i}
+                            for i in sorted(os.listdir(data_root))
+                            if "." not in i
+                        ],
+                        placeholder="Select sequencing run: ",
+                        persistence=True,
+                    ),
+                    width=4,
                 ),
-                width=4
-            ),
-            dbc.Col(html.Button("Refresh Run Listing", id="run-refresh-button", n_clicks=0))]
+                dbc.Col(
+                    html.Button(
+                        "Refresh Run Listing", id="run-refresh-button", n_clicks=0
+                    )
+                ),
+            ]
         )
     ]
     + [html.P("Samplesheet", id="samplesheet_head", className="display-6")]
@@ -1183,7 +1258,7 @@ content = html.Div(
                 options=["Flu-ONT", "SC2-ONT", "Flu-Illumina"],
                 id="experiment_type",
                 placeholder="What kind of data is this?",
-                persistence=True
+                persistence=True,
             )
         )
     ]
@@ -1192,17 +1267,19 @@ content = html.Div(
         html.Div(id="output-container-button"),
         dcc.Interval(id="irma-progress-interval", interval=3000),
         html.Div(
-            [dbc.Row(
-                dbc.Col(
-                    daq.ToggleSwitch(
-                        id="watch-irma-progress",
-                        label="Watch IRMA progress",
-                        labelPosition="right",
-                        value=False,
+            [
+                dbc.Row(
+                    dbc.Col(
+                        daq.ToggleSwitch(
+                            id="watch-irma-progress",
+                            label="Watch IRMA progress",
+                            labelPosition="right",
+                            value=False,
+                        ),
+                        width=2,
                     )
-                    ,width=2
                 )
-            )]
+            ]
         ),
         html.Div(id="irma-progress"),
     ]
@@ -1227,8 +1304,11 @@ content = html.Div(
     + [html.Br()]
     + [html.P("IRMA Summary", id="irma_head", className="display-6")]
     + [html.Br()]
-    + [html.Div(        html.Button("Display IRMA results", id="irma-results-button", n_clicks=0),
-)]
+    + [
+        html.Div(
+            html.Button("Display IRMA results", id="irma-results-button", n_clicks=0),
+        )
+    ]
     + [dbc.Row([html.Div(id="irma_neg_statment"), html.Div(id="irma_summary")])]
     + [html.Br()]
     + [html.P("Reference Coverage", id="coverage_head", className="display-6")]
