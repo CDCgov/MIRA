@@ -1122,13 +1122,16 @@ def download_fastas(run, n_clicks, exp_type):
             ) as d:
                 for line in d:
                     line = line.strip()
-                    if line[0] == ">":
-                        sample = line[1:-2]
-                        seg_num = line[-1]
-                        line = f">{sample}_{flu_numbers[flu_type[sample]][seg_num]}"
-                        content.append(line)
-                    else:
-                        content.append(line)
+                    try:
+                        if line[0] == ">":
+                            sample = line[1:-2]
+                            seg_num = line[-1]
+                            line = f">{sample}_{flu_numbers[flu_type[sample]][seg_num]}"
+                            content.append(line)
+                        else:
+                            content.append(line)
+                    except KeyError:
+                        pass
             content = "\n".join(content)
         return dict(
             content=content,
