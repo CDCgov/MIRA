@@ -109,6 +109,8 @@ def select_sample(plotClick, run):
         Input("cov_linear_y", "value"),
         Input("irma-results-button", "n_clicks"),
     ],
+    background=True,
+    manager=bkgnd_callback_manager,
 )
 @cache.memoize(timeout=cache_timeout)
 def single_sample_fig(run, sample, cov_linear_y, n_clicks):
@@ -226,7 +228,7 @@ def generate_samplesheet(sample_number, run):
                     "Barcode #": f"barcode{i:02}",
                     "Sample ID": "",
                     "Sample Type": "Test",
-                    "Barcode Expansion Pack": "LSK-109",
+                    "Barcode Expansion Pack": "EXP-PBC096",
                 }
             )
             for i in bc_numbers
@@ -362,7 +364,9 @@ def flfor(x, digits):
     [
         Output("minor_alleles_table", "children"),
         [Input("select_run", "value"), Input("irma-results-button", "n_clicks")],
-    ]
+    ],
+    background=True,
+    manager=bkgnd_callback_manager,
 )
 def alleles_table(run, n_clicks):
     if not run:
@@ -400,7 +404,9 @@ def alleles_table(run, n_clicks):
     [
         Output("indels_table", "children"),
         [Input("select_run", "value"), Input("irma-results-button", "n_clicks")],
-    ]
+    ],
+    background=True,
+    manager=bkgnd_callback_manager,
 )
 def indels_table(run, n_clicks):
     if not run:
@@ -438,7 +444,9 @@ def indels_table(run, n_clicks):
     [
         Output("vars_table", "children"),
         [Input("select_run", "value"), Input("irma-results-button", "n_clicks")],
-    ]
+    ],
+    background=True,
+    manager=bkgnd_callback_manager,
 )
 def vars_table(run, n_clicks):
     if not run:
@@ -648,6 +656,8 @@ def negative_qc_statement(df, negative_list=""):
         Input("samplesheet_table", "columns"),
         Input("irma-results-button", "n_clicks"),
     ],
+    background=True,
+    manager=bkgnd_callback_manager,
 )
 def irma_summary(run, ssrows, sscols, n_clicks):
     if not run or not ssrows or not sscols:
@@ -1024,6 +1034,9 @@ def createSampleCoverageFig(sample, df, segments, segcolor, cov_linear_y):
 @app.callback(
     Output("coverage-heat", "figure"),
     [Input("heatmap-slider", "value"), Input("select_run", "value")],
+    background=True,
+    manager=bkgnd_callback_manager,
+
 )
 @cache.memoize(timeout=cache_timeout)
 def callback_heatmap(maximumValue, run):
@@ -1099,6 +1112,9 @@ flu_numbers = {
         Input("experiment_type", "value"),
     ],
     prevent_initial_call=True,
+    background=True,
+    manager=bkgnd_callback_manager,
+
 )
 def download_fastas(run, n_clicks, exp_type):
     if not n_clicks:
@@ -1116,22 +1132,21 @@ def download_fastas(run, n_clicks, exp_type):
             for fasta in fastas:
                 sample = fasta.split("/")[-2]
                 flu_type[sample] = fasta.split("/")[-1].split("_")[0]
+                #print(f"fasta={fasta}; sample={sample}; flu_type={flu_type[sample]}")
             content = []
             with open(
                 f"{data_root}/{run}/IRMA/dais_results/DAIS_ribosome_input.fasta", "r"
             ) as d:
                 for line in d:
                     line = line.strip()
-                    try:
-                        if line[0] == ">":
-                            sample = line[1:-2]
-                            seg_num = line[-1]
-                            line = f">{sample}_{flu_numbers[flu_type[sample]][seg_num]}"
-                            content.append(line)
-                        else:
-                            content.append(line)
-                    except KeyError:
-                        pass
+                    if line[0] == ">":
+                        sample = line[1:-2]
+                        seg_num = line[-1]
+                        line = f">{sample}_{flu_numbers[flu_type[sample]][seg_num]}"
+                        content.append(line)
+                    else:
+                        content.append(line)
+
             content = "\n".join(content)
         return dict(
             content=content,
