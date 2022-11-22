@@ -1,6 +1,6 @@
 to-do
 
-- App.py
+App.py
     [ ] Amend barcode dropdown for exmpansion packs
     [ ] subsequently change the lib file names
     [ ] Fault tolerance (retries, latency)
@@ -10,7 +10,7 @@ to-do
     [ ] export all fastas, fastas by sample, fastas by protein, aa fastas
         [ ] exclude QC failures
     [ ] lower coverage threshold
-- Snake
+Snake
     [ ] glob for samplesheet with spaces?
     [ ] SC2 WGS
         [ ] will also need to build in custom primer schema configurations
@@ -37,7 +37,7 @@ to-do
             - If barcodes are missed in SC2, it cannot be ignored due to hard primer trimming
 	        - Pros: speedier, fewer dependencies (JVM build errors avoided)
 
-- Documentation
+Documentation
     [ ] documet the wsl2 activation steps in docker desktop
     [ ] if docker run hello world errors out:
         `sudo service docker start`
