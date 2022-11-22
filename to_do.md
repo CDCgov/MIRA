@@ -1,6 +1,7 @@
 to-do
 
 App.py
+
     [ ] Amend barcode dropdown for exmpansion packs
     [ ] subsequently change the lib file names
     [ ] Fault tolerance (retries, latency)
@@ -11,6 +12,7 @@ App.py
         [ ] exclude QC failures
     [ ] lower coverage threshold
 Snake
+
     [ ] glob for samplesheet with spaces?
     [ ] SC2 WGS
         [ ] will also need to build in custom primer schema configurations
@@ -38,6 +40,7 @@ Snake
 	        - Pros: speedier, fewer dependencies (JVM build errors avoided)
 
 Documentation
+
     [ ] documet the wsl2 activation steps in docker desktop
     [ ] if docker run hello world errors out:
         `sudo service docker start`
