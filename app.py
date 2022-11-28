@@ -160,7 +160,7 @@ def generate_df(run_path):
         cov_header = "Coverage Depth"
     sliderMax = df4[cov_header].max()
     # allFig = createAllCoverageFig(df, ",".join(segments), segcolor)
-    irma_read_fig = create_irma_read_fig(read_df)
+    # irma_read_fig = create_irma_read_fig(read_df)
     dais_vars = dais2dash.compute_dais_variants(results_path=run_path + "/dais_results")
     return json.dumps(
         {
@@ -177,7 +177,7 @@ def generate_df(run_path):
             "segset": ",".join(segset),
             "segcolor": segcolor,
             # "allFig": allFig.to_json(),
-            "irma_reads_fig": irma_read_fig.to_json(),
+            # "irma_reads_fig": irma_read_fig.to_json(),
         }
     )
 
@@ -777,62 +777,62 @@ def irma_summary(run, ssrows, sscols, n_clicks):
     return qc_statement, table
 
 
-@cache.memoize(timeout=cache_timeout)
-def create_irma_read_fig(df):
-    columns = 12
-    rows = 24
-    s = '{"type":"domain"} ' * columns
-    specs = []
-    for i in range(0, rows):
-        specs.append([json.loads(a) for a in s.split()])
-    fig = make_subplots(rows, columns, specs=specs)
-    col_n, row_n = (
-        cycle([i for i in range(1, columns + 1)]),
-        cycle([i for i in range(1, rows + 1)]),
-    )
-    counter = 0
-    annotations = []
-    for sample in set(list(df["Sample"])):
-        counter += 1
-        if counter % 4 == 1:
-            r = next(row_n)
-        stage_counter = 0
-        for stage in [[2], [3], [4, 5]]:
-            c = next(col_n)
-            stage_counter += 1
-            d2 = df[(df["Stage"].isin(stage)) & (df["Sample"] == sample)]
-            fig.add_trace(
-                go.Pie(
-                    values=d2["Reads"],
-                    labels=d2["Record"],
-                    name=sample,
-                    meta=[sample],
-                    hovertemplate="%{meta[0]} <br> %{label} </br> <br> %{percent} </br> %{value} reads <extra></extra> ",
-                ),
-                row=r,
-                col=c,
-            )
-    fig.update_layout(
-        margin=dict(t=0, b=0, l=0, r=0),
-        height=3200,
-        hoverlabel=dict(bgcolor="white", font_size=16, namelength=-1),
-    )
-    fig.update_traces(showlegend=False, textinfo="none")
-    return fig
+# @cache.memoize(timeout=cache_timeout)
+# def create_irma_read_fig(df):
+#    columns = 12
+#    rows = 24
+#    s = '{"type":"domain"} ' * columns
+#    specs = []
+#    for i in range(0, rows):
+#        specs.append([json.loads(a) for a in s.split()])
+#    fig = make_subplots(rows, columns, specs=specs)
+#    col_n, row_n = (
+#        cycle([i for i in range(1, columns + 1)]),
+#        cycle([i for i in range(1, rows + 1)]),
+#    )
+#    counter = 0
+#    annotations = []
+#    for sample in set(list(df["Sample"])):
+#        counter += 1
+#        if counter % 4 == 1:
+#            r = next(row_n)
+#        stage_counter = 0
+#        for stage in [[2], [3], [4, 5]]:
+#            c = next(col_n)
+#            stage_counter += 1
+#            d2 = df[(df["Stage"].isin(stage)) & (df["Sample"] == sample)]
+#            fig.add_trace(
+#                go.Pie(
+#                    values=d2["Reads"],
+#                    labels=d2["Record"],
+#                    name=sample,
+#                    meta=[sample],
+#                    hovertemplate="%{meta[0]} <br> %{label} </br> <br> %{percent} </br> %{value} reads <extra></extra> ",
+#                ),
+#                row=r,
+#                col=c,
+#            )
+#    fig.update_layout(
+#        margin=dict(t=0, b=0, l=0, r=0),
+#        height=3200,
+#        hoverlabel=dict(bgcolor="white", font_size=16, namelength=-1),
+#    )
+#    fig.update_traces(showlegend=False, textinfo="none")
+#    return fig
 
 
-@cache.memoize(timeout=cache_timeout)
-def returnSegData(df):
-    segments = df["Reference_Name"].unique()
-    try:
-        segset = [i.split("_")[1] for i in segments]
-    except IndexError:
-        segset = segments
-    segset = list(set(segset))
-    segcolor = {}
-    for i in range(0, len(segset)):
-        segcolor[segset[i]] = px.colors.qualitative.G10[i]
-    return segments, segset, segcolor
+# @cache.memoize(timeout=cache_timeout)
+# def returnSegData(df):
+#    segments = df["Reference_Name"].unique()
+#    try:
+#        segset = [i.split("_")[1] for i in segments]
+#    except IndexError:
+#        segset = segments
+#    segset = list(set(segset))
+#    segcolor = {}
+#    for i in range(0, len(segset)):
+#        segcolor[segset[i]] = px.colors.qualitative.G10[i]
+#    return segments, segset, segcolor
 
 
 # @cache.memoize(timeout=cache_timeout)
@@ -1036,7 +1036,6 @@ def createSampleCoverageFig(sample, df, segments, segcolor, cov_linear_y):
     [Input("heatmap-slider", "value"), Input("select_run", "value")],
     background=True,
     manager=bkgnd_callback_manager,
-
 )
 @cache.memoize(timeout=cache_timeout)
 def callback_heatmap(maximumValue, run):
@@ -1114,7 +1113,6 @@ flu_numbers = {
     prevent_initial_call=True,
     background=True,
     manager=bkgnd_callback_manager,
-
 )
 def download_fastas(run, n_clicks, exp_type):
     if not n_clicks:
@@ -1132,7 +1130,7 @@ def download_fastas(run, n_clicks, exp_type):
             for fasta in fastas:
                 sample = fasta.split("/")[-2]
                 flu_type[sample] = fasta.split("/")[-1].split("_")[0]
-                #print(f"fasta={fasta}; sample={sample}; flu_type={flu_type[sample]}")
+                # print(f"fasta={fasta}; sample={sample}; flu_type={flu_type[sample]}")
             content = []
             with open(
                 f"{data_root}/{run}/IRMA/dais_results/DAIS_ribosome_input.fasta", "r"
