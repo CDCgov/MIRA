@@ -41,14 +41,14 @@ Snake
 
 Documentation
 
-    [ ] documet the wsl2 activation steps in docker desktop
-    [ ] if docker run hello world errors out:
+    [X] documet the wsl2 activation steps in docker desktop
+    [X] if docker run hello world errors out:
         `sudo service docker start`
-    [ ] Ensure to open Ubuntu-18.04, not vanilla Ubuntu for computers that have both
+    [X] Ensure to open Ubuntu-18.04, not vanilla Ubuntu for computers that have both
     [ ] docker pull not working? sudo
-    [ ] containers not showing in docker desktop? resources  --> WSL integration 
+    [X] containers not showing in docker desktop? resources  --> WSL integration 
     [ ] Docker user groups
     [ ] Turn windows users on/off
     [ ] BIOS
-    [ ] sudo chmod -755 /run/docker.sock
+    [X] sudo chmod -755 /run/docker.sock
 
