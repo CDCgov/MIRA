@@ -23,9 +23,9 @@ Snake
     [ ] Subsampling
         [ ] Assess runtime vs average coverage for various subsampling thresholds for
 	        [ ] WGS Illumina Flu
-	        [ ] WSG Illumina SC2
-	        [ ] Spike Nanopore SC2
-	        [ ] WGS Nanopore Flu
+	        [ ] WGS Illumina SC2
+	        [X] Spike Nanopore SC2
+	        [X] WGS Nanopore Flu
 	    
         Already tangentially on the docket for SS+me (https://git.biotech.cdc.gov/vfn4/irma/-/issues/23)
 
@@ -45,10 +45,10 @@ Documentation
     [X] if docker run hello world errors out:
         `sudo service docker start`
     [X] Ensure to open Ubuntu-18.04, not vanilla Ubuntu for computers that have both
-    [ ] docker pull not working? sudo
+    [X] docker pull not working? sudo
     [X] containers not showing in docker desktop? resources  --> WSL integration 
-    [ ] Docker user groups
-    [ ] Turn windows users on/off
-    [ ] BIOS
+    [X] Docker user groups
+    [X] Turn windows users on/off
+    [X] BIOS
     [X] sudo chmod -755 /run/docker.sock
 
