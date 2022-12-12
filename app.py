@@ -3,12 +3,12 @@
 # Run this app with `python app.py` and
 # visit http://127.0.0.1:8050/ in your web browser.
 
-from cProfile import run
-from symbol import comp_for
+#from cProfile import run
+#from symbol import comp_for
 import dash
-from dash import dcc, dash_table, html, DiskcacheManager, ctx
+from dash import dcc, dash_table, html, DiskcacheManager #, ctx
 import dash_bootstrap_components as dbc
-import dash_bio as dbio
+#import dash_bio as dbio
 from dash.dependencies import Input, Output, State
 import dash_daq as daq
 from plotly.subplots import make_subplots
@@ -16,7 +16,7 @@ import plotly.graph_objects as go
 import plotly.express as px
 import plotly.io as pio
 import pandas as pd
-from math import ceil, log10, sqrt
+from math import ceil #, log10, sqrt
 from itertools import cycle
 from sys import path, argv
 from os.path import dirname, realpath, isdir, isfile
@@ -25,12 +25,12 @@ import yaml
 import json
 from glob import glob
 from numpy import arange
-import base64
-import io
+#import base64
+#import io
 import subprocess
 from flask_caching import Cache
-import time
-import diskcache
+#import time
+import diskcache # type: ignore
 
 path.append(dirname(realpath(__file__)) + "/scripts/")
 import irma2dash  # type: ignore
@@ -82,9 +82,7 @@ def select_sample(plotClick, run):
     if not run:
         raise dash.exceptions.PreventUpdate
     try:
-        df = pd.read_json(
-            json.loads(generate_df(f"{data_root}/{run}"))["df4"], orient="split"
-        )
+        df = pd.read_json(f"{data_root}/{run}/IRMA/reads.json", orient="split")
     except:
         raise dash.exceptions.PreventUpdate
     samples = df["Sample"].unique()
@@ -119,17 +117,12 @@ def single_sample_fig(run, sample, cov_linear_y, n_clicks):
         # raise dash.exceptions.PreventUpdate
     if not n_clicks:
         return html.Div()
-    df = pd.read_json(
-        json.loads(generate_df(f"{data_root}/{run}"))["read_df"], orient="split"
-    )
-    df = df[df["Sample"] == sample]
-    sankeyfig = irma2dash.dash_reads_to_sankey(df)
-    df = pd.read_json(
-        json.loads(generate_df(f"{data_root}/{run}"))["df"], orient="split"
-    )
-    segments = json.loads(generate_df(f"{data_root}/{run}"))["segments"]
-    segcolor = json.loads(generate_df(f"{data_root}/{run}"))["segcolor"]
-    coveragefig = createSampleCoverageFig(sample, df, segments, segcolor, cov_linear_y)
+    if cov_linear_y:
+        y_axis_type = 'linear'
+    else:
+        y_axis_type = 'log'
+    sankeyfig = pio.read_json(f"{data_root}/{run}/IRMA/readsfig_{sample}.json")
+    coveragefig = pio.read_json(f"{data_root}/{run}/IRMA/coveragefig_{sample}_{y_axis_type}.json")
     content = dbc.Row(
         [
             dbc.Col(dcc.Graph(figure=sankeyfig), width=4, align="start"),
@@ -137,49 +130,6 @@ def single_sample_fig(run, sample, cov_linear_y, n_clicks):
         ]
     )
     return content
-
-
-@cache.memoize(timeout=cache_timeout)
-def generate_df(run_path):
-    if not run_path:
-        raise dash.exceptions.PreventUpdate
-    run_path = os.path.join(run_path, "IRMA")
-    coverage_df = irma2dash.dash_irma_coverage_df(
-        run_path
-    )  # argv[2]) #loadData('./test.csv')
-    read_df = irma2dash.dash_irma_reads_df(run_path)
-    alleles_df = irma2dash.dash_irma_alleles_df(run_path)
-    indels_df = irma2dash.dash_irma_indels_df(run_path)
-    ref_lens = irma2dash.reference_lens(run_path)
-    segments, segset, segcolor = returnSegData(coverage_df)
-    df4 = pivot4heatmap(coverage_df)
-    df4.to_csv(run_path + "/mean_coverages.tsv", sep="\t", index=False)
-    if "Coverage_Depth" in df4.columns:
-        cov_header = "Coverage_Depth"
-    else:
-        cov_header = "Coverage Depth"
-    sliderMax = df4[cov_header].max()
-    # allFig = createAllCoverageFig(df, ",".join(segments), segcolor)
-    irma_read_fig = create_irma_read_fig(read_df)
-    dais_vars = dais2dash.compute_dais_variants(results_path=run_path + "/dais_results")
-    return json.dumps(
-        {
-            "df": coverage_df.to_json(orient="split"),
-            "df4": df4.to_json(orient="split"),
-            "read_df": read_df.to_json(orient="split"),
-            "indels_df": indels_df.to_json(orient="split"),
-            "alleles_df": alleles_df.to_json(orient="split"),
-            "dais_vars": dais_vars.to_json(orient="split"),
-            "ref_lens": ref_lens,
-            "cov_header": cov_header,
-            "sliderMax": sliderMax,
-            "segments": ",".join(segments),
-            "segset": ",".join(segset),
-            "segcolor": segcolor,
-            # "allFig": allFig.to_json(),
-            "irma_reads_fig": irma_read_fig.to_json(),
-        }
-    )
 
 
 @app.callback(
@@ -374,9 +324,7 @@ def alleles_table(run, n_clicks):
     if not n_clicks:
         dash.exceptions.PreventUpdate
     try:
-        df = pd.read_json(
-            json.loads(generate_df(f"{data_root}/{run}"))["alleles_df"], orient="split"
-        )
+        df = pd.read_json(f"{data_root}/{run}/IRMA/alleles.json", orient="split")
     except:
         raise dash.exceptions.PreventUpdate
         # return blank_fig()
@@ -414,9 +362,7 @@ def indels_table(run, n_clicks):
     if not n_clicks:
         dash.exceptions.PreventUpdate
     try:
-        df = pd.read_json(
-            json.loads(generate_df(f"{data_root}/{run}"))["indels_df"], orient="split"
-        )
+        df = pd.read_json(f"{data_root}/{run}/IRMA/indels.json", orient="split")
     except:
         raise dash.exceptions.PreventUpdate
         # return blank_fig()
@@ -454,9 +400,7 @@ def vars_table(run, n_clicks):
     if not n_clicks:
         dash.exceptions.PreventUpdate
     try:
-        df = pd.read_json(
-            json.loads(generate_df(f"{data_root}/{run}"))["dais_vars"], orient="split"
-        )
+        df = pd.read_json(f"{data_root}/{run}/IRMA/dais_vars.json", orient="split")
     except:
         raise dash.exceptions.PreventUpdate
         # return blank_fig()
@@ -667,9 +611,7 @@ def irma_summary(run, ssrows, sscols, n_clicks):
     if not n_clicks:
         raise dash.exceptions.PreventUpdate
     try:
-        reads = pd.read_json(
-            json.loads(generate_df(f"{data_root}/{run}"))["read_df"], orient="split"
-        )
+        reads = pd.read_json(f"{data_root}/{run}/IRMA/reads.json", orient="split")
     except:
         # raise dash.exceptions.PreventUpdate
         return "... waiting for IRMA results...", html.Div()
@@ -696,9 +638,7 @@ def irma_summary(run, ssrows, sscols, n_clicks):
         .applymap(lambda x: f"{x:,d}")
     )
     reads = reads[["Sample", "Total Reads", "Pass QC", "Reads Mapped", "Reference"]]
-    indels = pd.read_json(
-        json.loads(generate_df(f"{data_root}/{run}"))["indels_df"], orient="split"
-    )
+    indels = pd.read_json(f"{data_root}/{run}/IRMA/indels.json", orient="split")
     indels = (
         indels[indels["Frequency"] >= 0.05]
         .groupby(["Sample", "Reference"])
@@ -706,9 +646,7 @@ def irma_summary(run, ssrows, sscols, n_clicks):
         .rename(columns={"Sample": "Count of Minor Indels >= 0.05"})
         .reset_index()
     )
-    alleles = pd.read_json(
-        json.loads(generate_df(f"{data_root}/{run}"))["alleles_df"], orient="split"
-    )
+    alleles = pd.read_json(f"{data_root}/{run}/IRMA/alleles.json", orient="split")
     alleles = (
         alleles[alleles["Minority Frequency"] >= 0.05]
         .groupby(["Sample", "Reference"])
@@ -716,11 +654,9 @@ def irma_summary(run, ssrows, sscols, n_clicks):
         .rename(columns={"Sample": "Count of Minor SNVs >= 0.05"})
         .reset_index()
     )
-    coverage = pd.read_json(
-        json.loads(generate_df(f"{data_root}/{run}"))["df"], orient="split"
-    )
+    coverage = pd.read_json(f"{data_root}/{run}/IRMA/coverage.json", orient="split")
     # Compute the % of reference mapped from IRMAs coverage table and lengths of /intermediate/0-*/0*.ref seq lengths
-    ref_lens = json.loads(generate_df(f"{data_root}/{run}"))["ref_lens"]
+    ref_lens = json.load(f"{data_root}/{run}/IRMA/ref_data.json")["ref_lens"]
     cov_ref_lens = (
         coverage[~coverage["Consensus"].isin(["-", "N", "a", "c", "t", "g"])]
         .groupby(["Sample", "Reference_Name"])
