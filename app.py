@@ -3,12 +3,13 @@
 # Run this app with `python app.py` and
 # visit http://127.0.0.1:8050/ in your web browser.
 
-#from cProfile import run
-#from symbol import comp_for
+# from cProfile import run
+# from symbol import comp_for
 import dash
-from dash import dcc, dash_table, html, DiskcacheManager #, ctx
+from dash import dcc, dash_table, html, DiskcacheManager  # , ctx
 import dash_bootstrap_components as dbc
-#import dash_bio as dbio
+
+# import dash_bio as dbio
 from dash.dependencies import Input, Output, State
 import dash_daq as daq
 from plotly.subplots import make_subplots
@@ -16,7 +17,7 @@ import plotly.graph_objects as go
 import plotly.express as px
 import plotly.io as pio
 import pandas as pd
-from math import ceil #, log10, sqrt
+from math import ceil  # , log10, sqrt
 from itertools import cycle
 from sys import path, argv
 from os.path import dirname, realpath, isdir, isfile
@@ -25,12 +26,14 @@ import yaml
 import json
 from glob import glob
 from numpy import arange
-#import base64
-#import io
+
+# import base64
+# import io
 import subprocess
 from flask_caching import Cache
-#import time
-import diskcache # type: ignore
+
+# import time
+import diskcache  # type: ignore
 
 path.append(dirname(realpath(__file__)) + "/scripts/")
 import irma2dash  # type: ignore
@@ -117,12 +120,14 @@ def single_sample_fig(run, sample, cov_linear_y, n_clicks):
         # raise dash.exceptions.PreventUpdate
     if not n_clicks:
         return html.Div()
-    if cov_linear_y:
-        y_axis_type = 'linear'
+    if not cov_linear_y:
+        y_axis_type = "linear"
     else:
-        y_axis_type = 'log'
+        y_axis_type = "log"
     sankeyfig = pio.read_json(f"{data_root}/{run}/IRMA/readsfig_{sample}.json")
-    coveragefig = pio.read_json(f"{data_root}/{run}/IRMA/coveragefig_{sample}_{y_axis_type}.json")
+    coveragefig = pio.read_json(
+        f"{data_root}/{run}/IRMA/coveragefig_{sample}_{y_axis_type}.json"
+    )
     content = dbc.Row(
         [
             dbc.Col(dcc.Graph(figure=sankeyfig), width=4, align="start"),
@@ -559,141 +564,50 @@ def demux_table(run):
     fig.update_traces(showlegend=False, textinfo="none")
     return table, fig
 
-
-def negative_qc_statement(df, negative_list=""):
-    if negative_list == "":
-        sample_list = list(df["Sample"].unique())
-        negative_list = [i for i in sample_list if "PCR" in i]
-    df = df.pivot("Sample", columns="Record", values="Reads")
-    if "3-altmatch" in df.columns:
-        df["Percent Mapping"] = (df["3-match"] + df["3-altmatch"]) / df["1-initial"]
-    else:
-        df["Percent Mapping"] = df["3-match"] / df["1-initial"]
+def negative_qc_statement(run):
+    with open(f"{data_root}/{run}/IRMA/qc_statement.json", "r") as d:
+        qc_statement_dic = json.load(d)
+        print(qc_statement_dic)
     statement = [html.Br()]
-    for s in negative_list:
-        reads_mapping = df.loc[s, "Percent Mapping"] * 100
-        if reads_mapping >= 0.01:
-            statement.extend(
-                [
-                    f"You negative sample ",
-                    html.Strong(f"{s} FAILS QC ", className="display-7"),
-                    f"with {reads_mapping:.2f}% reads mapping to reference.",
-                    html.Br(),
-                ]
-            )
-        else:
-            statement.extend(
-                [
-                    f"You negative sample {s} passes QC with {reads_mapping:.2f}% reads mapping to reference.",
-                    html.Br(),
-                ]
-            )
+    for q in ['FAILS QC', 'passes QC']:
+        for s,p in qc_statement_dic[q].items():
+            if q == 'FAILS QC':
+                statement.extend(
+                    [
+                        f"You negative sample ",
+                        html.Strong(f"{s} FAILS QC ", className="display-7"),
+                        f"with {p}% reads mapping to reference.",
+                        html.Br(),
+                    ]
+                )
+            else:
+                statement.extend(
+                    [
+                        f"You negative sample {s} passes QC with {p}% reads mapping to reference.",
+                        html.Br(),
+                    ]
+                )
     statement.extend([html.Br()])
     return html.P(statement)
-
 
 @app.callback(
     [Output("irma_neg_statment", "children"), Output("irma_summary", "children")],
     [
         Input("select_run", "value"),
-        Input("samplesheet_table", "data"),
-        Input("samplesheet_table", "columns"),
-        Input("irma-results-button", "n_clicks"),
+        Input("irma-results-button", "n_clicks")
     ],
     background=True,
     manager=bkgnd_callback_manager,
 )
-def irma_summary(run, ssrows, sscols, n_clicks):
-    if not run or not ssrows or not sscols:
-        raise dash.exceptions.PreventUpdate
-    ss_df = pd.DataFrame(ssrows, columns=[c["name"] for c in sscols])
-    neg_controls = list(ss_df[ss_df["Sample Type"] == "- Control"]["Sample ID"])
+def irma_summary(run, n_clicks):
     if not n_clicks:
         raise dash.exceptions.PreventUpdate
     try:
-        reads = pd.read_json(f"{data_root}/{run}/IRMA/reads.json", orient="split")
-    except:
+        qc_statement = negative_qc_statement(run)
+        df = pd.read_json(f"{data_root}/{run}/IRMA/irma_summary.json", orient="split")
+    except Exception as E:
         # raise dash.exceptions.PreventUpdate
-        return "... waiting for IRMA results...", html.Div()
-    qc_statement = negative_qc_statement(reads, neg_controls)
-    reads = (
-        reads[reads["Record"].str.contains("^1|^2-p|^4")]
-        .pivot("Sample", columns="Record", values="Reads")
-        .reset_index()
-        .melt(id_vars=["Sample", "1-initial", "2-passQC"])
-        .rename(
-            columns={
-                "1-initial": "Total Reads",
-                "2-passQC": "Pass QC",
-                "Record": "Reference",
-                "value": "Reads Mapped",
-            }
-        )
-    )
-    reads = reads[~reads["Reads Mapped"].isnull()]
-    reads["Reference"] = reads["Reference"].map(lambda x: x[2:])
-    reads[["Total Reads", "Pass QC", "Reads Mapped"]] = (
-        reads[["Total Reads", "Pass QC", "Reads Mapped"]]
-        .astype("int")
-        .applymap(lambda x: f"{x:,d}")
-    )
-    reads = reads[["Sample", "Total Reads", "Pass QC", "Reads Mapped", "Reference"]]
-    indels = pd.read_json(f"{data_root}/{run}/IRMA/indels.json", orient="split")
-    indels = (
-        indels[indels["Frequency"] >= 0.05]
-        .groupby(["Sample", "Reference"])
-        .agg({"Sample": "count"})
-        .rename(columns={"Sample": "Count of Minor Indels >= 0.05"})
-        .reset_index()
-    )
-    alleles = pd.read_json(f"{data_root}/{run}/IRMA/alleles.json", orient="split")
-    alleles = (
-        alleles[alleles["Minority Frequency"] >= 0.05]
-        .groupby(["Sample", "Reference"])
-        .agg({"Sample": "count"})
-        .rename(columns={"Sample": "Count of Minor SNVs >= 0.05"})
-        .reset_index()
-    )
-    coverage = pd.read_json(f"{data_root}/{run}/IRMA/coverage.json", orient="split")
-    # Compute the % of reference mapped from IRMAs coverage table and lengths of /intermediate/0-*/0*.ref seq lengths
-    ref_lens = json.load(f"{data_root}/{run}/IRMA/ref_data.json")["ref_lens"]
-    cov_ref_lens = (
-        coverage[~coverage["Consensus"].isin(["-", "N", "a", "c", "t", "g"])]
-        .groupby(["Sample", "Reference_Name"])
-        .agg({"Sample": "count"})
-        .rename(columns={"Sample": "maplen"})
-        .reset_index()
-    )
-
-    def perc_len(maplen, ref):
-        return maplen / ref_lens[ref] * 100
-
-    cov_ref_lens["% Reference Covered"] = cov_ref_lens.apply(
-        lambda x: perc_len(x["maplen"], x["Reference_Name"]), axis=1
-    )
-    cov_ref_lens["% Reference Covered"] = cov_ref_lens["% Reference Covered"].map(
-        lambda x: f"{x:.2f}"
-    )
-    cov_ref_lens = cov_ref_lens[
-        ["Sample", "Reference_Name", "% Reference Covered"]
-    ].rename(columns={"Reference_Name": "Reference"})
-    coverage = (
-        coverage.groupby(["Sample", "Reference_Name"])
-        .agg({"Coverage Depth": "mean"})
-        .reset_index()
-        .rename(
-            columns={"Coverage Depth": "Mean Coverage", "Reference_Name": "Reference"}
-        )
-    )
-    coverage[["Mean Coverage"]] = (
-        coverage[["Mean Coverage"]].astype("int").applymap(lambda x: f"{x:,d}")
-    )
-    df = (
-        reads.merge(cov_ref_lens, "left")
-        .merge(coverage, "left")
-        .merge(alleles, "left")
-        .merge(indels, "left")
-    )
+        return f"{E}... waiting for IRMA results...", html.Div()
     fill_colors = conditional_color_range_perCol.discrete_background_color_bins(df, 8)
     table = html.Div(
         [
@@ -885,7 +799,7 @@ def createSampleCoverageFig(sample, df, segments, segcolor, cov_linear_y):
             return 0.000000000001
         return x
 
-    if not cov_linear_y:
+    if cov_linear_y:
         df[cov_header] = df[cov_header].apply(lambda x: zerolift(x))
     df2 = df[df["Sample"] == sample]
     fig = go.Figure()
@@ -972,18 +886,18 @@ def createSampleCoverageFig(sample, df, segments, segcolor, cov_linear_y):
     [Input("heatmap-slider", "value"), Input("select_run", "value")],
     background=True,
     manager=bkgnd_callback_manager,
-
 )
 @cache.memoize(timeout=cache_timeout)
 def callback_heatmap(maximumValue, run):
     if not run:
         raise dash.exceptions.PreventUpdate
-    try:
-        df = pd.read_json(
-            json.loads(generate_df(f"{data_root}/{run}"))["df4"], orient="split"
-        )
-    except:
-        raise dash.exceptions.PreventUpdate
+    # try:
+    return pio.read_json(f"{data_root}/{run}/IRMA/heatmap.json")
+    # df = pd.read_json(
+    #    json.loads(generate_df(f"{data_root}/{run}"))["df4"], orient="split"
+    # )
+    # except:
+    #    raise dash.exceptions.PreventUpdate
     # df = pd.read_json(json.loads(data)['df4'], orient='split')
     return createheatmap(df, maximumValue)
 
@@ -1050,7 +964,6 @@ flu_numbers = {
     prevent_initial_call=True,
     background=True,
     manager=bkgnd_callback_manager,
-
 )
 def download_fastas(run, n_clicks, exp_type):
     if not n_clicks:
@@ -1068,7 +981,7 @@ def download_fastas(run, n_clicks, exp_type):
             for fasta in fastas:
                 sample = fasta.split("/")[-2]
                 flu_type[sample] = fasta.split("/")[-1].split("_")[0]
-                #print(f"fasta={fasta}; sample={sample}; flu_type={flu_type[sample]}")
+                # print(f"fasta={fasta}; sample={sample}; flu_type={flu_type[sample]}")
             content = []
             with open(
                 f"{data_root}/{run}/IRMA/dais_results/DAIS_ribosome_input.fasta", "r"
