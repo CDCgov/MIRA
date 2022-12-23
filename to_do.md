@@ -4,7 +4,6 @@ App.py
 
     [ ] Amend barcode dropdown for exmpansion packs
     [ ] subsequently change the lib file names
-    [ ] Fault tolerance (retries, latency)
     [ ] Samplesheet 100% backend, no user export, no "-" control
     [ ] Require unique sample names
     [ ] Rename flu segments
@@ -13,13 +12,16 @@ App.py
     [ ] lower coverage threshold
 Snake
 
-    [ ] glob for samplesheet with spaces?
+    [X] Fault tolerance (retries, latency)
+        - Wait up to 10 minutes for latency and retry jobs 10 times.[ ] glob for samplesheet with spaces?
     [ ] SC2 WGS
         [ ] will also need to build in custom primer schema configurations
     [ ] Footprint reduction
-    [ ] Pandas operations to SnakeMake
-	    [ ] eliminate caching?
-	    [ ] button precedence
+    [X] Pandas operations to SnakeMake
+	    [X] eliminate caching?
+            - simplified caching
+	    [X] button precedence
+            - simplified irma refresh button action
     [ ] Subsampling
         [ ] Assess runtime vs average coverage for various subsampling thresholds for
 	        [ ] WGS Illumina Flu
