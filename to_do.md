@@ -2,21 +2,23 @@ to-do
 
 App.py
 
-    [ ] Amend barcode dropdown for exmpansion packs
+    [ ] Amend barcode dropdown for exmpansion packs --default exp-109...
     [ ] subsequently change the lib file names
     [ ] Samplesheet 100% backend, no user export, no "-" control
     [ ] Require unique sample names
     [ ] Rename flu segments
     [ ] export all fastas, fastas by sample, fastas by protein, aa fastas
         [ ] exclude QC failures
-    [ ] lower coverage threshold
+    [ ] lower coverage threshold -- definitely in the line drawn on cov plot; double check irma config
 Snake
 
     [X] Fault tolerance (retries, latency)
-        - Wait up to 10 minutes for latency and retry jobs 10 times.[ ] glob for samplesheet with spaces?
-    [ ] SC2 WGS
+        [x] Wait up to 10 minutes for latency and retry jobs 10 times.
+        [ ] glob for samplesheet with spaces?
+        [ ] unlock folder when launching snakemake -- also kill any running snakemake process first?
+    [ ] SC2 WGS -- not needed for Ghana
         [ ] will also need to build in custom primer schema configurations
-    [ ] Footprint reduction
+    [ ] Footprint reduction -- make a separate button? add temp() to snakemake? temp isnt universal solution, ie dont delete IRMA_sample.fin
     [X] Pandas operations to SnakeMake
 	    [X] eliminate caching?
             - simplified caching
@@ -26,12 +28,12 @@ Snake
         [ ] Assess runtime vs average coverage for various subsampling thresholds for
 	        [ ] WGS Illumina Flu
 	        [ ] WSG Illumina SC2
-	        [ ] Spike Nanopore SC2
-	        [ ] WGS Nanopore Flu
+	        [ ] Spike Nanopore SC2 -- 5k reads total as minimum... ~10k is probably safer 
+	        [ ] WGS Nanopore Flu -- Should be way less than 1M... 
 	    
         Already tangentially on the docket for SS+me (https://git.biotech.cdc.gov/vfn4/irma/-/issues/23)
 
-    [ ] removal of bbduk for Nanopore
+    [ ] removal of bbduk for Nanopore -- Not a viable option yet. We need to really understand other options and do proper experiments.
 	    [ ] Assess efficiency of minKnow's built-in barcoding removal across sequencing instruments (i.e. does increasing hamming distance cause failed removal or simply failed assignment)
 		    [ ] GridION
 		    [ ] minION
@@ -45,7 +47,7 @@ Documentation
 
     [ ] documet the wsl2 activation steps in docker desktop
     [ ] if docker run hello world errors out:
-        `sudo service docker start`
+        `sudo service docker start` or `sudo dockerd`
     [ ] Ensure to open Ubuntu-18.04, not vanilla Ubuntu for computers that have both
     [ ] docker pull not working? sudo
     [ ] containers not showing in docker desktop? resources  --> WSL integration 
