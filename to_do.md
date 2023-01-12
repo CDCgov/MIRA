@@ -44,6 +44,7 @@ Snake
 	        - Pros: speedier, fewer dependencies (JVM build errors avoided)
 
 Documentation
+
     [X] documet the wsl2 activation steps in docker desktop
     [X] if docker run hello world errors out:
         `sudo service docker start`
