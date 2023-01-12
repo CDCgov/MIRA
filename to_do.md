@@ -55,5 +55,5 @@ Documentation
     [X] Turn windows users on/off
     [X] BIOS
     [X] sudo chmod -755 /run/docker.sock
-
+    [ ] explain how WSL and Docker eat up memory and to turn off and on as needed https://www.minitool.com/news/vmmem-high-memory.html 
 
