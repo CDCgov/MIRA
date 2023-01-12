@@ -27,10 +27,10 @@ Snake
     [ ] Subsampling
         [ ] Assess runtime vs average coverage for various subsampling thresholds for
 	        [ ] WGS Illumina Flu
-	        [ ] WSG Illumina SC2
-	        [ ] Spike Nanopore SC2 -- 5k reads total as minimum... ~10k is probably safer 
-	        [ ] WGS Nanopore Flu -- Should be way less than 1M... 
-	    
+	        [ ] WGS Illumina SC2
+	        [X] Spike Nanopore SC2
+	        [X] WGS Nanopore Flu
+
         Already tangentially on the docket for SS+me (https://git.biotech.cdc.gov/vfn4/irma/-/issues/23)
 
     [ ] removal of bbduk for Nanopore -- Not a viable option yet. We need to really understand other options and do proper experiments.
@@ -44,16 +44,15 @@ Snake
 	        - Pros: speedier, fewer dependencies (JVM build errors avoided)
 
 Documentation
+    [X] documet the wsl2 activation steps in docker desktop
+    [X] if docker run hello world errors out:
+        `sudo service docker start`
+    [X] Ensure to open Ubuntu-18.04, not vanilla Ubuntu for computers that have both
+    [X] docker pull not working? sudo
+    [X] containers not showing in docker desktop? resources  --> WSL integration 
+    [X] Docker user groups
+    [X] Turn windows users on/off
+    [X] BIOS
+    [X] sudo chmod -755 /run/docker.sock
 
-    [ ] documet the wsl2 activation steps in docker desktop
-    [ ] if docker run hello world errors out:
-        `sudo service docker start` or `sudo dockerd`
-    [ ] Ensure to open Ubuntu-18.04, not vanilla Ubuntu for computers that have both
-    [ ] docker pull not working? sudo
-    [ ] containers not showing in docker desktop? resources  --> WSL integration 
-    [ ] Docker user groups
-    [ ] Turn windows users on/off
-    [ ] BIOS
-    [ ] sudo chmod -755 /run/docker.sock
-    [ ] explain how WSL and Docker eat up memory and to turn off and on as needed https://www.minitool.com/news/vmmem-high-memory.html 
 
