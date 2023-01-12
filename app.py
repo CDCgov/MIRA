@@ -43,7 +43,7 @@ data_root = CONFIG["DATA_ROOT"]
 DEBUG = CONFIG["DEBUG"]
 
 app = dash.Dash(external_stylesheets=[dbc.themes.FLATLY])
-app.title = "IRMA SPY"
+app.title = "iSpy"
 app.config["suppress_callback_exceptions"] = True
 
 # Caching
@@ -585,10 +585,10 @@ sidebar = html.Div(
             height=80,
             width=80,
         ),
-        html.H2("IRMA SPY", className="display-4"),
+        html.H2("iSpy", className="display-4"),
         html.P(
-            ["Sequences", html.Br(), "Prepared by", html.Br(), "You"],
-            className="display-7",
+            ["Influenza genome and SARS-CoV-2 spike sequence assembly"],
+            className="display-8",
         ),
         html.Hr(),
         dbc.Nav(
@@ -717,8 +717,8 @@ content = html.Div(
                             dcc.Graph(id="demux_fig", figure=blank_fig())
                         ],
                     ),
-                    width={"size":4,
-                    "offset":4}
+                    width={"size":6,
+                    "offset":3}
                 )),
             ]
         )
