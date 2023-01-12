@@ -45,7 +45,7 @@ Snake
 
 Documentation
 
-    [X] documet the wsl2 activation steps in docker desktop
+    [X] document the wsl2 activation steps in docker desktop
     [X] if docker run hello world errors out:
         `sudo service docker start`
     [X] Ensure to open Ubuntu-18.04, not vanilla Ubuntu for computers that have both
