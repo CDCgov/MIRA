@@ -65,10 +65,10 @@ def refreshRuns(n_clicks):
 
 @app.callback(
     [Output("select_sample", "options"), Output("select_sample", "value")],
-    [Input("coverage-heat", "clickData"), Input("select_run", "value")],
+    [Input("coverage-heat", "clickData"), Input("select_run", "value"), Input("irma-results-button", "n_clicks")]
 )
 @callback_cache.memoize(expire=cache_timeout)
-def select_sample(plotClick, run):
+def select_sample(plotClick, run, n_clicks):
     if not run:
         raise dash.exceptions.PreventUpdate
     try:
@@ -124,6 +124,31 @@ def single_sample_fig(run, sample, cov_linear_y, n_clicks):
     
     return content
 
+@app.callback([Output("save_samplesheet_button", "n_clicks")],
+    [Input("select_run", "value"), Input("samplesheet", "children"), 
+    Input("save_samplesheet_button", "n_clicks")])
+def save_samplesheet(run, ss_data, n_clicks):
+    if not ss_data or n_clicks == 0 or not n_clicks:
+        return dash.no_update
+    df = pd.DataFrame.from_dict(ss_data['props']['data'], orient="columns")
+    df = df[["Barcode #", "Sample ID", "Sample Type", "Barcode Expansion Pack"]]
+    df.to_csv(f"{data_root}/{run}/samplesheet.csv", index=False)
+    return (0,)
+
+@app.callback([Output("clear_samplesheet_button", "n_clicks"),
+    Output("sample_number", "value")],
+    [Input("select_run", "value"), 
+    Input("clear_samplesheet_button", "n_clicks")])
+def clear_samplesheet(run, n_clicks):
+    if n_clicks == 0 or not n_clicks:
+        return dash.no_update
+    try:
+        os.remove(f"{data_root}/{run}/samplesheet.csv")
+    except FileNotFoundError:
+        pass
+    return (0,None)
+
+#def set_samplesheet_status()
 
 @app.callback(
     Output("samplesheet", "children"),
@@ -203,10 +228,7 @@ def generate_samplesheet(sample_number, run):
                 ]
             },
         },
-        export_format="csv",
-        export_headers="display",
-        merge_duplicate_headers=True#,
-        #persistence=True,
+        merge_duplicate_headers=True
     )
     table = ss
     return table
@@ -653,7 +675,7 @@ content = html.Div(
             ]
         )
     ]
-    + [html.P("Samplesheet", id="samplesheet_head", className="display-6")]
+    + [html.P("Samplesheet", id="samplesheet_head", className="display-6")]  
     + [
         html.Div(
             [
@@ -671,6 +693,19 @@ content = html.Div(
         )
     ]
     + [html.Br()]
+    + [html.Div(dbc.Row(
+            [dbc.Col(html.Button("Save Samplesheet", id="save_samplesheet_button"),lg=3),
+            dbc.Col(html.Div(id="samplesheet_lock_status")),
+            dbc.Col(html.Button("Restart Samplesheet FIlling", id="clear_samplesheet_button"),lg=3),
+                    dbc.Popover(
+            html.P("Warning: This will remove all samplesheet data!", className="display-6"),
+            target="clear_samplesheet_button",
+            body=True,
+            trigger="hover",
+        ),],
+            justify="between",
+            className="g-0"
+        ))]
     + [html.Div(id="samplesheet")]
     + [html.Br()]
     + [
