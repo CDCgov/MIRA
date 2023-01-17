@@ -2,23 +2,23 @@ to-do
 
 App.py
 
-    [ ] Amend barcode dropdown for exmpansion packs --default exp-109...
+    [ ] Amend barcode dropdown for exmpansion packs --delete LSK-109
     [ ] subsequently change the lib file names
-    [ ] Samplesheet 100% backend, no user export, no "-" control
+    [X] Samplesheet 100% backend, no user export, no "-" control
     [ ] Require unique sample names
     [ ] Rename flu segments
     [ ] export all fastas, fastas by sample, fastas by protein, aa fastas
         [ ] exclude QC failures
-    [ ] lower coverage threshold -- definitely in the line drawn on cov plot; double check irma config
+    [X] lower coverage threshold -- definitely in the line drawn on cov plot; double check irma config
 Snake
 
     [X] Fault tolerance (retries, latency)
         [x] Wait up to 10 minutes for latency and retry jobs 10 times.
-        [ ] glob for samplesheet with spaces?
+        [ ] ~~glob for samplesheet with spaces?~~ No longer needed with samplesheet saving in backend.
         [ ] unlock folder when launching snakemake -- also kill any running snakemake process first?
     [ ] SC2 WGS -- not needed for Ghana
         [ ] will also need to build in custom primer schema configurations
-    [ ] Footprint reduction -- make a separate button? add temp() to snakemake? temp isnt universal solution, ie dont delete IRMA_sample.fin
+    [ ] Footprint reduction -- make a separate button? add temp() to snakemake? temp isnt universal solution, ie dont delete IRMA_sample.fin. I think a rule in all: that runs a cleanup script is my preference. 
     [X] Pandas operations to SnakeMake
 	    [X] eliminate caching?
             - simplified caching
