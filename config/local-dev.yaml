@@ -1,2 +1,2 @@
-DATA_ROOT: /home/midas01/FLU_SC2_SEQUENCING
+DATA_ROOT: /home/nbx0/projects/irma-spy-testdata #/mnt/y/collab/International/Thailand #/home/midas01/FLU_SC2_SEQUENCING
 DEBUG: True

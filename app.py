@@ -65,7 +65,11 @@ def refreshRuns(n_clicks):
 
 @app.callback(
     [Output("select_sample", "options"), Output("select_sample", "value")],
-    [Input("coverage-heat", "clickData"), Input("select_run", "value"), Input("irma-results-button", "n_clicks")]
+    [
+        Input("coverage-heat", "clickData"),
+        Input("select_run", "value"),
+        Input("irma-results-button", "n_clicks"),
+    ],
 )
 @callback_cache.memoize(expire=cache_timeout)
 def select_sample(plotClick, run, n_clicks):
@@ -97,8 +101,8 @@ def select_sample(plotClick, run, n_clicks):
         Input("cov_linear_y", "value"),
         Input("irma-results-button", "n_clicks"),
     ],
-    #background=True,
-    #manager=bkgnd_callback_manager,
+    # background=True,
+    # manager=bkgnd_callback_manager,
 )
 @callback_cache.memoize(expire=cache_timeout)
 def single_sample_fig(run, sample, cov_linear_y, n_clicks):
@@ -121,24 +125,31 @@ def single_sample_fig(run, sample, cov_linear_y, n_clicks):
             dbc.Col(dcc.Graph(figure=coveragefig), width=8, align="center"),
         ]
     )
-    
+
     return content
 
-@app.callback([Output("save_samplesheet_button", "n_clicks")],
-    [Input("select_run", "value"), Input("samplesheet", "children"), 
-    Input("save_samplesheet_button", "n_clicks")])
+
+@app.callback(
+    [Output("save_samplesheet_button", "n_clicks")],
+    [
+        Input("select_run", "value"),
+        Input("samplesheet", "children"),
+        Input("save_samplesheet_button", "n_clicks"),
+    ],
+)
 def save_samplesheet(run, ss_data, n_clicks):
     if not ss_data or n_clicks == 0 or not n_clicks:
         return dash.no_update
-    df = pd.DataFrame.from_dict(ss_data['props']['data'], orient="columns")
+    df = pd.DataFrame.from_dict(ss_data["props"]["data"], orient="columns")
     df = df[["Barcode #", "Sample ID", "Sample Type", "Barcode Expansion Pack"]]
     df.to_csv(f"{data_root}/{run}/samplesheet.csv", index=False)
     return (0,)
 
-@app.callback([Output("clear_samplesheet_button", "n_clicks"),
-    Output("sample_number", "value")],
-    [Input("select_run", "value"), 
-    Input("clear_samplesheet_button", "n_clicks")])
+
+@app.callback(
+    [Output("clear_samplesheet_button", "n_clicks"), Output("sample_number", "value")],
+    [Input("select_run", "value"), Input("clear_samplesheet_button", "n_clicks")],
+)
 def clear_samplesheet(run, n_clicks):
     if n_clicks == 0 or not n_clicks:
         return dash.no_update
@@ -146,9 +157,11 @@ def clear_samplesheet(run, n_clicks):
         os.remove(f"{data_root}/{run}/samplesheet.csv")
     except FileNotFoundError:
         pass
-    return (0,None)
+    return (0, None)
 
-#def set_samplesheet_status()
+
+# def set_samplesheet_status()
+
 
 @app.callback(
     Output("samplesheet", "children"),
@@ -228,7 +241,7 @@ def generate_samplesheet(sample_number, run):
                 ]
             },
         },
-        merge_duplicate_headers=True
+        merge_duplicate_headers=True,
     )
     table = ss
     return table
@@ -251,6 +264,8 @@ def run_snake_script_onClick(n_clicks, run, experiment_type):
         raise dash.exceptions.PreventUpdate
     if not experiment_type:
         raise dash.exceptions.PreventUpdate
+    if dash.ctx.triggered_id != 'assembly-button':
+        return dash.no_update
 
     docker_cmd = "docker exec -w /data sc2-spike-seq bash snake-kickoff "
     docker_cmd += f"/data/{run}/samplesheet.csv "
@@ -291,8 +306,8 @@ def display_irma_progress(run, toggle, n_intervals):
         for i, j in log_dic.items()
         if i not in finished_samples
     }
-    if len(running_samples.keys()) == 0:
-        return html.Div("IRMA has finished running")
+    if len(running_samples.keys()) == 0 and len(glob(f"{data_root}/{run}/logs/*json")):
+        return html.Div("IRMA has finished running. Once the iSpy tab header has stopped displaying 'Update', click 'Display IRMA Results'")
     df = pd.DataFrame.from_dict(running_samples, orient="index")
     df = df.reset_index()
     df.columns = ["Sample", "IRMA Stage"]
@@ -325,8 +340,8 @@ def flfor(x, digits):
         Output("minor_alleles_table", "children"),
         [Input("select_run", "value"), Input("irma-results-button", "n_clicks")],
     ],
-    #background=True,
-    #manager=bkgnd_callback_manager,
+    # background=True,
+    # manager=bkgnd_callback_manager,
 )
 def alleles_table(run, n_clicks):
     if not run:
@@ -361,8 +376,8 @@ def alleles_table(run, n_clicks):
         Output("indels_table", "children"),
         [Input("select_run", "value"), Input("irma-results-button", "n_clicks")],
     ],
-    #background=True,
-    #manager=bkgnd_callback_manager,
+    # background=True,
+    # manager=bkgnd_callback_manager,
 )
 def indels_table(run, n_clicks):
     if not run:
@@ -397,8 +412,8 @@ def indels_table(run, n_clicks):
         Output("vars_table", "children"),
         [Input("select_run", "value"), Input("irma-results-button", "n_clicks")],
     ],
-    #background=True,
-    #manager=bkgnd_callback_manager,
+    # background=True,
+    # manager=bkgnd_callback_manager,
 )
 def vars_table(run, n_clicks):
     if not run:
@@ -434,11 +449,10 @@ def vars_table(run, n_clicks):
 
 @app.callback(
     Output("demux_fig", "figure"),
-    [Input("select_run", "value"),
-    Input("irma-results-button", "n_clicks")],
+    [Input("select_run", "value"), Input("irma-results-button", "n_clicks")],
     prevent_initial_call=True,
-    #background=True,
-    #manager=bkgnd_callback_manager,
+    # background=True,
+    # manager=bkgnd_callback_manager,
 )
 @callback_cache.memoize(expire=cache_timeout)
 def barcode_pie(run, n_clicks):
@@ -448,13 +462,14 @@ def barcode_pie(run, n_clicks):
         fig = blank_fig()
     return fig
 
+
 def negative_qc_statement(run):
     with open(f"{data_root}/{run}/IRMA/qc_statement.json", "r") as d:
         qc_statement_dic = json.load(d)
     statement = [html.Br()]
-    for q in ['FAILS QC', 'passes QC']:
-        for s,p in qc_statement_dic[q].items():
-            if q == 'FAILS QC':
+    for q in ["FAILS QC", "passes QC"]:
+        for s, p in qc_statement_dic[q].items():
+            if q == "FAILS QC":
                 statement.extend(
                     [
                         f"You negative sample ",
@@ -473,12 +488,10 @@ def negative_qc_statement(run):
     statement.extend([html.Br()])
     return html.P(statement)
 
+
 @app.callback(
     [Output("irma_neg_statment", "children"), Output("irma_summary", "children")],
-    [
-        Input("select_run", "value"),
-        Input("irma-results-button", "n_clicks")
-    ],
+    [Input("select_run", "value"), Input("irma-results-button", "n_clicks")],
     background=True,
     manager=bkgnd_callback_manager,
 )
@@ -510,21 +523,36 @@ def irma_summary(run, n_clicks):
 
 @app.callback(
     Output("coverage-heat", "figure"),
-    [Input("select_run", "value"),
-    Input("irma-results-button", "n_clicks")],
-    #background=True,
-    #manager=bkgnd_callback_manager,
+    [Input("select_run", "value"), Input("irma-results-button", "n_clicks")],
+    # background=True,
+    # manager=bkgnd_callback_manager,
 )
 @callback_cache.memoize(expire=cache_timeout)
 def callback_heatmap(run, n_clicks):
     if not run:
         return blank_fig()
-        #raise dash.exceptions.PreventUpdate
+        # raise dash.exceptions.PreventUpdate
     try:
         return pio.read_json(f"{data_root}/{run}/IRMA/heatmap.json")
     except FileNotFoundError:
         return blank_fig()
 
+
+@app.callback(
+    Output("pass_fail_heat", "figure"),
+    [Input("select_run", "value"), Input("irma-results-button", "n_clicks")],
+    # background=True,
+    # manager=bkgnd_callback_manager,
+)
+@callback_cache.memoize(expire=cache_timeout)
+def callback_pass_fail_heatmap(run, n_clicks):
+    if not run:
+        return blank_fig()
+        # raise dash.exceptions.PreventUpdate
+    try:
+        return pio.read_json(f"{data_root}/{run}/IRMA/pass_fail_heatmap.json")
+    except FileNotFoundError:
+        return blank_fig()
 
 
 dl_fasta_clicks = 0
@@ -555,13 +583,10 @@ flu_numbers = {
 
 @app.callback(
     Output("download_fasta", "data"),
-    [
-        Input("select_run", "value"),
-        Input("fasta_dl_button", "n_clicks")
-    ],
+    [Input("select_run", "value"), Input("fasta_dl_button", "n_clicks")],
     prevent_initial_call=True,
-    #background=True,
-    #manager=bkgnd_callback_manager,
+    # background=True,
+    # manager=bkgnd_callback_manager,
 )
 def download_fastas(run, n_clicks):
     if not n_clicks:
@@ -569,7 +594,7 @@ def download_fastas(run, n_clicks):
     global dl_fasta_clicks
     if n_clicks > dl_fasta_clicks:
         dl_fasta_clicks = n_clicks
-        #if "sc2" in exp_type.lower():
+        # if "sc2" in exp_type.lower():
         content = open(
             f"{data_root}/{run}/IRMA/dais_results/DAIS_ribosome_input.fasta"
         ).read()
@@ -621,6 +646,7 @@ sidebar = html.Div(
                 dbc.NavLink(
                     "Barcode Assignment", href="#demux_head", external_link=True
                 ),
+                dbc.NavLink("Automatic QC", href="#auto_qc_head", external_link=True),
                 dbc.NavLink("IRMA Summary", href="#irma_head", external_link=True),
                 dbc.NavLink(
                     "Reference Coverage", href="#coverage_head", external_link=True
@@ -662,8 +688,8 @@ content = html.Div(
                             for i in sorted(os.listdir(data_root))
                             if "." not in i
                         ],
-                        placeholder="Select sequencing run: "#,
-                        #persistence=True,
+                        placeholder="Select sequencing run: "  # ,
+                        # persistence=True,
                     ),
                     width=4,
                 ),
@@ -675,7 +701,7 @@ content = html.Div(
             ]
         )
     ]
-    + [html.P("Samplesheet", id="samplesheet_head", className="display-6")]  
+    + [html.P("Samplesheet", id="samplesheet_head", className="display-6")]
     + [
         html.Div(
             [
@@ -693,19 +719,36 @@ content = html.Div(
         )
     ]
     + [html.Br()]
-    + [html.Div(dbc.Row(
-            [dbc.Col(html.Button("Save Samplesheet", id="save_samplesheet_button"),lg=3),
-            dbc.Col(html.Div(id="samplesheet_lock_status")),
-            dbc.Col(html.Button("Restart Samplesheet FIlling", id="clear_samplesheet_button"),lg=3),
+    + [
+        html.Div(
+            dbc.Row(
+                [
+                    dbc.Col(
+                        html.Button("Save Samplesheet", id="save_samplesheet_button"),
+                        lg=3,
+                    ),
+                    dbc.Col(html.Div(id="samplesheet_lock_status")),
+                    dbc.Col(
+                        html.Button(
+                            "Restart Samplesheet FIlling", id="clear_samplesheet_button"
+                        ),
+                        lg=3,
+                    ),
                     dbc.Popover(
-            html.P("Warning: This will remove all samplesheet data!", className="display-6"),
-            target="clear_samplesheet_button",
-            body=True,
-            trigger="hover",
-        ),],
-            justify="between",
-            className="g-0"
-        ))]
+                        html.P(
+                            "Warning: This will remove all samplesheet data!",
+                            className="display-6",
+                        ),
+                        target="clear_samplesheet_button",
+                        body=True,
+                        trigger="hover",
+                    ),
+                ],
+                justify="between",
+                className="g-0",
+            )
+        )
+    ]
     + [html.Div(id="samplesheet")]
     + [html.Br()]
     + [
@@ -713,8 +756,8 @@ content = html.Div(
             dcc.Dropdown(
                 options=["Flu-ONT", "SC2-ONT", "Flu-Illumina"],
                 id="experiment_type",
-                placeholder="What kind of data is this?"#,
-                #persistence=True,
+                placeholder="What kind of data is this?"  # ,
+                # persistence=True,
             )
         )
     ]
@@ -739,33 +782,62 @@ content = html.Div(
         ),
         html.Div(id="irma-progress"),
     ]
+    + [
+        html.Div(
+            html.Button("Display IRMA results", id="irma-results-button", n_clicks=0),
+        )
+    ]
     + [html.P("Barcode Assignment", id="demux_head", className="display-6")]
-    #+ [html.Br()]
+    # + [html.Br()]
     + [
         html.Div(
             [
-                dbc.Row(dbc.Col(
-                    dcc.Loading(
-                        id="demux-loading",
-                        type="cube",
-                        children=[
-                            dcc.Graph(id="demux_fig", figure=blank_fig())
-                        ],
-                    ),
-                    width={"size":6,
-                    "offset":3}
-                )),
+                dbc.Row(
+                    dbc.Col(
+                        dcc.Loading(
+                            id="demux-loading",
+                            type="cube",
+                            children=[dcc.Graph(id="demux_fig", figure=blank_fig())],
+                        ),
+                        width={"size": 6, "offset": 3},
+                    )
+                ),
+            ]
+        )
+    ]
+    + [
+        html.P(
+            "Automatic Quality Control Decisions",
+            id="auto_qc_head",
+            className="display-6",
+        )
+    ]
+    + [html.Br()]
+    + [
+        html.Div(
+            [
+                dbc.Row(
+                    [
+                        dbc.Col(
+                            dcc.Loading(
+                                id="qcheat-loading",
+                                type="cube",
+                                children=[
+                                    dcc.Graph(id="pass_fail_heat", figure=blank_fig()),
+                                ],
+                            ),
+                            width=11,
+                            align="end",
+                        )
+                    ]  # ,
+                    # no_gutters=True
+                )
             ]
         )
     ]
     + [html.Br()]
     + [html.P("IRMA Summary", id="irma_head", className="display-6")]
     + [html.Br()]
-    + [
-        html.Div(
-            html.Button("Display IRMA results", id="irma-results-button", n_clicks=0),
-        )
-    ]
     + [dbc.Row([html.Div(id="irma_neg_statment"), html.Div(id="irma_summary")])]
     + [html.Br()]
     + [html.P("Reference Coverage", id="coverage_head", className="display-6")]
@@ -789,7 +861,7 @@ content = html.Div(
                     ]  # ,
                     # no_gutters=True
                 ),
-                dcc.Dropdown(id="select_sample"), #, persistence=True
+                dcc.Dropdown(id="select_sample"),  # , persistence=True
                 html.Div(id="single_sample_figs"),
                 dbc.Col(
                     daq.ToggleSwitch(
