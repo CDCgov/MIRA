@@ -582,26 +582,33 @@ flu_numbers = {
 
 
 @app.callback(
-    Output("download_fasta", "data"),
+    [Output("download_nt_fasta", "data"),Output("download_aa_fasta", "data")],
     [Input("select_run", "value"), Input("fasta_dl_button", "n_clicks")],
     prevent_initial_call=True,
     # background=True,
     # manager=bkgnd_callback_manager,
 )
-def download_fastas(run, n_clicks):
+def download_nt_fastas(run, n_clicks):
     if not n_clicks:
         raise dash.exceptions.PreventUpdate
     global dl_fasta_clicks
     if n_clicks > dl_fasta_clicks:
         dl_fasta_clicks = n_clicks
-        # if "sc2" in exp_type.lower():
         content = open(
-            f"{data_root}/{run}/IRMA/dais_results/DAIS_ribosome_input.fasta"
+            f"{data_root}/{run}/IRMA/amended_consensus.fasta"
         ).read()
-        return dict(
+        nt_fastas = dict(
             content=content,
             filename=f"{run}_amended_consensus.fasta",
         )
+        content = open(
+            f"{data_root}/{run}/IRMA/amino_acid_consensus.fasta"
+        ).read()
+        aa_fastas = dict(
+            content=content,
+            filename=f"{run}_amino_acid_consensus.fasta",
+        )
+        return nt_fastas, aa_fastas
 
 
 ########################################################
@@ -896,8 +903,9 @@ content = html.Div(
     + [
         html.Div(
             [
-                html.Button("Download Fasta", id="fasta_dl_button"),
-                dcc.Download(id="download_fasta"),
+                html.Button("Download Fastas", id="fasta_dl_button"),
+                dcc.Download(id="download_nt_fasta"),
+                dcc.Download(id="download_aa_fasta")
             ]
         )
     ],
