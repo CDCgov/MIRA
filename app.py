@@ -248,7 +248,7 @@ def generate_samplesheet(sample_number, run):
             "Barcode Expansion Pack": {
                 "options": [
                     {"label": i, "value": i}
-                    for i in ["EXP-PBC096", "LSK-109", "SQK-NSK007", "SQK-PBK004"]
+                    for i in ["EXP-NBD196", "SQK-NSK007", "SQK-PBK004"]
                 ]
             },
         },
