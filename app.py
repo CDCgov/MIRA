@@ -130,7 +130,8 @@ def single_sample_fig(run, sample, cov_linear_y, n_clicks):
 
 
 @app.callback(
-    [Output("save_samplesheet_button", "n_clicks")],
+    [Output("save_samplesheet_button", "n_clicks"),
+    Output("samplesheet_errors", "children")],
     [
         Input("select_run", "value"),
         Input("samplesheet", "children"),
@@ -142,8 +143,18 @@ def save_samplesheet(run, ss_data, n_clicks):
         return dash.no_update
     df = pd.DataFrame.from_dict(ss_data["props"]["data"], orient="columns")
     df = df[["Barcode #", "Sample ID", "Sample Type", "Barcode Expansion Pack"]]
-    df.to_csv(f"{data_root}/{run}/samplesheet.csv", index=False)
-    return (0,)
+    if True in list(df.duplicated("Sample ID")):
+        df['duplicated'] = df.duplicated('Sample ID')
+        stmnt = f"No duplicate sample IDs allowed. Please edit. Duplicates = {list(df.loc[df['duplicated']==True]['Sample ID'])}"
+        print(stmnt)
+    elif True in list(df['Sample ID'].str.contains(r'\s')):
+        df['spaces'] = df['Sample ID'].str.contains(r'\s')
+        stmnt = f"No spaces allowed in Sample IDs. Please edit. Offenders = {list(df.loc[df['spaces']==True]['Sample ID'])}"
+        print(stmnt)
+    else:
+        df.to_csv(f"{data_root}/{run}/samplesheet.csv", index=False)
+        stmnt = ''
+    return (0,stmnt)
 
 
 @app.callback(
@@ -306,7 +317,7 @@ def display_irma_progress(run, toggle, n_intervals):
         for i, j in log_dic.items()
         if i not in finished_samples
     }
-    if len(running_samples.keys()) == 0 and len(glob(f"{data_root}/{run}/logs/*json")):
+    if len(glob(f"{data_root}/{run}/IRMA/all.fin")) == 1:
         return html.Div("IRMA has finished running. Once the iSpy tab header has stopped displaying 'Update', click 'Display IRMA Results'")
     df = pd.DataFrame.from_dict(running_samples, orient="index")
     df = df.reset_index()
@@ -454,7 +465,6 @@ def vars_table(run, n_clicks):
     # background=True,
     # manager=bkgnd_callback_manager,
 )
-@callback_cache.memoize(expire=cache_timeout)
 def barcode_pie(run, n_clicks):
     try:
         fig = pio.read_json(f"{data_root}/{run}/IRMA/barcode_distribution.json")
@@ -501,7 +511,7 @@ def irma_summary(run, n_clicks):
         df = pd.read_json(f"{data_root}/{run}/IRMA/irma_summary.json", orient="split")
     except Exception as E:
         # raise dash.exceptions.PreventUpdate
-        return f"{E}... waiting for IRMA results...", html.Div()
+        return f"... waiting for IRMA results...", html.Div()
     fill_colors = conditional_color_range_perCol.discrete_background_color_bins(df, 8)
     table = html.Div(
         [
@@ -726,6 +736,7 @@ content = html.Div(
         )
     ]
     + [html.Br()]
+    +[html.Div(id="samplesheet_errors")]
     + [
         html.Div(
             dbc.Row(
@@ -734,7 +745,6 @@ content = html.Div(
                         html.Button("Save Samplesheet", id="save_samplesheet_button"),
                         lg=3,
                     ),
-                    dbc.Col(html.Div(id="samplesheet_lock_status")),
                     dbc.Col(
                         html.Button(
                             "Restart Samplesheet FIlling", id="clear_samplesheet_button"
@@ -761,7 +771,9 @@ content = html.Div(
     + [
         dbc.Row(
             dcc.Dropdown(
-                options=["Flu-ONT", "SC2-ONT", "Flu-Illumina"],
+                [{"label":"Flu-ONT", "value":"Flu-ONT"}, 
+                    {"label":"SC2-ONT", "value":"SC2-ONT"}, 
+                    {"label":"Flu-Illumina", "value":"Flu-Illumina","disabled":True}],
                 id="experiment_type",
                 placeholder="What kind of data is this?"  # ,
                 # persistence=True,
