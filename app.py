@@ -220,7 +220,7 @@ def generate_samplesheet(sample_number, run):
                     "Barcode #": f"barcode{i:02}",
                     "Sample ID": "",
                     "Sample Type": "Test",
-                    "Barcode Expansion Pack": "EXP-PBC096",
+                    "Barcode Expansion Pack": "EXP-NBD196",
                 }
             )
             for i in bc_numbers
@@ -278,7 +278,7 @@ def run_snake_script_onClick(n_clicks, run, experiment_type):
     if dash.ctx.triggered_id != 'assembly-button':
         return dash.no_update
 
-    docker_cmd = "docker exec -w /data sc2-spike-seq bash snake-kickoff "
+    docker_cmd = "docker exec -w /data spyne bash snake-kickoff "
     docker_cmd += f"/data/{run}/samplesheet.csv "
     docker_cmd += f"/data/{run} "
     docker_cmd += experiment_type
@@ -745,6 +745,16 @@ content = html.Div(
                         html.Button("Save Samplesheet", id="save_samplesheet_button"),
                         lg=3,
                     ),
+                    dbc.Popover(
+                        html.P(
+                            "Samplesheet saved",
+                            className="display-6",
+                        ),
+                        target="save_samplesheet_button",
+                        body=True,
+                        trigger="focus",
+                        placement='right'
+                    ),
                     dbc.Col(
                         html.Button(
                             "Restart Samplesheet FIlling", id="clear_samplesheet_button"
@@ -759,6 +769,7 @@ content = html.Div(
                         target="clear_samplesheet_button",
                         body=True,
                         trigger="hover",
+                        placement='left'
                     ),
                 ],
                 justify="between",
@@ -782,6 +793,15 @@ content = html.Div(
     ]
     + [
         html.Button("Start Genome Assembly", id="assembly-button", n_clicks=0),
+                dbc.Popover(
+                        html.P(
+                            "Important! Do not click this button multiple times. You have clicked it.",
+                            className="display-6",
+                        ),
+                        target="assembly-button",
+                        body=True,
+                        trigger="legacy",
+                    ),
         html.Div(id="output-container-button"),
         dcc.Interval(id="irma-progress-interval", interval=3000),
         html.Div(
