@@ -483,7 +483,7 @@ def negative_qc_statement(run):
                 statement.extend(
                     [
                         f"You negative sample ",
-                        html.Strong(f"{s} FAILS QC ", className="display-7"),
+                        html.Strong(f"\"{s}\" FAILS QC ", className="display-7"),
                         f"with {p}% reads mapping to reference.",
                         html.Br(),
                     ]
@@ -491,7 +491,7 @@ def negative_qc_statement(run):
             else:
                 statement.extend(
                     [
-                        f"You negative sample {s} passes QC with {p}% reads mapping to reference.",
+                        f"You negative sample \"{s}\" passes QC with {p}% reads mapping to reference.",
                         html.Br(),
                     ]
                 )
@@ -831,6 +831,7 @@ content = html.Div(
             className="display-6",
         )
     ]
+    + [dbc.Row([html.Div(id="irma_neg_statment"), html.Div(id="irma_summary")])]
     + [html.Br()]
     + [
         html.Div(
@@ -856,8 +857,6 @@ content = html.Div(
     ]
     + [html.Br()]
     + [html.P("IRMA Summary", id="irma_head", className="display-6")]
-    + [html.Br()]
-    + [dbc.Row([html.Div(id="irma_neg_statment"), html.Div(id="irma_summary")])]
     + [html.Br()]
     + [html.P("Reference Coverage", id="coverage_head", className="display-6")]
     + [html.Br()]
