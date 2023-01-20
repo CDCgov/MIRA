@@ -152,6 +152,7 @@ def save_samplesheet(run, ss_data, n_clicks):
         stmnt = f"No spaces allowed in Sample IDs. Please edit. Offenders = {list(df.loc[df['spaces']==True]['Sample ID'])}"
         print(stmnt)
     else:
+        df = df.apply(lambda x: x.strip('^M').strip())
         df.to_csv(f"{data_root}/{run}/samplesheet.csv", index=False)
         stmnt = ''
     return (0,stmnt)
