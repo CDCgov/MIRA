@@ -28,7 +28,7 @@ from numpy import arange
 
 
 import subprocess
-from flask_caching import Cache
+#from flask_caching import Cache
 
 import diskcache  # type: ignore
 
@@ -143,6 +143,9 @@ def save_samplesheet(run, ss_data, n_clicks):
         return dash.no_update
     df = pd.DataFrame.from_dict(ss_data["props"]["data"], orient="columns")
     df = df[["Barcode #", "Sample ID", "Sample Type", "Barcode Expansion Pack"]]
+    for c in df.columns:
+        df[c] = df[c].apply(lambda x: x.strip('^M').strip())
+    print(f"df = {df}")
     if True in list(df.duplicated("Sample ID")):
         df['duplicated'] = df.duplicated('Sample ID')
         stmnt = f"No duplicate sample IDs allowed. Please edit. Duplicates = {list(df.loc[df['duplicated']==True]['Sample ID'])}"
@@ -152,7 +155,7 @@ def save_samplesheet(run, ss_data, n_clicks):
         stmnt = f"No spaces allowed in Sample IDs. Please edit. Offenders = {list(df.loc[df['spaces']==True]['Sample ID'])}"
         print(stmnt)
     else:
-        df = df.apply(lambda x: x.strip('^M').strip())
+        print(f"saving df")
         df.to_csv(f"{data_root}/{run}/samplesheet.csv", index=False)
         stmnt = ''
     return (0,stmnt)
@@ -852,8 +855,6 @@ content = html.Div(
             className="display-6",
         )
     ]
-    + [dbc.Row([html.Div(id="irma_neg_statment"), html.Div(id="irma_summary")])]
-    + [html.Br()]
     + [
         html.Div(
             [
@@ -876,6 +877,9 @@ content = html.Div(
             ]
         )
     ]
+    + [dbc.Row([html.Div(id="irma_neg_statment"), html.Div(id="irma_summary")])]
+    + [html.Br()]
+
     + [html.Br()]
     + [html.P("IRMA Summary", id="irma_head", className="display-6")]
     + [html.Br()]
