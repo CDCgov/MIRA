@@ -848,6 +848,9 @@ content = html.Div(
             ]
         )
     ]
+    + [html.Br()]
+    + [html.P("IRMA Summary", id="irma_head", className="display-6")]
+    + [html.Br()]
     + [
         html.P(
             "Automatic Quality Control Decisions",
@@ -878,10 +881,6 @@ content = html.Div(
         )
     ]
     + [dbc.Row([html.Div(id="irma_neg_statment"), html.Div(id="irma_summary")])]
-    + [html.Br()]
-
-    + [html.Br()]
-    + [html.P("IRMA Summary", id="irma_head", className="display-6")]
     + [html.Br()]
     + [html.P("Reference Coverage", id="coverage_head", className="display-6")]
     + [html.Br()]
