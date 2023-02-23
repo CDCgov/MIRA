@@ -91,7 +91,7 @@ services:
       - frontend
       - backend
     ports: 
-      - 8050:8050
+      - 8010:8050
     volumes:
       - *data-volume
       - *docker-socket
