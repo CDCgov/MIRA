@@ -19,7 +19,7 @@ x-ispy-git-version:
 x-data-volumes:
   &data-volume
   type: bind
-  source: /c/users/snu3-su/github/irma-spy-testdata
+  source: /path/to/data
   target: /data
 
 x-docker-volumes:

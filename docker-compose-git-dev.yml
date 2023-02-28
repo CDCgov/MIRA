@@ -19,7 +19,7 @@ x-ispy-git-version:
 x-data-volumes:
   &data-volume
   type: bind
-  source: /c/users/snu3-su/github/irma-spy-testdata
+  source: /path/to/data
   target: /data
 
 x-docker-volumes:
@@ -31,13 +31,13 @@ x-docker-volumes:
 x-spyne-volumes:
   &spyne-code
   type: bind
-  source: /c/users/snu3-su/Github/SC2-spike-seq
+  source: /path/to/spyne
   target: /spyne 
 
 x-ispy-volumes:
   &ispy-code
   type: bind
-  source: /c/users/snu3-su/github/irma-spy
+  source: /path/to/iSpy
   target: /iSpy
 
 services:
