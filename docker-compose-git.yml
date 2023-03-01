@@ -1,0 +1,90 @@
+version: "3.9"
+
+x-dais-version:
+  &dais-version 
+  public.ecr.aws/n3z8t4o2/dais-ribosome:1.2.1
+
+x-irma-version:
+  &irma-version 
+  public.ecr.aws/n3z8t4o2/irma:1.0.2p3
+
+x-spyne-git-version:
+  &spyne-git-version  
+  https://github.com/nbx0/spyne.git#prod
+
+x-ispy-git-version:
+  &ispy-git-version  
+  https://github.com/nbx0/iSpy.git#prod 
+
+x-data-volumes:
+  &data-volume
+  type: bind
+  source: /path/to/data
+  target: /data
+
+x-docker-volumes:
+  &docker-socket
+  type: bind
+  source: /var/run/docker.sock 
+  target: /var/run/docker.sock 
+
+services:
+  dais: 
+    container_name: dais
+    image: *dais-version
+    networks:
+      - backend
+    volumes: 
+      - *data-volume
+    command: tail -f /dev/null
+
+  irma: 
+    container_name: irma
+    image: *irma-version
+    restart: always
+    networks:
+      - backend
+    volumes:
+      - *data-volume
+    command: tail -f /dev/null
+
+  spyne: 
+    container_name: spyne
+    image: spyne
+    build: 
+      context: *spyne-git-version 
+    depends_on:
+      - dais
+      - irma
+    restart: always
+    networks:
+      - backend
+    volumes:
+      - *data-volume
+      - *docker-socket
+    command: tail -f /dev/null
+
+  ispy: 
+    container_name: ispy
+    image: ispy
+    build: 
+      context: *ispy-git-version  
+    depends_on:
+      - dais
+      - irma
+      - spyne
+    restart: always
+    networks:
+      - frontend
+      - backend
+    ports: 
+      - 8020:8050
+    volumes:
+      - *data-volume
+      - *docker-socket
+
+networks:
+  backend:
+    name: backend
+  frontend:
+    name: frontend
