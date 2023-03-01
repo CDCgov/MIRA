@@ -76,7 +76,7 @@ def select_sample(plotClick, run, n_clicks):
     if not run:
         raise dash.exceptions.PreventUpdate
     try:
-        df = pd.read_json(f"{data_root}/{run}/IRMA/reads.json", orient="split")
+        df = pd.read_json(f"{data_root}/{run}/dash-json/reads.json", orient="split")
     except:
         raise dash.exceptions.PreventUpdate
     samples = df["Sample"].unique()
@@ -113,9 +113,9 @@ def single_sample_fig(run, sample, cov_linear_y, n_clicks):
     else:
         y_axis_type = "log"
     try:
-        sankeyfig = pio.read_json(f"{data_root}/{run}/IRMA/readsfig_{sample}.json")
+        sankeyfig = pio.read_json(f"{data_root}/{run}/dash-json/readsfig_{sample}.json")
         coveragefig = pio.read_json(
-            f"{data_root}/{run}/IRMA/coveragefig_{sample}_{y_axis_type}.json"
+            f"{data_root}/{run}/dash-json/coveragefig_{sample}_{y_axis_type}.json"
         )
     except FileNotFoundError:
         sankeyfig, coveragefig = blank_fig(), blank_fig()
@@ -362,7 +362,7 @@ def alleles_table(run, n_clicks):
     if not run:
         raise dash.exceptions.PreventUpdate
     try:
-        df = pd.read_json(f"{data_root}/{run}/IRMA/alleles.json", orient="split")
+        df = pd.read_json(f"{data_root}/{run}/dash-json/alleles.json", orient="split")
     except:
         raise dash.exceptions.PreventUpdate
         # return blank_fig()
@@ -398,7 +398,7 @@ def indels_table(run, n_clicks):
     if not run:
         raise dash.exceptions.PreventUpdate
     try:
-        df = pd.read_json(f"{data_root}/{run}/IRMA/indels.json", orient="split")
+        df = pd.read_json(f"{data_root}/{run}/dash-json/indels.json", orient="split")
     except:
         raise dash.exceptions.PreventUpdate
         # return blank_fig()
@@ -434,7 +434,7 @@ def vars_table(run, n_clicks):
     if not run:
         raise dash.exceptions.PreventUpdate
     try:
-        df = pd.read_json(f"{data_root}/{run}/IRMA/dais_vars.json", orient="split")
+        df = pd.read_json(f"{data_root}/{run}/dash-json/dais_vars.json", orient="split")
     except:
         raise dash.exceptions.PreventUpdate
         # return blank_fig()
@@ -471,14 +471,14 @@ def vars_table(run, n_clicks):
 )
 def barcode_pie(run, n_clicks):
     try:
-        fig = pio.read_json(f"{data_root}/{run}/IRMA/barcode_distribution.json")
+        fig = pio.read_json(f"{data_root}/{run}/dash-json/barcode_distribution.json")
     except:
         fig = blank_fig()
     return fig
 
 
 def negative_qc_statement(run):
-    with open(f"{data_root}/{run}/IRMA/qc_statement.json", "r") as d:
+    with open(f"{data_root}/{run}/dash-json/qc_statement.json", "r") as d:
         qc_statement_dic = json.load(d)
     statement = [html.Br()]
     for q in ["FAILS QC", "passes QC"]:
@@ -512,10 +512,10 @@ def negative_qc_statement(run):
 def irma_summary(run, n_clicks):
     try:
         qc_statement = negative_qc_statement(run)
-        df = pd.read_json(f"{data_root}/{run}/IRMA/irma_summary.json", orient="split")
+        df = pd.read_json(f"{data_root}/{run}/dash-json/irma_summary.json", orient="split")
     except Exception as E:
         # raise dash.exceptions.PreventUpdate
-        return f"... waiting for IRMA results...", html.Div()
+        return f"... waiting for IRMA results... \n\n {E}", html.Div()
     fill_colors = conditional_color_range_perCol.discrete_background_color_bins(df, 8)
     table = html.Div(
         [
@@ -547,7 +547,7 @@ def callback_heatmap(run, n_clicks):
         return blank_fig()
         # raise dash.exceptions.PreventUpdate
     try:
-        return pio.read_json(f"{data_root}/{run}/IRMA/heatmap.json")
+        return pio.read_json(f"{data_root}/{run}/dash-json/heatmap.json")
     except FileNotFoundError:
         return blank_fig()
 
@@ -564,7 +564,7 @@ def callback_pass_fail_heatmap(run, n_clicks):
         return blank_fig()
         # raise dash.exceptions.PreventUpdate
     try:
-        return pio.read_json(f"{data_root}/{run}/IRMA/pass_fail_heatmap.json")
+        return pio.read_json(f"{data_root}/{run}/dash-json/pass_fail_heatmap.json")
     except FileNotFoundError:
         return blank_fig()
 
@@ -609,14 +609,14 @@ def download_nt_fastas(run, n_clicks):
     if n_clicks > dl_fasta_clicks:
         dl_fasta_clicks = n_clicks
         content = open(
-            f"{data_root}/{run}/IRMA/amended_consensus.fasta"
+            f"{data_root}/{run}/amended_consensus.fasta"
         ).read()
         nt_fastas = dict(
             content=content,
             filename=f"{run}_amended_consensus.fasta",
         )
         content = open(
-            f"{data_root}/{run}/IRMA/amino_acid_consensus.fasta"
+            f"{data_root}/{run}/amino_acid_consensus.fasta"
         ).read()
         aa_fastas = dict(
             content=content,
@@ -849,8 +849,6 @@ content = html.Div(
         )
     ]
     + [html.Br()]
-    + [html.P("IRMA Summary", id="irma_head", className="display-6")]
-    + [html.Br()]
     + [
         html.P(
             "Automatic Quality Control Decisions",
@@ -862,7 +860,7 @@ content = html.Div(
         html.Div(
             [
                 dbc.Row(
-                    [
+                    [html.Div(id="irma_neg_statment"),
                         dbc.Col(
                             dcc.Loading(
                                 id="qcheat-loading",
@@ -880,7 +878,9 @@ content = html.Div(
             ]
         )
     ]
-    + [dbc.Row([html.Div(id="irma_neg_statment"), html.Div(id="irma_summary")])]
+    + [html.P("IRMA Summary", id="irma_head", className="display-6")]
+    + [html.Br()]
+    + [dbc.Row([html.Div(id="irma_summary")])]
     + [html.Br()]
     + [html.P("Reference Coverage", id="coverage_head", className="display-6")]
     + [html.Br()]
