@@ -43,7 +43,7 @@ data_root = CONFIG["DATA_ROOT"]
 DEBUG = CONFIG["DEBUG"]
 
 app = dash.Dash(external_stylesheets=[dbc.themes.FLATLY])
-app.title = "iSpy (development)"
+app.title = "iSpy"
 app.config["suppress_callback_exceptions"] = True
 
 # Caching
