@@ -805,16 +805,6 @@ content = html.Div(
     ]
     + [
         dbc.Button("Start Genome Assembly", id="assembly-button", n_clicks=0, disabled=True),
-                dbc.Popover(
-                        html.P(
-                            "Important! Do not click this button multiple times. You have clicked it.",
-                            className="display-6",
-                        ),
-                        target="assembly-button",
-                        body=True,
-                        trigger="legacy",
-                    ),
-        #dbc.Button("I dont work", id='foo', disabled=True),
         html.Div(id="output-container-button"),
         dcc.Interval(id="irma-progress-interval", interval=3000),
         html.Div(
