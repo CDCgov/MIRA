@@ -19,7 +19,7 @@ x-ispy-git-version:
 x-data-volumes:
   &data-volume
   type: bind
-  source: /C/Users/SNU3-SU/Github/iSpy/data
+  source: /home/midas01/FLU_SC2_SEQUENCING/
   target: /data
 
 x-docker-volumes:
@@ -31,18 +31,18 @@ x-docker-volumes:
 x-spyne-volumes:
   &spyne-code
   type: bind
-  source: /C/Users/SNU3-SU/Github/spyne
+  source: /home/midas01/projects/spyne
   target: /spyne 
 
 x-ispy-volumes:
   &ispy-code
   type: bind
-  source: /C/Users/SNU3-SU/Github/iSpy
+  source: /home/midas01/projects/iSpy
   target: /iSpy
 
 services:
   dais: 
-    container_name: dais
+    container_name: dais  
     image: *dais-version
     networks:
       - backend

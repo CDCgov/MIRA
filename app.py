@@ -5,7 +5,7 @@
 
 
 import dash
-from dash import dcc, dash_table, html, DiskcacheManager  # , ctx
+from dash import dcc, dash_table, html #, DiskcacheManager   , ctx
 import dash_bootstrap_components as dbc
 
 
@@ -30,7 +30,7 @@ from numpy import arange
 import subprocess
 #from flask_caching import Cache
 
-import diskcache  # type: ignore
+#import diskcache  # type: ignore
 
 path.append(dirname(realpath(__file__)) + "/scripts/")
 import irma2dash  # type: ignore
@@ -47,10 +47,10 @@ app.title = "iSpy"
 app.config["suppress_callback_exceptions"] = True
 
 # Caching
-cache_timeout = 60 * 60 * 24 * 28
-callback_cache = diskcache.Cache(f"{data_root}/.cache")
-bkgnd_callback_manager = DiskcacheManager(callback_cache)
-callback_cache.clear()
+#cache_timeout = 60 * 60 * 24 * 28
+#callback_cache = diskcache.Cache(f"{data_root}/.cache")
+#bkgnd_callback_manager = DiskcacheManager(callback_cache)
+#callback_cache.clear()
 
 previousClick = 0
 
@@ -71,7 +71,7 @@ def refreshRuns(n_clicks):
         Input("irma-results-button", "n_clicks"),
     ],
 )
-@callback_cache.memoize(expire=cache_timeout)
+#@callback_cache.memoize(expire=cache_timeout)
 def select_sample(plotClick, run, n_clicks):
     if not run:
         raise dash.exceptions.PreventUpdate
@@ -104,7 +104,7 @@ def select_sample(plotClick, run, n_clicks):
     # background=True,
     # manager=bkgnd_callback_manager,
 )
-@callback_cache.memoize(expire=cache_timeout)
+#@callback_cache.memoize(expire=cache_timeout)
 def single_sample_fig(run, sample, cov_linear_y, n_clicks):
     if not run or not sample:
         return html.Div()
@@ -199,7 +199,8 @@ def generate_samplesheet(sample_number, run):
             d.write(noCarriageReturn)
         data = pd.read_csv(ss_filename).to_dict("records")
     elif not sample_number:
-        raise dash.exceptions.PreventUpdate
+        #raise dash.exceptions.PreventUpdate
+        return html.Div()
     else:
         str_num_list = "".join(sample_number).split(",")
         bc_numbers = []
@@ -263,37 +264,44 @@ def generate_samplesheet(sample_number, run):
 
 
 @app.callback(
-    Output("output-container-button", "children"),
+    Output("assembly-button", "disabled"),
     [
+        #Input("save_samplesheet_button", "n_clicks"),
         Input("assembly-button", "n_clicks"),
         Input("select_run", "value"),
         Input("experiment_type", "value"),
     ],
-    background=True,
-    manager=bkgnd_callback_manager,
+    #background=True,
 )
-def run_snake_script_onClick(n_clicks, run, experiment_type):
-    if not n_clicks:
-        return dash.no_update
-    if not run:
-        raise dash.exceptions.PreventUpdate
-    if not experiment_type:
-        raise dash.exceptions.PreventUpdate
-    if dash.ctx.triggered_id != 'assembly-button':
-        return dash.no_update
+def run_snake_script_onClick(assembly_n_clicks, run, experiment_type): # samplesheet_n_clicks ,
+    #if not n_clicks:
+    #    return dash.no_update
+    #if not run:
+    #    raise dash.exceptions.PreventUpdate
+    #if not experiment_type:
+    #    raise dash.exceptions.PreventUpdate
+    #if samplesheet_n_clicks < 1:
+    #    return True
+    if dash.ctx.triggered_id == 'experiment_type':
+        return False
+    if dash.ctx.triggered_id == 'select_run':
+        return True
+    if dash.ctx.triggered_id == 'assembly-button':
+        #return dash.no_update
 
-    docker_cmd = "docker exec -w /data spyne bash snake-kickoff "
-    docker_cmd += f"/data/{run}/samplesheet.csv "
-    docker_cmd += f"/data/{run} "
-    docker_cmd += experiment_type
-    print(f'launching docker_cmd == "{docker_cmd}"\n\n')
-    # result = subprocess.check_output(docker_cmd, shell=True)
-    result = subprocess.Popen(docker_cmd.split(), stdout=subprocess.PIPE)
-    out, err = result.communicate()
-    # convert bytes to string
-    result = f"STDOUT == {out}{html.Br()}STDERR == {err}"
-    print(f"... and the result == {result}\n\n")
-    return html.Div("IRMA finished!")  # result
+        docker_cmd = "docker exec -w /data spyne bash snake-kickoff "
+        docker_cmd += f"/data/{run}/samplesheet.csv "
+        docker_cmd += f"/data/{run} "
+        docker_cmd += experiment_type
+        print(f'launching docker_cmd == "{docker_cmd}"\n\n')
+        # result = subprocess.check_output(docker_cmd, shell=True)
+        #result = 
+        subprocess.Popen(docker_cmd.split(), close_fds=True)
+        #out, err = result.communicate()
+        # convert bytes to string
+        #result = f"STDOUT == {out}{html.Br()}STDERR == {err}"
+        #print(f"... and the result == {result}\n\n")
+        return True #html.Div("IRMA finished!")  # result
 
 
 @app.callback(
@@ -506,8 +514,8 @@ def negative_qc_statement(run):
 @app.callback(
     [Output("irma_neg_statment", "children"), Output("irma_summary", "children")],
     [Input("select_run", "value"), Input("irma-results-button", "n_clicks")],
-    background=True,
-    manager=bkgnd_callback_manager,
+    #background=True,
+    #manager=bkgnd_callback_manager,
 )
 def irma_summary(run, n_clicks):
     try:
@@ -541,7 +549,7 @@ def irma_summary(run, n_clicks):
     # background=True,
     # manager=bkgnd_callback_manager,
 )
-@callback_cache.memoize(expire=cache_timeout)
+#@callback_cache.memoize(expire=cache_timeout)
 def callback_heatmap(run, n_clicks):
     if not run:
         return blank_fig()
@@ -558,7 +566,7 @@ def callback_heatmap(run, n_clicks):
     # background=True,
     # manager=bkgnd_callback_manager,
 )
-@callback_cache.memoize(expire=cache_timeout)
+#@callback_cache.memoize(expire=cache_timeout)
 def callback_pass_fail_heatmap(run, n_clicks):
     if not run:
         return blank_fig()
@@ -653,7 +661,7 @@ sidebar = html.Div(
             height=80,
             width=80,
         ),
-        html.H2("iSpy (development)", className="display-4"),
+        html.H2("iSpy", className="display-4"),
         html.P(
             ["Influenza genome and SARS-CoV-2 spike sequence assembly"],
             className="display-8",
@@ -715,7 +723,7 @@ content = html.Div(
                     width=4,
                 ),
                 dbc.Col(
-                    html.Button(
+                    dbc.Button(
                         "Refresh Run Listing", id="run-refresh-button", n_clicks=0
                     )
                 ),
@@ -741,12 +749,13 @@ content = html.Div(
     ]
     + [html.Br()]
     +[html.Div(id="samplesheet_errors")]
+    + [html.Div(id="samplesheet")]
     + [
         html.Div(
             dbc.Row(
                 [
                     dbc.Col(
-                        html.Button("Save Samplesheet", id="save_samplesheet_button"),
+                        dbc.Button("Save Samplesheet", id="save_samplesheet_button", n_clicks=0),
                         lg=3,
                     ),
                     dbc.Popover(
@@ -760,8 +769,8 @@ content = html.Div(
                         placement='right'
                     ),
                     dbc.Col(
-                        html.Button(
-                            "Restart Samplesheet FIlling", id="clear_samplesheet_button"
+                        dbc.Button(
+                            "Restart Samplesheet Filling", id="clear_samplesheet_button"
                         ),
                         lg=3,
                     ),
@@ -781,7 +790,6 @@ content = html.Div(
             )
         )
     ]
-    + [html.Div(id="samplesheet")]
     + [html.Br()]
     + [
         dbc.Row(
@@ -796,16 +804,7 @@ content = html.Div(
         )
     ]
     + [
-        html.Button("Start Genome Assembly", id="assembly-button", n_clicks=0),
-                dbc.Popover(
-                        html.P(
-                            "Important! Do not click this button multiple times. You have clicked it.",
-                            className="display-6",
-                        ),
-                        target="assembly-button",
-                        body=True,
-                        trigger="legacy",
-                    ),
+        dbc.Button("Start Genome Assembly", id="assembly-button", n_clicks=0, disabled=True),
         html.Div(id="output-container-button"),
         dcc.Interval(id="irma-progress-interval", interval=3000),
         html.Div(
@@ -827,7 +826,7 @@ content = html.Div(
     ]
     + [
         html.Div(
-            html.Button("Display IRMA results", id="irma-results-button", n_clicks=0),
+            dbc.Button("Display IRMA results", id="irma-results-button", n_clicks=0),
         )
     ]
     + [html.P("Barcode Assignment", id="demux_head", className="display-6")]
@@ -938,7 +937,7 @@ content = html.Div(
     + [
         html.Div(
             [
-                html.Button("Download Fastas", id="fasta_dl_button"),
+                dbc.Button("Download Fastas", id="fasta_dl_button"),
                 dcc.Download(id="download_nt_fasta"),
                 dcc.Download(id="download_aa_fasta")
             ]
