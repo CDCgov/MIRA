@@ -653,7 +653,7 @@ sidebar = html.Div(
             height=80,
             width=80,
         ),
-        html.H2("iSpy", className="display-4"),
+        html.H2("iSpy (development)", className="display-4"),
         html.P(
             ["Influenza genome and SARS-CoV-2 spike sequence assembly"],
             className="display-8",

@@ -38,7 +38,7 @@ ENV WORKDIR=/data
 ENV STAGE=prod
 
 # Copy all scripts to docker images
-COPY . /irma-spy
+COPY . /iSpy
 
 ############# Build Stage: Final ##################
 
@@ -57,41 +57,41 @@ RUN chmod -R a+rwx ${WORKDIR}
 ############# Install Docker ##################
 
 # Copy all files to docker images
-COPY docker /irma-spy/docker
+COPY docker /iSpy/docker
 
 # Copy all files to docker images
-COPY install_docker.sh /irma-spy/install_docker.sh
+COPY install_docker.sh /iSpy/install_docker.sh
 
 # Convert bash script from Windows style line endings to Unix-like control characters
-RUN dos2unix /irma-spy/install_docker.sh
+RUN dos2unix /iSpy/install_docker.sh
 
 # Allow permission to excute the bash script
-RUN chmod a+x /irma-spy/install_docker.sh
+RUN chmod a+x /iSpy/install_docker.sh
 
 # Execute bash script to install the package
-RUN bash /irma-spy/install_docker.sh
+RUN bash /iSpy/install_docker.sh
 
 ############# Install python packages ##################
 
 # Copy python requirements file to docker images
-COPY requirements.txt /irma-spy/requirements.txt
+COPY requirements.txt /iSpy/requirements.txt
 
 # Install python requirements
-RUN pip3 install --no-cache-dir -r /irma-spy/requirements.txt
+RUN pip3 install --no-cache-dir -r /iSpy/requirements.txt
 
-############# Launch irma-spy dashboard ##################
+############# Launch iSpy dashboard ##################
 
 # Copy all files to docker images
-COPY dashboard-kickoff /irma-spy/dashboard-kickoff
+COPY dashboard-kickoff /iSpy/dashboard-kickoff
 
-# Convert irma-spy.sh from Windows style line endings to Unix-like control characters
-RUN dos2unix /irma-spy/dashboard-kickoff
+# Convert bash script from Windows style line endings to Unix-like control characters
+RUN dos2unix /iSpy/dashboard-kickoff
 
 # Allow permission to excute the bash scripts
-RUN chmod a+x /irma-spy/dashboard-kickoff
+RUN chmod a+x /iSpy/dashboard-kickoff
 
-# Allow permission to read and write files to irma-spy directory
-RUN chmod -R a+rwx /irma-spy
+# Allow permission to read and write files to iSpy directory
+RUN chmod -R a+rwx /iSpy
 
 # Make the app available at port 8050
 EXPOSE 8050
@@ -100,7 +100,7 @@ EXPOSE 8050
 RUN apt-get autoremove -y && apt-get clean -y && rm -rf /var/lib/apt/lists/*
 
 # Export bash script to path
-ENV PATH "$PATH:/irma-spy"
+ENV PATH "$PATH:/iSpy"
 
 # Execute the pipeline 
 ENTRYPOINT ["bash", "dashboard-kickoff"]
