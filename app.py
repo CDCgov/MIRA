@@ -5,7 +5,7 @@
 
 
 import dash
-from dash import dcc, dash_table, html, DiskcacheManager  # , ctx
+from dash import dcc, dash_table, html #, DiskcacheManager   , ctx
 import dash_bootstrap_components as dbc
 
 
@@ -30,7 +30,7 @@ from numpy import arange
 import subprocess
 #from flask_caching import Cache
 
-import diskcache  # type: ignore
+#import diskcache  # type: ignore
 
 path.append(dirname(realpath(__file__)) + "/scripts/")
 import irma2dash  # type: ignore
@@ -47,10 +47,10 @@ app.title = "iSpy"
 app.config["suppress_callback_exceptions"] = True
 
 # Caching
-cache_timeout = 60 * 60 * 24 * 28
-callback_cache = diskcache.Cache(f"{data_root}/.cache")
-bkgnd_callback_manager = DiskcacheManager(callback_cache)
-callback_cache.clear()
+#cache_timeout = 60 * 60 * 24 * 28
+#callback_cache = diskcache.Cache(f"{data_root}/.cache")
+#bkgnd_callback_manager = DiskcacheManager(callback_cache)
+#callback_cache.clear()
 
 previousClick = 0
 
@@ -71,7 +71,7 @@ def refreshRuns(n_clicks):
         Input("irma-results-button", "n_clicks"),
     ],
 )
-@callback_cache.memoize(expire=cache_timeout)
+#@callback_cache.memoize(expire=cache_timeout)
 def select_sample(plotClick, run, n_clicks):
     if not run:
         raise dash.exceptions.PreventUpdate
@@ -104,7 +104,7 @@ def select_sample(plotClick, run, n_clicks):
     # background=True,
     # manager=bkgnd_callback_manager,
 )
-@callback_cache.memoize(expire=cache_timeout)
+#@callback_cache.memoize(expire=cache_timeout)
 def single_sample_fig(run, sample, cov_linear_y, n_clicks):
     if not run or not sample:
         return html.Div()
@@ -199,7 +199,8 @@ def generate_samplesheet(sample_number, run):
             d.write(noCarriageReturn)
         data = pd.read_csv(ss_filename).to_dict("records")
     elif not sample_number:
-        raise dash.exceptions.PreventUpdate
+        #raise dash.exceptions.PreventUpdate
+        return html.Div()
     else:
         str_num_list = "".join(sample_number).split(",")
         bc_numbers = []
@@ -263,7 +264,7 @@ def generate_samplesheet(sample_number, run):
 
 
 @app.callback(
-    Output("output-container-button", "children"),
+    Output("output-container-button", "disabled"),
     [
         Input("assembly-button", "n_clicks"),
         Input("select_run", "value"),
@@ -273,12 +274,14 @@ def generate_samplesheet(sample_number, run):
     manager=bkgnd_callback_manager,
 )
 def run_snake_script_onClick(n_clicks, run, experiment_type):
-    if not n_clicks:
-        return dash.no_update
-    if not run:
-        raise dash.exceptions.PreventUpdate
-    if not experiment_type:
-        raise dash.exceptions.PreventUpdate
+    #if not n_clicks:
+    #    return dash.no_update
+    #if not run:
+    #    raise dash.exceptions.PreventUpdate
+    #if not experiment_type:
+    #    raise dash.exceptions.PreventUpdate
+    if dash.ctx.triggered_id == 'select_run':
+        return False
     if dash.ctx.triggered_id != 'assembly-button':
         return dash.no_update
 
@@ -288,12 +291,13 @@ def run_snake_script_onClick(n_clicks, run, experiment_type):
     docker_cmd += experiment_type
     print(f'launching docker_cmd == "{docker_cmd}"\n\n')
     # result = subprocess.check_output(docker_cmd, shell=True)
-    result = subprocess.Popen(docker_cmd.split(), stdout=subprocess.PIPE)
-    out, err = result.communicate()
+    #result = 
+    subprocess.Popen(docker_cmd.split(), close_fds=True)
+    #out, err = result.communicate()
     # convert bytes to string
-    result = f"STDOUT == {out}{html.Br()}STDERR == {err}"
-    print(f"... and the result == {result}\n\n")
-    return html.Div("IRMA finished!")  # result
+    #result = f"STDOUT == {out}{html.Br()}STDERR == {err}"
+    #print(f"... and the result == {result}\n\n")
+    return True #html.Div("IRMA finished!")  # result
 
 
 @app.callback(
@@ -541,7 +545,7 @@ def irma_summary(run, n_clicks):
     # background=True,
     # manager=bkgnd_callback_manager,
 )
-@callback_cache.memoize(expire=cache_timeout)
+#@callback_cache.memoize(expire=cache_timeout)
 def callback_heatmap(run, n_clicks):
     if not run:
         return blank_fig()
@@ -558,7 +562,7 @@ def callback_heatmap(run, n_clicks):
     # background=True,
     # manager=bkgnd_callback_manager,
 )
-@callback_cache.memoize(expire=cache_timeout)
+#@callback_cache.memoize(expire=cache_timeout)
 def callback_pass_fail_heatmap(run, n_clicks):
     if not run:
         return blank_fig()
