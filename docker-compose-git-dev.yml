@@ -42,7 +42,7 @@ x-ispy-volumes:
 
 services:
   dais: 
-    container_name: dais
+    container_name: dais  
     image: *dais-version
     networks:
       - backend
