@@ -11,6 +11,7 @@ read RESPONSE
 [ ${RESPONSE,,} != "yes" ] && exit
 
 DC_FILE_CONTENT="version: \"3.9\"\n\
+name: IRMAVISION\n\
 \n\
 x-dais-version:\n\
   &dais-version \n\

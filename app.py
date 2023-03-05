@@ -290,8 +290,8 @@ def run_snake_script_onClick(assembly_n_clicks, run, experiment_type): # samples
         #return dash.no_update
 
         docker_cmd = "docker exec -w /data spyne bash snake-kickoff "
-        docker_cmd += f"/data/{run}/samplesheet.csv "
-        docker_cmd += f"/data/{run} "
+        docker_cmd += f"{data_root}/{run}/samplesheet.csv "
+        docker_cmd += f"{data_root}/{run} "
         docker_cmd += experiment_type
         print(f'launching docker_cmd == "{docker_cmd}"\n\n')
         # result = subprocess.check_output(docker_cmd, shell=True)
