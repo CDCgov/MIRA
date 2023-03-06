@@ -2,7 +2,7 @@
 #!/bin/bash
 # Wrapper to install downloaded packages
 
-RESOURCE_ROOT=/irma-spy
+RESOURCE_ROOT=/iSpy
 docker_file_orig=${RESOURCE_ROOT}/docker/docker_file.txt
 docker_file_clean=${RESOURCE_ROOT}/docker/docker_file_clean.txt
 
