@@ -288,7 +288,7 @@ def run_snake_script_onClick(assembly_n_clicks, run, experiment_type): # samples
         docker_cmd += f"{experiment_type} "
         docker_cmd += f"CLEANUP-FOOTPRINT"
         print(f'launching docker_cmd == "{docker_cmd}"\n\n')
-        subprocess.Popen(docker_cmd.split(), close_fds=True, shell=True)
+        subprocess.Popen(docker_cmd.split(), close_fds=True)
         return True
 
 
