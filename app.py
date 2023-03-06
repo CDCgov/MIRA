@@ -274,7 +274,13 @@ def generate_samplesheet(sample_number, run):
     #background=True,
 )
 def run_snake_script_onClick(assembly_n_clicks, run, experiment_type): # samplesheet_n_clicks ,
-    print(f"run_snake_script_onClick vars\n\tassembly_n_click == {assembly_n_clicks}\n\trun == {run}\n\texperiment_type == {experiment_type}\n\ttriggered_id == {dash.ctx.triggered_id}")
+    ss_glob = [
+        i
+        for i in glob(f"{data_root}/{run}/samplesheet.csv*")
+        if "samplesheet" in i.lower() or "data" in i.lower()
+    ]
+    if len(ss_glob) != 1:
+        return True
     if assembly_n_clicks == None:
         return True
     if dash.ctx.triggered_id == 'experiment_type':
@@ -303,6 +309,8 @@ def run_snake_script_onClick(assembly_n_clicks, run, experiment_type): # samples
 def display_irma_progress(run, toggle, n_intervals):
     if not toggle:
         return html.Div()
+    if len(glob(f"{data_root}/{run}/spyne_logs.tar.gz")) == 1:
+        return html.Div("IRMA is finished! Click \"DISPLAY IRMA RESULTS\"")
     logs = glob(f"{data_root}/{run}/logs/*irma*out.log")
     if len(logs) == 0:
         return html.Div("No IRMA data is available")
