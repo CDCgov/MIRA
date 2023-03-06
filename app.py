@@ -274,34 +274,22 @@ def generate_samplesheet(sample_number, run):
     #background=True,
 )
 def run_snake_script_onClick(assembly_n_clicks, run, experiment_type): # samplesheet_n_clicks ,
-    #if not n_clicks:
-    #    return dash.no_update
-    #if not run:
-    #    raise dash.exceptions.PreventUpdate
-    #if not experiment_type:
-    #    raise dash.exceptions.PreventUpdate
-    #if samplesheet_n_clicks < 1:
-    #    return True
+    print(f"run_snake_script_onClick vars\n\tassembly_n_click == {assembly_n_clicks}\n\trun == {run}\n\texperiment_type == {experiment_type}\n\ttriggered_id == {dash.ctx.triggered_id}")
+    if assembly_n_clicks == None:
+        return True
     if dash.ctx.triggered_id == 'experiment_type':
         return False
     if dash.ctx.triggered_id == 'select_run':
         return True
     if dash.ctx.triggered_id == 'assembly-button':
-        #return dash.no_update
-
         docker_cmd = "docker exec -w /data spyne bash snake-kickoff "
-        docker_cmd += f"{data_root}/{run}/samplesheet.csv "
-        docker_cmd += f"{data_root}/{run} "
-        docker_cmd += experiment_type
+        docker_cmd += f"{run}/samplesheet.csv "
+        docker_cmd += f"{run} "
+        docker_cmd += f"{experiment_type} "
+        docker_cmd += f"CLEANUP-FOOTPRINT"
         print(f'launching docker_cmd == "{docker_cmd}"\n\n')
-        # result = subprocess.check_output(docker_cmd, shell=True)
-        #result = 
         subprocess.Popen(docker_cmd.split(), close_fds=True)
-        #out, err = result.communicate()
-        # convert bytes to string
-        #result = f"STDOUT == {out}{html.Br()}STDERR == {err}"
-        #print(f"... and the result == {result}\n\n")
-        return True #html.Div("IRMA finished!")  # result
+        return True
 
 
 @app.callback(
@@ -329,7 +317,7 @@ def display_irma_progress(run, toggle, n_intervals):
         for i, j in log_dic.items()
         if i not in finished_samples
     }
-    if len(glob(f"{data_root}/{run}/IRMA/all.fin")) == 1:
+    if len(glob(f"{data_root}/{run}/IRMA/all.fin")) == 1 or len(glob(f"{data_root}/{run}/spyne_logs.tar.gz")) == 1:
         return html.Div("IRMA has finished running. Once the iSpy tab header has stopped displaying 'Update', click 'Display IRMA Results'")
     df = pd.DataFrame.from_dict(running_samples, orient="index")
     df = df.reset_index()
@@ -522,8 +510,9 @@ def irma_summary(run, n_clicks):
         qc_statement = negative_qc_statement(run)
         df = pd.read_json(f"{data_root}/{run}/dash-json/irma_summary.json", orient="split")
     except Exception as E:
+        pass
         # raise dash.exceptions.PreventUpdate
-        return f"... waiting for IRMA results... \n\n {E}", html.Div()
+        # return f"... waiting for IRMA results... \n\n {E}", html.Div()
     fill_colors = conditional_color_range_perCol.discrete_background_color_bins(df, 8)
     table = html.Div(
         [
