@@ -1,5 +1,7 @@
 #!/bin/bash
 
+[ $(whoami) != 'root' ] && echo -e "\nPlease run with sudo:\n\n\tsudo $0\n" && exit
+
 echo -e "\n\n\tYour individual sequencing runs must be saved inside ${PWD}\n\
     \tEnter \"yes\" to confirm.\n\n\
     \tEnter anything else to change the folder to save your\n\
@@ -9,6 +11,9 @@ echo -e "\n\n\tYour individual sequencing runs must be saved inside ${PWD}\n\
 read RESPONSE
 
 [ ${RESPONSE,,} != "yes" ] && exit
+
+apt-get update
+apt-get install docker
 
 export COMPOSE_PROJECT_NAME=IRMAVISION
 
@@ -105,14 +110,14 @@ networks:\n\
 
 echo -e "${DC_FILE_CONTENT}" > docker-compose.yml
 
-DC_DOWN_CMD="docker-compose \
+DC_DOWN_CMD="docker compose \
     -f docker-compose.yml \
     down \
         --rmi all \
         -v \
         --remove-orphans"
 
-DC_UP_CMD="docker-compose \
+DC_UP_CMD="docker compose \
     -f docker-compose.yml \
     up \
         -d \
