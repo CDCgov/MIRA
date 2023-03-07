@@ -737,8 +737,8 @@ content = html.Div(
         )
     ]
     + [html.Br()]
-    +[html.Div(id="samplesheet_errors")]
     + [html.Div(id="samplesheet")]
+    + [html.Div(id="samplesheet_errors")]
     + [
         html.Div(
             dbc.Row(
