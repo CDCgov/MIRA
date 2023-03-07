@@ -122,8 +122,7 @@ DC_UP_CMD="docker compose \
     up \
         -d \
         --always-recreate-deps \
-        --pull always \
-        --timestamps"
+        --pull always"
 
 eval $DC_DOWN_CMD
 eval $DC_UP_CMD
