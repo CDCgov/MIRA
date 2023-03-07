@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/bash
 
 echo -e "\n\n\tYour individual sequencing runs must be saved inside ${PWD}\n\
     \tEnter \"yes\" to confirm.\n\n\
@@ -10,8 +10,9 @@ read RESPONSE
 
 [ ${RESPONSE,,} != "yes" ] && exit
 
+export COMPOSE_PROJECT_NAME=IRMAVISION
+
 DC_FILE_CONTENT="version: \"3.9\"\n\
-name: IRMAVISION\n\
 \n\
 x-dais-version:\n\
   &dais-version \n\
@@ -102,17 +103,17 @@ networks:\n\
   frontend:\n\
     name: frontend\n"
 
-echo -e "${DC_FILE_CONTENT}" > docker-compose-git.yml
+echo -e "${DC_FILE_CONTENT}" > docker-compose.yml
 
 DC_DOWN_CMD="docker-compose \
-    -f docker-compose-git.yml \
+    -f docker-compose.yml \
     down \
         --rmi all \
         -v \
         --remove-orphans"
 
 DC_UP_CMD="docker-compose \
-    -f docker-compose-git.yml \
+    -f docker-compose.yml \
     up \
         -d \
         --always-recreate-deps \
