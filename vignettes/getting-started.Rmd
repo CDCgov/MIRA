@@ -1,0 +1,177 @@
+
+## Getting Started
+
+This NGS training will cover the steps of how to setup and run Influenza genome and SARS-CoV-2 spike-gene assembly and curation using the `iSpy` container. The protocol for this training will start with demultiplexed sequencing reads from an Illumina or Oxford Nanopore Technologies sequencer and finish with high quality genomes ready for submission to public repositories.
+
+![](images/mermaid_flow.png)
+
+## Computer requirements
+- A minimum of 16GB of memory is required. >=32GB is recommended.
+- A minimum of 8 CPU cores is recommended.
+- **Administrative privileges are required on a Windows operating system _to run linux_.**
+- A linux/unix (includes Intel-based* MacOS) operating system is required.
+    - *This software has not yet been tested on Apple's M-chip based OS
+    - If you are using a Mac, [skip to installing Docker](#install-docker-desktop)
+
+## How to install linux on a Windows 10/11 computer
+You can get a full linux environment using Windows Subsystem for Linux, or WSL. The second version of WSL is WSL2 and is the recommended version to use.
+
+1. Check your Windows version and build number, select Windows logo key + R, type winver, select OK.
+2. Windows 10 version 2004 and higher (Build 19041 and higher) or Windows 11 is required.
+
+    - You can update to the latest Windows version by selecting Start > Settings > Windows Update > Check for updates. <br/><br/>
+
+3. <a href="images/powershell_open.png" target="_blank">Run powershell **as administrator**</a>
+4. Run the following command in Powershell:
+
+    ```bash
+    wsl --install
+    ```
+    
+    - if you see a message relating to Virtualization needing to be enabled, follow instructions below to access your machine's BIOS setup:
+        - [Windows 11 virtualization instructions](https://support.microsoft.com/en-us/windows/enable-virtualization-on-windows-11-pcs-c5578302-6e43-4b4b-a449-8ced115f58e1)
+        - [Windows 10 virtualization instructions](https://www.geeksforgeeks.org/how-to-enable-virtualization-vt-x-in-windows-10-bios/) <br/><br/>
+        
+5. Restart your computer
+6. Reopen Powershell and enter the following commands:
+
+    ```bash
+    wsl --set-default-version 2
+    wsl --install -d Ubuntu-18.04
+    ```
+    
+    Following successful installation, an Ubuntu terminal should pop up that looks like:
+    ![](images/ubuntu_setub_1.png)
+    
+7. Enter a username that will be exclusive for WSL. Press `Enter` and then enter a password. **_It is very important_**, _to choose a memorable password. If you forget your password you will need to reinstall Ubuntu_. 
+
+    A "prompt" will then appear in the screen like:
+    ![](images/commandprompt_wsl.png) with `nbx0` replaced by your entered username and `L349232` replaced with your computer's name.
+    
+8. Restart your computer.
+
+    - To access the Ubuntu terminal in the future, simply search for `Ubuntu` in the <a href="images/ubuntu_open.png" target="_blank">Window's task bar and click on the app.</a> 
+    <br/>
+    Further details can be found on Microsoft's website: [https://docs.microsoft.com/en-us/windows/wsl/install](https://docs.microsoft.com/en-us/windows/wsl/install)
+
+
+## Map network drive to be able to use Window's File Explorer to see folders and files inside WSL
+
+**_Windows 11 and updated versions of Windows 10 should automatically mount Linux. If you have "Linux" in your `File Explorer`, you are good to go and do not need to perform this step._
+
+![](images/map_drive_win11-10_linux.png)
+
+**_Many computers have trouble with this step; the folders are not selectable during this step. First, make sure that an Ubuntu terminal is opened and then open the `File Explorer`. If "Ubuntu" is still not showing up in `File Explorer`, you can try to find the solution here: [https://github.com/microsoft/WSL/issues/3996](https://github.com/microsoft/WSL/issues/3996)._
+
+
+1. Open <a href="images/file_explorer.png" target="_blank">File Explorer</a>
+
+    - _If you have a Windows 10 or 11 OS, WSL is likely automatically mapped and visible in the left hand sidebar as "Ubuntu"_ <br/><br/>
+    
+2. Right click <a href="images/map_drive_1.png" target="_blank">This PC and click Map network drive</a>
+3. Enter `\\wsl$` into Folder: <a href="images/map_drive_2.png" target="_blank">and click Browse</a>
+4. Click on `wsl$` to unfold directories, select `Ubuntu-18.04` <a href="images/map_drive_3.png" target="_blank">and click OK</a> and then `Finish`. You should now see your WSL "drive" available in `File Explorer`:
+
+    ![](images/map_drive_4.png)
+   
+## [Install Docker Desktop](https://www.docker.com/products/docker-desktop/)
+Docker allows you to run software inside an isolated "container image" on your computer with all of that application's needed dependencies. Make sure to install the version for your operating system.
+
+- [Windows](https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe?utm_source=docker&utm_medium=webreferral&utm_campaign=dd-smartbutton&utm_location=header)
+- [Mac-Intel](https://desktop.docker.com/mac/main/amd64/Docker.dmg?utm_source=docker&utm_medium=webreferral&utm_campaign=dd-smartbutton&utm_location=module)
+- [Mac-AppleChip](https://desktop.docker.com/mac/main/arm64/Docker.dmg?utm_source=docker&utm_medium=webreferral&utm_campaign=dd-smartbutton&utm_location=module)
+- [Linux](https://docs.docker.com/desktop/linux/install/)
+
+    - If you get an error related to Docker user groups, go to "Edit local users and groups" from your Windows search bar
+    - Click Groups --> docker-users --> Add... --> then enter your username
+      ![](images/dockerusers.png)
+
+## [Install Docker CLI (Command Line Interface) in WSL2](https://docs.docker.com/engine/install/ubuntu/)
+
+All following lines of code can be copy/pasted into your terminal. Pasting using `CTRL`+`V` into a terminal my not work. After copying a line of code, try pasting into the terminal with a `right click` of your mouse or trackpad. 
+
+1. Open Ubuntu or Mac terminal
+2. Uninstall old versions of Docker
+
+    ```bash
+    sudo apt-get remove docker docker-engine docker.io containerd runc
+    ```
+    
+    - _If you have never installed Docker on your machine, you will see an error message about docker not being found. This is expected and you can move to step 3._ <br/><br/>
+    
+3. Tell WSL2 where to look for Docker CLI tools 
+
+    ```bash
+    sudo apt-get update
+    sudo apt-get install \
+    ca-certificates \
+    curl \
+    gnupg \
+    lsb-release
+    ```
+
+    - During installation, you will be prompted multiple times to enter 'y' or 'n' on preceeding. Each time, input 'y' and click `Enter`
+    
+    ```bash
+    sudo mkdir -p /etc/apt/keyrings
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+    ```
+
+    ```bash
+    echo \
+    "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+    $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+    ```
+    
+4. Install Docker CLI
+
+    ```bash
+    sudo apt-get update
+    ```
+
+    ```bash
+    sudo chmod a+r /etc/apt/keyrings/docker.gpg
+    sudo apt-get update
+    ```
+
+    ```bash
+    sudo apt-get install docker-ce docker-ce-cli containerd.io docker-compose-plugin
+    ```
+    
+5. Verify successful installation
+
+    ```bash
+    sudo docker run hello-world
+    ```
+    
+    - This command downloads a test image and runs it in a container. When the container runs, it prints a confirmation message and exits.
+    - Whenever you enter the `sudo` command, you will be prompted for your WSL2 password.
+    - If you get an error related to starting Docker, run the following command, then try to run hello-world again
+    
+    ```bash
+    sudo service docker start
+    ```
+    
+    - If you get an error related to "Permission Denied" of docker.sock, run the following command, then try to run hello-world again
+    
+    ```bash
+    sudo chmod -755 /run/docker.sock
+    ```
+    
+    - If you can now see the hello-world container in Docker Desktop, you can proceed to pulling and running iSpy containers
+    - If you open Docker Desktop and do not see the Hello World container you just ran, click Settings icon (top right) --> Resources --> WSL Integration
+    - Ensure that "Enable integration with my default WSL distro" is checked off, and that Ubuntu-18.04 distro is switched on
+    ![](images/WSL_docker.png)
+    - If your hello-world container still is not showing, open the Ubuntu-18.04 command prompt and run:
+    
+    ```bash
+    docker run -d -p 80:80 docker/getting-started
+    ```
+
+## Install a sequence viewer
+- [Windows Bio Edit](https://bioedit.software.informer.com/)
+- [Mac Aliview](https://ormbunkar.se/aliview/#DOWNLOAD)
+
+
+
+

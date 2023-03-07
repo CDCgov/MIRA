@@ -1,0 +1,15 @@
+pandoc: 2.19.2
+pkgdown: 2.0.6
+pkgdown_sha: ~
+articles:
+  docker-compose: docker-compose.html
+  docker: docker.html
+  FAQs: FAQs.html
+  getting-started: getting-started.html
+  running-ispy: running-ispy.html
+  setting-up-containers: setting-up-containers.html
+last_built: 2023-02-23T00:41Z
+urls:
+  reference: https://github.com/nbx0/iSpy/reference
+  article: https://github.com/nbx0/iSpy/articles
+

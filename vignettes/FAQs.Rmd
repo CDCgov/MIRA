@@ -1,0 +1,236 @@
+
+
+```{css, echo=FALSE}
+thead {
+  font-weight: bold;
+}
+
+thead, td {
+  border: 1px solid black
+}
+```
+
+# Frequently asked questions
+
+## How do I get help?
+
+iSpy is under active development. If you need help, would like to contribute, or simply want to talk about the project with like-minded individuals, we have a number of open channels for communication.
+
+- To report bugs or file feature requests, use the [issue tracker on Github](https://github.com/nbx0/iSpy/issues).
+
+- To contribute code submit a [pull request on Github](https://github.com/nbx0/iSpy/pulls).
+
+## Where can I find examples of iSpy?
+
+- See our [NGS Training tutorials using iSpy](getting-started.html)
+
+## How to upgrate or remove older versions of iSpy or other containers?
+
+To upgrade iSpy, spyne, IRMA or DAIS-Ribosome, you first need to remove your current version from your machine.
+
+Usually you will only need to update some of the 4 required containers.
+
+Follow the removal instructions based on your version, either the original [IRMA-SPY](#irma-spy-uninstall) or [iSpy](#ispy-uninstall).
+
+### iSpy uninstall
+
+1. Open an Ubuntu terminal
+2. ```bash 
+    # Show running containers
+    docker ps
+    
+    # Stop running container you want to update. In this example we are updating ispy and spyne.
+    docker stop ispy spyne
+
+    # Delete containers
+    docker rm ispy spyne
+
+    # Delete images
+    docker rmi ispy spyne
+    ```
+3. Install the new iSpy and spyne containers: [See NGS Training: Setting Up Containers](setting-up-containers.html)
+
+### IRMA-SPY uninstall
+
+1. Open an Ubuntu terminal
+2. ```bash 
+    # Show running containers
+    docker ps
+    
+    # Stop running container you want to update. In this example we are updating ispy and spyne.
+    docker stop irma-spy sc2-spike-seq
+
+    # Delete containers
+    docker rm irma-spy sc2-spike-seq
+
+    # Delete images
+    docker rmi irma-spy sc2-spike-seq
+    ```
+3. Install the new iSpy and spyne containers: [See NGS Training: Setting Up Containers](setting-up-containers.html)
+
+## How to start, restart, stop or remove services listed in docker-compose.yml?
+
+<table>
+<thead>
+  <tr>
+    <td>Command</td>
+    <td>Description</td>
+  </tr>
+</thead>
+<tbody>
+
+  
+  <tr>
+    <td><a target="_blank" href="https://docs.docker.com/engine/reference/commandline/compose_build/">docker compose build</a></td>
+    <td>Build or rebuild services</td>
+  </tr>
+
+  
+  <tr>
+    <td><a target="_blank" href="https://docs.docker.com/engine/reference/commandline/compose_config/">docker compose config</a></td>
+    <td>Parse, resolve and render compose file in canonical format</td>
+  </tr>
+
+  
+  <tr>
+    <td><a target="_blank" href="https://docs.docker.com/engine/reference/commandline/compose_cp/">docker compose cp</a></td>
+    <td>Copy files/folders between a service container and the local filesystem</td>
+  </tr>
+
+  
+  <tr>
+    <td><a target="_blank" href="https://docs.docker.com/engine/reference/commandline/compose_create/">docker compose create</a></td>
+    <td>Creates containers for a service.</td>
+  </tr>
+
+  
+  <tr>
+    <td><a target="_blank" href="https://docs.docker.com/engine/reference/commandline/compose_down/">docker compose down</a></td>
+    <td>Stop and remove containers, networks</td>
+  </tr>
+
+  
+  <tr>
+    <td><a target="_blank" href="https://docs.docker.com/engine/reference/commandline/compose_events/">docker compose events</a></td>
+    <td>Receive real time events from containers.</td>
+  </tr>
+
+  
+  <tr>
+    <td><a target="_blank" href="https://docs.docker.com/engine/reference/commandline/compose_exec/">docker compose exec</a></td>
+    <td>Execute a command in a running container.</td>
+  </tr>
+
+  
+  <tr>
+    <td><a target="_blank" href="https://docs.docker.com/engine/reference/commandline/compose_images/">docker compose images</a></td>
+    <td>List images used by the created containers</td>
+  </tr>
+
+  
+  <tr>
+    <td><a target="_blank" href="https://docs.docker.com/engine/reference/commandline/compose_kill/">docker compose kill</a></td>
+    <td>Force stop service containers.</td>
+  </tr>
+
+  
+  <tr>
+    <td><a target="_blank" href="https://docs.docker.com/engine/reference/commandline/compose_logs/">docker compose logs</a></td>
+    <td>View output from containers</td>
+  </tr>
+
+  
+  <tr>
+    <td><a target="_blank" href="https://docs.docker.com/engine/reference/commandline/compose_ls/">docker compose ls</a></td>
+    <td>List running compose projects</td>
+  </tr>
+
+  
+  <tr>
+    <td><a target="_blank" href="https://docs.docker.com/engine/reference/commandline/compose_pause/">docker compose pause</a></td>
+    <td>Pause services</td>
+  </tr>
+
+  
+  <tr>
+    <td><a target="_blank" href="https://docs.docker.com/engine/reference/commandline/compose_port/">docker compose port</a></td>
+    <td>Print the public port for a port binding.</td>
+  </tr>
+
+  
+  <tr>
+    <td><a target="_blank" href="https://docs.docker.com/engine/reference/commandline/compose_ps/">docker compose ps</a></td>
+    <td>List containers</td>
+  </tr>
+
+  
+  <tr>
+    <td><a target="_blank" href="https://docs.docker.com/engine/reference/commandline/compose_pull/">docker compose pull</a></td>
+    <td>Pull service images</td>
+  </tr>
+
+  
+  <tr>
+    <td><a target="_blank" href="https://docs.docker.com/engine/reference/commandline/compose_push/">docker compose push</a></td>
+    <td>Push service images</td>
+  </tr>
+
+  
+  <tr>
+    <td><a target="_blank" href="https://docs.docker.com/engine/reference/commandline/compose_restart/">docker compose restart</a></td>
+    <td>Restart service containers</td>
+  </tr>
+
+  
+  <tr>
+    <td><a target="_blank" href="https://docs.docker.com/engine/reference/commandline/compose_rm/">docker compose rm</a></td>
+    <td>Removes stopped service containers</td>
+  </tr>
+
+  
+  <tr>
+    <td><a target="_blank" href="https://docs.docker.com/engine/reference/commandline/compose_run/">docker compose run</a></td>
+    <td>Run a one-off command on a service.</td>
+  </tr>
+
+  
+  <tr>
+    <td><a target="_blank" href="https://docs.docker.com/engine/reference/commandline/compose_start/">docker compose start</a></td>
+    <td>Start services</td>
+  </tr>
+
+  
+  <tr>
+    <td><a target="_blank" href="https://docs.docker.com/engine/reference/commandline/compose_stop/">docker compose stop</a></td>
+    <td>Stop services</td>
+  </tr>
+
+  
+  <tr>
+    <td><a target="_blank" href="https://docs.docker.com/engine/reference/commandline/compose_top/">docker compose top</a></td>
+    <td>Display the running processes</td>
+  </tr>
+
+  
+  <tr>
+    <td><a target="_blank" href="https://docs.docker.com/engine/reference/commandline/compose_unpause/">docker compose unpause</a></td>
+    <td>Unpause services</td>
+  </tr>
+
+  
+  <tr>
+    <td><a target="_blank" href="https://docs.docker.com/engine/reference/commandline/compose_up/">docker compose up</a></td>
+    <td>Create and start containers</td>
+  </tr>
+
+  
+  <tr>
+    <td><a target="_blank" href="https://docs.docker.com/engine/reference/commandline/compose_version/">docker compose version</a></td>
+    <td>Show the Docker Compose version information</td>
+  </tr>
+
+</tbody>
+</table>
+
+
+
