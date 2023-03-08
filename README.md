@@ -50,6 +50,6 @@ IRMAVISION’s dashboard relies on four Docker containers to run its genome asse
     ```bash
     sudo irma_vision_install.sh
     ```
-- Open your browser and type http://localhost:80200 in the address bar
+- Open your browser and type http://localhost:8020 in the address bar
 
 <hr>
