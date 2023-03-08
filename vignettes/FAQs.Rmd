@@ -14,7 +14,7 @@ thead, td {
 
 ## How do I get help?
 
-GREAT Question!!
+GREAT Question!! Look here.
 
 iSpy is under active development. If you need help, would like to contribute, or simply want to talk about the project with like-minded individuals, we have a number of open channels for communication.
 
