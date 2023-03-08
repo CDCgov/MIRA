@@ -33,7 +33,7 @@ x-spyne-git-version:\n\
 \n\
 x-irmavision-git-version:\n\
   &irmavision-git-version  \n\
-  https://github.com/nbx0/iSpy.git#rename_irmavision \n\
+  https://github.com/nbx0/iSpy.git#prod \n\
 \n\
 x-data-volumes:\n\
   &data-volume\n\
