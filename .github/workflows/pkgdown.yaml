@@ -50,6 +50,6 @@ jobs:
         uses: JamesIves/github-pages-deploy-action@v4.4.1
         with:
           token: ${{ secrets.GH_DOCS }}
-          branch: add-gh-pages
+          branch: gh-pages-landing
           folder: .
           clean: false
