@@ -1,0 +1,28 @@
+Package: IRMAVISION
+Type: Package
+Title: Dash
+Version: 1.0.0
+Date: 2023-02-20
+Authors@R: 
+  c(person(given="Ben", family="Rambo-Martin", role=c("aut","cre"), 
+           email="nbx0@cdc.gov", comment=c(ORCID="0000-0002-8591-3954")), 
+    person(given="Kristine", family="Lacek", role=c("aut"), 
+           email="qgx6@cdc.gov"),
+    person(given="Reina", family="Chau", role=c("aut"), 
+           email="snu3@cdc.gov", comment=c(ORCID="0000-0003-3012-1404"))
+  )
+Description: IRMAVISION is an interactive dashboard created using Dash, a python framework 
+  written on the top of Flask, Plotly.js and React.js. The Dash dashboard 
+  allows users to interactively create a metadata and config file for Influenza
+  Genome and SARS-CoV-2 Spike-Gene Assembly. Subsequently, it generates files necessary 
+  to upload via FTP to NCBI’s databases Genbank, BioSample, and SRA, as well as, GISAID.
+RoxygenNote: 7.2.3
+License: GPL-3 + file LICENSE
+URL: https://github.com/nbx0/iSpy
+Encoding: UTF-8
+VignetteBuilder: knitr
+BugReports: https://github.com/nbx0/iSpy/issues
+
+
+
+

@@ -31,8 +31,8 @@ x-spyne-git-version:\n\
   &spyne-git-version  \n\
   https://github.com/nbx0/spyne.git#prod\n\
 \n\
-x-ispy-git-version:\n\
-  &ispy-git-version  \n\
+x-irmavision-git-version:\n\
+  &irmavision-git-version  \n\
   https://github.com/nbx0/iSpy.git#prod \n\
 \n\
 x-data-volumes:\n\
@@ -83,11 +83,11 @@ services:\n\
       - *docker-socket\n\
     command: tail -f /dev/null\n\
 \n\
-  ispy: \n\
-    container_name: ispy\n\
-    image: ispy\n\
+  irmavision: \n\
+    container_name: irmavision\n\
+    image: irmavision\n\
     build: \n\
-      context: *ispy-git-version  \n\
+      context: *irmavision-git-version  \n\
     depends_on:\n\
       - dais\n\
       - irma\n\

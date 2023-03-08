@@ -43,7 +43,7 @@ data_root = CONFIG["DATA_ROOT"]
 DEBUG = CONFIG["DEBUG"]
 
 app = dash.Dash(external_stylesheets=[dbc.themes.FLATLY])
-app.title = "iSpy"
+app.title = "IRMAVISION"
 app.config["suppress_callback_exceptions"] = True
 
 # Caching
@@ -326,7 +326,7 @@ def display_irma_progress(run, toggle, n_intervals):
         if i not in finished_samples
     }
     if len(glob(f"{data_root}/{run}/IRMA/all.fin")) == 1 or len(glob(f"{data_root}/{run}/spyne_logs.tar.gz")) == 1:
-        return html.Div("IRMA has finished running. Once the iSpy tab header has stopped displaying 'Update', click 'Display IRMA Results'")
+        return html.Div("IRMA has finished running. Once the IRMAVISION tab header has stopped displaying 'Update', click 'Display IRMA Results'")
     df = pd.DataFrame.from_dict(running_samples, orient="index")
     df = df.reset_index()
     df.columns = ["Sample", "IRMA Stage"]
@@ -658,7 +658,7 @@ sidebar = html.Div(
             height=80,
             width=80,
         ),
-        html.H2("iSpy", className="display-4"),
+        html.H2("IRMAVISION", className="display-4"),
         html.P(
             ["Influenza genome and SARS-CoV-2 spike sequence assembly"],
             className="display-8",

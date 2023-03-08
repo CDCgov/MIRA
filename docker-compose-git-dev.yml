@@ -12,8 +12,8 @@ x-spyne-git-version:
   &spyne-git-version  
   https://github.com/nbx0/spyne.git#prod
 
-x-ispy-git-version:
-  &ispy-git-version  
+x-irmavision-git-version:
+  &irmavision-git-version  
   https://github.com/nbx0/iSpy.git#prod 
 
 x-data-volumes:
@@ -34,8 +34,8 @@ x-spyne-volumes:
   source: /home/midas01/projects/spyne
   target: /spyne 
 
-x-ispy-volumes:
-  &ispy-code
+x-irmavision-volumes:
+  &irmavision-code
   type: bind
   source: /home/midas01/projects/iSpy
   target: /iSpy
@@ -77,9 +77,9 @@ services:
       - *spyne-code
     command: tail -f /dev/null
 
-  ispy: 
-    container_name: ispy
-    image: ispy
+  irmavision: 
+    container_name: irmavision
+    image: irmavision
     build: 
       context: *ispy-git-version 
     depends_on:
@@ -95,7 +95,7 @@ services:
     volumes:
       - *data-volume
       - *docker-socket
-      - *ispy-code
+      - *irmavision-code
 
 networks:
   backend:

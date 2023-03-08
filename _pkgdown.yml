@@ -1,0 +1,49 @@
+url: https://github.com/nbx0/iSpy
+
+template:
+  bootswatch: cosmo
+
+authors:
+  Ben Rambo-Martin:
+    href: https://github.com/nbx0
+  Kristine Lacek:
+    href: https://github.com/kristinelacek
+  Reina Chau:
+    href: https://github.com/rchau88
+
+news:
+  one_page: false
+
+navbar:
+  title: "iSpy"
+  left:
+    - text: "Home"
+      href: index.html
+    - text: "Dockerization"
+      menu:
+      - text: "Containerizing iSpy with Docker"
+        href: articles/docker.html
+      - text: "Running iSpy with Docker-Compose"
+        href: articles/docker-compose.html
+    - text: "NGS-Training"
+      menu:
+        - text: Getting Started
+          href: articles/getting-started.html
+        - text: Setting up Containers
+          href: articles/setting-up-containers.html
+        - text: Running Genome Assembly with iSpy
+          href: articles/running-ispy.html
+    - text: FAQs
+      href: articles/FAQs.html
+  right:
+    - text: "Change Log"
+      href: news/index.html
+    - icon: fa-github
+      href: https://github.com/nbx0/iSpy
+      
+footer:
+  structure: 
+    left: developed_by
+    right: built_with
+    
+    
