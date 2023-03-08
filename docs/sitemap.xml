@@ -4,28 +4,19 @@
     <loc>https://github.com/nbx0/iSpy/404.html</loc>
   </url>
   <url>
+    <loc>https://github.com/nbx0/iSpy/articles/FAQs.html</loc>
+  </url>
+  <url>
     <loc>https://github.com/nbx0/iSpy/articles/docker-compose.html</loc>
   </url>
   <url>
     <loc>https://github.com/nbx0/iSpy/articles/docker.html</loc>
   </url>
   <url>
-    <loc>https://github.com/nbx0/iSpy/articles/FAQs.html</loc>
-  </url>
-  <url>
     <loc>https://github.com/nbx0/iSpy/articles/getting-started.html</loc>
   </url>
   <url>
-    <loc>https://github.com/nbx0/iSpy/articles/help.html</loc>
-  </url>
-  <url>
-    <loc>https://github.com/nbx0/iSpy/articles/home.html</loc>
-  </url>
-  <url>
     <loc>https://github.com/nbx0/iSpy/articles/index.html</loc>
-  </url>
-  <url>
-    <loc>https://github.com/nbx0/iSpy/articles/remove-containers.html</loc>
   </url>
   <url>
     <loc>https://github.com/nbx0/iSpy/articles/running-ispy.html</loc>
@@ -37,6 +28,9 @@
     <loc>https://github.com/nbx0/iSpy/authors.html</loc>
   </url>
   <url>
+    <loc>https://github.com/nbx0/iSpy/changelog.html</loc>
+  </url>
+  <url>
     <loc>https://github.com/nbx0/iSpy/index.html</loc>
   </url>
   <url>
@@ -46,9 +40,9 @@
     <loc>https://github.com/nbx0/iSpy/news/news-1.0.html</loc>
   </url>
   <url>
-    <loc>https://github.com/nbx0/iSpy/News.html</loc>
+    <loc>https://github.com/nbx0/iSpy/reference/index.html</loc>
   </url>
   <url>
-    <loc>https://github.com/nbx0/iSpy/reference/index.html</loc>
+    <loc>https://github.com/nbx0/iSpy/to_do.html</loc>
   </url>
 </urlset>
