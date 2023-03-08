@@ -26,10 +26,6 @@ running Influenza Genome and SARS-CoV-2 Spike-Gene Assembly. Coming soon, it
 will generate the files necessary to upload via FTP to NCBI’s databases
 **Genbank**, **BioSample**, and **SRA**, as well as **GISAID**.
 
-Below is a flowchart diagram that illustrates the process of Influenza Genome and SARS-CoV-2 spike-gene assembly and curation. In generality, the process starts with demultiplexed sequencing reads from an Illumina or Oxford Nanopore Technologies sequencer and finish with high quality genomes ready for submission to public repositories.
-
-![](man/figures/mermaid_flow.png)
-
 
 IRMAVISION’s dashboard relies on four Docker containers to run its genome assembly and curation: 
 
