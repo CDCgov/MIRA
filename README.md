@@ -19,10 +19,10 @@ service, product, or enterprise.
 
 # Overview
 
-**iSpy** is an interactive dashboard created using **Dash**, a python framework
+**iSpy** is an interactive dashboard created using **[Dash](https://dash.plotly.com/introduction)**, a python framework
 written on the top of **Flask**, **Plotly.js** and **React.js**. The dashboard
 allows users to interactively create a metadata and config file for
-running Influenza Genome and SARS-CoV-2 Spike-Gene Assembly. Subsequently, it
+running Influenza Genome and SARS-CoV-2 Spike-Gene Assembly. Coming soon, it
 will generate the files necessary to upload via FTP to NCBI’s databases
 **Genbank**, **BioSample**, and **SRA**, as well as **GISAID**.
 
@@ -41,7 +41,7 @@ The iSpy’s dashboard relies on four Docker containers to run its genome assemb
 <hr>
 
 ## Quick Start:
-- <a href="https://raw.githubusercontent.com/nbx0/iSpy/prod/irmavision_install.sh" download>Download the install script</a> and save it into the folder that you will add new run-folders to.
+- <a href="https://raw.githubusercontent.com/nbx0/iSpy/prod/irmavision_install.sh" download>Right click this link and click 'save as'</a> and save it into the folder that you will add new run-folders to.
 - Navigate to that folder on the command line and run:
     ```bash
     chmod +x irma_vision_install.sh
@@ -50,6 +50,7 @@ The iSpy’s dashboard relies on four Docker containers to run its genome assemb
     ```bash
     sudo irma_vision_install.sh
     ```
+- Open your browser and type http://localhost:80200 in the address bar
 
 <hr>
 
