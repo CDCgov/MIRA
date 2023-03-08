@@ -14,21 +14,18 @@ thead, td {
 
 ## How do I get help?
 
-GREAT Question!! Look here.
+Great question!!
 
-iSpy is under active development. If you need help, would like to contribute, or simply want to talk about the project with like-minded individuals, we have a number of open channels for communication.
+IRMAVISION is under active development. If you need help, would like to contribute, or simply want to talk about the project with like-minded individuals, we have a number of open channels for communication.
 
 - To report bugs or file feature requests, use the [issue tracker on Github](https://github.com/nbx0/iSpy/issues).
 
 - To contribute code submit a [pull request on Github](https://github.com/nbx0/iSpy/pulls).
 
-## Where can I find examples of iSpy?
 
-- See our [NGS Training tutorials using iSpy](getting-started.html)
+## How to upgrate or remove older versions of IRMAVISION or other containers?
 
-## How to upgrate or remove older versions of iSpy or other containers?
-
-To upgrade iSpy, spyne, IRMA or DAIS-Ribosome, you first need to remove your current version from your machine.
+To upgrade IRMAVISION, spyne, IRMA or DAIS-Ribosome, you first need to remove your current version from your machine.
 
 Usually you will only need to update some of the 4 required containers.
 

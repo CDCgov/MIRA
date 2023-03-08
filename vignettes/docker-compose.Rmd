@@ -1,209 +1,210 @@
-
-## Running iSpy with docker-compose
-
-The iSpy's dashboard relies on four Docker containers to run its genome assembly and curation: **IRMA**, **DAIS-Ribosome**, **spyne**, and **iSpy**. Presently, the IRMA and DAIS-Ribosome docker images are stored in **AWS’s EC**, and the spyne and iSpy docker images are stored in **Quay.io's repository**. These images can be pulled down and built into runnable containers with the ```docker pull``` and ```docker run``` commands.
-
-Instead of pulling down each image one by one and run its container, we can utilize **docker-compose** to pull all the images down at once, build its containers, and configure them to communicate to each other. All these tasks can be accomplished using a docker-compose.yml file.
-
-There are two versions of the docker-compose.yml files:
-
-- [Development version](#build-development-version-of-ispy) for continuous integration of the application
-- [Production version](#build-production-version-of-ispy) for deployment of the application
-
-## Software requirements
-
-- Docker version >= 20.10,
-- Git version >= 2.21
-- Docker-compose version >= 1.29
-
-## Build development version of iSpy
-
-This version allows you to mount the code base that is needed to develop the `iSpy` dashboard and `spyne` pipeline. Any updates or changes to the code will automatically reflects the changes inside their Docker containers. This allows continuous integration (CI) of the application.
-
-### (1) Clone spyne respitory
-
-```bash
-git clone https://git.biotech.cdc.gov/nbx0/spyne.git
-``` 
-
-### (2) Clone iSpy respitory
-
-```bash
-git clone https://git.biotech.cdc.gov/nbx0/iSpy.git
-``` 
-
-### (3) Clone irma-spy-testdata respitory
-
-```bash
-git clone https://git.biotech.cdc.gov/nbx0/irma-spy-testdata.git
-```
-
-### (4) Extract test data for running iSpy and spyne
-
-- CD to `irma-spy-testdata` folder where `data.tar.gz` file is stored and extract "runs" from the tar archive.
-
-```bash
-[ $( which pigz) ] &&\
-    time tar --use-compress-program="pigz -p$(nproc)" -xf data.tar.gz ||\
-    tar -xf data.tar.gz
-```
-
-### (5) CD to `iSpy` folder where `docker-compose-quay-dev.yml` is stored and edit the yaml file to link the data inputs and code base to appropriate containers
-
-- Mount data directory to **/data** directory inside of all containers: change **/path/to/data** to your **irma-spy-testdata** directory
-- Mount code base of **spyne** to **/spyne** directory inside the **spyne** container: change **/path/to/spyne** to your **spyne** directory
-- Mount code base of **iSpy** to **/iSpy** directory inside the **ispy** container: change **/path/to/iSpy** to your **iSpy** directory
-
-```bash
-version: "3.9"
-
-x-dais-version:
-  &dais-version 
-  public.ecr.aws/n3z8t4o2/dais-ribosome:1.2.1
-
-x-irma-version:
-  &irma-version 
-  public.ecr.aws/n3z8t4o2/irma:1.0.2p3
-
-x-spyne-version:
-  &spyne-version 
-  quay.io/nbx0_cdc/spyne:v1.1.0
-
-x-ispy-version:
-  &ispy-version 
-  quay.io/nbx0_cdc/ispy:v1.1.0
-
-x-data-volumes:
-  &data-volume
-  type: bind
-  source: /path/to/data
-  target: /data
-
-x-docker-volumes:
-  &docker-socket
-  type: bind
-  source: /var/run/docker.sock 
-  target: /var/run/docker.sock 
-
-x-spyne-volumes:
-  &spyne-code
-  type: bind
-  source: /path/to/spyne
-  target: /spyne 
-
-x-ispy-volumes:
-  &ispy-code
-  type: bind
-  source: /path/to/iSpy
-  target: /iSpy
-```
-
-### (6) Start all services listed in the docker-compose.yml file
-
-```bash
-docker-compose up -d 
-```
-
-**-d**: run the containers in detached mode <br>
-
-For more information about the docker-compose syntax, see [docker-compose up reference](https://docs.docker.com/engine/reference/commandline/compose_up/)
-
-### (7) To check if the services are started sucessfully
-
-```bash
-docker-compose ps
-
-```
-
-### (8) Access the `iSpy` dashboard on the host network
-
-You can visit the local host using your preferred web browser, type in http://localhost:8010, and check if the dashboard is indeed hosted there.
-
-
-## Build production version of iSpy
-
-This version **ONLY** allows you to mount the data files that are needed to run **IRMA**, **DAIS-Ribosome**, **spyne**, and **iSpy** containers. In other words, you do not have access to their code base but is using their latest containerized version of the code.
-
-
-### (1) Clone irma-spy-testdata respitory
-
-```bash
-git clone https://git.biotech.cdc.gov/nbx0/irma-spy-testdata.git
-```
-
-### (2) Extract test data for running iSpy
-
-- CD to `irma-spy-testdata` folder where `data.tar.gz` file is stored and extract "runs" from the tar archive.
-
-```bash
-[ $( which pigz) ] &&\
-    time tar --use-compress-program="pigz -p$(nproc)" -xf data.tar.gz ||\
-    tar -xf data.tar.gz
-```
-
-### (3) CD to `iSpy` folder where `docker-compose-quay.yml` is stored and edit the yaml file to link the data inputs to appropriate containers
-
-- Mount data directory to `/data` directory inside of all containers: change `/path/to/data` to your `irma-spy-testdata` directory
-
-```bash
-version: "3.9"
-
-x-dais-version:
-  &dais-version 
-  public.ecr.aws/n3z8t4o2/dais-ribosome:1.2.1
-
-x-irma-version:
-  &irma-version 
-  public.ecr.aws/n3z8t4o2/irma:1.0.2p3
-
-x-spyne-version:
-  &spyne-version 
-  quay.io/nbx0_cdc/spyne:v1.1.0
-
-x-ispy-version:
-  &ispy-version 
-  quay.io/nbx0_cdc/ispy:v1.1.0
-
-x-data-volumes:
-  &data-volume
-  type: bind
-  source: /path/to/data
-  target: /data
-
-x-docker-volumes:
-  &docker-socket
-  type: bind
-  source: /var/run/docker.sock 
-  target: /var/run/docker.sock 
-```
-
-### (4) Start all services listed in the docker-compose.yml file
-
-```bash
-docker-compose up -d 
-```
-
-**-d**: run the containers in detached mode <br>
-
-For more information about the docker-compose syntax, see [docker-compose up reference](https://docs.docker.com/engine/reference/commandline/compose_up/)
-
-### (5) To check if the services are started sucessfully
-
-```bash
-docker-compose ps
-
-```
-
-### (6) Access the `iSpy` dashboard on the host network
-
-You can visit the local host using your preferred web browser, type in http://localhost:8020, and check if the dashboard is indeed hosted there.
-
-**NOTE:** Here we are publishing the `iSpy` dashboard on port **8020** on the host machine. This port is different from the **development** version which was previously launched on port **8010**.
-
-## Run genome assembly with iSpy
-
-See [NGS Training: Running Genome Assembly with iSpy](running-ispy.html)
-
-## Getting help
-
-See [FAQs Guide on how to upgrade and remove older versions of iSpy using docker-compose](FAQs.html#how-to-start-restart-stop-or-remove-services-listed-in-docker-compose-yml)
+[//] # ()
+[//] # (## Running IRMAVISION with docker-compose)
+[//] # ()
+[//] # (The IRMAVISION's dashboard relies on four Docker containers to run its genome assembly and curation: **IRMA**, **DAIS-Ribosome**, **spyne**, and **IRMAVISION**. Presently, the IRMA and DAIS-Ribosome docker images are stored in **AWS’s EC**, and the spyne and IRMAVISION docker images are stored in **Quay.io's repository**. These images can be pulled down and built into runnable containers with the ```docker pull``` and ```docker run``` commands.)
+[//] # ()
+[//] # (Instead of pulling down each image one by one and run its container, we can utilize **docker-compose** to pull all the images down at once, build its containers, and configure them to communicate to each other. All these tasks can be accomplished using a docker-compose.yml file.)
+[//] # ()
+[//] # (There are two versions of the docker-compose.yml files:)
+[//] # ()
+[//] # (- [Development version](#build-development-version-of-irmavision) for continuous integration of the application)
+[//] # (- [Production version](#build-production-version-of-irmavision) for deployment of the application)
+[//] # ()
+[//] # (## Software requirements)
+[//] # ()
+[//] # (- Docker version >= 20.10,)
+[//] # (- Git version >= 2.21)
+[//] # (- Docker-compose version >= 1.29)
+[//] # ()
+[//] # (## Build development version of IRMAVISION)
+[//] # ()
+[//] # (This version allows you to mount the code base that is needed to develop the `IRMAVISION` dashboard and `spyne` pipeline. Any updates or changes to the code will automatically reflects the changes inside their Docker containers. This allows continuous integration (CI) of the application.)
+[//] # ()
+[//] # (### (1) Clone spyne respitory)
+[//] # ()
+[//] # (```bash)
+[//] # (git clone https://git.biotech.cdc.gov/nbx0/spyne.git)
+[//] # (``` )
+[//] # ()
+[//] # (### (2) Clone IRMAVISION respitory)
+[//] # ()
+[//] # (```bash)
+[//] # (git clone https://git.biotech.cdc.gov/nbx0/iSpy.git)
+[//] # (``` )
+[//] # ()
+[//] # (### (3) Clone irma-spy-testdata respitory)
+[//] # ()
+[//] # (```bash)
+[//] # (git clone https://git.biotech.cdc.gov/nbx0/irma-spy-testdata.git)
+[//] # (```)
+[//] # ()
+[//] # (### (4) Extract test data for running IRMAVISION and spyne)
+[//] # ()
+[//] # (- CD to `irma-spy-testdata` folder where `data.tar.gz` file is stored and extract "runs" from the tar archive.)
+[//] # ()
+[//] # (```bash)
+[//] # ([ $( which pigz) ] &&\)
+[//] # (    time tar --use-compress-program="pigz -p$(nproc)" -xf data.tar.gz ||\)
+[//] # (    tar -xf data.tar.gz)
+[//] # (```)
+[//] # ()
+[//] # (### (5) CD to `iSpy` folder where `docker-compose-git.yml` is stored and edit the yaml file to link the data inputs and code base to appropriate containers)
+[//] # ()
+[//] # (- Mount data directory to **/data** directory inside of all containers: change **/path/to/data** to your **irma-spy-testdata** directory)
+[//] # (- Mount code base of **spyne** to **/spyne** directory inside the **spyne** container: change **/path/to/spyne** to your **spyne** directory)
+[//] # (- Mount code base of **iSpy** to **/iSpy** directory inside the **ispy** container: change **/path/to/iSpy** to your **iSpy** directory)
+[//] # ()
+[//] # (```bash)
+[//] # (version: "3.9")
+[//] # ()
+[//] # (x-dais-version:)
+[//] # (  &dais-version )
+[//] # (  public.ecr.aws/n3z8t4o2/dais-ribosome:1.2.1)
+[//] # ()
+[//] # (x-irma-version:)
+[//] # (  &irma-version )
+[//] # (  public.ecr.aws/n3z8t4o2/irma:1.0.2p3)
+[//] # ()
+[//] # (x-spyne-version:)
+[//] # (  &spyne-version )
+[//] # (  quay.io/nbx0_cdc/spyne:v1.1.0)
+[//] # ()
+[//] # (x-ispy-version:)
+[//] # (  &ispy-version )
+[//] # (  quay.io/nbx0_cdc/ispy:v1.1.0)
+[//] # ()
+[//] # (x-data-volumes:)
+[//] # (  &data-volume)
+[//] # (  type: bind)
+[//] # (  source: /path/to/data)
+[//] # (  target: /data)
+[//] # ()
+[//] # (x-docker-volumes:)
+[//] # (  &docker-socket)
+[//] # (  type: bind)
+[//] # (  source: /var/run/docker.sock )
+[//] # (  target: /var/run/docker.sock )
+[//] # ()
+[//] # (x-spyne-volumes:)
+[//] # (  &spyne-code)
+[//] # (  type: bind)
+[//] # (  source: /path/to/spyne)
+[//] # (  target: /spyne )
+[//] # ()
+[//] # (x-ispy-volumes:)
+[//] # (  &ispy-code)
+[//] # (  type: bind)
+[//] # (  source: /path/to/iSpy)
+[//] # (  target: /iSpy)
+[//] # (```)
+[//] # ()
+[//] # (### (6) Start all services listed in the docker-compose.yml file)
+[//] # ()
+[//] # (```bash)
+[//] # (docker-compose up -d )
+[//] # (```)
+[//] # ()
+[//] # (**-d**: run the containers in detached mode <br>)
+[//] # ()
+[//] # (For more information about the docker-compose syntax, see [docker-compose up reference](https://docs.docker.com/engine/reference/commandline/compose_up/))
+[//] # ()
+[//] # (### (7) To check if the services are started sucessfully)
+[//] # ()
+[//] # (```bash)
+[//] # (docker-compose ps)
+[//] # ()
+[//] # (```)
+[//] # ()
+[//] # (### (8) Access the `iSpy` dashboard on the host network)
+[//] # ()
+[//] # (You can visit the local host using your preferred web browser, type in http://localhost:8010, and check if the dashboard is indeed hosted there.)
+[//] # ()
+[//] # ()
+[//] # (## Build production version of iSpy)
+[//] # ()
+[//] # (This version **ONLY** allows you to mount the data files that are needed to run **IRMA**, **DAIS-Ribosome**, **spyne**, and **iSpy** containers. In other words, you do not have access to their code base but is using their latest containerized version of the code.)
+[//] # ()
+[//] # ()
+[//] # (### (1) Clone irma-spy-testdata respitory)
+[//] # ()
+[//] # (```bash)
+[//] # (git clone https://git.biotech.cdc.gov/nbx0/irma-spy-testdata.git)
+[//] # (```)
+[//] # ()
+[//] # (### (2) Extract test data for running iSpy)
+[//] # ()
+[//] # (- CD to `irma-spy-testdata` folder where `data.tar.gz` file is stored and extract "runs" from the tar archive.)
+[//] # ()
+[//] # (```bash)
+[//] # ([ $( which pigz) ] &&\)
+[//] # (    time tar --use-compress-program="pigz -p$(nproc)" -xf data.tar.gz ||\)
+[//] # (    tar -xf data.tar.gz)
+[//] # (```)
+[//] # ()
+[//] # (### (3) CD to `iSpy` folder where `docker-compose-quay.yml` is stored and edit the yaml file to link the data inputs to appropriate containers)
+[//] # ()
+[//] # (- Mount data directory to `/data` directory inside of all containers: change `/path/to/data` to your `irma-spy-testdata` directory)
+[//] # ()
+[//] # (```bash)
+[//] # (version: "3.9")
+[//] # ()
+[//] # (x-dais-version:)
+[//] # (  &dais-version )
+[//] # (  public.ecr.aws/n3z8t4o2/dais-ribosome:1.2.1)
+[//] # ()
+[//] # (x-irma-version:)
+[//] # (  &irma-version )
+[//] # (  public.ecr.aws/n3z8t4o2/irma:1.0.2p3)
+[//] # ()
+[//] # (x-spyne-version:)
+[//] # (  &spyne-version )
+[//] # (  quay.io/nbx0_cdc/spyne:v1.1.0)
+[//] # ()
+[//] # (x-ispy-version:)
+[//] # (  &ispy-version )
+[//] # (  quay.io/nbx0_cdc/ispy:v1.1.0)
+[//] # ()
+[//] # (x-data-volumes:)
+[//] # (  &data-volume)
+[//] # (  type: bind)
+[//] # (  source: /path/to/data)
+[//] # (  target: /data)
+[//] # ()
+[//] # (x-docker-volumes:)
+[//] # (  &docker-socket)
+[//] # (  type: bind)
+[//] # (  source: /var/run/docker.sock )
+[//] # (  target: /var/run/docker.sock )
+[//] # (```)
+[//] # ()
+[//] # (### (4) Start all services listed in the docker-compose.yml file)
+[//] # ()
+[//] # (```bash)
+[//] # (docker-compose up -d )
+[//] # (```)
+[//] # ()
+[//] # (**-d**: run the containers in detached mode <br>)
+[//] # ()
+[//] # (For more information about the docker-compose syntax, see [docker-compose up reference](https://docs.docker.com/engine/reference/commandline/compose_up/))
+[//] # ()
+[//] # (### (5) To check if the services are started sucessfully)
+[//] # ()
+[//] # (```bash)
+[//] # (docker-compose ps)
+[//] # ()
+[//] # (```)
+[//] # ()
+[//] # (### (6) Access the `iSpy` dashboard on the host network)
+[//] # ()
+[//] # (You can visit the local host using your preferred web browser, type in http://localhost:8020, and check if the dashboard is indeed hosted there.)
+[//] # ()
+[//] # (**NOTE:** Here we are publishing the `iSpy` dashboard on port **8020** on the host machine. This port is different from the **development** version which was previously launched on port **8010**.)
+[//] # ()
+[//] # (## Run genome assembly with iSpy)
+[//] # ()
+[//] # (See [NGS Training: Running Genome Assembly with iSpy](running-ispy.html))
+[//] # ()
+[//] # (## Getting help)
+[//] # ()
+[//] # (See [FAQs Guide on how to upgrade and remove older versions of iSpy using docker-compose](FAQs.html#how-to-start-restart-stop-or-remove-services-listed-in-docker-compose-yml))
+[//] # ()

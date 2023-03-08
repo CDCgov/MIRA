@@ -1,5 +1,5 @@
 
-# iSpy: Interactive Dashboard for Influenza Genome and SARS-CoV-2 Spike-Gene Assembly and Curation
+# IRMAVISION: Interactive Dashboard for Influenza Genome and SARS-CoV-2 Spike-Gene Assembly and Curation
 
 Version: 1.0.0 (Beta)
 
@@ -19,7 +19,7 @@ service, product, or enterprise.
 
 # Overview
 
-**iSpy** is an interactive dashboard created using **[Dash](https://dash.plotly.com/introduction)**, a python framework
+**IRMAVISION** is an interactive dashboard created using **[Dash](https://dash.plotly.com/introduction)**, a python framework
 written on the top of **Flask**, **Plotly.js** and **React.js**. The dashboard
 allows users to interactively create a metadata and config file for
 running Influenza Genome and SARS-CoV-2 Spike-Gene Assembly. Coming soon, it
@@ -31,12 +31,12 @@ Below is a flowchart diagram that illustrates the process of Influenza Genome an
 ![](man/figures/mermaid_flow.png)
 
 
-The iSpy’s dashboard relies on four Docker containers to run its genome assembly and curation: 
+IRMAVISION’s dashboard relies on four Docker containers to run its genome assembly and curation: 
 
 - **IRMA (Iterative Refinement Meta-Assembler):** designed for the robust assembly, variant calling, and phasing of highly variable RNA viruses. IRMA is deployed with modules for influenza, ebolavirus and coronavirus.
 - **DAIS-Ribosome:** compartmentalizes the translation engine developed for the CDC Influenza Division protein analytics database. The tool has been extended for use with Betacoronavirus.
 - **spyne:** a Snakemake workflow manager designed for running Influenza Genome and SARS-CoV-2 Spike-Gene assembly.
-- **iSpy:** a GUI web interface that allows users to interactively create a metadata and config file for running Influenza Genome and SARS-CoV-2 Spike-Gene assembly and curation.
+- **IRMAVISION:** a GUI web interface that allows users to interactively create a metadata and config file for running Influenza Genome and SARS-CoV-2 Spike-Gene assembly and curation.
 
 <hr>
 
@@ -53,10 +53,3 @@ The iSpy’s dashboard relies on four Docker containers to run its genome assemb
 - Open your browser and type http://localhost:80200 in the address bar
 
 <hr>
-
-
-## User Guide:
-- [Containerizing iSpy with Docker](https://rchau88.github.io/iSpy-docs/articles/docker.html)
-- [Running iSpy with Docker-Compose](https://rchau88.github.io/iSpy-docs/articles/docker-compose.html)
-- [Getting started with NGS Training using iSpy](https://rchau88.github.io/iSpy-docs/articles/getting-started.html)
-
