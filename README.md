@@ -40,11 +40,11 @@ IRMAVISION’s dashboard relies on four Docker containers to run its genome asse
 - <a href="https://raw.githubusercontent.com/nbx0/iSpy/prod/irmavision_install.sh" download>Right click this link and click 'save as'</a> and save it into the folder that you will add new run-folders to.
 - Navigate to that folder on the command line and run:
     ```
-    chmod +x irmavision_install.sh
+    chmod +x ./irmavision_install.sh
     ```
 - Run the install script with sudo:
     ```
-    sudo irmavision_install.sh
+    sudo ./irmavision_install.sh
     ```
 - Open your browser and type http://localhost:8020 in the address bar
 
