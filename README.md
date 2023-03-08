@@ -40,7 +40,21 @@ The iSpy’s dashboard relies on four Docker containers to run its genome assemb
 
 <hr>
 
-# User Guide:
+## Quick Start:
+- <a href="https://raw.githubusercontent.com/nbx0/iSpy/prod/irmavision_install.sh" download>Download the install script</a> and save it into the folder that you will add new run-folders to.
+- Navigate to that folder on the command line and run:
+    ```bash
+    chmod +x irma_vision_install.sh
+    ```
+- Run the install script with sudo:
+    ```bash
+    sudo irma_vision_install.sh
+    ```
+
+<hr>
+
+
+## User Guide:
 - [Containerizing iSpy with Docker](https://rchau88.github.io/iSpy-docs/articles/docker.html)
 - [Running iSpy with Docker-Compose](https://rchau88.github.io/iSpy-docs/articles/docker-compose.html)
 - [Getting started with NGS Training using iSpy](https://rchau88.github.io/iSpy-docs/articles/getting-started.html)

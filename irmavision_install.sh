@@ -33,7 +33,7 @@ x-spyne-git-version:\n\
 \n\
 x-ispy-git-version:\n\
   &ispy-git-version  \n\
-  https://github.com/nbx0/iSpy.git#prod \n\
+  https://github.com/nbx0/iSpy.git#add-gh-pages \n\
 \n\
 x-data-volumes:\n\
   &data-volume\n\
