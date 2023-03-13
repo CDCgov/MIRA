@@ -15,7 +15,7 @@ read RESPONSE
 apt-get update
 apt-get install docker
 
-export COMPOSE_PROJECT_NAME=IRMAVISION
+export COMPOSE_PROJECT_NAME=MIRA
 
 DC_FILE_CONTENT="version: \"3.9\"\n\
 \n\
@@ -31,9 +31,9 @@ x-spyne-git-version:\n\
   &spyne-git-version  \n\
   https://github.com/nbx0/spyne.git#prod\n\
 \n\
-x-irmavision-git-version:\n\
-  &irmavision-git-version  \n\
-  https://github.com/nbx0/iSpy.git#prod \n\
+x-mira-git-version:\n\
+  &mira-git-version  \n\
+  https://github.com/nbx0/MIRA.git#prod \n\
 \n\
 x-data-volumes:\n\
   &data-volume\n\
@@ -83,11 +83,11 @@ services:\n\
       - *docker-socket\n\
     command: tail -f /dev/null\n\
 \n\
-  irmavision: \n\
-    container_name: irmavision\n\
-    image: irmavision\n\
+  mira: \n\
+    container_name: mira\n\
+    image: mira\n\
     build: \n\
-      context: *irmavision-git-version  \n\
+      context: *mira-git-version  \n\
     depends_on:\n\
       - dais\n\
       - irma\n\

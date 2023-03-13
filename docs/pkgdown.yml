@@ -6,10 +6,10 @@ articles:
   docker-compose: docker-compose.html
   docker: docker.html
   getting-started: getting-started.html
-  running-ispy: running-ispy.html
+  running-mira: running-mira.html
   setting-up-containers: setting-up-containers.html
 last_built: 2023-03-08T11:54Z
 urls:
-  reference: https://github.com/nbx0/iSpy/reference
-  article: https://github.com/nbx0/iSpy/articles
+  reference: https://github.com/nbx0/MIRA/reference
+  article: https://github.com/nbx0/MIRA/articles
 

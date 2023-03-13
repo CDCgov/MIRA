@@ -12,9 +12,9 @@ x-spyne-git-version:
   &spyne-git-version  
   https://github.com/nbx0/spyne.git#prod
 
-x-irmavision-git-version:
-  &irmavision-git-version  
-  https://github.com/nbx0/iSpy.git#prod 
+x-mira-git-version:
+  &mira-git-version  
+  https://github.com/nbx0/MIRA.git#prod 
 
 x-data-volumes:
   &data-volume
@@ -34,11 +34,11 @@ x-spyne-volumes:
   source: /home/midas01/projects/spyne
   target: /spyne 
 
-x-irmavision-volumes:
-  &irmavision-code
+x-mira-volumes:
+  &mira-code
   type: bind
-  source: /home/midas01/projects/iSpy
-  target: /iSpy
+  source: /home/midas01/projects/MIRA
+  target: /MIRA
 
 services:
   dais: 
@@ -77,11 +77,11 @@ services:
       - *spyne-code
     command: tail -f /dev/null
 
-  irmavision: 
-    container_name: irmavision
-    image: irmavision
+  mira: 
+    container_name: mira
+    image: mira
     build: 
-      context: *ispy-git-version 
+      context: *mira-git-version 
     depends_on:
       - dais
       - irma
@@ -95,7 +95,7 @@ services:
     volumes:
       - *data-volume
       - *docker-socket
-      - *irmavision-code
+      - *mira-code
 
 networks:
   backend:

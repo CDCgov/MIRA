@@ -16,38 +16,38 @@ thead, td {
 
 Great question!!
 
-IRMAVISION is under active development. If you need help, would like to contribute, or simply want to talk about the project with like-minded individuals, we have a number of open channels for communication.
+MIRA is under active development. If you need help, would like to contribute, or simply want to talk about the project with like-minded individuals, we have a number of open channels for communication.
 
-- To report bugs or file feature requests, use the [issue tracker on Github](https://github.com/nbx0/iSpy/issues).
+- To report bugs or file feature requests, use the [issue tracker on Github](https://github.com/nbx0/MIRA/issues).
 
-- To contribute code submit a [pull request on Github](https://github.com/nbx0/iSpy/pulls).
+- To contribute code submit a [pull request on Github](https://github.com/nbx0/MIRA/pulls).
 
 
-## How to upgrate or remove older versions of IRMAVISION or other containers?
+## How to upgrate or remove older versions of MIRA or other containers?
 
-To upgrade IRMAVISION, spyne, IRMA or DAIS-Ribosome, you first need to remove your current version from your machine.
+To upgrade MIRA, spyne, IRMA or DAIS-Ribosome, you first need to remove your current version from your machine.
 
 Usually you will only need to update some of the 4 required containers.
 
-Follow the removal instructions based on your version, either the original [IRMA-SPY](#irma-spy-uninstall) or [iSpy](#ispy-uninstall).
+Follow the removal instructions based on your version, either the original [IRMA-SPY](#irma-spy-uninstall) or [MIRA](#mira-uninstall).
 
-### iSpy uninstall
+### MIRA uninstall
 
 1. Open an Ubuntu terminal
 2. ```bash 
     # Show running containers
     docker ps
     
-    # Stop running container you want to update. In this example we are updating ispy and spyne.
-    docker stop ispy spyne
+    # Stop running container you want to update. In this example we are updating mira and spyne.
+    docker stop mira spyne
 
     # Delete containers
-    docker rm ispy spyne
+    docker rm mira spyne
 
     # Delete images
-    docker rmi ispy spyne
+    docker rmi mira spyne
     ```
-3. Install the new iSpy and spyne containers: [See NGS Training: Setting Up Containers](setting-up-containers.html)
+3. Install the new MIRA and spyne containers: [See NGS Training: Setting Up Containers](setting-up-containers.html)
 
 ### IRMA-SPY uninstall
 
@@ -56,7 +56,7 @@ Follow the removal instructions based on your version, either the original [IRMA
     # Show running containers
     docker ps
     
-    # Stop running container you want to update. In this example we are updating ispy and spyne.
+    # Stop running container you want to update. In this example we are updating mira and spyne.
     docker stop irma-spy sc2-spike-seq
 
     # Delete containers
@@ -65,7 +65,7 @@ Follow the removal instructions based on your version, either the original [IRMA
     # Delete images
     docker rmi irma-spy sc2-spike-seq
     ```
-3. Install the new iSpy and spyne containers: [See NGS Training: Setting Up Containers](setting-up-containers.html)
+3. Install the new MIRA and spyne containers: [See NGS Training: Setting Up Containers](setting-up-containers.html)
 
 ## How to start, restart, stop or remove services listed in docker-compose.yml?
 
