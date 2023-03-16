@@ -46,7 +46,7 @@ x-spyne-git-version:\n\
 \n\
 x-mira-git-version:\n\
   &mira-git-version  \n\
-  https://github.com/nbx0/MIRA.git#renameMIRA \n\
+  https://github.com/nbx0/MIRA.git#rprod \n\
 \n\
 x-data-volumes:\n\
   &data-volume\n\
