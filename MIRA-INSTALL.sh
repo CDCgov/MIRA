@@ -12,9 +12,21 @@ read RESPONSE
 
 [ ${RESPONSE,,} != "yes" ] && exit
 
+# Add google as domain name server
+grep 8.8.8.8 /etc/resolv.conf || echo nameserver 8.8.8.8 >> /etc/resolv.conf
+
+# Update apt-get
 apt-get update
 apt-get install docker
 
+# Remove pre-MIRA software
+for i in $(docker ps |tr -s ' ' |cut -d ' ' -f2 | grep -e irma-spy -e sc2-spike-seq -e ispy); do
+  docker stop $i
+  docker rm -f $i
+  docker rmi -f $i
+done
+
+# MIRA
 export COMPOSE_PROJECT_NAME=MIRA
 
 DC_FILE_CONTENT="version: \"3.9\"\n\
@@ -33,7 +45,7 @@ x-spyne-git-version:\n\
 \n\
 x-mira-git-version:\n\
   &mira-git-version  \n\
-  https://github.com/nbx0/MIRA.git#prod \n\
+  https://github.com/nbx0/MIRA.git#renameMIRA \n\
 \n\
 x-data-volumes:\n\
   &data-volume\n\

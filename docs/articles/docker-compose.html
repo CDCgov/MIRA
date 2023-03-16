@@ -166,15 +166,15 @@ integration (CI) of the application.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone https://git.biotech.cdc.gov/nbx0/MIRA.git</span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="clone-irma-spy-testdata-respitory">(3) Clone irma-spy-testdata respitory<a class="anchor" aria-label="anchor" href="#clone-irma-spy-testdata-respitory"></a>
+<h3 id="clone-mira-testdata-respitory">(3) Clone mira-testdata respitory<a class="anchor" aria-label="anchor" href="#clone-mira-testdata-respitory"></a>
 </h3>
-<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone https://git.biotech.cdc.gov/nbx0/irma-spy-testdata.git</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone https://git.biotech.cdc.gov/nbx0/mira-testdata.git</span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="extract-test-data-for-running-mira-and-spyne">(4) Extract test data for running MIRA and spyne<a class="anchor" aria-label="anchor" href="#extract-test-data-for-running-mira-and-spyne"></a>
 </h3>
 <ul>
-<li>CD to <code>irma-spy-testdata</code> folder where
+<li>CD to <code>mira-testdata</code> folder where
 <code>data.tar.gz</code> file is stored and extract “runs” from the tar
 archive.</li>
 </ul>
@@ -191,7 +191,7 @@ containers<a class="anchor" aria-label="anchor" href="#cd-to-mira-folder-where-d
 <ul>
 <li>Mount data directory to <strong>/data</strong> directory inside of
 all containers: change <strong>/path/to/data</strong> to your
-<strong>irma-spy-testdata</strong> directory</li>
+<strong>mira-testdata</strong> directory</li>
 <li>Mount code base of <strong>spyne</strong> to <strong>/spyne</strong>
 directory inside the <strong>spyne</strong> container: change
 <strong>/path/to/spyne</strong> to your <strong>spyne</strong>
@@ -274,15 +274,15 @@ that are needed to run <strong>IRMA</strong>,
 to their code base but is using their latest containerized version of
 the code.</p>
 <div class="section level3">
-<h3 id="clone-irma-spy-testdata-respitory-1">(1) Clone irma-spy-testdata respitory<a class="anchor" aria-label="anchor" href="#clone-irma-spy-testdata-respitory-1"></a>
+<h3 id="clone-mira-testdata-respitory-1">(1) Clone mira-testdata respitory<a class="anchor" aria-label="anchor" href="#clone-mira-testdata-respitory-1"></a>
 </h3>
-<div class="sourceCode" id="cb8"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone https://git.biotech.cdc.gov/nbx0/irma-spy-testdata.git</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone https://git.biotech.cdc.gov/nbx0/mira-testdata.git</span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="extract-test-data-for-running-mira">(2) Extract test data for running MIRA<a class="anchor" aria-label="anchor" href="#extract-test-data-for-running-mira"></a>
 </h3>
 <ul>
-<li>CD to <code>irma-spy-testdata</code> folder where
+<li>CD to <code>mira-testdata</code> folder where
 <code>data.tar.gz</code> file is stored and extract “runs” from the tar
 archive.</li>
 </ul>
@@ -298,7 +298,7 @@ link the data inputs to appropriate containers<a class="anchor" aria-label="anch
 <ul>
 <li>Mount data directory to <code>/data</code> directory inside of all
 containers: change <code>/path/to/data</code> to your
-<code>irma-spy-testdata</code> directory</li>
+<code>mira-testdata</code> directory</li>
 </ul>
 <div class="sourceCode" id="cb10"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">version:</span> <span class="st">"3.9"</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>

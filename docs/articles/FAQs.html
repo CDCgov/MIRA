@@ -156,7 +156,7 @@ remove your current version from your machine.</p>
 <p>Usually you will only need to update some of the 4 required
 containers.</p>
 <p>Follow the removal instructions based on your version, either the
-original <a href="#irma-spy-uninstall">IRMA-SPY</a> or <a href="#mira-uninstall">MIRA</a>.</p>
+original <a href="#mira-uninstall">mira</a> or <a href="#mira-uninstall">MIRA</a>.</p>
 <div class="section level4">
 <h4 id="mira-uninstall">MIRA uninstall<a class="anchor" aria-label="anchor" href="#mira-uninstall"></a>
 </h4>
@@ -179,7 +179,7 @@ Containers</a>
 </ol>
 </div>
 <div class="section level4">
-<h4 id="irma-spy-uninstall">IRMA-SPY uninstall<a class="anchor" aria-label="anchor" href="#irma-spy-uninstall"></a>
+<h4 id="mira-uninstall">mira uninstall<a class="anchor" aria-label="anchor" href="#mira-uninstall"></a>
 </h4>
 <ol style="list-style-type: decimal">
 <li>Open an Ubuntu terminal</li>
@@ -187,13 +187,13 @@ Containers</a>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a> <span class="ex">docker</span> ps</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a> <span class="co"># Stop running container you want to update. In this example we are updating mira and spyne.</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a> <span class="ex">docker</span> stop irma-spy sc2-spike-seq</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a> <span class="ex">docker</span> stop mira spyne</span>
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a> <span class="co"># Delete containers</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a> <span class="ex">docker</span> rm irma-spy sc2-spike-seq</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a> <span class="ex">docker</span> rm mira spyne</span>
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a> <span class="co"># Delete images</span></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a> <span class="ex">docker</span> rmi irma-spy sc2-spike-seq</span></code></pre></div></li>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a> <span class="ex">docker</span> rmi mira spyne</span></code></pre></div></li>
 <li>Install the new MIRA and spyne containers: <a href="setting-up-containers.html">See NGS Training: Setting Up
 Containers</a>
 </li>

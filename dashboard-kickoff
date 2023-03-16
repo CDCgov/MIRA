@@ -1,6 +1,6 @@
 
 #!/bin/bash 
-# Wrapper to launch irma-spy dashboard
+# Wrapper to launch mira dashboard
 
 # Run whatever Bash commands here
 RESOURCE_ROOT=/MIRA

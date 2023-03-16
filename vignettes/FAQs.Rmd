@@ -29,7 +29,7 @@ To upgrade MIRA, spyne, IRMA or DAIS-Ribosome, you first need to remove your cur
 
 Usually you will only need to update some of the 4 required containers.
 
-Follow the removal instructions based on your version, either the original [IRMA-SPY](#irma-spy-uninstall) or [MIRA](#mira-uninstall).
+Follow the removal instructions based on your version, either the original [mira](#mira-uninstall) or [MIRA](#mira-uninstall).
 
 ### MIRA uninstall
 
@@ -49,7 +49,7 @@ Follow the removal instructions based on your version, either the original [IRMA
     ```
 3. Install the new MIRA and spyne containers: [See NGS Training: Setting Up Containers](setting-up-containers.html)
 
-### IRMA-SPY uninstall
+### mira uninstall
 
 1. Open an Ubuntu terminal
 2. ```bash 
@@ -57,13 +57,13 @@ Follow the removal instructions based on your version, either the original [IRMA
     docker ps
     
     # Stop running container you want to update. In this example we are updating mira and spyne.
-    docker stop irma-spy sc2-spike-seq
+    docker stop mira spyne
 
     # Delete containers
-    docker rm irma-spy sc2-spike-seq
+    docker rm mira spyne
 
     # Delete images
-    docker rmi irma-spy sc2-spike-seq
+    docker rmi mira spyne
     ```
 3. Install the new MIRA and spyne containers: [See NGS Training: Setting Up Containers](setting-up-containers.html)
 

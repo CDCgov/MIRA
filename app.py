@@ -654,7 +654,7 @@ CONTENT_STYLE = {
 sidebar = html.Div(
     [
         html.Img(
-            src=app.get_asset_url("irma-spy.jpg"),
+            src=app.get_asset_url("mira.jpg"),
             height=80,
             width=80,
         ),

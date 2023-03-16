@@ -1,4 +1,4 @@
-name: irma-spy-dev
+name: mira-dev
 channels:
   - bioconda
   - anaconda
