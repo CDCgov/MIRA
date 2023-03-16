@@ -13,7 +13,7 @@ read RESPONSE
 [ ${RESPONSE,,} != "yes" ] && exit
 
 # Add google as domain name server
-grep 8.8.8.8 /etc/resolv.conf || echo nameserver 8.8.8.8 >> /etc/resolv.conf
+grep 8.8.8.8 /etc/resolv.conf >/dev/null || echo nameserver 8.8.8.8 >> /etc/resolv.conf
 
 # Update apt-get
 apt-get update
