@@ -1,0 +1,59 @@
+# Troubleshooting
+
+<hr>
+
+### Contents
+### - [MIRA-install.sh failed](#MIRA-install.sh-failed)
+### - [CLI Docker Compose](#CLI-Docker-Compose)
+<hr>
+
+## MIRA-install.sh failed
+MIRA-install.sh expects an Ubuntu 18+ operating system or WSL2 distribution. If you have this, perform the following:
+
+   1. Restart your computer
+   2. Add google's domain name server (DNS) to /etc/resolv.confirm
+      
+        ```bash
+        sudo echo 8.8.8.8 >> /etc/resolv.conf
+        ```
+   3. Open Docker Desktop and select all containers and Delete them.
+    ![alt text](./images/mira_docker_delete_containers.png)
+    ![alt text](./images/mira_docker_delete_images.png)
+   4. Go to [CLI docker compose](#CLI-Docker-Compose)
+
+[Return to contents](#Contents)
+
+<hr>
+
+## CLI Docker Compose
+
+   1. Open a terminal and check your version of docker and docker-compose. docker must be >= 20.10 and docker-compose needs to be >= 1.29
+        
+        ```bash
+         docker --version
+         # Docker version 20.10.7, build 20.10.7-0ubuntu5~18.04.3
+         docker-compose --version
+         # Docker Compose version v2.12.1
+        ```
+        If they are not, please update them by
+
+        ```bash
+         sudo apt-get update
+         sudo apt-get install docker
+        ```
+   2. [Download the compose yaml file by right clicking this link and 'saving as'](https://raw.githubusercontent.com/nbx0/MIRA/prod/docker-compose-git.yml) into your sequencing run top folder, ie `FLU_SC2_SEQUENCING`. You can also download this file on the command line by
+
+        ```bash
+        # Change your working directory to `FLU_SC2_SEQUENCING`
+        cd ~/FLU_SC2_SEQUENCING
+        # Download docker compose file
+        wget https://raw.githubusercontent.com/nbx0/MIRA/prod/docker-compose-git.yml
+        ```
+
+   3. Launch MIRA with docker compose:
+        ```bash
+        docker-compose up -d 
+        ```
+
+
+[Return to contents](#Contents)

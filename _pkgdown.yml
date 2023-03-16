@@ -1,4 +1,4 @@
-url: https://github.com/nbx0/iSpy
+url: https://github.com/nbx0/MIRA
 
 template:
   bootswatch: cosmo
@@ -15,15 +15,15 @@ news:
   one_page: false
 
 navbar:
-  title: "iSpy"
+  title: "MIRA"
   left:
     - text: "Home"
       href: index.html
     - text: "Dockerization"
       menu:
-      - text: "Containerizing iSpy with Docker"
+      - text: "Containerizing MIRA with Docker"
         href: articles/docker.html
-      - text: "Running iSpy with Docker-Compose"
+      - text: "Running MIRA with Docker-Compose"
         href: articles/docker-compose.html
     - text: "NGS-Training"
       menu:
@@ -31,15 +31,15 @@ navbar:
           href: articles/getting-started.html
         - text: Setting up Containers
           href: articles/setting-up-containers.html
-        - text: Running Genome Assembly with iSpy
-          href: articles/running-ispy.html
+        - text: Running Genome Assembly with MIRA
+          href: articles/running-mira.html
     - text: FAQs
       href: articles/FAQs.html
   right:
     - text: "Change Log"
       href: news/index.html
     - icon: fa-github
-      href: https://github.com/nbx0/iSpy
+      href: https://github.com/nbx0/MIRA
       
 footer:
   structure: 

@@ -369,38 +369,38 @@ display: none;
 <div id="container-dependencies" class="section level3">
 <h3>Container Dependencies</h3>
 <ul>
-<li>sc2-spike-seq (see <a href="https://github.com/nbx0/SC2-spike-seq">our Gitlab repo</a>)</li>
+<li>spyne (see <a href="https://github.com/nbx0/SC2-spike-seq">our Gitlab repo</a>)</li>
 </ul>
 </div>
-<div id="dockerize-irma-spy-development-version" class="section level2">
-<h2>Dockerize Irma-Spy (Development Version)</h2>
+<div id="dockerize-mira-development-version" class="section level2">
+<h2>Dockerize MIRA (Development Version)</h2>
 <p>This version allows you to mount the code base that is needed to
-develop the <code>irma-spy</code> dashboard. Any updates or changes to
+develop the <code>mira</code> dashboard. Any updates or changes to
 the code will automatically reflects the changes inside the Docker
 container. This allows continuous integration (CI) of the
 application.</p>
 <div id="clone-this-respitory" class="section level3">
 <h3>(1) Clone this respitory</h3>
-<pre><code>git clone https://git.biotech.cdc.gov/nbx0/irma-spy.git</code></pre>
+<pre><code>git clone https://git.biotech.cdc.gov/nbx0/mira.git</code></pre>
 </div>
-<div id="cd-to-irma-spy-folder-where-dockerfile-file-is-stored-and-build-the-docker-image." class="section level3">
-<h3>(2) CD to <code>irma-spy</code> folder where <code>Dockerfile</code>
+<div id="cd-to-mira-folder-where-dockerfile-file-is-stored-and-build-the-docker-image." class="section level3">
+<h3>(2) CD to <code>mira</code> folder where <code>Dockerfile</code>
 file is stored and build the docker image.</h3>
 <p><strong>NOTE:</strong> <code>Dockerfile</code> contains a list of
-instructions and steps of how to build and run the <code>irma-spy</code>
+instructions and steps of how to build and run the <code>mira</code>
 dashboard.</p>
 <ul>
 <li>Using a build-arg</li>
 </ul>
-<pre><code>docker build -t irma-spy-dev:v1.0.0 --build-arg BUILD_STAGE=dev .</code></pre>
+<pre><code>docker build -t mira-dev:v1.0.0 --build-arg BUILD_STAGE=dev .</code></pre>
 <ul>
 <li>Using a specific dockerfile for development stage
 (e.g. <code>Dockerfile.dev</code>)</li>
 </ul>
-<pre><code>docker build -t irma-spy-dev:v1.0.0 -f Dockerfile.dev .</code></pre>
+<pre><code>docker build -t mira-dev:v1.0.0 -f Dockerfile.dev .</code></pre>
 <p><strong>-t</strong>: add a tag to an image such as the version of the
-application, e.g. <em>irma-spy-dev:v1.0.0</em> or
-<em>irma-spy-dev:latest</em> <br> <strong><code>--</code>file,
+application, e.g. <em>mira-dev:v1.0.0</em> or
+<em>mira-dev:latest</em> <br> <strong><code>--</code>file,
 -f</strong>: name of the Dockerfile <br>
 <strong><code>--</code>build-arg</strong>: set the build stage for the
 docker image. In this case, we want to build the
@@ -413,18 +413,18 @@ built successfully</h3>
 <pre><code>docker images
 
 REPOSITORY        TAG        IMAGE ID        CREATED        SIZE
-irma-spy-dev      v1.0.0     2c22887402d3    2 hours ago    1.63GB</code></pre>
+mira-dev      v1.0.0     2c22887402d3    2 hours ago    1.63GB</code></pre>
 </div>
-<div id="to-run-the-irma-spy-dev-container" class="section level3">
-<h3>(4) To run the <code>irma-spy-dev</code> container</h3>
-<pre><code>docker run -v /path/to/data:/data -v /path/to/irma-spy:/irma-spy -v /var/run/docker.sock:/var/run/docker.sock -d -p 8080:8050 --name irma-spy-dev irma-spy-dev:v1.0.0 </code></pre>
+<div id="to-run-the-mira-dev-container" class="section level3">
+<h3>(4) To run the <code>mira-dev</code> container</h3>
+<pre><code>docker run -v /path/to/data:/data -v /path/to/mira:/mira -v /var/run/docker.sock:/var/run/docker.sock -d -p 8080:8050 --name mira-dev mira-dev:v1.0.0 </code></pre>
 <p><strong>NOTE:</strong> - Change <strong>/path/to/data</strong> to
 your local directory where it contains all data files needed to feed
-into the <code>irma-spy</code> dashboard. This directory is mounted to
+into the <code>mira</code> dashboard. This directory is mounted to
 <code>/data</code> directory inside the container. <br> - Change
-<strong>/path/to/irma-spy</strong> to your local <code>irma-spy</code>
+<strong>/path/to/mira</strong> to your local <code>mira</code>
 directory. This directory must contain all of the code base needed to
-build the <code>irma-spy</code> dashboard. <br> -
+build the <code>mira</code> dashboard. <br> -
 <strong>/var/run/docker.sock:/var/run/docker.sock</strong> is used to
 connect the host’s docker.socket to container’s docker.socket where you
 can run a container inside of another container. <br></p>
@@ -433,7 +433,7 @@ can run a container inside of another container. <br></p>
 to container directory <strong>[host_div]:[container_dir]</strong>. By
 exposing the host directory to docker container, docker will be able to
 access data files within that mounted directory and use it to fire up
-the <code>irma-spy</code> dashboard. <br> <strong>-p</strong>: map the
+the <code>mira</code> dashboard. <br> <strong>-p</strong>: map the
 host port to the container port and then all the requests that are made
 to the host port will be redirected to the Docker container
 <strong>[host_port]:[container_port]</strong> <br>
@@ -447,48 +447,48 @@ reference</a></p>
 
 
 CONTAINER ID   IMAGE                   COMMAND                    CREATED        STATUS        PORTS                    NAMES
-b37b6b19c4e8   irma-spy-dev:v1.0.0     &quot;bash dashboard-kickoff&quot;   5 hours ago    Up 5 hours    0.0.0.0:8080-&gt;8050/tcp   irma-spy-dev
+b37b6b19c4e8   mira-dev:v1.0.0     &quot;bash dashboard-kickoff&quot;   5 hours ago    Up 5 hours    0.0.0.0:8080-&gt;8050/tcp   mira-dev
 </code></pre>
-<p><strong>NOTE:</strong> Here the <code>irma-spy-dev</code> container
+<p><strong>NOTE:</strong> Here the <code>mira-dev</code> container
 is published on port <strong>8080</strong> on the host machine, and
-<strong>8050</strong> is the port of where the <code>irma-spy</code> is
+<strong>8050</strong> is the port of where the <code>mira</code> is
 published inside the container. All the requests that are made to the
 host port will be redirected to the Docker container.</p>
 </div>
 </div>
-<div id="access-the-irma-spy-dashboard-on-the-host-network" class="section level3">
-<h3>(6) Access the <code>irma-spy</code> dashboard on the host
+<div id="access-the-mira-dashboard-on-the-host-network" class="section level3">
+<h3>(6) Access the <code>mira</code> dashboard on the host
 network</h3>
 <p>You can visit the local host using your preferred web browser, type
 in <a href="http://localhost:8080" class="uri">http://localhost:8080</a>, and check if the dashboard is
 indeed hosted there.</p>
 </div>
 </div>
-<div id="dockerize-irma-spy-production-version" class="section level2">
-<h2>Dockerize Irma-Spy (Production Version)</h2>
+<div id="dockerize-mira-production-version" class="section level2">
+<h2>Dockerize MIRA (Production Version)</h2>
 <p>This version <strong>ONLY</strong> allows you to mount the data files
-that are needed to feed into the <code>irma-spy</code> dashboard. You do
-not have access to the code base of <code>irma-spy</code> which can
+that are needed to feed into the <code>mira</code> dashboard. You do
+not have access to the code base of <code>mira</code> which can
 ultimately break the program.</p>
 <div id="clone-this-respitory-1" class="section level3">
 <h3>(1) Clone this respitory</h3>
-<pre><code>git clone https://git.biotech.cdc.gov/nbx0/irma-spy.git</code></pre>
+<pre><code>git clone https://git.biotech.cdc.gov/nbx0/mira.git</code></pre>
 </div>
-<div id="cd-to-irma-spy-folder-where-dockerfile-file-is-stored-and-build-the-docker-image.-1" class="section level3">
-<h3>(2) CD to <code>irma-spy</code> folder where <code>Dockerfile</code>
+<div id="cd-to-mira-folder-where-dockerfile-file-is-stored-and-build-the-docker-image.-1" class="section level3">
+<h3>(2) CD to <code>mira</code> folder where <code>Dockerfile</code>
 file is stored and build the docker image.</h3>
 <ul>
 <li>By DEFAULT,</li>
 </ul>
-<pre><code>docker build -t irma-spy-prod:v1.0.0 .</code></pre>
+<pre><code>docker build -t mira-prod:v1.0.0 .</code></pre>
 <ul>
 <li>Using a specific dockerfile for production stage
 (e.g. <code>Dockerfile.prod</code>)</li>
 </ul>
-<pre><code>docker build -t irma-spy-prod:v1.0.0 -f Dockerfile.prod .</code></pre>
+<pre><code>docker build -t mira-prod:v1.0.0 -f Dockerfile.prod .</code></pre>
 <p><strong>-t</strong>: add a tag to an image such as the version of the
-application, e.g. <em>irma-spy-prod:v1.0.0</em> or
-<em>irma-spy-prod:latest</em> <br> <strong><code>--</code>file,
+application, e.g. <em>mira-prod:v1.0.0</em> or
+<em>mira-prod:latest</em> <br> <strong><code>--</code>file,
 -f</strong>: name of the Dockerfile</p>
 <p><em>The image took approximately &lt; 10 mins to build</em></p>
 </div>
@@ -498,14 +498,14 @@ built successfully.</h3>
 <pre><code>docker images
 
 REPOSITORY        TAG        IMAGE ID        CREATED        SIZE
-irma-spy-prod     v1.0.0     6dab1b639b9a    2 hours ago    1.63GB</code></pre>
+mira-prod     v1.0.0     6dab1b639b9a    2 hours ago    1.63GB</code></pre>
 </div>
-<div id="to-run-the-irma-spy-prod-container" class="section level3">
-<h3>(4) To run the <code>irma-spy-prod</code> container</h3>
-<pre><code>docker run -v /path/to/data:/data -v /var/run/docker.sock:/var/run/docker.sock -d -p 8050:8050 --name irma-spy-prod irma-spy-prod:v1.0.0 </code></pre>
+<div id="to-run-the-mira-prod-container" class="section level3">
+<h3>(4) To run the <code>mira-prod</code> container</h3>
+<pre><code>docker run -v /path/to/data:/data -v /var/run/docker.sock:/var/run/docker.sock -d -p 8050:8050 --name mira-prod mira-prod:v1.0.0 </code></pre>
 <p><strong>NOTE:</strong> - Change <strong>/path/to/data</strong> to
 your local directory where it contains all data files needed to feed
-into the <code>irma-spy</code> dashboard. This directory is mounted to
+into the <code>mira</code> dashboard. This directory is mounted to
 <code>/data</code> directory inside the container. <br> -
 <strong>/var/run/docker.sock:/var/run/docker.sock</strong> is used to
 connect the host’s docker.socket to container’s docker.socket where you
@@ -515,7 +515,7 @@ can run a container inside of another container<br></p>
 to container directory <strong>[host_div]:[container_dir]</strong>. By
 exposing the host directory to docker container, docker will be able to
 access data files within that mounted directory and use it to feed to
-the <code>irma-spy</code> dashboard. <br> <strong>-p</strong>: map the
+the <code>mira</code> dashboard. <br> <strong>-p</strong>: map the
 host port to the container port and then all the requests that are made
 to the host port will be redirected to the Docker container
 <strong>[host_port]:[container_port]</strong> <br>
@@ -529,23 +529,23 @@ reference</a></p>
 
 
 CONTAINER ID   IMAGE                   COMMAND                     CREATED        STATUS        PORTS                    NAMES
-717b0825bc66   irma-spy-prod:v1.0.0     &quot;bash dashboard-kickoff&quot;   5 hours ago    Up 5 hours    0.0.0.0:8050-&gt;8050/tcp   irma-spy-prod
+717b0825bc66   mira-prod:v1.0.0     &quot;bash dashboard-kickoff&quot;   5 hours ago    Up 5 hours    0.0.0.0:8050-&gt;8050/tcp   mira-prod
 </code></pre>
 <p><strong>NOTE:</strong> Here we are publishing the
-<code>irma-spy-prod</code> container on port <strong>8050</strong> on
+<code>mira-prod</code> container on port <strong>8050</strong> on
 the host machine. This port is different from the
 <strong>development</strong> version which we previously launched on
 port <strong>8080</strong>.</p>
 </div>
 </div>
-<div id="access-the-irma-spy-dashboard-on-the-host-network-1" class="section level3">
-<h3>(6) Access the <code>irma-spy</code> dashboard on the host
+<div id="access-the-mira-dashboard-on-the-host-network-1" class="section level3">
+<h3>(6) Access the <code>mira</code> dashboard on the host
 network</h3>
 <p>You can visit the local host using your preferred web browser, type
 in <a href="http://localhost:8050" class="uri">http://localhost:8050</a>, and check if the dashboard is
 indeed hosted there.</p>
 <p><br></p>
-<p>Any questions or issues? Please report them on our <a href="https://git.biotech.cdc.gov/nbx0/irma-spy/-/issues">github
+<p>Any questions or issues? Please report them on our <a href="https://git.biotech.cdc.gov/nbx0/mira/-/issues">github
 issues</a></p>
 <p><br></p>
 </div>

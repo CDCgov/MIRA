@@ -12,10 +12,23 @@ read RESPONSE
 
 [ ${RESPONSE,,} != "yes" ] && exit
 
-apt-get update
-apt-get install docker
+# Add google as domain name server
+grep 8.8.8.8 /etc/resolv.conf >/dev/null || echo nameserver 8.8.8.8 >> /etc/resolv.conf
 
-export COMPOSE_PROJECT_NAME=IRMAVISION
+# Update apt-get
+if $(uname) != 'Darwin'; then
+  apt-get update
+  apt-get install docker
+fi
+# Remove pre-MIRA software
+for i in $(docker ps |tr -s ' ' |cut -d ' ' -f2 | grep -e irma-spy -e sc2-spike-seq -e ispy); do
+  docker stop $i
+  docker rm -f $i
+  docker rmi -f $i
+done
+
+# MIRA
+export COMPOSE_PROJECT_NAME=MIRA
 
 DC_FILE_CONTENT="version: \"3.9\"\n\
 \n\
@@ -31,9 +44,9 @@ x-spyne-git-version:\n\
   &spyne-git-version  \n\
   https://github.com/nbx0/spyne.git#prod\n\
 \n\
-x-irmavision-git-version:\n\
-  &irmavision-git-version  \n\
-  https://github.com/nbx0/iSpy.git#prod \n\
+x-mira-git-version:\n\
+  &mira-git-version  \n\
+  https://github.com/nbx0/MIRA.git#renameMIRA \n\
 \n\
 x-data-volumes:\n\
   &data-volume\n\
@@ -83,11 +96,11 @@ services:\n\
       - *docker-socket\n\
     command: tail -f /dev/null\n\
 \n\
-  irmavision: \n\
-    container_name: irmavision\n\
-    image: irmavision\n\
+  mira: \n\
+    container_name: mira\n\
+    image: mira\n\
     build: \n\
-      context: *irmavision-git-version  \n\
+      context: *mira-git-version  \n\
     depends_on:\n\
       - dais\n\
       - irma\n\

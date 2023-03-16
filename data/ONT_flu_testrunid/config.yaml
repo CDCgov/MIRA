@@ -1,8 +1,0 @@
-runid: tiny_test_run_flu
-samples:
-  aa:
-    sample_type: Test
-  bb:
-    sample_type: Test
-  cc:
-    sample_type: Test
