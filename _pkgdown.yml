@@ -33,6 +33,8 @@ navbar:
           href: articles/setting-up-containers.html
         - text: Running Genome Assembly with MIRA
           href: articles/running-mira.html
+        - text: Troubleshooting
+          href: articles/troubleshooting.html
     - text: FAQs
       href: articles/FAQs.html
   right:
