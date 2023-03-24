@@ -19,24 +19,20 @@ navbar:
   left:
     - text: "Home"
       href: index.html
-    - text: "Dockerization"
-      menu:
-      - text: "Containerizing MIRA with Docker"
-        href: articles/docker.html
-      - text: "Running MIRA with Docker-Compose"
-        href: articles/docker-compose.html
     - text: "NGS-Training"
       menu:
         - text: Getting Started
           href: articles/getting-started.html
-        - text: Setting up Containers
-          href: articles/setting-up-containers.html
+        - text: MIRA installation
+          href: articles/mira-installation.html
         - text: Running Genome Assembly with MIRA
           href: articles/running-mira.html
-        - text: Troubleshooting
-          href: articles/troubleshooting.html
-    - text: FAQs
-      href: articles/FAQs.html
+    - text: Help
+      menu:
+        text: FAQs
+        href: articles/FAQs.html
+        text: Troubleshooting
+        href: articles/troubleshooting.html
   right:
     - text: "Change Log"
       href: news/index.html

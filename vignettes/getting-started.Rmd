@@ -1,12 +1,3 @@
-## Contents
-### 1. [Computer requirements](#computer-requirements)
-### 2. [Install linux on a Windows 10/11 computer](#install-linux-on-a-windows-1011-computer)
-### 3. [Map network drive in Window's File Explorer to see folders and files inside WSL](#map-network-drive-to-be-able-to-use-windows-file-explorer-to-see-folders-and-files-inside-wsl)
-### 4. [Install Docker Desktop](#install-docker-desktop)
-### 5. [Install Docker CLI (Command Line Interface) in WSL2](#install-docker-cli-command-line-interface-in-wsl2)
-### 6. [Install a sequence viewer](#install-a-sequence-viewer)
-
-<hr>
 
 ## Computer requirements
 - A minimum of 16GB of memory is required. >=32GB is recommended.
@@ -16,7 +7,7 @@
     - *This software has not yet been tested on Apple's M-chip based OS
     - If you are using a Mac, [skip to installing Docker](#install-docker-desktop)
 
-[Return to Contents](#contents)
+
 
 ## Install linux on a Windows 10/11 computer
 You can get a full linux environment using Windows Subsystem for Linux, or WSL. The second version of WSL is WSL2 and is the recommended version to use.
@@ -52,12 +43,13 @@ Further details can be found on Microsoft's website here: [https://docs.microsof
 <br/><br/>
 
 
-[Return to Contents](#contents)
+
 
 ## Map network drive to be able to use Window's File Explorer to see folders and files inside WSL
 
 **_Windows 11 and updated versions of Windows 10 should automatically mount Linux. If you have "Linux" in your `File Explorer`, you are good to go and do not need to perform this step._
-![alt text](./images/map_drive_win11-10_linux.png)
+
+![](./images/map_drive_win11-10_linux.png)
 
 **_Many computers have trouble with this step; the folders are not selectable during this step. First, make sure that an Ubuntu terminal is opened and then open the `File Explorer`. If "Ubuntu" is still not showing up in `File Explorer`, you can try to find the solution here: [https://github.com/microsoft/WSL/issues/3996](https://github.com/microsoft/WSL/issues/3996)._
 
@@ -68,23 +60,25 @@ Further details can be found on Microsoft's website here: [https://docs.microsof
 3. Enter `\\wsl$` into Folder: <a href="./images/map_drive_2.png" target="_blank">and click Browse</a>
 4. Click on `wsl$` to unfold directories, select `Ubuntu-18.04` <a href="./images/map_drive_3.png" target="_blank">and click OK</a> and then `Finish`. You should now see your WSL "drive" available in `File Explorer`:
 
-    ![alt text](./images/map_drive_4.png)
+    ![](./images/map_drive_4.png)
     
     
-[Return to Contents](#contents)
+
 
 ## [Install Docker Desktop](https://www.docker.com/products/docker-desktop/)
 Docker allows you to run software inside an isolated "container image" on your computer with all of that application's needed dependencies. Make sure to install the version for your operating system.
+
 - [Windows](https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe?utm_source=docker&utm_medium=webreferral&utm_campaign=dd-smartbutton&utm_location=header)
 - [Mac-Intel](https://desktop.docker.com/mac/main/amd64/Docker.dmg?utm_source=docker&utm_medium=webreferral&utm_campaign=dd-smartbutton&utm_location=module)
 - [Mac-AppleChip](https://desktop.docker.com/mac/main/arm64/Docker.dmg?utm_source=docker&utm_medium=webreferral&utm_campaign=dd-smartbutton&utm_location=module)
 - [Linux](https://docs.docker.com/desktop/linux/install/)
 
-    - If you get an error related to Docker user groups, go to "Edit local users and groups" from your Windows search bar
-    - Click Groups --> docker-users --> Add... --> then enter your username
-      ![alt text](./images/dockerusers.png)
+If you get an error related to Docker user groups, go to "Edit local users and groups" from your Windows search bar
+Click Groups --> docker-users --> Add... --> then enter your username
 
-[Return to Contents](#contents)
+![](./images/dockerusers.png)
+
+
 
 ## [Install Docker CLI (Command Line Interface) in WSL2](https://docs.docker.com/engine/install/ubuntu/)
 
@@ -154,7 +148,7 @@ All following lines of code can be copy/pasted into your terminal. Pasting using
     ```
 
 
-[Return to Contents](#contents)
+
 
 ## Install a sequence viewer
 - [Windows Bio Edit](https://bioedit.software.informer.com/)
@@ -165,4 +159,4 @@ All following lines of code can be copy/pasted into your terminal. Pasting using
 <br/><br/>
 
 
-[Return to Contents](#contents)
+

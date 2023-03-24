@@ -28,7 +28,7 @@ service, product, or enterprise.
 written on the top of **Flask**, **Plotly.js** and **React.js**. The dashboard
 allows users to interactively create a metadata and config file for
 running Influenza Genome and SARS-CoV-2 Spike-Gene Assembly. Coming soon, it
-will generate the files necessary to upload via FTP to NCBI’s databases
+will allow for upload via FTP to NCBI’s databases
 **Genbank**, **BioSample**, and **SRA**, as well as **GISAID**.
 
 
@@ -39,7 +39,7 @@ MIRA’s dashboard relies on four Docker containers to run its genome assembly a
 - **spyne:** a Snakemake workflow manager designed for running Influenza Genome and SARS-CoV-2 Spike-Gene assembly.
 - **MIRA:** a GUI web interface that allows users to interactively create a metadata and config file for running Influenza Genome and SARS-CoV-2 Spike-Gene assembly and curation.
 
-![alt text](./vignettes/images/mira_flowchart_mermaid.png)
+![](vignettes/images/mira_flowchart_mermaid.png)
 <hr>
 
 ## Quick Start on Ubuntu OS:
