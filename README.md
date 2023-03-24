@@ -39,7 +39,8 @@ MIRA’s dashboard relies on four Docker containers to run its genome assembly a
 - **spyne:** a Snakemake workflow manager designed for running Influenza Genome and SARS-CoV-2 Spike-Gene assembly.
 - **MIRA:** a GUI web interface that allows users to interactively create a metadata and config file for running Influenza Genome and SARS-CoV-2 Spike-Gene assembly and curation.
 
-![](vignettes/images/mira_flowchart_mermaid.png)
+![](images/mira_flowchart_mermaid.png)
+
 <hr>
 
 ## Quick Start on Ubuntu OS:
