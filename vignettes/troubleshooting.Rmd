@@ -2,11 +2,6 @@
 
 <hr>
 
-### Contents
-### - [MIRA-install.sh failed](#MIRA-install.sh-failed)
-### - [CLI Docker Compose](#CLI-Docker-Compose)
-<hr>
-
 ## MIRA-install.sh failed
 MIRA-install.sh expects an Ubuntu 18+ operating system or WSL2 distribution. If you have this, perform the following:
 
