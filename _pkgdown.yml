@@ -29,9 +29,9 @@ navbar:
           href: articles/running-mira.html
     - text: Help
       menu:
-        text: FAQs
+      - text: FAQs
         href: articles/FAQs.html
-        text: Troubleshooting
+      - text: Troubleshooting
         href: articles/troubleshooting.html
   right:
     - text: "Change Log"
