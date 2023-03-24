@@ -13,6 +13,17 @@ authors:
 
 news:
   one_page: false
+   
+home:
+  sidebar: 
+    structure: [github_links, github_issues, license, citation, authors]
+    components:
+      github_links:
+        title: Browse source code
+        text: https://github.com/nbx0/MIRA
+      github_issues:
+        title: Report a bug
+        text: https://github.com/nbx0/MIRA/issues
 
 navbar:
   title: "MIRA"
