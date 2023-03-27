@@ -11,7 +11,7 @@ MIRA runs inside Docker containers. Containers have all of the code and dependen
    ```
 2. Download the installation script from the internet:
    ```bash
-    wget https://raw.githubusercontent.com/nbx0/MIRA/renameMIRA/MIRA-INSTALL.sh
+    wget https://raw.githubusercontent.com/nbx0/MIRA/prod/MIRA-INSTALL.sh
    ```
 3. Run the install script with `sudo`:
    ```bash
