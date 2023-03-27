@@ -3,6 +3,15 @@
 on:
   push:
     branches: [prod]
+    paths: 
+      - '.github/workflows/pkgdown.yaml'
+      - 'vignettes/**'
+      - 'man/**'
+      - 'README.md'
+      - 'DESCRIPTION'
+      - 'LICENSE'      
+      - 'NEWS.md'
+      - '_pkgdown.yml'
   pull_request:
     branches: [prod]
   release:
