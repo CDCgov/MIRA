@@ -102,19 +102,75 @@
       <h1 data-toc-skip></h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/nbx0/MIRA/blob/HEAD/vignettes/docker-compose.Rmd"><code>vignettes/docker-compose.Rmd</code></a></small>
-      <div class="hidden name"><code>docker-compose.Rmd</code></div>
+      <small class="dont-index">Source: <a href="https://github.com/nbx0/MIRA/blob/HEAD/vignettes/troubleshooting.Rmd"><code>vignettes/troubleshooting.Rmd</code></a></small>
+      <div class="hidden name"><code>troubleshooting.Rmd</code></div>
 
     </div>
 
     
     
-
+<div class="section level2">
+<h2 id="troubleshooting">Troubleshooting<a class="anchor" aria-label="anchor" href="#troubleshooting"></a>
+</h2>
+<hr>
+<div class="section level3">
+<h3 id="mira-install-sh-failed">MIRA-install.sh failed<a class="anchor" aria-label="anchor" href="#mira-install-sh-failed"></a>
+</h3>
+<p>MIRA-install.sh expects an Ubuntu 18+ operating system or WSL2
+distribution. If you have this, perform the following:</p>
+<ol style="list-style-type: decimal">
+<li><p>Restart your computer</p></li>
+<li>
+<p>Add google’s domain name server (DNS) to /etc/resolv.confirm</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> echo 8.8.8.8 <span class="op">&gt;&gt;</span> /etc/resolv.conf</span></code></pre></div>
+</li>
+<li><p>Open Docker Desktop and select all containers and Delete them.
+<img src="images/mira_docker_delete_containers.png" alt="alt text"><img src="images/mira_docker_delete_images.png" alt="alt text"></p></li>
+<li><p>Go to <a href="#CLI-Docker-Compose">CLI docker
+compose</a></p></li>
+</ol>
+<p><a href="#Contents">Return to contents</a></p>
+<hr>
+</div>
+<div class="section level3">
+<h3 id="cli-docker-compose">CLI Docker Compose<a class="anchor" aria-label="anchor" href="#cli-docker-compose"></a>
+</h3>
+<ol style="list-style-type: decimal">
+<li>
+<p>Open a terminal and check your version of docker and
+docker-compose. docker must be &gt;= 20.10 and docker-compose needs to
+be &gt;= 1.29</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a> <span class="ex">docker</span> <span class="at">--version</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a> <span class="co"># Docker version 20.10.7, build 20.10.7-0ubuntu5~18.04.3</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a> <span class="ex">docker-compose</span> <span class="at">--version</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a> <span class="co"># Docker Compose version v2.12.1</span></span></code></pre></div>
+<p>If they are not, please update them by</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a> <span class="fu">sudo</span> apt-get update</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a> <span class="fu">sudo</span> apt-get install docker</span></code></pre></div>
+</li>
+<li>
+<p><a href="https://raw.githubusercontent.com/nbx0/MIRA/prod/docker-compose-git.yml" class="external-link">Download
+the compose yaml file by right clicking this link and ‘saving as’</a>
+into your sequencing run top folder, ie <code>FLU_SC2_SEQUENCING</code>.
+You can also download this file on the command line by</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Change your working directory to `FLU_SC2_SEQUENCING`</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ~/FLU_SC2_SEQUENCING</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Download docker compose file</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="fu">wget</span> https://raw.githubusercontent.com/nbx0/MIRA/prod/docker-compose-git.yml</span></code></pre></div>
+</li>
+<li><p>Launch MIRA with docker compose:
+<code>bash         docker-compose up -d</code></p></li>
+</ol>
+<p><a href="#Contents">Return to contents</a></p>
+</div>
+</div>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
 
-      </div>
+        <nav id="toc" data-toggle="toc"><h2 data-toc-skip>Contents</h2>
+    </nav>
+</div>
 
 </div>
 
