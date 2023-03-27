@@ -44,7 +44,7 @@ MIRA’s dashboard relies on four Docker containers to run its genome assembly a
 <hr>
 
 ## Quick Start on Ubuntu OS:
-- <a href="https://raw.githubusercontent.com/nbx0/MIRA/prod/mira_install.sh" download>Right click this link and click 'save as'</a> and save it into the folder that you will add new run-folders to, ie. `FLU_SC2_SEQUENCING`.
+- <a href="https://raw.githubusercontent.com/nbx0/MIRA/prod/MIRA-INSTALL.sh" download>Right click this link and click 'save as'</a> and save it into the folder that you will add new run-folders to, ie. `FLU_SC2_SEQUENCING`.
 - Navigate to that folder on the command line and run:
     ```
     chmod +x ./MIRA-INSTALL.sh
