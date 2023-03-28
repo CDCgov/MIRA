@@ -14,7 +14,7 @@ x-spyne-git-version:
 
 x-mira-git-version:
   &mira-git-version  
-  https://github.com/nbx0/MIRA.git#rename_mira
+  https://github.com/CDCgov/MIRA.git#prod
 
 x-data-volumes:
   &data-volume
