@@ -20,9 +20,9 @@ MIRA is under active development. If you need help, would like to contribute, or
 
 - Send us an email at [idseqsupport@cdc.gov](mailto:idseqsupport.gov)
 
-- To report bugs or file feature requests, use the [issue tracker on Github](https://github.com/nbx0/MIRA/issues).
+- To report bugs or file feature requests, use the [issue tracker on Github](https://github.com/CDCgov/MIRA/issues).
 
-- To contribute code submit a [pull request on Github](https://github.com/nbx0/MIRA/pulls).
+- To contribute code submit a [pull request on Github](https://github.com/CDCgov/MIRA/pulls).
 
 
 ## How to remove containers. This is a good idea if you are having trouble with your version and need a fresh start. This will not have any effect on your sequencing data.

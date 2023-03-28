@@ -1,4 +1,4 @@
-url: https://github.com/nbx0/MIRA
+url: https://github.com/CDCgov/MIRA
 
 template:
   bootswatch: cosmo
@@ -20,10 +20,10 @@ home:
     components:
       github_links:
         title: Browse source code
-        text: https://github.com/nbx0/MIRA
+        text: https://github.com/CDCgov/MIRA
       github_issues:
         title: Report a bug
-        text: https://github.com/nbx0/MIRA/issues
+        text: https://github.com/CDCgov/MIRA/issues
 
 navbar:
   title: "MIRA"
@@ -48,7 +48,7 @@ navbar:
     - text: "Change Log"
       href: news/index.html
     - icon: fa-github
-      href: https://github.com/nbx0/MIRA
+      href: https://github.com/CDCgov/MIRA
       
 footer:
   structure: 

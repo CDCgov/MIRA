@@ -36,13 +36,13 @@ MIRA-install.sh expects an Ubuntu 18+ operating system or WSL2 distribution. If 
          sudo apt-get update
          sudo apt-get install docker
         ```
-   2. [Download the compose yaml file by right clicking this link and 'saving as'](https://raw.githubusercontent.com/nbx0/MIRA/prod/docker-compose-git.yml) into your sequencing run top folder, ie `FLU_SC2_SEQUENCING`. You can also download this file on the command line by
+   2. [Download the compose yaml file by right clicking this link and 'saving as'](https://raw.githubusercontent.com/CDCgov/MIRA/prod/docker-compose-git.yml) into your sequencing run top folder, ie `FLU_SC2_SEQUENCING`. You can also download this file on the command line by
 
         ```bash
         # Change your working directory to `FLU_SC2_SEQUENCING`
         cd ~/FLU_SC2_SEQUENCING
         # Download docker compose file
-        wget https://raw.githubusercontent.com/nbx0/MIRA/prod/docker-compose-git.yml
+        wget https://raw.githubusercontent.com/CDCgov/MIRA/prod/docker-compose-git.yml
         ```
 
    3. Launch MIRA with docker compose:
