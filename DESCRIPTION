@@ -18,10 +18,10 @@ Description: MIRA is an interactive dashboard created using Dash, a python frame
   to upload via FTP to NCBI’s databases Genbank, BioSample, and SRA, as well as, GISAID.
 RoxygenNote: 7.2.3
 License: GPL-3 + file LICENSE
-URL: https://github.com/nbx0/MIRA
+URL: https://github.com/CDCgov/MIRA
 Encoding: UTF-8
 VignetteBuilder: knitr
-BugReports: https://github.com/nbx0/MIRA/issues
+BugReports: https://github.com/CDCgov/MIRA/issues
 
 
 

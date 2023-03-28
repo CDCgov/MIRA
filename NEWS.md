@@ -1,4 +1,4 @@
 
 # MIRA 1.0.0
-* Github Repo: https://github.com/nbx0/MIRA
+* Github Repo: https://github.com/CDCgov/MIRA
 * Documentation: https://cdcgov.github.io/MIRA
