@@ -1,0 +1,29 @@
+## IRMA QC 
+### Nanopore QC thresholds
+
+#### Flu
+- Read length >= 150
+- Insertion frequency >= 75%
+- Deletion frequency >= 75%
+- Minimum coverage to call base >= 50X depth
+- Average base quality to call >= 10
+- Mixed [IUPAC](https://www.bioinformatics.org/sms/iupac.html) base when Minor Allele Frequency >= 20%
+
+#### Spike SARS-CoV-2
+- Read length >= 125
+- Insertion frequency >= 50%
+- Minimum insertion coverage to call base >= 15X depth
+- Deletion frequency >= 50%
+- Minimum deletion coverage to call deletion >= 10X depth
+- Average base quality to call >= 10
+- Mixed [IUPAC](https://www.bioinformatics.org/sms/iupac.html) base when Minor Allele Frequency >= 20%
+
+### Illumina QC thresholds
+- Read length >= 
+
+## Post-Assembly QC Curation
+
+- Minimum median coverage of 50x
+- Minimum coverage of the reference length of 90%
+- Less than 10 minor variants >=5%
+- No premature stop codons in Spike (SC2), HA (Flu), or NA (Flu)

@@ -105,19 +105,72 @@
       <h1 data-toc-skip></h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/CDCgov/MIRA/blob/HEAD/vignettes/docker-compose.Rmd"><code>vignettes/docker-compose.Rmd</code></a></small>
-      <div class="hidden name"><code>docker-compose.Rmd</code></div>
+      <small class="dont-index">Source: <a href="https://github.com/CDCgov/MIRA/blob/HEAD/vignettes/sequence-qc.Rmd"><code>vignettes/sequence-qc.Rmd</code></a></small>
+      <div class="hidden name"><code>sequence-qc.Rmd</code></div>
 
     </div>
 
     
     
-
+<div class="section level2">
+<h2 id="irma-qc">IRMA QC<a class="anchor" aria-label="anchor" href="#irma-qc"></a>
+</h2>
+<div class="section level3">
+<h3 id="nanopore-qc-thresholds">Nanopore QC thresholds<a class="anchor" aria-label="anchor" href="#nanopore-qc-thresholds"></a>
+</h3>
+<div class="section level4">
+<h4 id="flu">Flu<a class="anchor" aria-label="anchor" href="#flu"></a>
+</h4>
+<ul>
+<li>Read length &gt;= 150</li>
+<li>Insertion frequency &gt;= 75%</li>
+<li>Deletion frequency &gt;= 75%</li>
+<li>Minimum coverage to call base &gt;= 50X depth</li>
+<li>Average base quality to call &gt;= 10</li>
+<li>Mixed <a href="https://www.bioinformatics.org/sms/iupac.html" class="external-link">IUPAC</a> base when
+Minor Allele Frequency &gt;= 20%</li>
+</ul>
+</div>
+<div class="section level4">
+<h4 id="spike-sars-cov-2">Spike SARS-CoV-2<a class="anchor" aria-label="anchor" href="#spike-sars-cov-2"></a>
+</h4>
+<ul>
+<li>Read length &gt;= 125</li>
+<li>Insertion frequency &gt;= 50%</li>
+<li>Minimum insertion coverage to call base &gt;= 15X depth</li>
+<li>Deletion frequency &gt;= 50%</li>
+<li>Minimum deletion coverage to call deletion &gt;= 10X depth</li>
+<li>Average base quality to call &gt;= 10</li>
+<li>Mixed <a href="https://www.bioinformatics.org/sms/iupac.html" class="external-link">IUPAC</a> base when
+Minor Allele Frequency &gt;= 20%</li>
+</ul>
+</div>
+</div>
+<div class="section level3">
+<h3 id="illumina-qc-thresholds">Illumina QC thresholds<a class="anchor" aria-label="anchor" href="#illumina-qc-thresholds"></a>
+</h3>
+<ul>
+<li>Read length &gt;=</li>
+</ul>
+</div>
+</div>
+<div class="section level2">
+<h2 id="post-assembly-qc-curation">Post-Assembly QC Curation<a class="anchor" aria-label="anchor" href="#post-assembly-qc-curation"></a>
+</h2>
+<ul>
+<li>Minimum median coverage of 50x</li>
+<li>Minimum coverage of the reference length of 90%</li>
+<li>Less than 10 minor variants &gt;=5%</li>
+<li>No premature stop codons in Spike (SC2), HA (Flu), or NA (Flu)</li>
+</ul>
+</div>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
 
-      </div>
+        <nav id="toc" data-toggle="toc"><h2 data-toc-skip>Contents</h2>
+    </nav>
+</div>
 
 </div>
 

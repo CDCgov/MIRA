@@ -1,6 +1,6 @@
 #!/bin/bash
 
-[ $(whoami) != 'root' ] && echo -e "\nPlease run with sudo:\n\n\tsudo $0\n" && exit
+[ "$(whoami)" != 'root' ] && echo -e "\nPlease run with sudo:\n\n\tsudo $0\n" && exit
 
 echo -e "\n\n\tYour individual sequencing runs must be saved inside ${PWD}\n\
     \tEnter \"yes\" to confirm.\n\n\
@@ -8,23 +8,23 @@ echo -e "\n\n\tYour individual sequencing runs must be saved inside ${PWD}\n\
     \tindividual sequencing run folders into and change directory (cd) \
     \n\tinto that folder and rerun this script.\n\n"
 
-read RESPONSE
+read -r RESPONSE
 
-[ ${RESPONSE,,} != "yes" ] && exit
+[ "${RESPONSE,,}" != "yes" ] && exit
 
 # Add google as domain name server
 grep 8.8.8.8 /etc/resolv.conf >/dev/null || echo nameserver 8.8.8.8 >> /etc/resolv.conf
 
 # Update apt-get
-if $(uname) != 'Darwin'; then
+if [[ "$(uname)" != 'Darwin' ]]; then
   apt-get update
   apt-get install docker
 fi
 # Remove pre-MIRA software
 for i in $(docker ps |tr -s ' ' |cut -d ' ' -f2 | grep -e irma-spy -e sc2-spike-seq -e ispy); do
-  docker stop $i
-  docker rm -f $i
-  docker rmi -f $i
+  docker stop "$i"
+  docker rm -f "$i"
+  docker rmi -f "$i"
 done
 
 # MIRA
@@ -137,5 +137,5 @@ DC_UP_CMD="docker compose \
         --always-recreate-deps \
         --pull always"
 
-eval $DC_DOWN_CMD
-eval $DC_UP_CMD
+eval "$DC_DOWN_CMD"
+eval "$DC_UP_CMD"

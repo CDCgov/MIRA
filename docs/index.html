@@ -77,6 +77,9 @@
     <li>
       <a href="articles/troubleshooting.html">Troubleshooting</a>
     </li>
+    <li>
+      <a href="articles/sequence-qc.html">QC Standards</a>
+    </li>
   </ul>
 </li>
       </ul>
@@ -138,23 +141,14 @@
 <div class="section level2">
 <h2 id="quick-start-on-ubuntu-os">Quick Start on Ubuntu OS:<a class="anchor" aria-label="anchor" href="#quick-start-on-ubuntu-os"></a>
 </h2>
+<p>Need to set up Ubuntu OS? Follow instructions in <a href="https://cdcgov.github.io/MIRA/articles/getting-started.html" class="external-link">Getting Started.</a> - <a href="https://raw.githubusercontent.com/CDCgov/MIRA/prod/MIRA-INSTALL.sh" download class="external-link">Right click this link and click ‘save as’</a> and save it into the folder that you will add new run-folders to, ie. <code>FLU_SC2_SEQUENCING</code>. - if you haven’t created your <code>FLU_SC2_SEQUENCING</code> folder, from the command line, run ```bash</p>
+<p>mkdir ~/FLU_SC2_SEQUENCING <code>then instead of right click and 'save as':</code>bash</p>
+<p>cd ~/FLU_SC2_SEQUENCING</p>
+<p>wget <a href="https://raw.githubusercontent.com/CDCgov/MIRA/prod/MIRA-INSTALL.sh" class="external-link uri">https://raw.githubusercontent.com/CDCgov/MIRA/prod/MIRA-INSTALL.sh</a> <code>- Navigate to that folder on the command line and run:</code> chmod +x ./MIRA-INSTALL.sh <code>- Run the install script with sudo:</code> sudo ./MIRA-INSTALL.sh ``<code>- [Click here to download test data](https://centersfordiseasecontrol.sharefile.com/d-sb2d3b06e9ef946cf89e1a43c5a141a3f) - unzip the file and find two folders:     1.</code>tiny_test_run_flu<code>2.</code>tiny_test_run_sc2<code>- move these folders into</code>FLU_SC2_SEQUENCING` - if you cannot find the FLU_SC2_SEQUENCING folder in your Linux section of file explorer, look in Linux–&gt;home–&gt;your username</p>
 <ul>
-<li><p><a href="https://raw.githubusercontent.com/CDCgov/MIRA/prod/MIRA-INSTALL.sh" download class="external-link">Right click this link and click ‘save as’</a> and save it into the folder that you will add new run-folders to, ie. <code>FLU_SC2_SEQUENCING</code>.</p></li>
-<li><p>Navigate to that folder on the command line and run: <code>chmod +x ./MIRA-INSTALL.sh</code></p></li>
-<li><p>Run the install script with sudo: <code>sudo ./MIRA-INSTALL.sh</code></p></li>
-<li><p><a href="https://centersfordiseasecontrol.sharefile.com/d-sb2d3b06e9ef946cf89e1a43c5a141a3f" class="external-link">Click here to download test data</a></p></li>
-<li>
-<p>unzip the file and find two folders:</p>
-<ol style="list-style-type: decimal">
-<li><code>tiny_test_run_flu</code></li>
-<li><code>tiny_test_run_sc2</code></li>
-</ol>
-</li>
-<li><p>move these folders into <code>FLU_SC2_SEQUENCING</code></p></li>
-<li><p>Open your browser and type <a href="http://localhost:8020" class="external-link uri">http://localhost:8020</a> in the address bar.</p></li>
-<li><p>Click <code>Refresh Run Listing</code> in MIRA, you should now see these folders listed.</p></li>
-<li>
-<p>Select “tiny_test_run_flu”, enter barcode numbers <code>27,37,41</code> and make up sample names.</p>
+<li>Open your browser and type <a href="http://localhost:8020" class="external-link uri">http://localhost:8020</a> in the address bar.</li>
+<li>Click <code>Refresh Run Listing</code> in MIRA, you should now see these folders listed.</li>
+<li>Select “tiny_test_run_flu”, enter barcode numbers <code>27,37,41</code> and make up sample names.
 <ul>
 <li>Click ‘SAVE SAMPLESHEET’</li>
 <li>In the dropdown box ‘What kind of data is this?’, select ‘Flu-ONT’</li>
@@ -163,7 +157,7 @@
 <li>When “IRMA is finished!” is displayed, Click “DISPLAY IRMA RESULTS”</li>
 </ul>
 </li>
-<li><p>Now select “tiny_test_run_sc2” from the very top dropdown and repeat the above steps except this time enter barcode numbers <code>2,3,5,8,28</code>.</p></li>
+<li>Now select “tiny_test_run_sc2” from the very top dropdown and repeat the above steps except this time enter barcode numbers <code>2,3,5,8,28</code>.</li>
 </ul>
 <hr>
 </div>
