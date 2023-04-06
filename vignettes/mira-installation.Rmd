@@ -73,4 +73,6 @@ MIRA runs inside Docker containers. Containers have all of the code and dependen
  ⠿ Container mira    Started     
    ```
 
-6. If your installation is not successful, please refer to [Troubleshooting: MIRA-INSTALL.sh failed](./troubleshooting.Rmd#MIRA-install.sh-failed)
+Upon successful installation, you can proceed to [Running MIRA](./running-mira.html)
+
+6. If your installation is not successful, please refer to [Troubleshooting: MIRA-INSTALL.sh failed](./troubleshooting.html)

@@ -44,6 +44,8 @@ navbar:
         href: articles/FAQs.html
       - text: Troubleshooting
         href: articles/troubleshooting.html
+      - text: QC Standards
+        href: articles/sequence-qc.html
   right:
     - text: "Change Log"
       href: news/index.html

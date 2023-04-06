@@ -17,6 +17,7 @@ You can get a full linux environment using Windows Subsystem for Linux, or WSL. 
    - You can update to the latest Windows version by selecting Start > Settings > Windows Update > Check for updates.
 3. <a href="./images/powershell_open.png" target="_blank">Run powershell **as administrator**</a>
 4. Run the following command in Powershell:
+
     ```bash
     wsl --install
     ```
@@ -25,16 +26,26 @@ You can get a full linux environment using Windows Subsystem for Linux, or WSL. 
         - [Windows 10 virtualization instructions](https://www.geeksforgeeks.org/how-to-enable-virtualization-vt-x-in-windows-10-bios/) 
 5. Restart your computer
 6. Reopen Powershell and enter the following commands:
+
     ```bash
     wsl --set-default-version 2
+
     wsl --install -d Ubuntu-18.04
     ```
+    If either of these commands errors out, from the Windows search bar, open `Turn Windows Features on or off` and make sure the following 4 features are checked off:
+    -  Hyper-V
+    - Virtual Machine Platform
+    - Windows Hypervisor Platform
+    - Windows Subsystem for Linux
+
+
     Following successful installation, an Ubuntu terminal should pop up that looks like:
     ![alt text](./images/ubuntu_setub_1.png)
 7. Enter a username that will be exclusive for WSL. Press `Enter` and then enter a password. **_It is very important_**, _to choose a memorable password. If you forget your password you will need to reinstall Ubuntu_. 
 
 A "prompt" will then appear in the screen like:
     ![alt text](./images/commandprompt_wsl.png) with `nbx0` replaced by your entered username and `L349232` replaced with your computer's name.
+
 8. Restart your computer.
 
 - To access the Ubuntu terminal in the future, simply search for `Ubuntu` in the <a href="./images/ubuntu_open.png" target="_blank">Window's task bar and click on the app.</a> 
@@ -86,18 +97,17 @@ All following lines of code can be copy/pasted into your terminal. Pasting using
 
 1. Open Ubuntu or Mac terminal
 2. Uninstall old versions of Docker
+
     ```bash
     sudo apt-get remove docker docker-engine docker.io containerd runc
     ```
     - _If you have never installed Docker on your machine, you will see an error message about docker not being found. This is expected and you can move to step 3._
 3. Tell WSL2 where to look for Docker CLI tools
+
     ```bash
     sudo apt-get update
-    sudo apt-get install \
-    ca-certificates \
-    curl \
-    gnupg \
-    lsb-release
+
+    sudo apt-get install ca-certificates curl gnupg lsb-release
     ```
 
     - During installation, you will be prompted multiple times to enter 'y' or 'n' on preceeding. Each time, input 'y' and click `Enter`
@@ -112,6 +122,7 @@ All following lines of code can be copy/pasted into your terminal. Pasting using
     $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
     ```
 4. Install Docker CLI
+
     ```bash
     sudo apt-get update
     ```
@@ -125,6 +136,7 @@ All following lines of code can be copy/pasted into your terminal. Pasting using
     sudo apt-get install docker-ce docker-ce-cli containerd.io docker-compose-plugin
     ```
 5. Verify successful installation
+
     ```bash
     sudo docker run hello-world
     ```
@@ -154,6 +166,8 @@ All following lines of code can be copy/pasted into your terminal. Pasting using
 - [Windows Bio Edit](https://bioedit.software.informer.com/)
 - [Mac Aliview](https://ormbunkar.se/aliview/#DOWNLOAD)
 
+
+#### You are now ready to proceed to [MIRA Installation](https://cdcgov.github.io/MIRA/articles/mira-installation.html)
 <hr>
 <hr>
 <br/><br/>
