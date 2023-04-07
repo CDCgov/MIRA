@@ -44,33 +44,29 @@ MIRA’s dashboard relies on four Docker containers to run its genome assembly a
 <hr>
 
 ## Quick Start on Ubuntu OS:
-Need to set up Ubuntu OS? Follow instructions in [Getting Started.](https://cdcgov.github.io/MIRA/articles/getting-started.html)
-- <a href="https://raw.githubusercontent.com/CDCgov/MIRA/prod/MIRA-INSTALL.sh" download>Right click this link and click 'save as'</a> and save it into the folder that you will add new run-folders to, ie. `FLU_SC2_SEQUENCING`.
-  - if you haven't created your `FLU_SC2_SEQUENCING` folder, from the command line, run 
+_Need to set up an Ubuntu OS? Follow instructions in [Getting Started.](https://cdcgov.github.io/MIRA/articles/getting-started.html)_
+
+- Create a folder called `FLU_SC2_SEQUENCING` to save your sequencing reads to. From the command line, run: 
   
-   ```bash
-   mkdir ~/FLU_SC2_SEQUENCING
-   ```
+```bash
+mkdir ~/FLU_SC2_SEQUENCING
 
-  then instead of right click and 'save as':
+cd ~/FLU_SC2_SEQUENCING
+```
+
+- Download the install script:
    
-   ```bash
-   cd ~/FLU_SC2_SEQUENCING
+```bash
+wget https://raw.githubusercontent.com/CDCgov/MIRA/prod/MIRA-INSTALL.sh
+```
 
-   wget https://raw.githubusercontent.com/CDCgov/MIRA/prod/MIRA-INSTALL.sh
-   ```
-   
-- Navigate to that folder on the command line and run:
+- Run the install script:
 
-    ```
-    chmod +x ./MIRA-INSTALL.sh
-    ```
-    
-- Run the install script with sudo:
+```bash
+chmod +x ./MIRA-INSTALL.sh
 
-    ```
-    sudo ./MIRA-INSTALL.sh
-    ```
+sudo ./MIRA-INSTALL.sh
+```
     
 - [Click here to download test data](https://centersfordiseasecontrol.sharefile.com/d-sb2d3b06e9ef946cf89e1a43c5a141a3f)
 - unzip the file and find two folders:
