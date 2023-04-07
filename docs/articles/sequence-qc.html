@@ -112,6 +112,14 @@
 
     
     
+<p>Assembled genomes undergo two kinds of quality control. First, at the
+IRMA level, reads are filtered according to length and median quality.
+During the many rounds of reference editing and refinement, indels and
+variants must meet additional thresholds to be incorporated. When
+consensus is called, base frequency, quality, and depth are considered
+before finalizing the sequence.</p>
+<p>Second, consensus sequences undergo additional genome-level QC to
+ensure completeness and suitable confidence.</p>
 <div class="section level2">
 <h2 id="irma-qc">IRMA QC<a class="anchor" aria-label="anchor" href="#irma-qc"></a>
 </h2>
@@ -176,6 +184,8 @@ paired)</li>
 paired)</li>
 <li>Minimum depth to call base &gt;= 30X depth</li>
 <li>Average base quality to call &gt;= 15</li>
+<li>Mixed <a href="https://www.bioinformatics.org/sms/iupac.html" class="external-link">IUPAC</a> base when
+Minor Allele Frequency &gt;= 20%</li>
 </ul>
 </div>
 </div>

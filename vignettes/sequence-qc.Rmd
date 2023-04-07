@@ -1,3 +1,9 @@
+Assembled genomes undergo two kinds of quality control. First, at the IRMA level, reads are filtered according to length and median quality.
+During the many rounds of reference editing and refinement, indels and variants must meet additional thresholds to be incorporated.
+When consensus is called, base frequency, quality, and depth are considered before finalizing the sequence.
+
+Second, consensus sequences undergo additional genome-level QC to ensure completeness and suitable confidence.
+
 ## IRMA QC 
 ### Nanopore QC thresholds
 
@@ -37,6 +43,7 @@
 - Minimum deletion coverage to call deletion >= 10X depth (30X paired)
 - Minimum depth to call base >= 30X depth
 - Average base quality to call >= 15
+- Mixed [IUPAC](https://www.bioinformatics.org/sms/iupac.html) base when Minor Allele Frequency >= 20%
 
 ## Post-Assembly QC Curation
 
