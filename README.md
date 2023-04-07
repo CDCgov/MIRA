@@ -49,14 +49,12 @@ Need to set up Ubuntu OS? Follow instructions in [Getting Started.](https://cdcg
   - if you haven't created your `FLU_SC2_SEQUENCING` folder, from the command line, run 
   
    ```bash
-   
    mkdir ~/FLU_SC2_SEQUENCING
    ```
 
   then instead of right click and 'save as':
    
    ```bash
-
    cd ~/FLU_SC2_SEQUENCING
 
    wget https://raw.githubusercontent.com/CDCgov/MIRA/prod/MIRA-INSTALL.sh
