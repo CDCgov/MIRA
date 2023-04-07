@@ -140,6 +140,7 @@ Minor Allele Frequency &gt;= 20%</li>
 <li>Minimum insertion coverage to call base &gt;= 15X depth</li>
 <li>Deletion frequency &gt;= 50%</li>
 <li>Minimum deletion coverage to call deletion &gt;= 10X depth</li>
+<li>Minimum coverage to call base &gt;= 50X depth</li>
 <li>Average base quality to call &gt;= 10</li>
 <li>Mixed <a href="https://www.bioinformatics.org/sms/iupac.html" class="external-link">IUPAC</a> base when
 Minor Allele Frequency &gt;= 20%</li>
@@ -149,9 +150,34 @@ Minor Allele Frequency &gt;= 20%</li>
 <div class="section level3">
 <h3 id="illumina-qc-thresholds">Illumina QC thresholds<a class="anchor" aria-label="anchor" href="#illumina-qc-thresholds"></a>
 </h3>
+<div class="section level4">
+<h4 id="flu-1">Flu<a class="anchor" aria-label="anchor" href="#flu-1"></a>
+</h4>
 <ul>
-<li>Read length &gt;=</li>
+<li>Read length &gt;= 125</li>
+<li>Read median quality score &gt;= 30</li>
+<li>Insertion frequency &gt;= 25%</li>
+<li>Deletion frequency &gt;= 60%</li>
+<li>Mixed <a href="https://www.bioinformatics.org/sms/iupac.html" class="external-link">IUPAC</a> base when
+Minor Allele Frequency &gt;= 20%</li>
 </ul>
+</div>
+<div class="section level4">
+<h4 id="whole-genome-sars-cov-2">Whole Genome SARS-CoV-2<a class="anchor" aria-label="anchor" href="#whole-genome-sars-cov-2"></a>
+</h4>
+<ul>
+<li>Read length &gt;= 80</li>
+<li>Read median quality score &gt;= 27</li>
+<li>Insertion frequency &gt;= 55%</li>
+<li>Minimum insertion coverage to call base &gt;= 15X depth (30X
+paired)</li>
+<li>Deletion frequency &gt;= 55%</li>
+<li>Minimum deletion coverage to call deletion &gt;= 10X depth (30X
+paired)</li>
+<li>Minimum depth to call base &gt;= 30X depth</li>
+<li>Average base quality to call &gt;= 15</li>
+</ul>
+</div>
 </div>
 </div>
 <div class="section level2">

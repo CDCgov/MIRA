@@ -15,11 +15,28 @@
 - Minimum insertion coverage to call base >= 15X depth
 - Deletion frequency >= 50%
 - Minimum deletion coverage to call deletion >= 10X depth
+- Minimum coverage to call base >= 50X depth
 - Average base quality to call >= 10
 - Mixed [IUPAC](https://www.bioinformatics.org/sms/iupac.html) base when Minor Allele Frequency >= 20%
 
 ### Illumina QC thresholds
-- Read length >= 
+#### Flu
+- Read length >= 125
+- Read median quality score >= 30
+- Insertion frequency >= 25%
+- Deletion frequency >= 60%
+- Mixed [IUPAC](https://www.bioinformatics.org/sms/iupac.html) base when Minor Allele Frequency >= 20%
+
+
+#### Whole Genome SARS-CoV-2
+- Read length >= 80
+- Read median quality score >= 27
+- Insertion frequency >= 55%
+- Minimum insertion coverage to call base >= 15X depth (30X paired)
+- Deletion frequency >= 55%
+- Minimum deletion coverage to call deletion >= 10X depth (30X paired)
+- Minimum depth to call base >= 30X depth
+- Average base quality to call >= 15
 
 ## Post-Assembly QC Curation
 
