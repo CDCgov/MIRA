@@ -726,6 +726,19 @@ content = html.Div(
                 ),
             ]
         )
+    ]    
+    + [
+        dbc.Row(
+            dcc.Dropdown(
+                [{"label":"Flu-ONT", "value":"Flu-ONT"}, 
+                    {"label":"SC2-ONT", "value":"SC2-ONT"}, 
+                    {"label":"Flu-Illumina", "value":"Flu-Illumina","disabled":False},
+                    {"label":"SC2-Whole-Genome-Illumina", "value":"SC2-Whole-Genome-Illumina","disabled":True}],
+                id="experiment_type",
+                placeholder="What kind of data is this?"  # ,
+                # persistence=True,
+            )
+        )
     ]
     + [html.P("Samplesheet", id="samplesheet_head", className="display-6")]
     + [
@@ -788,18 +801,6 @@ content = html.Div(
         )
     ]
     + [html.Br()]
-    + [
-        dbc.Row(
-            dcc.Dropdown(
-                [{"label":"Flu-ONT", "value":"Flu-ONT"}, 
-                    {"label":"SC2-ONT", "value":"SC2-ONT"}, 
-                    {"label":"Flu-Illumina", "value":"Flu-Illumina","disabled":True}],
-                id="experiment_type",
-                placeholder="What kind of data is this?"  # ,
-                # persistence=True,
-            )
-        )
-    ]
     + [
         dbc.Button("Start Genome Assembly", id="assembly-button", n_clicks=0, disabled=True),
         html.Div(id="output-container-button"),
