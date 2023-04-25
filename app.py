@@ -33,8 +33,8 @@ import subprocess
 #import diskcache  # type: ignore
 
 path.append(dirname(realpath(__file__)) + "/scripts/")
-import irma2dash  # type: ignore
-import dais2dash  # type: ignore
+#import irma2dash  # type: ignore
+#import dais2dash  # type: ignore
 import conditional_color_range_perCol  # type: ignore
 
 with open(argv[1], "r") as y:
