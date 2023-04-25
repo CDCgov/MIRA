@@ -575,6 +575,7 @@ def callback_pass_fail_heatmap(run, n_clicks):
 
 
 dl_fasta_clicks = 0
+dl_ss_clicks = 0
 
 flu_numbers = {
     "A": {
@@ -628,6 +629,33 @@ def download_nt_fastas(run, n_clicks):
             filename=f"{run}_amino_acid_consensus.fasta",
         )
         return nt_fastas, aa_fastas
+
+@app.callback(
+    Output("download_ss", "data"),
+    [Input("select_run", "value"), Input("ss_dl_button", "n_clicks"), Input("experiment_type", "value")],
+    prevent_initial_call=True,
+    # background=True,
+    # manager=bkgnd_callback_manager,
+)
+def download_ss(run, n_clicks, experiment_type):
+    if not n_clicks:
+        raise dash.exceptions.PreventUpdate
+    global dl_ss_clicks
+    if n_clicks > dl_ss_clicks:
+        dl_ss_clicks = n_clicks
+        if "illumina" in experiment_type.lower():
+            template_file = "/MIRA/lib/illumina_ss_template.csv"
+        else:
+            template_file = "/MIRA/lib/ss_template.csv"
+        content = open(
+            template_file
+        ).read()
+        ss_csv = dict(
+            content=content,
+            filename=f"{run}_samplesheet.csv",
+        )
+        return ss_csv
+
 
 
 ########################################################
@@ -741,6 +769,14 @@ content = html.Div(
         )
     ]
     + [html.P("Samplesheet", id="samplesheet_head", className="display-6")]
+    + [
+        html.Div(
+            [
+                dbc.Button("Download Samplesheet Template", id="ss_dl_button"),
+                dcc.Download(id="download_ss")
+            ]
+        )
+    ]
     + [
         html.Div(
             [
