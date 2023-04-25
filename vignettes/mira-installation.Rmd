@@ -5,20 +5,31 @@ MIRA runs inside Docker containers. Containers have all of the code and dependen
 <hr>
 
 1. Open a terminal (Ubuntu if you installed WSL2 with this instructions). Create a folder to store your sequence run data and change to that directory:
+   
    ```bash
     mkdir ~/FLU_SC2_SEQUENCING
+    ```
+
+   ```bash
     cd ~/FLU_SC2_SEQUENCING
    ```
 2. Download the installation script from the internet:
+   
    ```bash
     wget https://raw.githubusercontent.com/CDCgov/MIRA/prod/MIRA-INSTALL.sh
    ```
 3. Run the install script with `sudo`:
+   
    ```bash
     chmod +x ./MIRA-INSTALL.sh
+   ```
+
+   ```bash
     sudo ./MIRA-INSTALL.sh
    ```
+
    You will then enter your password and the following statment will print to your screen , where `~`= the path to your home directory:
+
    ```
         Your individual sequencing runs must be saved inside ~/FLU_SC2_SEQUENCING
         Enter "yes" to confirm.
@@ -27,7 +38,9 @@ MIRA runs inside Docker containers. Containers have all of the code and dependen
         individual sequencing run folders into and change directory (cd)
         into that folder and rerun this script.
    ```
+
 4. Enter `yes`. The download should begin and a lot of information will begin to appear in your terminal such as:
+
    ```
     ⠿ mira Warning                                                                                                                                                                                                                                          2.2s
  ⠦ irma Pulling                                                                                                                                                                                                                                         37.7s
@@ -53,6 +66,7 @@ MIRA runs inside Docker containers. Containers have all of the code and dependen
    ⠸ 5ceb0311151f Waiting                                                                                                                                                                                                                               35.4s
    ⠸ ae01c60d8873 Waiting                                                                                                                                                                                                                               35.4s
    ```
+
    MIRA is about 3 GB in total size and may take a long time to download [depending on your internet speed](https://www.omnicalculator.com/other/download-time), ie:
 
     |Internet Speed|Download Time|
@@ -63,6 +77,7 @@ MIRA runs inside Docker containers. Containers have all of the code and dependen
     |100 Mpbs|4 minutes|
 
 5. A successful installation will end with your terminal showing:
+
    ```
    [+] Running 6/6
  ⠿ Network frontend  Created     
@@ -73,6 +88,6 @@ MIRA runs inside Docker containers. Containers have all of the code and dependen
  ⠿ Container mira    Started     
    ```
 
-Upon successful installation, you can proceed to [Running MIRA](./running-mira.html)
+- If your installation is not successful, please refer to [Troubleshooting: MIRA-INSTALL.sh failed](./troubleshooting.html)
 
-6. If your installation is not successful, please refer to [Troubleshooting: MIRA-INSTALL.sh failed](./troubleshooting.html)
+### Upon successful installation, you can proceed to [Running MIRA](./running-mira.html)

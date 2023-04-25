@@ -27,28 +27,81 @@ MIRA-install.sh expects an Ubuntu 18+ operating system or WSL2 distribution. If 
         ```bash
          docker --version
          # Docker version 20.10.7, build 20.10.7-0ubuntu5~18.04.3
+         ```
+         
+         ```bash
          docker-compose --version
          # Docker Compose version v2.12.1
-        ```
+         ```
         If they are not, please update them by
 
         ```bash
-         sudo apt-get update
-         sudo apt-get install docker
+        sudo apt-get update
+        ```
+
+        ```bash
+        sudo apt-get install docker
         ```
    2. [Download the compose yaml file by right clicking this link and 'saving as'](https://raw.githubusercontent.com/CDCgov/MIRA/prod/docker-compose-git.yml) into your sequencing run top folder, ie `FLU_SC2_SEQUENCING`. You can also download this file on the command line by
 
         ```bash
         # Change your working directory to `FLU_SC2_SEQUENCING`
         cd ~/FLU_SC2_SEQUENCING
+        ```
+
+        ```bash
         # Download docker compose file
         wget https://raw.githubusercontent.com/CDCgov/MIRA/prod/docker-compose-git.yml
         ```
 
    3. Launch MIRA with docker compose:
+        
         ```bash
         docker-compose up -d 
         ```
+
+## WSL install error
+From the Windows search bar, open `Turn Windows Features on or off` and make sure the following 4 features are checked off:
+- Hyper-V
+- Virtual Machine Platform
+- Windows Hypervisor Platform
+- Windows Subsystem for Linux
+
+
+## Map network drive
+
+**_Many computers have trouble with this step; the folders are not selectable during this step. First, make sure that an Ubuntu terminal is opened and then open the `File Explorer`. If "Ubuntu" is still not showing up in `File Explorer`, you can try to find the solution here: [https://github.com/microsoft/WSL/issues/3996](https://github.com/microsoft/WSL/issues/3996)._
+
+1. Open <a href="./images/file_explorer.png" target="_blank">File Explorer</a>
+    - _If you have a Windows 10 or 11 OS, WSL is likely automatically mapped and visible in the left hand sidebar as "Ubuntu"_
+2. Right click <a href="./images/map_drive_1.png" target="_blank">This PC and click Map network drive</a>
+3. Enter `\\wsl$` into Folder: <a href="./images/map_drive_2.png" target="_blank">and click Browse</a>
+4. Click on `wsl$` to unfold directories, select `Ubuntu-18.04` <a href="./images/map_drive_3.png" target="_blank">and click OK</a> and then `Finish`. You should now see your WSL "drive" available in `File Explorer`:
+
+    ![](./images/map_drive_4.png)
+
+## Docker CLI errors
+- If you get an error related to starting Docker, run the following command, then try to run hello-world again
+
+```bash
+sudo service docker start
+```
+- If you get an error related to "Permission Denied" of docker.sock, run the following command, then try to run hello-world again
+
+```bash
+sudo chmod -755 /run/docker.sock
+```
+
+- If your hello-world container still is not showing, open the Ubuntu-22.04 command prompt and run:
+
+```bash
+docker run -d -p 80:80 docker/getting-started
+```
+
+## Virtualization error 
+- If you see a message relating to Virtualization needing to be enabled, follow instructions below to access your machine's BIOS setup:
+    - [Windows 11 virtualization instructions](https://support.microsoft.com/en-us/windows/enable-virtualization-on-windows-11-pcs-c5578302-6e43-4b4b-a449-8ced115f58e1)
+    - [Windows 10 virtualization instructions](https://www.geeksforgeeks.org/how-to-enable-virtualization-vt-x-in-windows-10-bios/) 
 
 
 [Return to contents](#Contents)
