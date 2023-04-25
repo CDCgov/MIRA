@@ -154,6 +154,10 @@ def save_samplesheet(run, ss_data, n_clicks):
         df['spaces'] = df['Sample ID'].str.contains(r'\s')
         stmnt = f"No spaces allowed in Sample IDs. Please edit. Offenders = {list(df.loc[df['spaces']==True]['Sample ID'])}"
         print(stmnt)
+    elif True in list(df['Sample ID'].str.contains(r'^[0-9]*$')):
+        df['only_num'] = df['Sample ID'].str.contains(r'^[0-9]*$')
+        stmnt = f"Sample IDs cannot be only numbers. Please edit. Offenders = {list(df.loc[df['only_num']==True]['Sample ID'])}"
+        print(stmnt)
     else:
         print(f"saving df")
         df.to_csv(f"{data_root}/{run}/samplesheet.csv", index=False)

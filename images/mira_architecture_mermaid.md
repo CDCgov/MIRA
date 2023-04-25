@@ -1,33 +1,39 @@
 ```mermaid
+%%{init: {'theme': 'neutral',
+        'startOnLoad': true,
+        'fontFamily': 'monospace',
+        'flowchart' : { 'curve' : 'basis' } 
+    } 
+}%%
 flowchart LR
 
-BROWSER(<font size=5>- - - - -\nBROWSER\n- - - - - )
+BROWSER(<font size=8>- - - - -\nBROWSER\n- - - - - )
 
-subgraph COMPOSE[<font size=3>Docker Compose]
-subgraph DC1[<font size=3>Container]
-MIRA[<font size=5>MIRA GUI]
+subgraph COMPOSE[<font size=8>Docker Compose]
+subgraph DC1[<font size=6>Container]
+MIRA[<font size=10>MIRA GUI]
 end
-subgraph DC2[<font size=3>Container]
-IRMA[<font size=5>IRMA]
+subgraph DC2[<font size=6>Container]
+IRMA[<font size=10>IRMA]
 end
-subgraph DC3[<font size=3>Container]
-DAIS[<font size=5>DAIS-Ribosome]
+subgraph DC3[<font size=6>Container]
+DAIS[<font size=10>DAIS-Ribosome]
 end
-subgraph DC4[<font size=3>Container]
-CONFIG[[Run Configs]]
-SPYNE[<font size=5>SPYNE]
-CURATION[Curation, QC &\nFigure Generation]
+subgraph DC4[<font size=6>Container]
+CONFIG[[<font size=6>Run Configs]]
+SPYNE[<font size=10>SPYNE]
+CURATION[<font size=6>Curation, QC &\nFigure Generation]
 end
 end
-subgraph FS[<font size=3>Local Filesystem]
-DS((<font size=5>.   Docker   .\n.   Socket   .))
-RESULTS[[<font size=5>Sequencing Files\nDirectory]]
+subgraph FS[<font size=7>Local Filesystem]
+DS((<font size=6>.   Docker   .\n.   Socket   .))
+RESULTS[[<font size=6>Sequencing Files\nDirectory]]
 end
 MIRA === BROWSER
-MIRA == Trigger ==> SPYNE
-SPYNE <-. Orchestrate .-> IRMA
-SPYNE <-. Orchestrate .-> DAIS
-SPYNE <-. Orchestrate .-> CURATION
+MIRA == <font size=6>Trigger ==> SPYNE
+SPYNE <-. <font size=6>Orchestrate .-> IRMA
+SPYNE <-. <font size=6>Orchestrate .-> DAIS
+SPYNE <-. <font size=6>Orchestrate .-> CURATION
 DC1 -.- DS
 DC2 -.- DS
 DC3 -.- DS
