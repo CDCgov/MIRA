@@ -28,7 +28,7 @@ for i in $(docker ps |tr -s ' ' |cut -d ' ' -f2 | grep -e irma-spy -e sc2-spike-
 done
 
 # MIRA
-export COMPOSE_PROJECT_NAME=MIRA
+export COMPOSE_PROJECT_NAME=mira
 
 DC_FILE_CONTENT="version: \"3.9\"\n\
 \n\

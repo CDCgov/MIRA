@@ -10,4 +10,5 @@ scripts/__pycache__/muscle.cpython-37.pyc
 .vscode
 .Rhistory
 .Rproj.user
+*Rproj
 

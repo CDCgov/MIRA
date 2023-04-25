@@ -46,6 +46,10 @@ navbar:
         href: articles/troubleshooting.html
       - text: QC Standards
         href: articles/sequence-qc.html
+      - text: Development Tips
+        href: articles/development-tips.html
+      - text: Docker on MacOS
+        href: articles/docker.html
   right:
     - text: "Change Log"
       href: news/index.html
