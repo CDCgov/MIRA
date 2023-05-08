@@ -27,6 +27,7 @@ from glob import glob
 from numpy import arange
 import base64
 import io
+import datetime
 
 
 import subprocess
@@ -645,34 +646,39 @@ def download_ss(run, n_clicks, experiment_type):
     global dl_ss_clicks
     if n_clicks > dl_ss_clicks:
         dl_ss_clicks = n_clicks
-        if "illumina" in experiment_type.lower():
-            template_file = "/MIRA/lib/illumina_ss_template.csv"
-        else:
-            template_file = "/MIRA/lib/ss_template.csv"
-        content = open(
-            template_file
-        ).read()
-        ss_csv = dict(
-            content=content,
-            filename=f"{run}_samplesheet.csv",
-        )
+        try:
+            if "illumina" in experiment_type.lower():
+                template_file = "/MIRA/lib/illumina_ss_template.csv"
+            else:
+                template_file = "/MIRA/lib/ss_template.csv"
+            content = open(
+                template_file
+            ).read()
+            ss_csv = dict(
+                content=content,
+                filename=f"{run}_samplesheet.csv",
+            )
+        except:
+            #get a warning displayed somehow
+            return html.Div(['There was an error processing this run and datatype'])
         return ss_csv
-    
+"""  
 def parse_samplesheet(contents, ss_filename):
     content_type, content_string = contents.split(',')
     decoded = base64.b64decode(content_string)
     try:
         if 'csv' in ss_filename:
-            data = pd.read_csv(io.StringIO(decoded.decode('utf-8'))).to_dict("records")
+            data = pd.read_csv(io.StringIO(decoded.decode('utf-8')))#.to_dict("records")
         elif 'xls' in ss_filename:
-            data = pd.read_excel(io.BytesIO(decoded)).to_dict("records")
+            data = pd.read_excel(io.BytesIO(decoded))#.to_dict("records")
     except Exception as e:
         print(e)
         return html.Div(['There was an error processing this file'])
     return html.Div([
         html.H5(ss_filename),
         dash_table.DataTable(
-            data, [{'name': i, 'id': i} for i in data.columns]
+            data.to_dict('records'),
+            [{'name': i, 'id': i} for i in data.columns]
         ),
 
         html.Hr(),
@@ -694,8 +700,55 @@ def update_output(list_of_contents, list_of_names):
             parse_samplesheet(c, n) for c, n in
             zip(list_of_contents, list_of_names)]
         return children
+"""
 
+def parse_contents(contents, filename, date):
+    content_type, content_string = contents.split(',')
 
+    decoded = base64.b64decode(content_string)
+    try:
+        if 'csv' in filename:
+            # Assume that the user uploaded a CSV file
+            df = pd.read_csv(
+                io.StringIO(decoded.decode('utf-8')))
+        elif 'xls' in filename:
+            # Assume that the user uploaded an excel file
+            df = pd.read_excel(io.BytesIO(decoded))
+    except Exception as e:
+        print(e)
+        return html.Div([
+            'There was an error processing this file.'
+        ])
+
+    return html.Div([
+        html.H5(filename),
+        html.H6(datetime.datetime.fromtimestamp(date)),
+
+        dash_table.DataTable(
+            df.to_dict('records'),
+            [{'name': i, 'id': i} for i in df.columns]
+        ),
+
+        html.Hr(),  # horizontal line
+
+        # For debugging, display the raw contents provided by the web browser
+        html.Div('Raw Content'),
+        html.Pre(contents[0:200] + '...', style={
+            'whiteSpace': 'pre-wrap',
+            'wordBreak': 'break-all'
+        })
+    ])
+
+@app.callback(Output('output-data-upload', 'children'),
+              Input('upload-data', 'contents'),
+              State('upload-data', 'filename'),
+              State('upload-data', 'last_modified'))
+def update_output(list_of_contents, list_of_names, list_of_dates):
+    if list_of_contents is not None:
+        children = [
+            parse_contents(c, n, d) for c, n, d in
+            zip(list_of_contents, list_of_names, list_of_dates)]
+        return children
 
 
 ########################################################
@@ -817,16 +870,14 @@ content = html.Div(
             ]
         )
     ]
-    + [
-        html.Div(
-            [
-                dcc.Upload(
-                    id='upload-samplesheet',
-                    children=html.Div([
-                        'Drag and Drop or ',
-                        html.A('Select File')
-                    ]),
-                    style={
+    + [html.Div([
+    dcc.Upload(
+        id='upload-data',
+        children=html.Div([
+            'Drag and Drop or ',
+            html.A('Select Files')
+        ]),
+        style={
             'width': '100%',
             'height': '60px',
             'lineHeight': '60px',
@@ -836,11 +887,11 @@ content = html.Div(
             'textAlign': 'center',
             'margin': '10px'
         },
-                ),
-                html.Div(id='output-samplesheet-upload'),
-            ]
-        )
-    ]
+        # Allow multiple files to be uploaded
+        multiple=True
+    ),
+    html.Div(id='output-data-upload'),
+    ])]
     + [
         html.Div(
             [
