@@ -662,45 +662,8 @@ def download_ss(run, n_clicks, experiment_type):
             #get a warning displayed somehow
             return html.Div(['There was an error processing this run and datatype'])
         return ss_csv
-"""  
-def parse_samplesheet(contents, ss_filename):
-    content_type, content_string = contents.split(',')
-    decoded = base64.b64decode(content_string)
-    try:
-        if 'csv' in ss_filename:
-            data = pd.read_csv(io.StringIO(decoded.decode('utf-8')))#.to_dict("records")
-        elif 'xls' in ss_filename:
-            data = pd.read_excel(io.BytesIO(decoded))#.to_dict("records")
-    except Exception as e:
-        print(e)
-        return html.Div(['There was an error processing this file'])
-    return html.Div([
-        html.H5(ss_filename),
-        dash_table.DataTable(
-            data.to_dict('records'),
-            [{'name': i, 'id': i} for i in data.columns]
-        ),
 
-        html.Hr(),
-        html.Div('Raw Content'),
-        html.Pre(contents[0:200] + '...', style={
-            'whiteSpace': 'pre-wrap',
-            'wordBreak': 'break-all' })
-
-    ])
-
-@app.callback(Output('output-samplesheet-upload', 'children'),
-              Input('upload-samplesheet', 'contents'),
-              State('upload-data', 'ss_filename'))
-
-
-def update_output(list_of_contents, list_of_names):
-    if list_of_contents is not None:
-        children = [
-            parse_samplesheet(c, n) for c, n in
-            zip(list_of_contents, list_of_names)]
-        return children
-"""
+#from https://dash.plotly.com/dash-core-components/upload
 
 def parse_contents(contents, filename, date):
     content_type, content_string = contents.split(',')
