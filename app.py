@@ -33,8 +33,8 @@ import subprocess
 #import diskcache  # type: ignore
 
 path.append(dirname(realpath(__file__)) + "/scripts/")
-import irma2dash  # type: ignore
-import dais2dash  # type: ignore
+#import irma2dash  # type: ignore
+#import dais2dash  # type: ignore
 import conditional_color_range_perCol  # type: ignore
 
 with open(argv[1], "r") as y:
@@ -313,7 +313,7 @@ def run_snake_script_onClick(assembly_n_clicks, run, experiment_type): # samples
 def display_irma_progress(run, toggle, n_intervals):
     if not toggle:
         return html.Div()
-    if len(glob(f"{data_root}/{run}/spyne_logs.tar.gz")) == 1:
+    if len(glob(f"{data_root}/{run}/spyne_logs.tar.gz")) == 1 and len(glob(f"{data_root}/{run}/IRMA")) != 1:
         return html.Div("IRMA is finished! Click \"DISPLAY IRMA RESULTS\"")
     logs = glob(f"{data_root}/{run}/logs/*irma*out.log")
     if len(logs) == 0:

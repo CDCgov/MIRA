@@ -5,13 +5,13 @@ articles:
   FAQs: FAQs.html
   development-tips: development-tips.html
   docker-compose: docker-compose.html
-  docker: docker.html
   getting-started: getting-started.html
+  mac-getting-started: mac-getting-started.html
   mira-installation: mira-installation.html
   running-mira: running-mira.html
   sequence-qc: sequence-qc.html
   troubleshooting: troubleshooting.html
-last_built: 2023-04-25T03:16Z
+last_built: 2023-05-10T13:36Z
 urls:
   reference: https://github.com/CDCgov/MIRA/reference
   article: https://github.com/CDCgov/MIRA/articles

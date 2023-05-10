@@ -13,13 +13,13 @@
     <loc>https://github.com/CDCgov/MIRA/articles/docker-compose.html</loc>
   </url>
   <url>
-    <loc>https://github.com/CDCgov/MIRA/articles/docker.html</loc>
-  </url>
-  <url>
     <loc>https://github.com/CDCgov/MIRA/articles/getting-started.html</loc>
   </url>
   <url>
     <loc>https://github.com/CDCgov/MIRA/articles/index.html</loc>
+  </url>
+  <url>
+    <loc>https://github.com/CDCgov/MIRA/articles/mac-getting-started.html</loc>
   </url>
   <url>
     <loc>https://github.com/CDCgov/MIRA/articles/mira-installation.html</loc>
