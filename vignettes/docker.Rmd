@@ -1,2 +1,0 @@
-## Install Docker CLI on MacOS
-[https://docs.docker.com/engine/install/binaries/#install-client-binaries-on-macos](https://docs.docker.com/engine/install/binaries/#install-client-binaries-on-macos)
