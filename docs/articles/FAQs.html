@@ -44,39 +44,42 @@
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-    Dockerization
-     
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
-<li>
-      <a href="../articles/docker.html">Containerizing MIRA with Docker</a>
-    </li>
-    <li>
-      <a href="../articles/docker-compose.html">Running MIRA with Docker-Compose</a>
-    </li>
-  </ul>
-</li>
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     NGS-Training
      
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
-      <a href="../articles/getting-started.html">Getting Started</a>
+      <a href="../articles/getting-started.html">PC Getting Started</a>
     </li>
     <li>
-      <a href="../articles/setting-up-containers.html">Setting up Containers</a>
+      <a href="../articles/mac-getting-started.html">Mac Getting Started</a>
+    </li>
+    <li>
+      <a href="../articles/mira-installation.html">MIRA installation</a>
     </li>
     <li>
       <a href="../articles/running-mira.html">Running Genome Assembly with MIRA</a>
     </li>
   </ul>
 </li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Help
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
 <li>
-  <a href="../articles/FAQs.html">FAQs</a>
+      <a href="../articles/FAQs.html">FAQs</a>
+    </li>
+    <li>
+      <a href="../articles/troubleshooting.html">Troubleshooting</a>
+    </li>
+    <li>
+      <a href="../articles/sequence-qc.html">QC Standards</a>
+    </li>
+  </ul>
 </li>
       </ul>
 <ul class="nav navbar-nav navbar-right">
@@ -84,7 +87,7 @@
   <a href="../news/index.html">Change Log</a>
 </li>
 <li>
-  <a href="https://github.com/nbx0/MIRA">
+  <a href="https://github.com/CDCgov/MIRA">
     <span class="fa fa-github"></span>
      
   </a>
@@ -105,7 +108,7 @@
       <h1 data-toc-skip></h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/nbx0/MIRA/blob/HEAD/vignettes/FAQs.Rmd"><code>vignettes/FAQs.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/CDCgov/MIRA/blob/HEAD/vignettes/FAQs.Rmd"><code>vignettes/FAQs.Rmd</code></a></small>
       <div class="hidden name"><code>FAQs.Rmd</code></div>
 
     </div>
@@ -127,82 +130,82 @@ thead, td {
 <div class="section level3">
 <h3 id="how-do-i-get-help">How do I get help?<a class="anchor" aria-label="anchor" href="#how-do-i-get-help"></a>
 </h3>
-<p>GREAT Question!!</p>
+<p>Great question!!</p>
 <p>MIRA is under active development. If you need help, would like to
 contribute, or simply want to talk about the project with like-minded
 individuals, we have a number of open channels for communication.</p>
 <ul>
-<li><p>To report bugs or file feature requests, use the <a href="https://github.com/nbx0/MIRA/issues">issue tracker on
+<li><p>Send us an email at <a href="mailto:idseqsupport.gov">idseqsupport@cdc.gov</a></p></li>
+<li><p>To report bugs or file feature requests, use the <a href="https://github.com/CDCgov/MIRA/issues">issue tracker on
 Github</a>.</p></li>
-<li><p>To contribute code submit a <a href="https://github.com/nbx0/MIRA/pulls">pull request on
+<li><p>To contribute code submit a <a href="https://github.com/CDCgov/MIRA/pulls">pull request on
 Github</a>.</p></li>
 </ul>
 </div>
 <div class="section level3">
-<h3 id="where-can-i-find-examples-of-mira">Where can I find examples of MIRA?<a class="anchor" aria-label="anchor" href="#where-can-i-find-examples-of-mira"></a>
+<h3 id="how-to-remove-containers--this-is-a-good-idea-if-you-are-having-trouble-with-your-version-and-need-a-fresh-start--this-will-not-have-any-effect-on-your-sequencing-data-">How to remove containers. This is a good idea if you are having
+trouble with your version and need a fresh start. This will not have any
+effect on your sequencing data.<a class="anchor" aria-label="anchor" href="#how-to-remove-containers--this-is-a-good-idea-if-you-are-having-trouble-with-your-version-and-need-a-fresh-start--this-will-not-have-any-effect-on-your-sequencing-data-"></a>
 </h3>
-<ul>
-<li>See our <a href="getting-started.html">NGS Training tutorials using
-MIRA</a>
-</li>
-</ul>
+<div class="section level4">
+<h4 id="ispy-uninstall">iSpy uninstall<a class="anchor" aria-label="anchor" href="#ispy-uninstall"></a>
+</h4>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> stop ispy</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> rm ispy</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> rmi ispy</span></code></pre></div>
 </div>
-<div class="section level3">
-<h3 id="how-to-upgrate-or-remove-older-versions-of-mira-or-other-containers">How to upgrate or remove older versions of MIRA or other
-containers?<a class="anchor" aria-label="anchor" href="#how-to-upgrate-or-remove-older-versions-of-mira-or-other-containers"></a>
-</h3>
-<p>To upgrade MIRA, spyne, IRMA or DAIS-Ribosome, you first need to
-remove your current version from your machine.</p>
-<p>Usually you will only need to update some of the 4 required
-containers.</p>
-<p>Follow the removal instructions based on your version, either the
-original <a href="#mira-uninstall">mira</a> or <a href="#mira-uninstall">MIRA</a>.</p>
+<div class="section level4">
+<h4 id="irma-spy-uninstall">IRMA-SPY uninstall<a class="anchor" aria-label="anchor" href="#irma-spy-uninstall"></a>
+</h4>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> stop irma-spy</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> rm irma-spy</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> rmi irma-spy</span></code></pre></div>
+</div>
 <div class="section level4">
 <h4 id="mira-uninstall">MIRA uninstall<a class="anchor" aria-label="anchor" href="#mira-uninstall"></a>
 </h4>
 <ol style="list-style-type: decimal">
 <li>Open an Ubuntu terminal</li>
-<li><div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a> <span class="co"># Show running containers</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a> <span class="ex">docker</span> ps</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a> <span class="co"># Stop running container you want to update. In this example we are updating mira and spyne.</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a> <span class="ex">docker</span> stop mira spyne</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a> <span class="co"># Delete containers</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a> <span class="ex">docker</span> rm mira spyne</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a> <span class="co"># Delete images</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a> <span class="ex">docker</span> rmi mira spyne</span></code></pre></div></li>
+<li><div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a> <span class="co"># Show running containers</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a> <span class="ex">docker</span> ps</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a> <span class="co"># Stop running container you want to update. In this example we are updating mira and spyne.</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a> <span class="ex">docker</span> stop mira spyne</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a> <span class="co"># Delete containers</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a> <span class="ex">docker</span> rm mira spyne</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a> <span class="co"># Delete images</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a> <span class="ex">docker</span> rmi mira spyne</span></code></pre></div></li>
 <li>Install the new MIRA and spyne containers: <a href="setting-up-containers.html">See NGS Training: Setting Up
 Containers</a>
 </li>
 </ol>
 </div>
 <div class="section level4">
-<h4 id="mira-uninstall">mira uninstall<a class="anchor" aria-label="anchor" href="#mira-uninstall"></a>
+<h4 id="mira-uninstall-1">mira uninstall<a class="anchor" aria-label="anchor" href="#mira-uninstall-1"></a>
 </h4>
 <ol style="list-style-type: decimal">
 <li>Open an Ubuntu terminal</li>
-<li><div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a> <span class="co"># Show running containers</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a> <span class="ex">docker</span> ps</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a> <span class="co"># Stop running container you want to update. In this example we are updating mira and spyne.</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a> <span class="ex">docker</span> stop mira spyne</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a> <span class="co"># Delete containers</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a> <span class="ex">docker</span> rm mira spyne</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a> <span class="co"># Delete images</span></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a> <span class="ex">docker</span> rmi mira spyne</span></code></pre></div></li>
-<li>Install the new MIRA and spyne containers: <a href="setting-up-containers.html">See NGS Training: Setting Up
+<li><div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a> <span class="co"># Show running containers</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a> <span class="ex">docker</span> ps</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a> <span class="co"># Stop running container you want to update. In this example we are updating mira and spyne.</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a> <span class="ex">docker</span> stop mira spyne</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a> <span class="co"># Delete containers</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a> <span class="ex">docker</span> rm mira spyne</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a> <span class="co"># Delete images</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a> <span class="ex">docker</span> rmi mira spyne</span></code></pre></div></li>
+<li>Install the latest version of MIRA: <a href="mira-installation.html">See NGS Training: Setting Up
 Containers</a>
 </li>
 </ol>
 </div>
 </div>
 <div class="section level3">
-<h3 id="how-to-start-restart-stop-or-remove-services-listed-in-docker-compose-yml">How to start, restart, stop or remove services listed in
-docker-compose.yml?<a class="anchor" aria-label="anchor" href="#how-to-start-restart-stop-or-remove-services-listed-in-docker-compose-yml"></a>
+<h3 id="docker-compose-operations">Docker compose operations<a class="anchor" aria-label="anchor" href="#docker-compose-operations"></a>
 </h3>
 <table class="table">
 <thead><tr>
@@ -462,7 +465,7 @@ Show the Docker Compose version information
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.9000.</p>
 </div>
 
       </footer>

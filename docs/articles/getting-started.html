@@ -44,39 +44,42 @@
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-    Dockerization
-     
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
-<li>
-      <a href="../articles/docker.html">Containerizing MIRA with Docker</a>
-    </li>
-    <li>
-      <a href="../articles/docker-compose.html">Running MIRA with Docker-Compose</a>
-    </li>
-  </ul>
-</li>
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     NGS-Training
      
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
-      <a href="../articles/getting-started.html">Getting Started</a>
+      <a href="../articles/getting-started.html">PC Getting Started</a>
     </li>
     <li>
-      <a href="../articles/setting-up-containers.html">Setting up Containers</a>
+      <a href="../articles/mac-getting-started.html">Mac Getting Started</a>
+    </li>
+    <li>
+      <a href="../articles/mira-installation.html">MIRA installation</a>
     </li>
     <li>
       <a href="../articles/running-mira.html">Running Genome Assembly with MIRA</a>
     </li>
   </ul>
 </li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Help
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
 <li>
-  <a href="../articles/FAQs.html">FAQs</a>
+      <a href="../articles/FAQs.html">FAQs</a>
+    </li>
+    <li>
+      <a href="../articles/troubleshooting.html">Troubleshooting</a>
+    </li>
+    <li>
+      <a href="../articles/sequence-qc.html">QC Standards</a>
+    </li>
+  </ul>
 </li>
       </ul>
 <ul class="nav navbar-nav navbar-right">
@@ -84,7 +87,7 @@
   <a href="../news/index.html">Change Log</a>
 </li>
 <li>
-  <a href="https://github.com/nbx0/MIRA">
+  <a href="https://github.com/CDCgov/MIRA">
     <span class="fa fa-github"></span>
      
   </a>
@@ -105,7 +108,7 @@
       <h1 data-toc-skip></h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/nbx0/MIRA/blob/HEAD/vignettes/getting-started.Rmd"><code>vignettes/getting-started.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/CDCgov/MIRA/blob/HEAD/vignettes/getting-started.Rmd"><code>vignettes/getting-started.Rmd</code></a></small>
       <div class="hidden name"><code>getting-started.Rmd</code></div>
 
     </div>
@@ -113,23 +116,12 @@
     
     
 <div class="section level2">
-<h2 id="getting-started">Getting Started<a class="anchor" aria-label="anchor" href="#getting-started"></a>
-</h2>
-<p>This NGS training will cover the steps of how to setup and run
-Influenza genome and SARS-CoV-2 spike-gene assembly and curation using
-the <code>MIRA</code> container. The protocol for this training will
-start with demultiplexed sequencing reads from an Illumina or Oxford
-Nanopore Technologies sequencer and finish with high quality genomes
-ready for submission to public repositories.</p>
-<p><img src="images/mermaid_flow.png"></p>
-</div>
-<div class="section level2">
 <h2 id="computer-requirements">Computer requirements<a class="anchor" aria-label="anchor" href="#computer-requirements"></a>
 </h2>
 <ul>
 <li>A minimum of 16GB of memory is required. &gt;=32GB is
 recommended.</li>
-<li>A minimum of 8 CPU cores is recommended.</li>
+<li>A minimum of 8 CPU cores. 16 are recommended.</li>
 <li><strong>Administrative privileges are required on a Windows
 operating system <em>to run linux</em>.</strong></li>
 <li>A linux/unix (includes Intel-based* MacOS) operating system is
@@ -137,15 +129,15 @@ required.
 <ul>
 <li>*This software has not yet been tested on Apple’s M-chip based
 OS</li>
-<li>If you are using a Mac, <a href="#install-docker-desktop">skip to
-installing Docker</a>
+<li>If you are using a Mac, <a href="./mac-getting-started.html">go to
+Mac Getting Started</a>
 </li>
 </ul>
 </li>
 </ul>
 </div>
 <div class="section level2">
-<h2 id="how-to-install-linux-on-a-windows-1011-computer">How to install linux on a Windows 10/11 computer<a class="anchor" aria-label="anchor" href="#how-to-install-linux-on-a-windows-1011-computer"></a>
+<h2 id="install-linux-on-a-windows-1011-computer">Install linux on a Windows 10/11 computer<a class="anchor" aria-label="anchor" href="#install-linux-on-a-windows-1011-computer"></a>
 </h2>
 <p>You can get a full linux environment using Windows Subsystem for
 Linux, or WSL. The second version of WSL is WSL2 and is the recommended
@@ -158,11 +150,10 @@ key + R, type winver, select OK.</p></li>
 Windows 11 is required.</p>
 <ul>
 <li>You can update to the latest Windows version by selecting Start &gt;
-Settings &gt; Windows Update &gt; Check for updates. <br><br>
-</li>
+Settings &gt; Windows Update &gt; Check for updates.</li>
 </ul>
 </li>
-<li><p><a href="images/powershell_open.png" target="_blank">Run
+<li><p><a href="./images/powershell_open.png" target="_blank">Run
 powershell <strong>as administrator</strong></a></p></li>
 <li>
 <p>Run the following command in Powershell:</p>
@@ -173,10 +164,8 @@ enabled, follow instructions below to access your machine’s BIOS setup:
 <ul>
 <li><a href="https://support.microsoft.com/en-us/windows/enable-virtualization-on-windows-11-pcs-c5578302-6e43-4b4b-a449-8ced115f58e1" class="external-link">Windows
 11 virtualization instructions</a></li>
-<li>
-<a href="https://www.geeksforgeeks.org/how-to-enable-virtualization-vt-x-in-windows-10-bios/" class="external-link">Windows
-10 virtualization instructions</a> <br><br>
-</li>
+<li><a href="https://www.geeksforgeeks.org/how-to-enable-virtualization-vt-x-in-windows-10-bios/" class="external-link">Windows
+10 virtualization instructions</a></li>
 </ul>
 </li>
 </ul>
@@ -185,31 +174,40 @@ enabled, follow instructions below to access your machine’s BIOS setup:
 <li>
 <p>Reopen Powershell and enter the following commands:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">wsl</span> <span class="at">--set-default-version</span> 2</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">wsl</span> <span class="at">--install</span> <span class="at">-d</span> Ubuntu-18.04</span></code></pre></div>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="ex">wsl</span> <span class="at">--install</span> <span class="at">-d</span> Ubuntu-18.04</span></code></pre></div>
+<p>If either of these commands errors out, from the Windows search bar,
+open <code>Turn Windows Features on or off</code> and make sure the
+following 4 features are checked off:</p>
+<ul>
+<li>Hyper-V</li>
+<li>Virtual Machine Platform</li>
+<li>Windows Hypervisor Platform</li>
+<li>Windows Subsystem for Linux</li>
+</ul>
 <p>Following successful installation, an Ubuntu terminal should pop up
-that looks like: <img src="images/ubuntu_setub_1.png"></p>
+that looks like: <img src="images/ubuntu_setub_1.png" alt="alt text"></p>
 </li>
-<li>
-<p>Enter a username that will be exclusive for WSL. Press
+<li><p>Enter a username that will be exclusive for WSL. Press
 <code>Enter</code> and then enter a password. <strong><em>It is very
 important</em></strong>, <em>to choose a memorable password. If you
-forget your password you will need to reinstall Ubuntu</em>.</p>
-<p>A “prompt” will then appear in the screen like: <img src="images/commandprompt_wsl.png"> with <code>nbx0</code> replaced by
-your entered username and <code>L349232</code> replaced with your
-computer’s name.</p>
-</li>
-<li>
-<p>Restart your computer.</p>
+forget your password you will need to reinstall Ubuntu</em>.</p></li>
+</ol>
+<p>A “prompt” will then appear in the screen like: <img src="images/commandprompt_wsl.png" alt="alt text"> with
+<code>nbx0</code> replaced by your entered username and
+<code>L349232</code> replaced with your computer’s name.</p>
+<ol start="8" style="list-style-type: decimal">
+<li>Restart your computer.</li>
+</ol>
 <ul>
 <li>To access the Ubuntu terminal in the future, simply search for
 <code>Ubuntu</code> in the
-<a href="images/ubuntu_open.png" target="_blank">Window’s task bar and
-click on the app.</a> <br> Further details can be found on Microsoft’s
-website: <a href="https://docs.microsoft.com/en-us/windows/wsl/install" class="external-link">https://docs.microsoft.com/en-us/windows/wsl/install</a>
+<a href="./images/ubuntu_open.png" target="_blank">Window’s task bar and
+click on the app.</a> <br><br> Further details can be found on
+Microsoft’s website here: <a href="https://docs.microsoft.com/en-us/windows/wsl/install" class="external-link">https://docs.microsoft.com/en-us/windows/wsl/install</a>
+<br><br>
 </li>
 </ul>
-</li>
-</ol>
 </div>
 <div class="section level2">
 <h2 id="map-network-drive-to-be-able-to-use-windows-file-explorer-to-see-folders-and-files-inside-wsl">Map network drive to be able to use Window’s File Explorer to see
@@ -227,25 +225,23 @@ still not showing up in <code>File Explorer</code>, you can try to find
 the solution here: <a href="https://github.com/microsoft/WSL/issues/3996" class="external-link">https://github.com/microsoft/WSL/issues/3996</a>.</em></p>
 <ol style="list-style-type: decimal">
 <li>
-<p>Open <a href="images/file_explorer.png" target="_blank">File
+<p>Open <a href="./images/file_explorer.png" target="_blank">File
 Explorer</a></p>
 <ul>
-<li>
-<em>If you have a Windows 10 or 11 OS, WSL is likely automatically
-mapped and visible in the left hand sidebar as “Ubuntu”</em>
-<br><br>
-</li>
+<li><em>If you have a Windows 10 or 11 OS, WSL is likely automatically
+mapped and visible in the left hand sidebar as “Ubuntu”</em></li>
 </ul>
 </li>
-<li><p>Right click <a href="images/map_drive_1.png" target="_blank">This
-PC and click Map network drive</a></p></li>
+<li><p>Right click
+<a href="./images/map_drive_1.png" target="_blank">This PC and click Map
+network drive</a></p></li>
 <li><p>Enter <code>\\wsl$</code> into Folder:
-<a href="images/map_drive_2.png" target="_blank">and click
+<a href="./images/map_drive_2.png" target="_blank">and click
 Browse</a></p></li>
 <li>
 <p>Click on <code>wsl$</code> to unfold directories, select
 <code>Ubuntu-18.04</code>
-<a href="images/map_drive_3.png" target="_blank">and click OK</a> and
+<a href="./images/map_drive_3.png" target="_blank">and click OK</a> and
 then <code>Finish</code>. You should now see your WSL “drive” available
 in <code>File Explorer</code>:</p>
 <p><img src="images/map_drive_4.png"></p>
@@ -262,20 +258,15 @@ image” on your computer with all of that application’s needed
 dependencies. Make sure to install the version for your operating
 system.</p>
 <ul>
-<li><p><a href="https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe?utm_source=docker&amp;utm_medium=webreferral&amp;utm_campaign=dd-smartbutton&amp;utm_location=header" class="external-link">Windows</a></p></li>
-<li><p><a href="https://desktop.docker.com/mac/main/amd64/Docker.dmg?utm_source=docker&amp;utm_medium=webreferral&amp;utm_campaign=dd-smartbutton&amp;utm_location=module" class="external-link">Mac-Intel</a></p></li>
-<li><p><a href="https://desktop.docker.com/mac/main/arm64/Docker.dmg?utm_source=docker&amp;utm_medium=webreferral&amp;utm_campaign=dd-smartbutton&amp;utm_location=module" class="external-link">Mac-AppleChip</a></p></li>
-<li>
-<p><a href="https://docs.docker.com/desktop/linux/install/" class="external-link">Linux</a></p>
-<ul>
-<li>If you get an error related to Docker user groups, go to “Edit local
-users and groups” from your Windows search bar</li>
-<li>Click Groups –&gt; docker-users –&gt; Add… –&gt; then enter your
-username <img src="images/dockerusers.png">
-</li>
+<li><a href="https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe?utm_source=docker&amp;utm_medium=webreferral&amp;utm_campaign=dd-smartbutton&amp;utm_location=header" class="external-link">Windows</a></li>
+<li><a href="https://desktop.docker.com/mac/main/amd64/Docker.dmg?utm_source=docker&amp;utm_medium=webreferral&amp;utm_campaign=dd-smartbutton&amp;utm_location=module" class="external-link">Mac-Intel</a></li>
+<li><a href="https://desktop.docker.com/mac/main/arm64/Docker.dmg?utm_source=docker&amp;utm_medium=webreferral&amp;utm_campaign=dd-smartbutton&amp;utm_location=module" class="external-link">Mac-AppleChip</a></li>
+<li><a href="https://docs.docker.com/desktop/linux/install/" class="external-link">Linux</a></li>
 </ul>
-</li>
-</ul>
+<p>If you get an error related to Docker user groups, go to “Edit local
+users and groups” from your Windows search bar Click Groups –&gt;
+docker-users –&gt; Add… –&gt; then enter your username</p>
+<p><img src="images/dockerusers.png"></p>
 </div>
 <div class="section level2">
 <h2 id="install-docker-cli-command-line-interface-in-wsl2">
@@ -292,21 +283,16 @@ work. After copying a line of code, try pasting into the terminal with a
 <p>Uninstall old versions of Docker</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt-get remove docker docker-engine docker.io containerd runc</span></code></pre></div>
 <ul>
-<li>
-<em>If you have never installed Docker on your machine, you will see
+<li><em>If you have never installed Docker on your machine, you will see
 an error message about docker not being found. This is expected and you
-can move to step 3.</em> <br><br>
-</li>
+can move to step 3.</em></li>
 </ul>
 </li>
 <li>
 <p>Tell WSL2 where to look for Docker CLI tools</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt-get update</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt-get install <span class="dt">\</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>ca-certificates <span class="dt">\</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>curl <span class="dt">\</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>gnupg <span class="dt">\</span></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>lsb-release</span></code></pre></div>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt-get install ca-certificates curl gnupg lsb-release</span></code></pre></div>
 <ul>
 <li>During installation, you will be prompted multiple times to enter
 ‘y’ or ‘n’ on preceeding. Each time, input ‘y’ and click
@@ -345,12 +331,12 @@ run the following command, then try to run hello-world again</li>
 <div class="sourceCode" id="cb12"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> chmod <span class="at">-755</span> /run/docker.sock</span></code></pre></div>
 <ul>
 <li>If you can now see the hello-world container in Docker Desktop, you
-can proceed to pulling and running MIRA containers</li>
+can proceed to pulling and running iSpy containers</li>
 <li>If you open Docker Desktop and do not see the Hello World container
 you just ran, click Settings icon (top right) –&gt; Resources –&gt; WSL
 Integration</li>
 <li>Ensure that “Enable integration with my default WSL distro” is
-checked off, and that Ubuntu-18.04 distro is switched on <img src="images/WSL_docker.png">
+checked off, and that Ubuntu-18.04 distro is switched on <img src="images/WSL_docker.png" alt="alt text">
 </li>
 <li>If your hello-world container still is not showing, open the
 Ubuntu-18.04 command prompt and run:</li>
@@ -368,6 +354,14 @@ Edit</a></li>
 <li><a href="https://ormbunkar.se/aliview/#DOWNLOAD" class="external-link">Mac
 Aliview</a></li>
 </ul>
+<div class="section level4">
+<h4 id="you-are-now-ready-to-proceed-to-mira-installation">You are now ready to proceed to <a href="https://cdcgov.github.io/MIRA/articles/mira-installation.html" class="external-link">MIRA
+Installation</a><a class="anchor" aria-label="anchor" href="#you-are-now-ready-to-proceed-to-mira-installation"></a>
+</h4>
+<hr>
+<hr>
+<p><br><br></p>
+</div>
 </div>
   </div>
 
@@ -388,7 +382,7 @@ Aliview</a></li>
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.9000.</p>
 </div>
 
       </footer>

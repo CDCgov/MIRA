@@ -44,39 +44,42 @@
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-    Dockerization
-     
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
-<li>
-      <a href="../articles/docker.html">Containerizing MIRA with Docker</a>
-    </li>
-    <li>
-      <a href="../articles/docker-compose.html">Running MIRA with Docker-Compose</a>
-    </li>
-  </ul>
-</li>
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     NGS-Training
      
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
-      <a href="../articles/getting-started.html">Getting Started</a>
+      <a href="../articles/getting-started.html">PC Getting Started</a>
     </li>
     <li>
-      <a href="../articles/setting-up-containers.html">Setting up Containers</a>
+      <a href="../articles/mac-getting-started.html">Mac Getting Started</a>
+    </li>
+    <li>
+      <a href="../articles/mira-installation.html">MIRA installation</a>
     </li>
     <li>
       <a href="../articles/running-mira.html">Running Genome Assembly with MIRA</a>
     </li>
   </ul>
 </li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Help
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
 <li>
-  <a href="../articles/FAQs.html">FAQs</a>
+      <a href="../articles/FAQs.html">FAQs</a>
+    </li>
+    <li>
+      <a href="../articles/troubleshooting.html">Troubleshooting</a>
+    </li>
+    <li>
+      <a href="../articles/sequence-qc.html">QC Standards</a>
+    </li>
+  </ul>
 </li>
       </ul>
 <ul class="nav navbar-nav navbar-right">
@@ -84,7 +87,7 @@
   <a href="../news/index.html">Change Log</a>
 </li>
 <li>
-  <a href="https://github.com/nbx0/MIRA">
+  <a href="https://github.com/CDCgov/MIRA">
     <span class="fa fa-github"></span>
      
   </a>
@@ -105,276 +108,19 @@
       <h1 data-toc-skip></h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/nbx0/MIRA/blob/HEAD/vignettes/docker-compose.Rmd"><code>vignettes/docker-compose.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/CDCgov/MIRA/blob/HEAD/vignettes/docker-compose.Rmd"><code>vignettes/docker-compose.Rmd</code></a></small>
       <div class="hidden name"><code>docker-compose.Rmd</code></div>
 
     </div>
 
     
     
-<div class="section level2">
-<h2 id="running-mira-with-docker-compose">Running MIRA with docker-compose<a class="anchor" aria-label="anchor" href="#running-mira-with-docker-compose"></a>
-</h2>
-<p>The MIRA’s dashboard relies on four Docker containers to run its
-genome assembly and curation: <strong>IRMA</strong>,
-<strong>DAIS-Ribosome</strong>, <strong>spyne</strong>, and
-<strong>MIRA</strong>. Presently, the IRMA and DAIS-Ribosome docker
-images are stored in <strong>AWS’s EC</strong>, and the spyne and MIRA
-docker images are stored in <strong>Quay.io’s repository</strong>. These
-images can be pulled down and built into runnable containers with the
-<code>docker pull</code> and <code>docker run</code> commands.</p>
-<p>Instead of pulling down each image one by one and run its container,
-we can utilize <strong>docker-compose</strong> to pull all the images
-down at once, build its containers, and configure them to communicate to
-each other. All these tasks can be accomplished using a
-docker-compose.yml file.</p>
-<p>There are two versions of the docker-compose.yml files:</p>
-<ul>
-<li>
-<a href="#build-development-version-of-mira">Development version</a>
-for continuous integration of the application</li>
-<li>
-<a href="#build-production-version-of-mira">Production version</a>
-for deployment of the application</li>
-</ul>
-</div>
-<div class="section level2">
-<h2 id="software-requirements">Software requirements<a class="anchor" aria-label="anchor" href="#software-requirements"></a>
-</h2>
-<ul>
-<li>Docker version &gt;= 20.10,</li>
-<li>Git version &gt;= 2.21</li>
-<li>Docker-compose version &gt;= 1.29</li>
-</ul>
-</div>
-<div class="section level2">
-<h2 id="build-development-version-of-mira">Build development version of MIRA<a class="anchor" aria-label="anchor" href="#build-development-version-of-mira"></a>
-</h2>
-<p>This version allows you to mount the code base that is needed to
-develop the <code>MIRA</code> dashboard and <code>spyne</code> pipeline.
-Any updates or changes to the code will automatically reflects the
-changes inside their Docker containers. This allows continuous
-integration (CI) of the application.</p>
-<div class="section level3">
-<h3 id="clone-spyne-respitory">(1) Clone spyne respitory<a class="anchor" aria-label="anchor" href="#clone-spyne-respitory"></a>
-</h3>
-<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone https://git.biotech.cdc.gov/nbx0/spyne.git</span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="clone-mira-respitory">(2) Clone MIRA respitory<a class="anchor" aria-label="anchor" href="#clone-mira-respitory"></a>
-</h3>
-<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone https://git.biotech.cdc.gov/nbx0/MIRA.git</span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="clone-mira-testdata-respitory">(3) Clone mira-testdata respitory<a class="anchor" aria-label="anchor" href="#clone-mira-testdata-respitory"></a>
-</h3>
-<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone https://git.biotech.cdc.gov/nbx0/mira-testdata.git</span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="extract-test-data-for-running-mira-and-spyne">(4) Extract test data for running MIRA and spyne<a class="anchor" aria-label="anchor" href="#extract-test-data-for-running-mira-and-spyne"></a>
-</h3>
-<ul>
-<li>CD to <code>mira-testdata</code> folder where
-<code>data.tar.gz</code> file is stored and extract “runs” from the tar
-archive.</li>
-</ul>
-<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="bu">[</span> <span class="va">$(</span> <span class="fu">which</span> pigz<span class="va">)</span> <span class="bu">]</span> <span class="kw">&amp;&amp;</span><span class="dt">\</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">time</span> tar <span class="at">--use-compress-program</span><span class="op">=</span><span class="st">"pigz -p</span><span class="va">$(</span><span class="fu">nproc</span><span class="va">)</span><span class="st">"</span> <span class="at">-xf</span> data.tar.gz <span class="kw">||</span><span class="dt">\</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">tar</span> <span class="at">-xf</span> data.tar.gz</span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="cd-to-mira-folder-where-docker-compose-quay-dev-yml-is-stored-and-edit-the-yaml-file-to-link-the-data-inputs-and-code-base-to-appropriate-containers">(5) CD to <code>MIRA</code> folder where
-<code>docker-compose-quay-dev.yml</code> is stored and edit the yaml
-file to link the data inputs and code base to appropriate
-containers<a class="anchor" aria-label="anchor" href="#cd-to-mira-folder-where-docker-compose-quay-dev-yml-is-stored-and-edit-the-yaml-file-to-link-the-data-inputs-and-code-base-to-appropriate-containers"></a>
-</h3>
-<ul>
-<li>Mount data directory to <strong>/data</strong> directory inside of
-all containers: change <strong>/path/to/data</strong> to your
-<strong>mira-testdata</strong> directory</li>
-<li>Mount code base of <strong>spyne</strong> to <strong>/spyne</strong>
-directory inside the <strong>spyne</strong> container: change
-<strong>/path/to/spyne</strong> to your <strong>spyne</strong>
-directory</li>
-<li>Mount code base of <strong>MIRA</strong> to <strong>/MIRA</strong>
-directory inside the <strong>mira</strong> container: change
-<strong>/path/to/MIRA</strong> to your <strong>MIRA</strong>
-directory</li>
-</ul>
-<div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">version:</span> <span class="st">"3.9"</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="ex">x-dais-version:</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">&amp;</span><span class="ex">dais-version</span> </span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="ex">public.ecr.aws/n3z8t4o2/dais-ribosome:1.2.1</span></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="ex">x-irma-version:</span></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="kw">&amp;</span><span class="ex">irma-version</span> </span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  <span class="ex">public.ecr.aws/n3z8t4o2/irma:1.0.2p3</span></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="ex">x-spyne-version:</span></span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>  <span class="kw">&amp;</span><span class="ex">spyne-version</span> </span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>  <span class="ex">quay.io/nbx0_cdc/spyne:v1.1.0</span></span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="ex">x-mira-version:</span></span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>  <span class="kw">&amp;</span><span class="ex">mira-version</span> </span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>  <span class="ex">quay.io/nbx0_cdc/mira:v1.1.0</span></span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="ex">x-data-volumes:</span></span>
-<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>  <span class="kw">&amp;</span><span class="ex">data-volume</span></span>
-<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>  <span class="ex">type:</span> bind</span>
-<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>  <span class="ex">source:</span> /path/to/data</span>
-<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>  <span class="ex">target:</span> /data</span>
-<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a><span class="ex">x-docker-volumes:</span></span>
-<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>  <span class="kw">&amp;</span><span class="ex">docker-socket</span></span>
-<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>  <span class="ex">type:</span> bind</span>
-<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>  <span class="ex">source:</span> /var/run/docker.sock </span>
-<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>  <span class="ex">target:</span> /var/run/docker.sock </span>
-<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a><span class="ex">x-spyne-volumes:</span></span>
-<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>  <span class="kw">&amp;</span><span class="ex">spyne-code</span></span>
-<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>  <span class="ex">type:</span> bind</span>
-<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>  <span class="ex">source:</span> /path/to/spyne</span>
-<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>  <span class="ex">target:</span> /spyne </span>
-<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a><span class="ex">x-mira-volumes:</span></span>
-<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a>  <span class="kw">&amp;</span><span class="ex">mira-code</span></span>
-<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>  <span class="ex">type:</span> bind</span>
-<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a>  <span class="ex">source:</span> /path/to/MIRA</span>
-<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a>  <span class="ex">target:</span> /MIRA</span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="start-all-services-listed-in-the-docker-compose-yml-file">(6) Start all services listed in the docker-compose.yml file<a class="anchor" aria-label="anchor" href="#start-all-services-listed-in-the-docker-compose-yml-file"></a>
-</h3>
-<div class="sourceCode" id="cb6"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker-compose</span> up <span class="at">-d</span> </span></code></pre></div>
-<p><strong>-d</strong>: run the containers in detached mode <br></p>
-<p>For more information about the docker-compose syntax, see <a href="https://docs.docker.com/engine/reference/commandline/compose_up/" class="external-link">docker-compose
-up reference</a></p>
-</div>
-<div class="section level3">
-<h3 id="to-check-if-the-services-are-started-sucessfully">(7) To check if the services are started sucessfully<a class="anchor" aria-label="anchor" href="#to-check-if-the-services-are-started-sucessfully"></a>
-</h3>
-<div class="sourceCode" id="cb7"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker-compose</span> ps</span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="access-the-mira-dashboard-on-the-host-network">(8) Access the <code>MIRA</code> dashboard on the host network<a class="anchor" aria-label="anchor" href="#access-the-mira-dashboard-on-the-host-network"></a>
-</h3>
-<p>You can visit the local host using your preferred web browser, type
-in <a href="http://localhost:8010" class="external-link uri">http://localhost:8010</a>, and check if the dashboard is
-indeed hosted there.</p>
-</div>
-</div>
-<div class="section level2">
-<h2 id="build-production-version-of-mira">Build production version of MIRA<a class="anchor" aria-label="anchor" href="#build-production-version-of-mira"></a>
-</h2>
-<p>This version <strong>ONLY</strong> allows you to mount the data files
-that are needed to run <strong>IRMA</strong>,
-<strong>DAIS-Ribosome</strong>, <strong>spyne</strong>, and
-<strong>MIRA</strong> containers. In other words, you do not have access
-to their code base but is using their latest containerized version of
-the code.</p>
-<div class="section level3">
-<h3 id="clone-mira-testdata-respitory-1">(1) Clone mira-testdata respitory<a class="anchor" aria-label="anchor" href="#clone-mira-testdata-respitory-1"></a>
-</h3>
-<div class="sourceCode" id="cb8"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone https://git.biotech.cdc.gov/nbx0/mira-testdata.git</span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="extract-test-data-for-running-mira">(2) Extract test data for running MIRA<a class="anchor" aria-label="anchor" href="#extract-test-data-for-running-mira"></a>
-</h3>
-<ul>
-<li>CD to <code>mira-testdata</code> folder where
-<code>data.tar.gz</code> file is stored and extract “runs” from the tar
-archive.</li>
-</ul>
-<div class="sourceCode" id="cb9"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="bu">[</span> <span class="va">$(</span> <span class="fu">which</span> pigz<span class="va">)</span> <span class="bu">]</span> <span class="kw">&amp;&amp;</span><span class="dt">\</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">time</span> tar <span class="at">--use-compress-program</span><span class="op">=</span><span class="st">"pigz -p</span><span class="va">$(</span><span class="fu">nproc</span><span class="va">)</span><span class="st">"</span> <span class="at">-xf</span> data.tar.gz <span class="kw">||</span><span class="dt">\</span></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">tar</span> <span class="at">-xf</span> data.tar.gz</span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="cd-to-mira-folder-where-docker-compose-quay-yml-is-stored-and-edit-the-yaml-file-to-link-the-data-inputs-to-appropriate-containers">(3) CD to <code>MIRA</code> folder where
-<code>docker-compose-quay.yml</code> is stored and edit the yaml file to
-link the data inputs to appropriate containers<a class="anchor" aria-label="anchor" href="#cd-to-mira-folder-where-docker-compose-quay-yml-is-stored-and-edit-the-yaml-file-to-link-the-data-inputs-to-appropriate-containers"></a>
-</h3>
-<ul>
-<li>Mount data directory to <code>/data</code> directory inside of all
-containers: change <code>/path/to/data</code> to your
-<code>mira-testdata</code> directory</li>
-</ul>
-<div class="sourceCode" id="cb10"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">version:</span> <span class="st">"3.9"</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="ex">x-dais-version:</span></span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">&amp;</span><span class="ex">dais-version</span> </span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="ex">public.ecr.aws/n3z8t4o2/dais-ribosome:1.2.1</span></span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="ex">x-irma-version:</span></span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  <span class="kw">&amp;</span><span class="ex">irma-version</span> </span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  <span class="ex">public.ecr.aws/n3z8t4o2/irma:1.0.2p3</span></span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="ex">x-spyne-version:</span></span>
-<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>  <span class="kw">&amp;</span><span class="ex">spyne-version</span> </span>
-<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>  <span class="ex">quay.io/nbx0_cdc/spyne:v1.1.0</span></span>
-<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="ex">x-mira-version:</span></span>
-<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>  <span class="kw">&amp;</span><span class="ex">mira-version</span> </span>
-<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>  <span class="ex">quay.io/nbx0_cdc/mira:v1.1.0</span></span>
-<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a><span class="ex">x-data-volumes:</span></span>
-<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>  <span class="kw">&amp;</span><span class="ex">data-volume</span></span>
-<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>  <span class="ex">type:</span> bind</span>
-<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>  <span class="ex">source:</span> /path/to/data</span>
-<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>  <span class="ex">target:</span> /data</span>
-<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a><span class="ex">x-docker-volumes:</span></span>
-<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>  <span class="kw">&amp;</span><span class="ex">docker-socket</span></span>
-<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>  <span class="ex">type:</span> bind</span>
-<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>  <span class="ex">source:</span> /var/run/docker.sock </span>
-<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>  <span class="ex">target:</span> /var/run/docker.sock </span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="start-all-services-listed-in-the-docker-compose-yml-file-1">(4) Start all services listed in the docker-compose.yml file<a class="anchor" aria-label="anchor" href="#start-all-services-listed-in-the-docker-compose-yml-file-1"></a>
-</h3>
-<div class="sourceCode" id="cb11"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker-compose</span> up <span class="at">-d</span> </span></code></pre></div>
-<p><strong>-d</strong>: run the containers in detached mode <br></p>
-<p>For more information about the docker-compose syntax, see <a href="https://docs.docker.com/engine/reference/commandline/compose_up/" class="external-link">docker-compose
-up reference</a></p>
-</div>
-<div class="section level3">
-<h3 id="to-check-if-the-services-are-started-sucessfully-1">(5) To check if the services are started sucessfully<a class="anchor" aria-label="anchor" href="#to-check-if-the-services-are-started-sucessfully-1"></a>
-</h3>
-<div class="sourceCode" id="cb12"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker-compose</span> ps</span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="access-the-mira-dashboard-on-the-host-network-1">(6) Access the <code>MIRA</code> dashboard on the host network<a class="anchor" aria-label="anchor" href="#access-the-mira-dashboard-on-the-host-network-1"></a>
-</h3>
-<p>You can visit the local host using your preferred web browser, type
-in <a href="http://localhost:8020" class="external-link uri">http://localhost:8020</a>, and check if the dashboard is
-indeed hosted there.</p>
-<p><strong>NOTE:</strong> Here we are publishing the <code>MIRA</code>
-dashboard on port <strong>8020</strong> on the host machine. This port
-is different from the <strong>development</strong> version which was
-previously launched on port <strong>8010</strong>.</p>
-</div>
-</div>
-<div class="section level2">
-<h2 id="run-genome-assembly-with-mira">Run genome assembly with MIRA<a class="anchor" aria-label="anchor" href="#run-genome-assembly-with-mira"></a>
-</h2>
-<p>See <a href="running-mira.html">NGS Training: Running Genome Assembly
-with MIRA</a></p>
-</div>
-<div class="section level2">
-<h2 id="getting-help">Getting help<a class="anchor" aria-label="anchor" href="#getting-help"></a>
-</h2>
-<p>See <a href="FAQs.html#how-to-start-restart-stop-or-remove-services-listed-in-docker-compose-yml">FAQs
-Guide on how to upgrade and remove older versions of MIRA using
-docker-compose</a></p>
-</div>
+
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
 
-        <nav id="toc" data-toggle="toc"><h2 data-toc-skip>Contents</h2>
-    </nav>
-</div>
+      </div>
 
 </div>
 
@@ -387,7 +133,7 @@ docker-compose</a></p>
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.9000.</p>
 </div>
 
       </footer>
