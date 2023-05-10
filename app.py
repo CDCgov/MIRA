@@ -133,6 +133,86 @@ def single_sample_fig(run, sample, cov_linear_y, n_clicks):
 
 
 @app.callback(
+    Output("download_ss", "data"),
+    [Input("select_run", "value"), Input("ss_dl_button", "n_clicks"), Input("experiment_type", "value")],
+    prevent_initial_call=True,
+    # background=True,
+    # manager=bkgnd_callback_manager,
+)
+def download_ss(run, n_clicks, experiment_type):
+    if not n_clicks:
+        raise dash.exceptions.PreventUpdate
+    global dl_ss_clicks
+    if n_clicks > dl_ss_clicks:
+        dl_ss_clicks = n_clicks
+        try:
+            if "illumina" in experiment_type.lower():
+                template_file = "/MIRA/lib/illumina_ss_template.csv"
+            else:
+                template_file = "/MIRA/lib/ss_template.csv"
+            content = open(
+                template_file
+            ).read()
+            ss_csv = dict(
+                content=content,
+                filename=f"{run}_samplesheet.csv",
+            )
+        except:
+            #get a warning displayed somehow
+            return html.Div(['There was an error processing this run and datatype'])
+        return ss_csv
+
+#from https://dash.plotly.com/dash-core-components/upload
+
+def parse_contents(contents, filename, date):
+    content_type, content_string = contents.split(',')
+
+    decoded = base64.b64decode(content_string)
+    try:
+        if 'csv' in filename:
+            # Assume that the user uploaded a CSV file
+            df = pd.read_csv(
+                io.StringIO(decoded.decode('utf-8')))
+        elif 'xls' in filename:
+            # Assume that the user uploaded an excel file
+            df = pd.read_excel(io.BytesIO(decoded))
+    except Exception as e:
+        print(e)
+        return html.Div([
+            'There was an error processing this file.'
+        ])
+
+    return html.Div([
+        html.H5(filename),
+        html.H6(datetime.datetime.fromtimestamp(date)),
+
+        dash_table.DataTable(
+            df.to_dict('records'),
+            [{'name': i, 'id': i} for i in df.columns]
+        ),
+
+        html.Hr(),  # horizontal line
+
+        # For debugging, display the raw contents provided by the web browser
+        html.Div('Raw Content'),
+        html.Pre(contents[0:200] + '...', style={
+            'whiteSpace': 'pre-wrap',
+            'wordBreak': 'break-all'
+        })
+    ])
+
+@app.callback(Output('output-data-upload', 'children'),
+              Input('upload-data', 'contents'),
+              State('upload-data', 'filename'),
+              State('upload-data', 'last_modified'))
+def update_output(list_of_contents, list_of_names, list_of_dates):
+    if list_of_contents is not None:
+        children = [
+            parse_contents(c, n, d) for c, n, d in
+            zip(list_of_contents, list_of_names, list_of_dates)]
+        return children
+
+@app.callback(
     [Output("save_samplesheet_button", "n_clicks"),
     Output("samplesheet_errors", "children")],
     [
@@ -633,85 +713,6 @@ def download_nt_fastas(run, n_clicks):
         )
         return nt_fastas, aa_fastas
 
-@app.callback(
-    Output("download_ss", "data"),
-    [Input("select_run", "value"), Input("ss_dl_button", "n_clicks"), Input("experiment_type", "value")],
-    prevent_initial_call=True,
-    # background=True,
-    # manager=bkgnd_callback_manager,
-)
-def download_ss(run, n_clicks, experiment_type):
-    if not n_clicks:
-        raise dash.exceptions.PreventUpdate
-    global dl_ss_clicks
-    if n_clicks > dl_ss_clicks:
-        dl_ss_clicks = n_clicks
-        try:
-            if "illumina" in experiment_type.lower():
-                template_file = "/MIRA/lib/illumina_ss_template.csv"
-            else:
-                template_file = "/MIRA/lib/ss_template.csv"
-            content = open(
-                template_file
-            ).read()
-            ss_csv = dict(
-                content=content,
-                filename=f"{run}_samplesheet.csv",
-            )
-        except:
-            #get a warning displayed somehow
-            return html.Div(['There was an error processing this run and datatype'])
-        return ss_csv
-
-#from https://dash.plotly.com/dash-core-components/upload
-
-def parse_contents(contents, filename, date):
-    content_type, content_string = contents.split(',')
-
-    decoded = base64.b64decode(content_string)
-    try:
-        if 'csv' in filename:
-            # Assume that the user uploaded a CSV file
-            df = pd.read_csv(
-                io.StringIO(decoded.decode('utf-8')))
-        elif 'xls' in filename:
-            # Assume that the user uploaded an excel file
-            df = pd.read_excel(io.BytesIO(decoded))
-    except Exception as e:
-        print(e)
-        return html.Div([
-            'There was an error processing this file.'
-        ])
-
-    return html.Div([
-        html.H5(filename),
-        html.H6(datetime.datetime.fromtimestamp(date)),
-
-        dash_table.DataTable(
-            df.to_dict('records'),
-            [{'name': i, 'id': i} for i in df.columns]
-        ),
-
-        html.Hr(),  # horizontal line
-
-        # For debugging, display the raw contents provided by the web browser
-        html.Div('Raw Content'),
-        html.Pre(contents[0:200] + '...', style={
-            'whiteSpace': 'pre-wrap',
-            'wordBreak': 'break-all'
-        })
-    ])
-
-@app.callback(Output('output-data-upload', 'children'),
-              Input('upload-data', 'contents'),
-              State('upload-data', 'filename'),
-              State('upload-data', 'last_modified'))
-def update_output(list_of_contents, list_of_names, list_of_dates):
-    if list_of_contents is not None:
-        children = [
-            parse_contents(c, n, d) for c, n, d in
-            zip(list_of_contents, list_of_names, list_of_dates)]
-        return children
 
 
 ########################################################
