@@ -5,7 +5,7 @@
 - **Administrative privileges are required on a Windows operating system _to run linux_.**
 - A linux/unix (includes Intel-based* MacOS) operating system is required.
     - *This software has not yet been tested on Apple's M-chip based OS
-    - If you are using a Mac, [skip to Install Docker Desktop.](#install-docker-desktop)
+    - If you are using a Mac, [go to Mac Getting Started.](./mac-getting-started.html)
 
 ## Install linux on a Windows 10/11 computer
 You can get a full linux environment using Windows Subsystem for Linux, or WSL. The second version of WSL is WSL2 and is the recommended version to use.

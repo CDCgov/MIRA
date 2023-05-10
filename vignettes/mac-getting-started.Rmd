@@ -1,0 +1,36 @@
+
+## Computer requirements
+- A minimum of 16GB of memory is required. >=32GB is recommended.
+- A minimum of 8 CPU cores. 16 are recommended.
+
+
+
+## [Install Docker Desktop](https://www.docker.com/products/docker-desktop/)
+Docker allows you to run software inside an isolated "container image" on your computer with all of that application's needed dependencies. Make sure to install the version for your operating system.
+
+- [Mac-Intel](https://desktop.docker.com/mac/main/amd64/Docker.dmg?utm_source=docker&utm_medium=webreferral&utm_campaign=dd-smartbutton&utm_location=module)
+- [Mac-AppleChip](https://desktop.docker.com/mac/main/arm64/Docker.dmg?utm_source=docker&utm_medium=webreferral&utm_campaign=dd-smartbutton&utm_location=module)
+
+
+## MIRA Installation
+
+- Open Docker Desktop, and once it is running
+- Open the terminal, and copy/paste these commands
+
+```bash
+mkdir ~/FLU_SC2_SEQUENCING
+
+cd ~/FLU_SC2_SEQUENCING
+```
+
+```bash
+curl https://raw.githubusercontent.com/CDCgov/MIRA/prod/docker-compose-git.yml | sed "s%/path/to/data%$(echo ~)/FLU_SC2_SEQUENCING/%g" > docker-compose.yml
+```
+
+```bash
+sudo docker-compose up -d
+```
+
+You are now running MIRA! You can proceed to [Running MIRA](./running-mira.html)
+
+If these instructions show errors, please refer to [Troubleshooting: MIRA-INSTALL.sh failed](./troubleshooting.html)
