@@ -229,7 +229,7 @@ def save_samplesheet(run, ss_data, n_clicks):
     #df = pd.DataFrame.from_dict(ss_data["props"]["data"], orient="columns")
     df = ss_df
     try:
-        df = df[["Barcode #", "Sample ID", "Sample Type", "Barcode Expansion Pack"]]
+        df = df[["Barcode #", "Sample ID", "Sample Type"]]
     except:
         df = df[["Sample ID", "Sample Type"]]
     for c in df.columns:
