@@ -140,6 +140,8 @@ def single_sample_fig(run, sample, cov_linear_y, n_clicks):
     # manager=bkgnd_callback_manager,
 )
 def download_ss(run, n_clicks, experiment_type):
+    global selected_experiment_type
+    selected_experiment_type = experiment_type
     if not n_clicks:
         raise dash.exceptions.PreventUpdate
     global dl_ss_clicks
@@ -166,16 +168,16 @@ def download_ss(run, n_clicks, experiment_type):
 
 def parse_contents(contents, filename, date):
     content_type, content_string = contents.split(',')
-
+    global ss_df
     decoded = base64.b64decode(content_string)
     try:
         if 'csv' in filename:
             # Assume that the user uploaded a CSV file
-            df = pd.read_csv(
+            ss_df = pd.read_csv(
                 io.StringIO(decoded.decode('utf-8')))
         elif 'xls' in filename:
             # Assume that the user uploaded an excel file
-            df = pd.read_excel(io.BytesIO(decoded))
+            ss_df = pd.read_excel(io.BytesIO(decoded))
     except Exception as e:
         print(e)
         return html.Div([
@@ -187,8 +189,8 @@ def parse_contents(contents, filename, date):
         html.H6(datetime.datetime.fromtimestamp(date)),
 
         dash_table.DataTable(
-            df.to_dict('records'),
-            [{'name': i, 'id': i} for i in df.columns]
+            ss_df.to_dict('records'),
+            [{'name': i, 'id': i} for i in ss_df.columns]
         ),
 
         html.Hr(),  # horizontal line
@@ -224,8 +226,12 @@ def update_output(list_of_contents, list_of_names, list_of_dates):
 def save_samplesheet(run, ss_data, n_clicks):
     if not ss_data or n_clicks == 0 or not n_clicks:
         return dash.no_update
-    df = pd.DataFrame.from_dict(ss_data["props"]["data"], orient="columns")
-    df = df[["Barcode #", "Sample ID", "Sample Type", "Barcode Expansion Pack"]]
+    #df = pd.DataFrame.from_dict(ss_data["props"]["data"], orient="columns")
+    df = ss_df
+    try:
+        df = df[["Barcode #", "Sample ID", "Sample Type", "Barcode Expansion Pack"]]
+    except:
+        df = df[["Sample ID", "Sample Type"]]
     for c in df.columns:
         df[c] = df[c].apply(lambda x: x.strip('^M').strip())
     print(f"df = {df}")
@@ -243,29 +249,12 @@ def save_samplesheet(run, ss_data, n_clicks):
         stmnt = ''
     return (0,stmnt)
 
-
-@app.callback(
-    [Output("clear_samplesheet_button", "n_clicks"), Output("sample_number", "value")],
-    [Input("select_run", "value"), Input("clear_samplesheet_button", "n_clicks")],
-)
-def clear_samplesheet(run, n_clicks):
-    if n_clicks == 0 or not n_clicks:
-        return dash.no_update
-    try:
-        os.remove(f"{data_root}/{run}/samplesheet.csv")
-    except FileNotFoundError:
-        pass
-    return (0, None)
-
-
-# def set_samplesheet_status()
-
-
 @app.callback(
     Output("samplesheet", "children"),
-    [Input("sample_number", "value"), Input("select_run", "value")],
+    [Input("select_run", "value")],
 )
-def generate_samplesheet(sample_number, run):
+#only generate if csv already exitsts--otherwise, excel upload/parse functions display ss
+def generate_samplesheet(run):
     ss_glob = [
         i
         for i in glob(f"{data_root}/{run}/*.csv*")
@@ -281,67 +270,26 @@ def generate_samplesheet(sample_number, run):
         with open(ss_filename, "w") as d:
             d.write(noCarriageReturn)
         data = pd.read_csv(ss_filename).to_dict("records")
-    elif not sample_number:
-        #raise dash.exceptions.PreventUpdate
-        return html.Div()
+        if len(data[0].keys()) > 2:
+            data_columns=[
+                {"id": "Barcode #", "name": "Barcode #"},
+                {"id": "Sample ID", "name": "Sample ID"},
+                {"id": "Sample Type", "name": "Sample Type", "presentation": "dropdown"},
+            ]
+        else:
+            data_columns=[
+                {"id": "Sample ID", "name": "Sample ID"},
+                {"id": "Sample Type", "name": "Sample Type"},
+            ]    
+        ss = dash_table.DataTable(
+            id="samplesheet_table",
+            columns = data_columns,
+            data=data,
+            editable=True,
+            merge_duplicate_headers=True,
+        )
     else:
-        str_num_list = "".join(sample_number).split(",")
-        bc_numbers = []
-        try:
-            for i in str_num_list:
-                i = i.strip()
-                if "-" in i:
-                    start, stop = map(int, i.split("-"))
-                    bc_numbers.extend([n for n in range(start, stop + 1)])
-                else:
-                    bc_numbers.append(int(i))
-            bc_numbers = list(set(bc_numbers))
-            bc_numbers.sort()
-        except Exception as E:
-            table = html.Div(
-                f"Please fix the formatting of your number entry. A comma-seperated list of numbers and number-ranges is required."
-            )
-            return table
-        data = [
-            dict(
-                **{
-                    "Barcode #": f"barcode{i:02}",
-                    "Sample ID": "",
-                    "Sample Type": "Test",
-                    "Barcode Expansion Pack": "EXP-NBD196",
-                }
-            )
-            for i in bc_numbers
-        ]
-    ss = dash_table.DataTable(
-        id="samplesheet_table",
-        columns=[
-            {"id": "Barcode #", "name": "Barcode #"},
-            {"id": "Sample ID", "name": "Sample ID"},
-            {"id": "Sample Type", "name": "Sample Type", "presentation": "dropdown"},
-            {
-                "id": "Barcode Expansion Pack",
-                "name": "Barcode Expansion Pack",
-                "presentation": "dropdown",
-            },
-        ],
-        data=data,
-        editable=True,
-        dropdown={
-            "Sample Type": {
-                "options": [
-                    {"label": i, "value": i} for i in ["+ Control", "- Control", "Test"]
-                ]
-            },
-            "Barcode Expansion Pack": {
-                "options": [
-                    {"label": i, "value": i}
-                    for i in ["EXP-NBD196", "SQK-NSK007", "SQK-PBK004"]
-                ]
-            },
-        },
-        merge_duplicate_headers=True,
-    )
+        return None
     table = ss
     return table
 
@@ -856,22 +804,6 @@ content = html.Div(
     ),
     html.Div(id='output-data-upload'),
     ])]
-    + [
-        html.Div(
-            [
-                html.P(
-                    "Enter your barcode numbers to be used below:",
-                    id="sample_number_info",
-                ),
-                dcc.Input(
-                    id="sample_number",
-                    type="text",
-                    placeholder="ie. 1-10,15,16,20-29",
-                    debounce=True,
-                ),
-            ]
-        )
-    ]
     + [html.Br()]
     + [html.Div(id="samplesheet")]
     + [html.Div(id="samplesheet_errors")]
@@ -892,22 +824,6 @@ content = html.Div(
                         body=True,
                         trigger="focus",
                         placement='right'
-                    ),
-                    dbc.Col(
-                        dbc.Button(
-                            "Restart Samplesheet Filling", id="clear_samplesheet_button"
-                        ),
-                        lg=3,
-                    ),
-                    dbc.Popover(
-                        html.P(
-                            "Warning: This will remove all samplesheet data!",
-                            className="display-6",
-                        ),
-                        target="clear_samplesheet_button",
-                        body=True,
-                        trigger="hover",
-                        placement='left'
                     ),
                 ],
                 justify="between",
