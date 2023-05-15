@@ -34,12 +34,12 @@ if 'ont' in experiment_type.lower():
     failures = ""
     try:
         with open(
-            "{}/lib/{}.yaml".format(root, dfd[0]["Barcode Expansion Pack"]), "r"
+            "{}/lib/EXP-NBD196.yaml".format(root), "r"
         ) as y:
             barseqs = yaml.safe_load(y)
     except:
         with open(
-            "{}/lib/{}.yaml".format(root, dfd[0]["Barcode Expansion Pack"]), "r"
+            "{}/lib/EXP-NBD196.yaml".format(root), "r"
         ) as y:
             barseqs = yaml.safe_load(y)
     for d in dfd.values():
