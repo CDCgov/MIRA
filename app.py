@@ -178,6 +178,8 @@ def parse_contents(contents, filename, date):
         elif 'xls' in filename:
             # Assume that the user uploaded an excel file
             ss_df = pd.read_excel(io.BytesIO(decoded))
+        global imported_file
+        imported_file = True
     except Exception as e:
         print(e)
         return html.Div([
@@ -196,11 +198,11 @@ def parse_contents(contents, filename, date):
         html.Hr(),  # horizontal line
 
         # For debugging, display the raw contents provided by the web browser
-        html.Div('Raw Content'),
-        html.Pre(contents[0:200] + '...', style={
-            'whiteSpace': 'pre-wrap',
-            'wordBreak': 'break-all'
-        })
+        #html.Div('Raw Content'),
+        #html.Pre(contents[0:200] + '...', style={
+        #    'whiteSpace': 'pre-wrap',
+        #    'wordBreak': 'break-all'
+        #})
     ])
 
 @app.callback(Output('output-data-upload', 'children'),
@@ -224,10 +226,13 @@ def update_output(list_of_contents, list_of_names, list_of_dates):
     ],
 )
 def save_samplesheet(run, ss_data, n_clicks):
-    if not ss_data or n_clicks == 0 or not n_clicks:
-        return dash.no_update
-    #df = pd.DataFrame.from_dict(ss_data["props"]["data"], orient="columns")
-    df = ss_df
+    if imported_file:
+        df = ss_df
+    else:
+        if not ss_data and not ss_df or n_clicks == 0 or not n_clicks:
+            return dash.no_update
+        else:
+            df = pd.DataFrame.from_dict(ss_data["props"]["data"], orient="columns")
     try:
         df = df[["Barcode #", "Sample ID", "Sample Type"]]
     except:
@@ -323,6 +328,8 @@ def run_snake_script_onClick(assembly_n_clicks, run, experiment_type): # samples
         docker_cmd += f"{run}/samplesheet.csv "
         docker_cmd += f"{run} "
         docker_cmd += f"{experiment_type} "
+        if amplicon:
+            docker_cmd += f"{primer_schema}"
         docker_cmd += f"CLEANUP-FOOTPRINT"
         print(f'launching docker_cmd == "{docker_cmd}"\n\n')
         subprocess.Popen(docker_cmd.split(), close_fds=True)
@@ -765,8 +772,8 @@ content = html.Div(
             dcc.Dropdown(
                 [{"label":"Flu-ONT", "value":"Flu-ONT"}, 
                     {"label":"SC2-ONT", "value":"SC2-ONT"}, 
-                    {"label":"Flu-Illumina", "value":"Flu-Illumina","disabled":False},
-                    {"label":"SC2-Whole-Genome-Illumina", "value":"SC2-Whole-Genome-Illumina","disabled":True}],
+                    {"label":"Flu-Illumina", "value":"Flu-Illumina"},
+                    {"label":"SC2-Whole-Genome-Illumina", "value":"SC2-Whole-Genome-Illumina"}],
                 id="experiment_type",
                 placeholder="What kind of data is this?"  # ,
                 # persistence=True,
