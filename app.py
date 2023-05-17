@@ -131,6 +131,22 @@ def single_sample_fig(run, sample, cov_linear_y, n_clicks):
 
     return content
 
+@app.callback(
+    Output("set_amplicon_panel", "data"),
+    [Input("Amplicon_Library", "value"), Input("experiment_type", "value")],
+    prevent_initial_call=True,
+)
+
+def set_amplicon_panel(Amplicon_Library, experiment_type):
+    global amplicon
+    global primer_schema
+    if "SC2-Whole-Genome-Illumina" in experiment_type:
+        return blank_fig()
+        #raise dash.exceptions.PreventUpdate
+    else:
+        amplicon=True
+        primer_schema = Amplicon_Library
+    return primer_schema
 
 @app.callback(
     Output("download_ss", "data"),
@@ -197,12 +213,6 @@ def parse_contents(contents, filename, date):
 
         html.Hr(),  # horizontal line
 
-        # For debugging, display the raw contents provided by the web browser
-        #html.Div('Raw Content'),
-        #html.Pre(contents[0:200] + '...', style={
-        #    'whiteSpace': 'pre-wrap',
-        #    'wordBreak': 'break-all'
-        #})
     ])
 
 @app.callback(Output('output-data-upload', 'children'),
@@ -777,6 +787,22 @@ content = html.Div(
                 id="experiment_type",
                 placeholder="What kind of data is this?"  # ,
                 # persistence=True,
+            )
+        )
+    ]
+    + [
+        dbc.Row(
+            dcc.Dropdown(
+                [{"label":"Artic V3", "value":"articv3"}, 
+                    {"label":"Artic V4", "value":"articv4"},
+                    {"label":"Artic V4.1", "value":"articv4.1"},  
+                    {"label":"Artic V5.3.2", "value":"articv5.3.2"},
+                    {"label":"Qiagen QIAseq", "value":"quiagen"},
+                    {"label":"Swift", "value":"swift"},
+                    {"label":"Swift V211206", "value":"swift_211206"}, 
+                    {"label":"VarSkip", "value":"varskip"},],
+                id="Amplicon_Library",
+                placeholder="For Illumina SC2, which primer schema was used?"  # ,
             )
         )
     ]
