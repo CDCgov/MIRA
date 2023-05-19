@@ -25,6 +25,9 @@ import yaml
 import json
 from glob import glob
 from numpy import arange
+import base64
+import io
+import datetime
 
 
 import subprocess
@@ -53,6 +56,8 @@ app.config["suppress_callback_exceptions"] = True
 #callback_cache.clear()
 
 previousClick = 0
+imported_file = False
+
 
 
 @app.callback(Output("select_run", "options"), Input("run-refresh-button", "n_clicks"))
@@ -128,6 +133,84 @@ def single_sample_fig(run, sample, cov_linear_y, n_clicks):
 
     return content
 
+        
+@app.callback(
+    Output("download_ss", "data"),
+    [Input("select_run", "value"), Input("ss_dl_button", "n_clicks"), Input("experiment_type", "value")],
+    prevent_initial_call=True,
+    # background=True,
+    # manager=bkgnd_callback_manager,
+)
+def download_ss(run, n_clicks, experiment_type):
+    global selected_experiment_type
+    selected_experiment_type = experiment_type
+    if not n_clicks:
+        raise dash.exceptions.PreventUpdate
+    global dl_ss_clicks
+    if n_clicks > dl_ss_clicks:
+        dl_ss_clicks = n_clicks
+        try:
+            if "illumina" in experiment_type.lower():
+                template_file = "/MIRA/lib/illumina_ss_template.csv"
+            else:
+                template_file = "/MIRA/lib/ss_template.csv"
+            content = open(
+                template_file
+            ).read()
+            ss_csv = dict(
+                content=content,
+                filename=f"{run}_samplesheet.csv",
+            )
+        except:
+            #get a warning displayed somehow
+            return html.Div(['There was an error processing this run and datatype'])
+        return ss_csv
+
+#from https://dash.plotly.com/dash-core-components/upload
+
+def parse_contents(contents, filename, date):
+    content_type, content_string = contents.split(',')
+    global ss_df
+    decoded = base64.b64decode(content_string)
+    try:
+        if 'csv' in filename:
+            # Assume that the user uploaded a CSV file
+            ss_df = pd.read_csv(
+                io.StringIO(decoded.decode('utf-8')))
+        elif 'xls' in filename:
+            # Assume that the user uploaded an excel file
+            ss_df = pd.read_excel(io.BytesIO(decoded))
+        global imported_file
+        imported_file = True
+    except Exception as e:
+        print(e)
+        return html.Div([
+            'There was an error processing this file.'
+        ])
+
+    return html.Div([
+        html.H5(filename),
+        html.H6(datetime.datetime.fromtimestamp(date)),
+
+        dash_table.DataTable(
+            ss_df.to_dict('records'),
+            [{'name': i, 'id': i} for i in ss_df.columns]
+        ),
+
+        html.Hr(),  # horizontal line
+
+    ])
+
+@app.callback(Output('output-data-upload', 'children'),
+              Input('upload-data', 'contents'),
+              State('upload-data', 'filename'),
+              State('upload-data', 'last_modified'))
+def update_output(list_of_contents, list_of_names, list_of_dates):
+    if list_of_contents is not None:
+        children = [
+            parse_contents(c, n, d) for c, n, d in
+            zip(list_of_contents, list_of_names, list_of_dates)]
+        return children
 
 @app.callback(
     [Output("save_samplesheet_button", "n_clicks"),
@@ -139,10 +222,17 @@ def single_sample_fig(run, sample, cov_linear_y, n_clicks):
     ],
 )
 def save_samplesheet(run, ss_data, n_clicks):
-    if not ss_data or n_clicks == 0 or not n_clicks:
-        return dash.no_update
-    df = pd.DataFrame.from_dict(ss_data["props"]["data"], orient="columns")
-    df = df[["Barcode #", "Sample ID", "Sample Type", "Barcode Expansion Pack"]]
+    if imported_file:
+        df = ss_df
+    else:
+        if not ss_data and not ss_df or n_clicks == 0 or not n_clicks:
+            return dash.no_update
+        else:
+            df = pd.DataFrame.from_dict(ss_data["props"]["data"], orient="columns")
+    try:
+        df = df[["Barcode #", "Sample ID", "Sample Type"]]
+    except:
+        df = df[["Sample ID", "Sample Type"]]
     for c in df.columns:
         df[c] = df[c].apply(lambda x: x.strip('^M').strip())
     print(f"df = {df}")
@@ -164,29 +254,12 @@ def save_samplesheet(run, ss_data, n_clicks):
         stmnt = ''
     return (0,stmnt)
 
-
-@app.callback(
-    [Output("clear_samplesheet_button", "n_clicks"), Output("sample_number", "value")],
-    [Input("select_run", "value"), Input("clear_samplesheet_button", "n_clicks")],
-)
-def clear_samplesheet(run, n_clicks):
-    if n_clicks == 0 or not n_clicks:
-        return dash.no_update
-    try:
-        os.remove(f"{data_root}/{run}/samplesheet.csv")
-    except FileNotFoundError:
-        pass
-    return (0, None)
-
-
-# def set_samplesheet_status()
-
-
 @app.callback(
     Output("samplesheet", "children"),
-    [Input("sample_number", "value"), Input("select_run", "value")],
+    [Input("select_run", "value")],
 )
-def generate_samplesheet(sample_number, run):
+#only generate if csv already exitsts--otherwise, excel upload/parse functions display ss
+def generate_samplesheet(run):
     ss_glob = [
         i
         for i in glob(f"{data_root}/{run}/*.csv*")
@@ -202,67 +275,26 @@ def generate_samplesheet(sample_number, run):
         with open(ss_filename, "w") as d:
             d.write(noCarriageReturn)
         data = pd.read_csv(ss_filename).to_dict("records")
-    elif not sample_number:
-        #raise dash.exceptions.PreventUpdate
-        return html.Div()
+        if len(data[0].keys()) > 2:
+            data_columns=[
+                {"id": "Barcode #", "name": "Barcode #"},
+                {"id": "Sample ID", "name": "Sample ID"},
+                {"id": "Sample Type", "name": "Sample Type", "presentation": "dropdown"},
+            ]
+        else:
+            data_columns=[
+                {"id": "Sample ID", "name": "Sample ID"},
+                {"id": "Sample Type", "name": "Sample Type"},
+            ]    
+        ss = dash_table.DataTable(
+            id="samplesheet_table",
+            columns = data_columns,
+            data=data,
+            editable=True,
+            merge_duplicate_headers=True,
+        )
     else:
-        str_num_list = "".join(sample_number).split(",")
-        bc_numbers = []
-        try:
-            for i in str_num_list:
-                i = i.strip()
-                if "-" in i:
-                    start, stop = map(int, i.split("-"))
-                    bc_numbers.extend([n for n in range(start, stop + 1)])
-                else:
-                    bc_numbers.append(int(i))
-            bc_numbers = list(set(bc_numbers))
-            bc_numbers.sort()
-        except Exception as E:
-            table = html.Div(
-                f"Please fix the formatting of your number entry. A comma-seperated list of numbers and number-ranges is required."
-            )
-            return table
-        data = [
-            dict(
-                **{
-                    "Barcode #": f"barcode{i:02}",
-                    "Sample ID": "",
-                    "Sample Type": "Test",
-                    "Barcode Expansion Pack": "EXP-NBD196",
-                }
-            )
-            for i in bc_numbers
-        ]
-    ss = dash_table.DataTable(
-        id="samplesheet_table",
-        columns=[
-            {"id": "Barcode #", "name": "Barcode #"},
-            {"id": "Sample ID", "name": "Sample ID"},
-            {"id": "Sample Type", "name": "Sample Type", "presentation": "dropdown"},
-            {
-                "id": "Barcode Expansion Pack",
-                "name": "Barcode Expansion Pack",
-                "presentation": "dropdown",
-            },
-        ],
-        data=data,
-        editable=True,
-        dropdown={
-            "Sample Type": {
-                "options": [
-                    {"label": i, "value": i} for i in ["+ Control", "- Control", "Test"]
-                ]
-            },
-            "Barcode Expansion Pack": {
-                "options": [
-                    {"label": i, "value": i}
-                    for i in ["EXP-NBD196", "SQK-NSK007", "SQK-PBK004"]
-                ]
-            },
-        },
-        merge_duplicate_headers=True,
-    )
+        return None
     table = ss
     return table
 
@@ -274,10 +306,11 @@ def generate_samplesheet(sample_number, run):
         Input("assembly-button", "n_clicks"),
         Input("select_run", "value"),
         Input("experiment_type", "value"),
+        Input("Amplicon_Library", "value")
     ],
     #background=True,
 )
-def run_snake_script_onClick(assembly_n_clicks, run, experiment_type): # samplesheet_n_clicks ,
+def run_snake_script_onClick(assembly_n_clicks, run, experiment_type, Amplicon_Library): # samplesheet_n_clicks ,
     ss_glob = [
         i
         for i in glob(f"{data_root}/{run}/samplesheet.csv*")
@@ -296,6 +329,8 @@ def run_snake_script_onClick(assembly_n_clicks, run, experiment_type): # samples
         docker_cmd += f"{run}/samplesheet.csv "
         docker_cmd += f"{run} "
         docker_cmd += f"{experiment_type} "
+        if "sc2-whole-genome-illumina" in experiment_type.lower():
+            docker_cmd += f"{Amplicon_Library} "
         docker_cmd += f"CLEANUP-FOOTPRINT"
         print(f'launching docker_cmd == "{docker_cmd}"\n\n')
         subprocess.Popen(docker_cmd.split(), close_fds=True)
@@ -579,6 +614,7 @@ def callback_pass_fail_heatmap(run, n_clicks):
 
 
 dl_fasta_clicks = 0
+dl_ss_clicks = 0
 
 flu_numbers = {
     "A": {
@@ -632,6 +668,7 @@ def download_nt_fastas(run, n_clicks):
             filename=f"{run}_amino_acid_consensus.fasta",
         )
         return nt_fastas, aa_fastas
+
 
 
 ########################################################
@@ -730,24 +767,68 @@ content = html.Div(
                 ),
             ]
         )
+    ]    
+    + [
+        dbc.Row(
+            dcc.Dropdown(
+                [{"label":"Flu-ONT", "value":"Flu-ONT"}, 
+                    {"label":"SC2-ONT", "value":"SC2-ONT"}, 
+                    {"label":"Flu-Illumina", "value":"Flu-Illumina"},
+                    {"label":"SC2-Whole-Genome-Illumina", "value":"SC2-Whole-Genome-Illumina"}],
+                id="experiment_type",
+                placeholder="What kind of data is this?"  # ,
+                # persistence=True,
+            )
+        )
+    ]
+    + [
+        dbc.Row(
+            dcc.Dropdown(
+                [{"label":"Artic V3", "value":"articv3"}, 
+                    {"label":"Artic V4", "value":"articv4"},
+                    {"label":"Artic V4.1", "value":"articv4.1"},  
+                    {"label":"Artic V5.3.2", "value":"articv5.3.2"},
+                    {"label":"Qiagen QIAseq", "value":"quiagen"},
+                    {"label":"Swift", "value":"swift"},
+                    {"label":"Swift V211206", "value":"swift_211206"}, 
+                    {"label":"VarSkip", "value":"varskip"},
+                    {"label":"None", "value":""}], #add handling here for no primers used
+                id="Amplicon_Library",
+                placeholder="For Illumina SC2, which primer schema was used?"  # ,
+            )
+        )
     ]
     + [html.P("Samplesheet", id="samplesheet_head", className="display-6")]
     + [
         html.Div(
             [
-                html.P(
-                    "Enter your barcode numbers to be used below:",
-                    id="sample_number_info",
-                ),
-                dcc.Input(
-                    id="sample_number",
-                    type="text",
-                    placeholder="ie. 1-10,15,16,20-29",
-                    debounce=True,
-                ),
+                dbc.Button("Download Samplesheet Template", id="ss_dl_button"),
+                dcc.Download(id="download_ss")
             ]
         )
     ]
+    + [html.Div([
+    dcc.Upload(
+        id='upload-data',
+        children=html.Div([
+            'Drag and Drop or ',
+            html.A('Select Files')
+        ]),
+        style={
+            'width': '100%',
+            'height': '60px',
+            'lineHeight': '60px',
+            'borderWidth': '1px',
+            'borderStyle': 'dashed',
+            'borderRadius': '5px',
+            'textAlign': 'center',
+            'margin': '10px'
+        },
+        # Allow multiple files to be uploaded
+        multiple=True
+    ),
+    html.Div(id='output-data-upload'),
+    ])]
     + [html.Br()]
     + [html.Div(id="samplesheet")]
     + [html.Div(id="samplesheet_errors")]
@@ -769,22 +850,6 @@ content = html.Div(
                         trigger="focus",
                         placement='right'
                     ),
-                    dbc.Col(
-                        dbc.Button(
-                            "Restart Samplesheet Filling", id="clear_samplesheet_button"
-                        ),
-                        lg=3,
-                    ),
-                    dbc.Popover(
-                        html.P(
-                            "Warning: This will remove all samplesheet data!",
-                            className="display-6",
-                        ),
-                        target="clear_samplesheet_button",
-                        body=True,
-                        trigger="hover",
-                        placement='left'
-                    ),
                 ],
                 justify="between",
                 className="g-0",
@@ -792,18 +857,6 @@ content = html.Div(
         )
     ]
     + [html.Br()]
-    + [
-        dbc.Row(
-            dcc.Dropdown(
-                [{"label":"Flu-ONT", "value":"Flu-ONT"}, 
-                    {"label":"SC2-ONT", "value":"SC2-ONT"}, 
-                    {"label":"Flu-Illumina", "value":"Flu-Illumina","disabled":True}],
-                id="experiment_type",
-                placeholder="What kind of data is this?"  # ,
-                # persistence=True,
-            )
-        )
-    ]
     + [
         dbc.Button("Start Genome Assembly", id="assembly-button", n_clicks=0, disabled=True),
         html.Div(id="output-container-button"),
