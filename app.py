@@ -133,20 +133,6 @@ def single_sample_fig(run, sample, cov_linear_y, n_clicks):
 
     return content
 
-@app.callback(
-    Output("set_amplicon_panel", "data"),
-    [Input("Amplicon_Library", "value"), Input("experiment_type", "value")],
-    prevent_initial_call=True,
-)
-
-def set_amplicon_panel(Amplicon_Library, experiment_type):
-    global primer_schema
-    if "sc2-whole-genome-illumina" in experiment_type.lower():
-        primer_schema = Amplicon_Library
-    else:
-        primer_schema = ''
-    return primer_schema
-
         
 @app.callback(
     Output("download_ss", "data"),
@@ -801,7 +787,8 @@ content = html.Div(
                     {"label":"Qiagen QIAseq", "value":"quiagen"},
                     {"label":"Swift", "value":"swift"},
                     {"label":"Swift V211206", "value":"swift_211206"}, 
-                    {"label":"VarSkip", "value":"varskip"},],
+                    {"label":"VarSkip", "value":"varskip"},
+                    {"label":"None", "value":""}], #add handling here for no primers used
                 id="Amplicon_Library",
                 placeholder="For Illumina SC2, which primer schema was used?"  # ,
             )
