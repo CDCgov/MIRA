@@ -56,6 +56,8 @@ app.config["suppress_callback_exceptions"] = True
 #callback_cache.clear()
 
 previousClick = 0
+imported_file = False
+
 
 
 @app.callback(Output("select_run", "options"), Input("run-refresh-button", "n_clicks"))
@@ -138,16 +140,14 @@ def single_sample_fig(run, sample, cov_linear_y, n_clicks):
 )
 
 def set_amplicon_panel(Amplicon_Library, experiment_type):
-    global amplicon
     global primer_schema
-    if "SC2-Whole-Genome-Illumina" in experiment_type:
-        return blank_fig()
-        #raise dash.exceptions.PreventUpdate
-    else:
-        amplicon=True
+    if "sc2-whole-genome-illumina" in experiment_type.lower():
         primer_schema = Amplicon_Library
+    else:
+        primer_schema = ''
     return primer_schema
 
+        
 @app.callback(
     Output("download_ss", "data"),
     [Input("select_run", "value"), Input("ss_dl_button", "n_clicks"), Input("experiment_type", "value")],
@@ -316,10 +316,11 @@ def generate_samplesheet(run):
         Input("assembly-button", "n_clicks"),
         Input("select_run", "value"),
         Input("experiment_type", "value"),
+        Input("Amplicon_Library", "value")
     ],
     #background=True,
 )
-def run_snake_script_onClick(assembly_n_clicks, run, experiment_type): # samplesheet_n_clicks ,
+def run_snake_script_onClick(assembly_n_clicks, run, experiment_type, Amplicon_Library): # samplesheet_n_clicks ,
     ss_glob = [
         i
         for i in glob(f"{data_root}/{run}/samplesheet.csv*")
@@ -338,8 +339,8 @@ def run_snake_script_onClick(assembly_n_clicks, run, experiment_type): # samples
         docker_cmd += f"{run}/samplesheet.csv "
         docker_cmd += f"{run} "
         docker_cmd += f"{experiment_type} "
-        if amplicon:
-            docker_cmd += f"{primer_schema}"
+        if "sc2-whole-genome-illumina" in experiment_type.lower():
+            docker_cmd += f"{Amplicon_Library} "
         docker_cmd += f"CLEANUP-FOOTPRINT"
         print(f'launching docker_cmd == "{docker_cmd}"\n\n')
         subprocess.Popen(docker_cmd.split(), close_fds=True)
