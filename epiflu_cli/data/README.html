@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>README</title>
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<h1 id="gisaid-epiflu-command-line-interface">GISAID EpiFlu™ Command
+Line Interface</h1>
+<h2
+id="command-line-interface-cli-for-batch-uploading-consensus-sequences-and-metadata-to-gisaids-epiflu">Command
+Line Interface (CLI) for batch uploading consensus sequences and
+metadata to GISAID’s EpiFlu™</h2>
+<h2 id="1">1. Description</h2>
+<p>This document describes the installation and usage of the
+<code>epiflu_cli</code> Software used to make batch submissions of
+meta-data and consensus-sequence-data to GISAID from the command line to
+EpiFlu™, and is subject to the terms and conditions of the accompanying
+End User License Agreement (EULA).</p>
+<p>Queries, bug reports, feature requests, etc., should be emailed to
+<code>clisupport [at] gisaid.org</code>.</p>
+<p>Use of this package requires familiarity with the <code>*nix</code>
+command line terminal. For a basic overview, please refer to <a
+href="https://developer.mozilla.org/en-US/docs/Learn/Tools_and_testing/Understanding_client-side_tools/Command_line">https://developer.mozilla.org/en-US/docs/Learn/Tools_and_testing/Understanding_client-side_tools/Command_line</a>.</p>
+<h2 id="2">2. Installation</h2>
+<p><code>epiflu_cli</code> has been tested with
+<code>python &gt;=3.8.16</code>. Use of older versions of
+<code>python</code> may result in unexpected behaviour, in which case
+please upgrade <code>python</code>.</p>
+<h3 id="using-venv">2.1 Using <code>venv</code></h3>
+<h4 id="install">2.1.1 Install</h4>
+<p>For maximum stability, <code>epiflu_cli</code> should be installed
+into a virtual environment of your choosing. Here we describe the
+process for installing into a virtual environment using
+<code>python3</code>’s inbuilt <code>venv</code>.</p>
+<p>After downloading the <code>gisaid_epiflu_cli.zip</code> archive from
+GISAID, install <code>epiflu_cli</code> into a virtual environment by
+doing:</p>
+<pre><code>unzip gisaid_epiflu_cli.zip -d epiflu_cli &amp;&amp; \
+cd epiflu_cli &amp;&amp; \
+python3 -m venv fluvenv &amp;&amp; \
+source fluvenv/bin/activate &amp;&amp; \
+pip3 install --upgrade pip &amp;&amp; \
+pip3 install -r requirements.txt</code></pre>
+<p>To deactivate the <code>fluvenv</code> environment, do:</p>
+<pre><code>deactivate</code></pre>
+<p>To run <code>epiflu_cli</code>, the virtual environment will need to
+be activated. To re-activate the above virtual environment, do:</p>
+<pre><code>source fluvenv/bin/activate</code></pre>
+<h4 id="uninstall-the-fluvenv-environment-optional">2.1.2 Uninstall the
+<code>fluvenv</code> environment (optional)</h4>
+<p>To remove <code>epiflu_cli</code> from the system, simply delete the
+<code>fluvenv</code> folder. In the above example, where the user is
+already in the <code>epiflu_cli</code> folder and the
+<code>fluvenv</code> environment is still active, run:</p>
+<pre><code>deactivate
+rm -rf fluvenv</code></pre>
+<p>For installation in (and uninstallation from) other authorized
+locations, substitute the folder paths to <code>epiflu_cli</code> and
+<code>fluvenv</code> appropriately. Full or relative paths are
+valid.</p>
+<h2 id="3">3. Usage</h2>
+<p>Prior to first usage of this Software, the user will need to make one
+manual submission using the upload tab in EpiFlu™ via the web-browser.
+After making a manual submission, permissions will be automatically
+granted for the user to make uploads via the epiflu_cli interface.</p>
+<h3 id="get-help-top-level">Get help, top level</h3>
+<p>The <code>fluvenv</code> virtual environment will need to be
+activated to run <code>epiflu_cli</code>. After activating, get help by
+trailing any command with <code>-h</code>. For example, to get top-level
+help, do <code>epiflu_cli -h</code> – if the Software is installed
+correctly, the <code>stdout</code> (i.e., “standard out”) will read as
+follows (if not, contact <code>clisupport [at] gisaid.org</code> for
+assistance):</p>
+<pre><code>epiflu_cli -h
+usage: epiflu_cli [-h]  ...
+
+Command Line Interface (CLI) for uploading Influenza sequence and metadata to GISAID&#39;s EpiFlu.
+
+options:
+  -h, --help    show this help message and exit
+
+Sub-commands help:
+  
+    authenticate
+                Write the authentication token.
+    upload      Upload sequences and metadata.
+    labs        Print laboratories with IDs available for uploading.
+    version     Show version and exit.
+    template    Print template and formatting instructions</code></pre>
+<p>The above output shows five sub-commands:</p>
+<ul>
+<li><code>epiflu_cli authenticate</code> (refer to section <a
+href="#3.1">3.1</a>)</li>
+<li><code>epiflu_cli upload</code> (refer to section <a
+href="#3.2">3.2</a>)</li>
+<li><code>epiflu_cli labs</code> (refer to section <a
+href="#3.3">3.3</a>)</li>
+<li><code>epiflu_cli version</code> (refer to section <a
+href="#3.4">3.4</a>)</li>
+<li><code>epiflu_cli template</code> (refer to section <a
+href="#3.5">3.5</a>)</li>
+</ul>
+<h3 id="3.1">3.1 Authenticate</h3>
+<p>Before uploading, authenticate the connection by creating an
+authentication token with <code>epiflu_cli authenticate</code>.
+Authentication tokens are valid for 100 days. The generated token is
+specific to EpiFlu™ and a combination of: client-ID, username and
+password. <strong>To obtain a client-ID, please email
+<code>clisupport [at] gisaid.org</code> to request.</strong></p>
+<p>To reset a token, delete the existing token file (specified at
+<code>--token</code>) and re-run <code>epiflu_cli authenticate</code>,
+or overwrite using <code>epiflu_cli authenticate --force</code>. When
+the <code>--username</code>, <code>--password</code> and/or
+<code>--client_id</code> fields are left blank, the program will ask for
+them interactively, thus avoiding storing confidential text in the
+terminal history.</p>
+<p>By default, the authentication token file will be
+<code>./gisaid.authtoken</code>; however, you may specify a different
+path and filename using the <code>--token</code> option. The custom
+token path is passed into the upload step using the <code>--token</code>
+option.</p>
+<p>An example command for creating a token for EpiFlu™ would be:</p>
+<pre><code>epiflu_cli authenticate --token flu.authtoken</code></pre>
+<p>When using the <code>--proxy</code> internet proxy option during
+authentication, store the input string in an environment variable and
+input the environment variable to simplify writing of complex or
+confidential strings.</p>
+<p>To get help on the authentication sub-command, do
+<code>epiflu_cli authenticate -h</code> (N.B., the default options are
+listed here too):</p>
+<pre><code>usage: epiflu_cli authenticate [-h] [--token TOKEN] [--username USERNAME] [--password PASSWORD] [--client_id CLIENT_ID] [--force] [--log LOG] [--proxy PROXY] [--debug]
+
+Write the authentication token.
+
+options:
+  -h, --help            show this help message and exit
+  --token TOKEN         Authentication token. (default: flu.authtoken)
+  --username USERNAME   Your GISAID username. (default: None)
+  --password PASSWORD   Your GISAID password. (default: None)
+  --client_id CLIENT_ID
+                        Submitter&#39;s client-ID. Email clisupport[at]gisaid.org to request client-ID. (default: None)
+  --force               Switch on force overwrite of token given at --token (default: False)
+  --log LOG             All output logged here. (default: ./logfileFlu.log)
+  --proxy PROXY         Proxy-configuration for HTTPS-Request in the form: &#39;proxyusername:proxypassword@proxy:port&#39; or &#39;proxy:port&#39; if no proxy authentication is required. (default: None)
+  --debug               Switch on traceback for debugging purposes. (default: False)</code></pre>
+<h3 id="3.2">3.2. Upload</h3>
+<p>After creating an authentication token, the upload may proceed. The
+upload will require a metadata file in <a
+href="https://en.wikipedia.org/wiki/Comma-separated_values">csv
+format</a>, a sequences file in <a
+href="https://en.wikipedia.org/wiki/FASTA_format">fasta format</a> and
+an authentication token specified by the <code>--token</code> option. By
+default, the token file is <code>flu.authtoken</code> as outlined in the
+<code>stdout</code> produced by running the
+<code>epiflu_cli upload -h</code> command. For large uploads, use a
+persistent terminal screen via <code>tmux</code> or <code>screen</code>.
+If a submission is interrupted part-way through, re-run the
+<code>epiflu_cli upload</code> command and the submission should
+continue from at or near the interruption. Any sequences and metadata
+already submitted will not be re-assigned EPI_ISL accessions. For
+interrupted uploads, check the <code>logfileFlu.log</code> to determine
+the point at which the upload was interrupted.</p>
+<p>To get help on the upload sub-command, do
+<code>epiflu_cli upload -h</code>:</p>
+<pre><code>usage: epiflu_cli upload [-h] [--token TOKEN] [--log LOG] --metadata METADATA --fasta FASTA [--proxy PROXY] [--debug] [--dateformat {YYYYMMDD,YYYYDDMM,DDMMYYYY,MMDDYYYY}]
+
+Perform upload of sequences and metadata to GISAID&#39;s EpiFlu.
+
+options:
+  -h, --help            show this help message and exit
+  --token TOKEN         Authentication token. (default: flu.authtoken)
+  --log LOG             All output logged here. (default: ./logfileFlu.log)
+  --metadata METADATA   The csv-formatted metadata file. (default: None)
+  --fasta FASTA         The fasta-formatted nucleotide sequences file. (default: None)
+  --proxy PROXY         Proxy-configuration for HTTPS-Request in the form: &#39;proxyusername:proxypassword@proxy:port&#39; or &#39;proxy:port&#39; if no proxy authentication is required. (default: None)
+  --debug               Switch on traceback for debugging purposes. (default: False)
+  --dateformat {YYYYMMDD,YYYYDDMM,DDMMYYYY,MMDDYYYY}
+                        Specify the date format, with &#39;Y&#39; for &#39;year&#39;, &#39;M&#39; for &#39;month&#39;, &#39;D&#39; for &#39;day&#39;. Dates will parse correctly with the following delimiters: &#39;/&#39;, &#39;.&#39;, &#39;–&#39; or &#39;-&#39;. (default: YYYYMMDD)</code></pre>
+<p>In the example below, data for four samples were uploaded to EpiFlu™.
+The example data comprised sequences of eight segments for each sample.
+The example segments were HA, NA, PB1, PB2, PA, MP, NS, and NP. For
+these data, a successful upload resulted in the following EPI_ISL
+isolate numbers and EPI segment numbers being printed to
+<code>stdout</code> and <code>./logfileFlu.log</code>:</p>
+<pre><code>epi_isl_id: A/Victoria/222222/2023; EPI_ISL_16748830
+epi_isl_id: A/Darwin/333333/2023; EPI_ISL_16748827
+epi_isl_id: A/Sydney/333333/2023; EPI_ISL_16748828
+epi_isl_id: A/Brisbane/111111/2023; EPI_ISL_16748825
+epi_id: A/Victoria/222222/2023_HA; EPI2334834
+epi_id: A/Darwin/333333/2023_NA; EPI2334806
+epi_id: A/Darwin/333333/2023_PA; EPI2334808
+epi_id: A/Brisbane/111111/2023_NP; EPI2334797
+epi_id: A/Brisbane/111111/2023_NS; EPI2334800
+epi_id: A/Victoria/222222/2023_PA; EPI2334833
+epi_id: A/Victoria/222222/2023_NA; EPI2334832
+epi_id: A/Victoria/222222/2023_NS; EPI2334840
+epi_id: A/Darwin/333333/2023_MP; EPI2334816
+epi_id: A/Sydney/333333/2023_PA; EPI2334820
+epi_id: A/Sydney/333333/2023_MP; EPI2334831
+epi_id: A/Sydney/333333/2023_PB1; EPI2334826
+epi_id: A/Victoria/222222/2023_NP; EPI2334836
+epi_id: A/Victoria/222222/2023_PB1; EPI2334838
+epi_id: A/Sydney/333333/2023_PB2; EPI2334829
+epi_id: A/Victoria/222222/2023_PB2; EPI2334843
+epi_id: A/Brisbane/111111/2023_PB1; EPI2334798
+epi_id: A/Brisbane/111111/2023_PB2; EPI2334802
+epi_id: A/Darwin/333333/2023_PB2; EPI2334815
+epi_id: A/Darwin/333333/2023_PB1; EPI2334813
+epi_id: A/Brisbane/111111/2023_MP; EPI2334804
+epi_id: A/Sydney/333333/2023_NA; EPI2334818
+epi_id: A/Darwin/333333/2023_NS; EPI2334814
+epi_id: A/Sydney/333333/2023_HA; EPI2334823
+epi_id: A/Brisbane/111111/2023_HA; EPI2334796
+epi_id: A/Darwin/333333/2023_NP; EPI2334811
+epi_id: A/Brisbane/111111/2023_NA; EPI2334793
+epi_id: A/Sydney/333333/2023_NP; EPI2334824
+epi_id: A/Sydney/333333/2023_NS; EPI2334828
+epi_id: A/Brisbane/111111/2023_PA; EPI2334795
+epi_id: A/Victoria/222222/2023_MP; EPI2334844
+epi_id: A/Darwin/333333/2023_HA; EPI2334810
+msg: Bulk upload successfully finished
+
+Total runtime (HRS:MIN:SECS): 0:00:26.171829</code></pre>
+<p>The logfile will automatically capture a copy of all
+<code>stdout</code> and any assigned EPI_ISL isolate and EPI segment
+numbers.</p>
+<p>Additional runs will append to the existing log by default or to the
+file specified at <code>--log</code>.</p>
+<p>You can manage submissions in <a
+href="https://www.gisaid.org">gisaid.org</a> EpiFlu™ “Search” tab, as
+shown below at steps 1 to 5:</p>
+<figure>
+<img src="epiflu_cli/utils/images/howto1.png"
+alt="“My unreleased files”" />
+<figcaption aria-hidden="true">“My unreleased files”</figcaption>
+</figure>
+<figure>
+<img src="epiflu_cli/utils/images/howto2.png"
+alt="“Manage submission”" />
+<figcaption aria-hidden="true">“Manage submission”</figcaption>
+</figure>
+<h3 id="3.3">3.3 Labs</h3>
+<p>The <code>labs</code> sub-command helps submitters to determine the
+laboratory numbers to include in the metadata file (refer to <a
+href="#3.2">3.2</a>). Users must have a valid authentication token to
+view the output of this command.</p>
+<pre><code>epiflu_cli labs -h
+usage: epiflu_cli labs [-h] [--token TOKEN] [--log LOG] [--proxy PROXY] [--debug]
+
+Print laboratories with IDs available for uploading.
+
+optional arguments:
+  -h, --help     show this help message and exit
+  --token TOKEN  Authentication token. (default: flu.authtoken)
+  --log LOG      All output logged here. (default: ./logfileFlu.log)
+  --proxy PROXY  Proxy-configuration for HTTPS-Request in the form: &#39;proxyusername:proxypassword@proxy:port&#39; or &#39;proxy:port&#39; if no proxy authentication is required. (default: None)
+  --debug        Switch on traceback for debugging purposes. (default: False)</code></pre>
+<p>To filter the output, use <code>grep</code>. Limit the output with
+<code>less</code>. Search within the <code>less</code> output by hitting
+the ‘/’ key and typing the search term. Get help on <code>grep</code>
+with <code>man grep</code>, and get help on <code>less</code> with
+<code>man less</code>, or typing <code>less</code> and then hitting the
+<code>h</code> key.</p>
+<h3 id="3.4">3.4 Version</h3>
+<p>To get the Software version number, do:</p>
+<pre><code>epiflu_cli version</code></pre>
+<p>This user manual is concurrent with version:</p>
+<pre><code>epiflu_cli version:   1.0.1</code></pre>
+<h3 id="3.5">3.5 Template</h3>
+<p>For assistance with formatting the sequence headers and the metadata
+file, run <code>epiflu_cli template</code>. To print a copy of the
+<code>template.csv</code> file to <code>stdout</code> run
+<code>epiflu_cli template --template</code>. The screen output can be
+re-directed to file using:</p>
+<p><code>epiflu_cli template --template &gt; template.csv</code></p>
+<p>To get help on the <code>template</code> subcommand, run
+<code>epiflu_cli template -h</code>.</p>
+<pre><code>epiflu_cli template -h
+usage: epiflu_cli template [-h] [--template] [--debug]
+
+Print to stdout the formatting instructions for the metadata file, or print the &#39;template.csv&#39; file per se.
+
+optional arguments:
+  -h, --help  show this help message and exit
+  --template  Print submission &#39;template.csv&#39; file per se. (default: False)
+  --debug     Switch on traceback for debugging purposes. (default: False)</code></pre>
+<h2 id="4">4. Support</h2>
+<p>Please direct your CLI enquiries to
+<code>clisupport [at] gisaid.org</code>.</p>
+<h2 id="5">5. FAQ</h2>
+<p><em>How do I know when my <code>flu.authtoken</code> will
+expire?</em> Look in the <code>flu.authtoken</code> file under the
+<code>expiry</code> key (either manually using e.g.,
+<code>less -S gisaid.authtoken</code>,
+<code>cat gisaid.authtoken</code>, open the file in a plain text editor,
+or search using the command line tool <code>jq</code> with the command
+<code>cat flu.authtoken| jq '.flu | .expiry'</code>).</p>
+</body>
+</html>

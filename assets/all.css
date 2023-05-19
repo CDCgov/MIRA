@@ -1,0 +1,90 @@
+html {
+    font-family: "Roboto",sans-serif;
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-font-smoothing: antialiased;
+}
+
+body {
+    background-color: none;
+    color: none;
+    font-family: "Roboto",sans-serif;
+    font-size: 14px;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: hotpink
+}
+
+.mira-brand-text {
+    font-size: 16px;
+}
+
+.mira-navlink {
+    text-align: right;
+}
+
+.banner {
+    font-size: 20px;
+    text-align: center;
+    padding: 20px 0 20px 0;
+    padding-bottom: 30px;
+    /* box-shadow: 0 0 35px rgba(50, 50, 93, 0.1); */
+}
+
+.overview {
+    padding: 20px 0 20px 0;
+    margin-bottom: 30px;
+    /* box-shadow: 0 0 35px rgba(50, 50, 93, 0.1); */
+}
+
+.overview-table {
+    display: table;
+    width: 100%;
+}
+
+.overview-cell {
+    display: table-cell;
+    width: 50%;
+    vertical-align: top;
+}
+
+.features {
+    padding: 20px 0 20px 0;
+    margin-bottom: 70px;
+    /* box-shadow: 0 0 35px rgba(50, 50, 93, 0.1); */
+}
+
+.features-table {
+    display: table;
+    width: 100%;
+}
+
+.features-cell {
+    display: table-cell;
+    width: 24%;
+    vertical-align: top;
+}
+
+.footer {
+    height: 100px;
+    color: whitesmoke;
+    background-color: #141B1F;
+}
+
+.title {
+  background-color: #c6dbef;
+  text-align: center;
+  font-size: 16px;
+  font-weight: bold;
+  padding: 10px 10px 10px 10px;
+  border-bottom: 1px solid lightgray;
+}
+
+.content {
+  padding: 10px 10px 10px 10px;
+}

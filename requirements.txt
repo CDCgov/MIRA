@@ -8,8 +8,14 @@ dash-table==5.0.0
 flask==2.1.0
 flask-caching==1.10.1
 flask-compress==1.5.0
-numpy==1.19.0
+numpy==1.19.5
 pandas==1.0.5
 plotly==5.11.0
 pyyaml==6.0
-colorlover
+colorlover==0.3.0
+certifi==2022.12.7
+charset-normalizer==2.0.4
+idna==3.4
+requests==2.28.2
+urllib3==1.26.14
+pyodbc==4.0.39

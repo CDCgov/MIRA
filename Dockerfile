@@ -16,7 +16,19 @@ RUN apt-get update --allow-releaseinfo-change && apt-get install --no-install-re
     build-essential \ 
     iptables \
     libdevmapper1.02.1 \
-    python3.7\
+    libudunits2-dev \
+    libv8-dev \
+    libsodium-dev \
+    libbz2-dev \
+    liblzma-dev \
+    libsasl2-dev \
+    krb5-user \ 
+    unixodbc \
+    unixodbc-dev \
+    dpkg-dev \
+    debhelper \    
+    python3.8 \
+    python3-venv \
     python3-pip \
     python3-setuptools \
     python3-dev \
@@ -24,6 +36,8 @@ RUN apt-get update --allow-releaseinfo-change && apt-get install --no-install-re
     sudo \
     wget \
     curl \
+    nano \
+    xtail \
     dos2unix
 
 ############# Build Stage: Development ##################
@@ -64,6 +78,34 @@ WORKDIR ${WORKDIR}
 
 # Allow permission to read and write files to current working directory
 RUN chmod -R a+rwx ${WORKDIR}
+
+############# Install ODBC Driver ##################
+
+# Copy Cloudera Impala ODBC driver (64-bit) to docker images 
+COPY odbc/clouderaimpalaodbc_2.6.14.1016-2_amd64.deb /MIRA/odbc/clouderaimpalaodbc_2.6.14.1016-2_amd64.deb
+
+# Install Impala ODBC driver
+RUN dpkg -i /MIRA/odbc/clouderaimpalaodbc_2.6.14.1016-2_amd64.deb
+
+# Specify locations of the connector configuration files in docker images 
+# 1. odbc.ini (DSN)
+# 2. odbcinst.ini (NO DSN)
+# 3. cloudera.impalaodbc.ini (connector-wide settings)
+
+ENV ODBCINI=/etc/odbc.ini
+ENV ODBCSYSINI=/etc/odbcinst.ini
+ENV CLOUDERAIMPALAINI=/opt/cloudera/impalaodbc/lib/64/cloudera.impalaodbc.ini
+ENV LD_LIBRARY_PATH=/opt/cloudera/impalaodbc/lib/64
+
+# Copy configuration files to their specified locations in docker images
+COPY odbc/odbc.ini $ODBCINI
+COPY odbc/odbcinst.ini $ODBCSYSINI
+COPY odbc/cloudera.impalaodbc.ini $CLOUDERAIMPALAINI
+
+############# Install GISAID EpiFlu CLI ##################
+
+# Copy all files to docker images
+COPY epiflu_cli /MIRA/epiflu_cli
 
 ############# Install Docker ##################
 
