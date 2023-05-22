@@ -13,3 +13,4 @@ pandas==1.0.5
 plotly==5.11.0
 pyyaml==6.0
 colorlover
+openpyxl==3.0.10
