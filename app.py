@@ -11,24 +11,26 @@ import dash_bootstrap_components as dbc
 
 from dash.dependencies import Input, Output, State
 import dash_daq as daq
-from plotly.subplots import make_subplots
+#from plotly.subplots import make_subplots
 import plotly.graph_objects as go
-import plotly.express as px
+#import plotly.express as px
 import plotly.io as pio
 import pandas as pd
-from math import ceil  # , log10, sqrt
-from itertools import cycle
+#from math import ceil  # , log10, sqrt
+#from itertools import cycle
 from sys import path, argv
-from os.path import dirname, realpath, isdir, isfile
+from os.path import dirname, realpath#, isdir, isfile
 import os
 import yaml
 import json
 from glob import glob
-from numpy import arange
+#from numpy import arange
 import base64
 import io
 import datetime
-
+from openpyxl.worksheet.datavalidation import DataValidation as DV
+from openpyxl.worksheet.table import Table, TableStyleInfo
+import openpyxl as xl
 
 import subprocess
 #from flask_caching import Cache
@@ -150,18 +152,21 @@ def download_ss(run, n_clicks, experiment_type):
     if n_clicks > dl_ss_clicks:
         dl_ss_clicks = n_clicks
         try:
-            if "illumina" in experiment_type.lower():
-                template_file = "/MIRA/lib/illumina_ss_template.csv"
-            else:
-                template_file = "/MIRA/lib/ss_template.csv"
-            content = open(
-                template_file
-            ).read()
-            ss_csv = dict(
-                content=content,
-                filename=f"{run}_samplesheet.csv",
-            )
-        except:
+            generate_samplesheet_xl(run)
+            return dcc.send_file(f'{data_root}/{run}/{run}_samplesheet.xlsx')
+            #if "illumina" in experiment_type.lower():
+            #    template_file = "/MIRA/lib/illumina_ss_template.csv"
+            #else:
+            #    template_file = "/MIRA/lib/ss_template.csv"
+            #content = open(
+            #    template_file
+            #).read()
+            #ss_csv = dict(
+            #    content=content,
+            #    filename=f"{run}_samplesheet.csv",
+            #)
+        except Exception as E:
+            print(f'ERROR DOWNLOADING SS\n{e}\n--------END OF ERROR--------')
             #get a warning displayed somehow
             return html.Div(['There was an error processing this run and datatype'])
         return ss_csv
@@ -179,11 +184,12 @@ def parse_contents(contents, filename, date):
                 io.StringIO(decoded.decode('utf-8')))
         elif 'xls' in filename:
             # Assume that the user uploaded an excel file
-            ss_df = pd.read_excel(io.BytesIO(decoded))
+            ss_df = pd.read_excel(io.BytesIO(decoded), engine='openpyxl')
+            ss_df = ss_df.iloc[:,0:3]
         global imported_file
         imported_file = True
     except Exception as e:
-        print(e)
+        print(f'ERROR PARSING SS\n{e}\n--------END OF ERROR--------')
         return html.Div([
             'There was an error processing this file.'
         ])
@@ -249,6 +255,28 @@ def save_samplesheet(run, ss_data, n_clicks):
         df.to_csv(f"{data_root}/{run}/samplesheet.csv", index=False)
         stmnt = ''
     return (0,stmnt)
+
+def generate_samplesheet_xl(run):
+    wb = xl.Workbook()
+    ws = wb.active
+    ws.append(['Barcode #', 'Sample ID', 'Sample Type'])
+    bar_nums = [int(i[-2:]) for i in glob(f"{data_root}/{run}/fastq_pass/b*")]
+    bar_nums.sort()
+    barcodes = [f"barcode{i:02}" for i in bar_nums]
+    # Store possible drop down options
+    for r,t in enumerate(["- Control", "+ Control", "Test"]):
+        ws[f"Z{r+1}"].value = t
+    sample_types = DV(type='list', formula1=f"=Z$1:Z$3")
+    ws.add_data_validation(sample_types)
+    #sample_types.add(ws[f"C2:C{len(barcodes)}"])
+    row=2
+    for r,b in enumerate(barcodes):
+        ws[f"A{row}"].value = b
+        ws[f"C{row}"].value ='Test'
+        row += 1
+    sample_types.add(f"C2:C{len(barcodes)+1}")
+    wb.save(f'{data_root}/{run}/{run}_samplesheet.xlsx')
+        
 
 @app.callback(
     Output("samplesheet", "children"),
