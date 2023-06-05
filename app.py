@@ -11,24 +11,26 @@ import dash_bootstrap_components as dbc
 
 from dash.dependencies import Input, Output, State
 import dash_daq as daq
-from plotly.subplots import make_subplots
+#from plotly.subplots import make_subplots
 import plotly.graph_objects as go
-import plotly.express as px
+#import plotly.express as px
 import plotly.io as pio
 import pandas as pd
-from math import ceil  # , log10, sqrt
-from itertools import cycle
+#from math import ceil  # , log10, sqrt
+import itertools
 from sys import path, argv
-from os.path import dirname, realpath, isdir, isfile
+from os.path import dirname, realpath#, isdir, isfile
 import os
 import yaml
 import json
 from glob import glob
-from numpy import arange
+#from numpy import arange
 import base64
 import io
 import datetime
-
+from openpyxl.worksheet.datavalidation import DataValidation as DV
+from openpyxl.worksheet.table import Table, TableStyleInfo
+import openpyxl as xl
 
 import subprocess
 #from flask_caching import Cache
@@ -56,7 +58,7 @@ app.config["suppress_callback_exceptions"] = True
 #callback_cache.clear()
 
 previousClick = 0
-imported_file = False
+#imported_file = False
 
 
 
@@ -150,27 +152,29 @@ def download_ss(run, n_clicks, experiment_type):
     if n_clicks > dl_ss_clicks:
         dl_ss_clicks = n_clicks
         try:
-            if "illumina" in experiment_type.lower():
-                template_file = "/MIRA/lib/illumina_ss_template.csv"
-            else:
-                template_file = "/MIRA/lib/ss_template.csv"
-            content = open(
-                template_file
-            ).read()
-            ss_csv = dict(
-                content=content,
-                filename=f"{run}_samplesheet.csv",
-            )
-        except:
+            generate_samplesheet_xl(run)
+            return dcc.send_file(f'{data_root}/{run}/{run}_samplesheet.xlsx')
+            #if "illumina" in experiment_type.lower():
+            #    template_file = "/MIRA/lib/illumina_ss_template.csv"
+            #else:
+            #    template_file = "/MIRA/lib/ss_template.csv"
+            #content = open(
+            #    template_file
+            #).read()
+            #ss_csv = dict(
+            #    content=content,
+            #    filename=f"{run}_samplesheet.csv",
+            #)
+        except Exception as e:
+            print(f'----------------------------\nERROR DOWNLOADING SS\n{e}\n--------END OF ERROR--------')
             #get a warning displayed somehow
             return html.Div(['There was an error processing this run and datatype'])
-        return ss_csv
 
 #from https://dash.plotly.com/dash-core-components/upload
 
-def parse_contents(contents, filename, date):
+def parse_contents(contents, filename, date, run):
     content_type, content_string = contents.split(',')
-    global ss_df
+    #global ss_df
     decoded = base64.b64decode(content_string)
     try:
         if 'csv' in filename:
@@ -179,15 +183,30 @@ def parse_contents(contents, filename, date):
                 io.StringIO(decoded.decode('utf-8')))
         elif 'xls' in filename:
             # Assume that the user uploaded an excel file
-            ss_df = pd.read_excel(io.BytesIO(decoded))
-        global imported_file
-        imported_file = True
+            ss_df = pd.read_excel(io.BytesIO(decoded), engine='openpyxl')
+            ss_df = ss_df.iloc[:,0:3]
+        #global imported_file
+        #imported_file = True
     except Exception as e:
-        print(e)
+        print(f'ERROR PARSING SS\n{e}\n--------END OF ERROR--------')
         return html.Div([
             'There was an error processing this file.'
         ])
-
+    for c in ss_df.columns:
+        ss_df[c] = ss_df[c].apply(lambda x: str(x))
+        ss_df[c] = ss_df[c].apply(lambda x: x.strip('^M').strip())
+    if True in list(ss_df.duplicated("Sample ID")):
+        ss_df['duplicated'] = ss_df.duplicated('Sample ID')
+        stmnt = f"No duplicate sample IDs allowed. Please edit. Duplicates = {list(ss_df.loc[ss_df['duplicated']==True]['Sample ID'])}"
+        print(stmnt)
+    elif True in list(ss_df['Sample ID'].str.contains(r'\s')):
+        ss_df['spaces'] = ss_df['Sample ID'].str.contains(r'\s')
+        stmnt = f"No spaces allowed in Sample IDs. Please edit. Offenders = {list(ss_df.loc[ss_df['spaces']==True]['Sample ID'])}"
+        print(stmnt)
+    else:
+        print(f"saving df")
+        ss_df.to_csv(f"{data_root}/{run}/samplesheet.csv", index=False)
+        stmnt = ''
     return html.Div([
         html.H5(filename),
         html.H6(datetime.datetime.fromtimestamp(date)),
@@ -199,63 +218,57 @@ def parse_contents(contents, filename, date):
 
         html.Hr(),  # horizontal line
 
-    ])
+    ]), stmnt
 
-@app.callback(Output('output-data-upload', 'children'),
-              Input('upload-data', 'contents'),
-              State('upload-data', 'filename'),
-              State('upload-data', 'last_modified'))
-def update_output(list_of_contents, list_of_names, list_of_dates):
+@app.callback([#Output('output-data-upload', 'children'),
+                Output("samplesheet_errors", "children")],
+                Input('upload-data', 'contents'),
+                Input("select_run", "value"),
+                State('upload-data', 'filename'),
+                State('upload-data', 'last_modified'))
+def update_output(list_of_contents, run, list_of_names, list_of_dates):
     if list_of_contents is not None:
         children = [
-            parse_contents(c, n, d) for c, n, d in
-            zip(list_of_contents, list_of_names, list_of_dates)]
-        return children
+            parse_contents(c, n, d, run) for c, n, d, run in
+            zip(list_of_contents, list_of_names, list_of_dates, itertools.repeat(run))]
+        stmnt = children.pop(-1)
+        stmnt = [stmnt[-1]]
+        #try:
+        #    df = df[["Barcode #", "Sample ID", "Sample Type"]]
+        #except:
+        #    df = df[["Sample ID", "Sample Type"]]
+        #return children, stmnt
+        return stmnt
 
-@app.callback(
-    [Output("save_samplesheet_button", "n_clicks"),
-    Output("samplesheet_errors", "children")],
-    [
-        Input("select_run", "value"),
-        Input("samplesheet", "children"),
-        Input("save_samplesheet_button", "n_clicks"),
-    ],
-)
-def save_samplesheet(run, ss_data, n_clicks):
-    if imported_file:
-        df = ss_df
-    else:
-        if not ss_data and not ss_df or n_clicks == 0 or not n_clicks:
-            return dash.no_update
-        else:
-            df = pd.DataFrame.from_dict(ss_data["props"]["data"], orient="columns")
-    try:
-        df = df[["Barcode #", "Sample ID", "Sample Type"]]
-    except:
-        df = df[["Sample ID", "Sample Type"]]
-    for c in df.columns:
-        df[c] = df[c].apply(lambda x: x.strip('^M').strip())
-    print(f"df = {df}")
-    if True in list(df.duplicated("Sample ID")):
-        df['duplicated'] = df.duplicated('Sample ID')
-        stmnt = f"No duplicate sample IDs allowed. Please edit. Duplicates = {list(df.loc[df['duplicated']==True]['Sample ID'])}"
-        print(stmnt)
-    elif True in list(df['Sample ID'].str.contains(r'\s')):
-        df['spaces'] = df['Sample ID'].str.contains(r'\s')
-        stmnt = f"No spaces allowed in Sample IDs. Please edit. Offenders = {list(df.loc[df['spaces']==True]['Sample ID'])}"
-        print(stmnt)
-    else:
-        print(f"saving df")
-        df.to_csv(f"{data_root}/{run}/samplesheet.csv", index=False)
-        stmnt = ''
-    return (0,stmnt)
+
+def generate_samplesheet_xl(run):
+    wb = xl.Workbook()
+    ws = wb.active
+    ws.append(['Barcode #', 'Sample ID', 'Sample Type'])
+    bar_nums = [int(i[-2:]) for i in glob(f"{data_root}/{run}/fastq_pass/b*")]
+    bar_nums.sort()
+    barcodes = [f"barcode{i:02}" for i in bar_nums]
+    # Store possible drop down options
+    for r,t in enumerate(["- Control", "+ Control", "Test"]):
+        ws[f"Z{r+1}"].value = t
+    sample_types = DV(type='list', formula1=f"=Z$1:Z$3")
+    ws.add_data_validation(sample_types)
+    #sample_types.add(ws[f"C2:C{len(barcodes)}"])
+    row=2
+    for r,b in enumerate(barcodes):
+        ws[f"A{row}"].value = b
+        ws[f"C{row}"].value ='Test'
+        row += 1
+    sample_types.add(f"C2:C{len(barcodes)+1}")
+    wb.save(f'{data_root}/{run}/{run}_samplesheet.xlsx')
+        
 
 @app.callback(
     Output("samplesheet", "children"),
-    [Input("select_run", "value")],
+    [Input("select_run", "value"), Input('upload-data', 'contents')],
 )
 #only generate if csv already exitsts--otherwise, excel upload/parse functions display ss
-def generate_samplesheet(run):
+def generate_samplesheet(run, upload_data):
     ss_glob = [
         i
         for i in glob(f"{data_root}/{run}/*.csv*")
@@ -286,8 +299,10 @@ def generate_samplesheet(run):
             id="samplesheet_table",
             columns = data_columns,
             data=data,
-            editable=True,
+            #editable=True,
             merge_duplicate_headers=True,
+            export_format="xlsx",
+            export_headers="display"
         )
     else:
         return None
@@ -298,15 +313,13 @@ def generate_samplesheet(run):
 @app.callback(
     Output("assembly-button", "disabled"),
     [
-        #Input("save_samplesheet_button", "n_clicks"),
         Input("assembly-button", "n_clicks"),
         Input("select_run", "value"),
         Input("experiment_type", "value"),
         Input("Amplicon_Library", "value")
     ],
-    #background=True,
 )
-def run_snake_script_onClick(assembly_n_clicks, run, experiment_type, Amplicon_Library): # samplesheet_n_clicks ,
+def run_snake_script_onClick(assembly_n_clicks, run, experiment_type, Amplicon_Library):
     ss_glob = [
         i
         for i in glob(f"{data_root}/{run}/samplesheet.csv*")
@@ -330,6 +343,7 @@ def run_snake_script_onClick(assembly_n_clicks, run, experiment_type, Amplicon_L
         docker_cmd += f"CLEANUP-FOOTPRINT"
         print(f'launching docker_cmd == "{docker_cmd}"\n\n')
         subprocess.Popen(docker_cmd.split(), close_fds=True)
+        os.remove(f'{data_root}/{run}/{run}_samplesheet.xlsx') # This is only the empty template generated. The used file is saved as samplesheet.csv
         return True
 
 
@@ -394,8 +408,6 @@ def flfor(x, digits):
         Output("minor_alleles_table", "children"),
         [Input("select_run", "value"), Input("irma-results-button", "n_clicks")],
     ],
-    # background=True,
-    # manager=bkgnd_callback_manager,
 )
 def alleles_table(run, n_clicks):
     if not run:
@@ -430,8 +442,6 @@ def alleles_table(run, n_clicks):
         Output("indels_table", "children"),
         [Input("select_run", "value"), Input("irma-results-button", "n_clicks")],
     ],
-    # background=True,
-    # manager=bkgnd_callback_manager,
 )
 def indels_table(run, n_clicks):
     if not run:
@@ -466,8 +476,6 @@ def indels_table(run, n_clicks):
         Output("vars_table", "children"),
         [Input("select_run", "value"), Input("irma-results-button", "n_clicks")],
     ],
-    # background=True,
-    # manager=bkgnd_callback_manager,
 )
 def vars_table(run, n_clicks):
     if not run:
@@ -505,8 +513,6 @@ def vars_table(run, n_clicks):
     Output("demux_fig", "figure"),
     [Input("select_run", "value"), Input("irma-results-button", "n_clicks")],
     prevent_initial_call=True,
-    # background=True,
-    # manager=bkgnd_callback_manager,
 )
 def barcode_pie(run, n_clicks):
     try:
@@ -545,8 +551,6 @@ def negative_qc_statement(run):
 @app.callback(
     [Output("irma_neg_statment", "children"), Output("irma_summary", "children")],
     [Input("select_run", "value"), Input("irma-results-button", "n_clicks")],
-    #background=True,
-    #manager=bkgnd_callback_manager,
 )
 def irma_summary(run, n_clicks):
     try:
@@ -578,10 +582,7 @@ def irma_summary(run, n_clicks):
 @app.callback(
     Output("coverage-heat", "figure"),
     [Input("select_run", "value"), Input("irma-results-button", "n_clicks")],
-    # background=True,
-    # manager=bkgnd_callback_manager,
 )
-#@callback_cache.memoize(expire=cache_timeout)
 def callback_heatmap(run, n_clicks):
     if not run:
         return blank_fig()
@@ -595,10 +596,7 @@ def callback_heatmap(run, n_clicks):
 @app.callback(
     Output("pass_fail_heat", "figure"),
     [Input("select_run", "value"), Input("irma-results-button", "n_clicks")],
-    # background=True,
-    # manager=bkgnd_callback_manager,
 )
-#@callback_cache.memoize(expire=cache_timeout)
 def callback_pass_fail_heatmap(run, n_clicks):
     if not run:
         return blank_fig()
@@ -640,8 +638,6 @@ flu_numbers = {
     [Output("download_nt_fasta", "data"),Output("download_aa_fasta", "data")],
     [Input("select_run", "value"), Input("fasta_dl_button", "n_clicks")],
     prevent_initial_call=True,
-    # background=True,
-    # manager=bkgnd_callback_manager,
 )
 def download_nt_fastas(run, n_clicks):
     if not n_clicks:
@@ -691,14 +687,14 @@ CONTENT_STYLE = {
 sidebar = html.Div(
     [
         html.Img(
-            src=app.get_asset_url("irma-spy.jpg"),
-            height=80,
-            width=80,
+            src=app.get_asset_url("mira-logo-midjourney_20230526_rmbkgnd.png"),
+            height=125,
+            width=125
         ),
         html.H2("MIRA", className="display-4"),
         html.P(
             ["Influenza genome and SARS-CoV-2 spike sequence assembly"],
-            className="display-8",
+            className="display-8"
         ),
         html.Hr(),
         dbc.Nav(
@@ -807,8 +803,7 @@ content = html.Div(
     dcc.Upload(
         id='upload-data',
         children=html.Div([
-            'Drag and Drop or ',
-            html.A('Select Files')
+            'Drag and Drop your ',html.B('Samplesheet'),' or Click and Select the File'
         ]),
         style={
             'width': '100%',
@@ -828,30 +823,30 @@ content = html.Div(
     + [html.Br()]
     + [html.Div(id="samplesheet")]
     + [html.Div(id="samplesheet_errors")]
-    + [
-        html.Div(
-            dbc.Row(
-                [
-                    dbc.Col(
-                        dbc.Button("Save Samplesheet", id="save_samplesheet_button", n_clicks=0),
-                        lg=3,
-                    ),
-                    dbc.Popover(
-                        html.P(
-                            "Samplesheet saved",
-                            className="display-6",
-                        ),
-                        target="save_samplesheet_button",
-                        body=True,
-                        trigger="focus",
-                        placement='right'
-                    ),
-                ],
-                justify="between",
-                className="g-0",
-            )
-        )
-    ]
+    #+ [
+    #    html.Div(
+    #        dbc.Row(
+    #            [
+    #                dbc.Col(
+    #                    dbc.Button("Save Samplesheet", id="save_samplesheet_button", n_clicks=0),
+    #                    lg=3,
+    #                ),
+    #                dbc.Popover(
+    #                    html.P(
+    #                        "Samplesheet saved",
+    #                        className="display-6",
+    #                    ),
+    #                    target="save_samplesheet_button",
+    #                    body=True,
+    #                    trigger="focus",
+    #                    placement='right'
+    #                ),
+    #            ],
+    #            justify="between",
+    #            className="g-0",
+    #        )
+    #    )
+    #]
     + [html.Br()]
     + [
         dbc.Button("Start Genome Assembly", id="assembly-button", n_clicks=0, disabled=True),

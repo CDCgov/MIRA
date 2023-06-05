@@ -30,7 +30,7 @@ You can get a full linux environment using Windows Subsystem for Linux, or WSL. 
     ```bash
     wsl --set-default-version 2
 
-    wsl --install -d Ubuntu-18.04
+    wsl --install -d Ubuntu-20.04
     ```
     If either of these commands errors out, from the Windows search bar, open `Turn Windows Features on or off` and make sure the following 4 features are checked off:
     -  Hyper-V
