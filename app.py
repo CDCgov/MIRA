@@ -31,6 +31,7 @@ import datetime
 from openpyxl.worksheet.datavalidation import DataValidation as DV
 from openpyxl.worksheet.table import Table, TableStyleInfo
 import openpyxl as xl
+import re
 
 import subprocess
 #from flask_caching import Cache
@@ -154,21 +155,10 @@ def download_ss(run, n_clicks, experiment_type):
         try:
             generate_samplesheet_xl(run)
             return dcc.send_file(f'{data_root}/{run}/{run}_samplesheet.xlsx')
-            #if "illumina" in experiment_type.lower():
-            #    template_file = "/MIRA/lib/illumina_ss_template.csv"
-            #else:
-            #    template_file = "/MIRA/lib/ss_template.csv"
-            #content = open(
-            #    template_file
-            #).read()
-            #ss_csv = dict(
-            #    content=content,
-            #    filename=f"{run}_samplesheet.csv",
-            #)
         except Exception as e:
             print(f'----------------------------\nERROR DOWNLOADING SS\n{e}\n--------END OF ERROR--------')
             #get a warning displayed somehow
-            return html.Div(['There was an error processing this run and datatype'])
+            #return html.Div(['There was an error processing this run and datatype'])
 
 #from https://dash.plotly.com/dash-core-components/upload
 
@@ -244,31 +234,45 @@ def update_output(list_of_contents, run, list_of_names, list_of_dates):
 def generate_samplesheet_xl(run):
     wb = xl.Workbook()
     ws = wb.active
-    ws.append(['Barcode #', 'Sample ID', 'Sample Type'])
-    bar_nums = [int(i[-2:]) for i in glob(f"{data_root}/{run}/fastq_pass/b*")]
-    bar_nums.sort()
-    barcodes = [f"barcode{i:02}" for i in bar_nums]
     # Store possible drop down options
     for r,t in enumerate(["- Control", "+ Control", "Test"]):
-        ws[f"Z{r+1}"].value = t
+            ws[f"Z{r+1}"].value = t
     sample_types = DV(type='list', formula1=f"=Z$1:Z$3")
     ws.add_data_validation(sample_types)
-    #sample_types.add(ws[f"C2:C{len(barcodes)}"])
-    row=2
-    for r,b in enumerate(barcodes):
-        ws[f"A{row}"].value = b
-        ws[f"C{row}"].value ='Test'
-        row += 1
-    sample_types.add(f"C2:C{len(barcodes)+1}")
+    bar_nums = [int(i[-2:]) for i in glob(f"{data_root}/{run}/fastq_pass/b*")]
+    if len(bar_nums) == 0:
+        fqs = [i.split('/')[-1] for i in glob(f'{data_root}/{run}/**/*fastq.gz', recursive=True)]
+        ill_samples = list(set([re.findall(r".+(?=_R[12])", i)[0] for i in fqs]))
+        ill_samples.sort()
+        print(fqs,ill_samples)
+        ws['A1'].value, ws['B1'].value = 'Sample ID', 'Sample Type'
+        row=2
+        for r,s in enumerate(ill_samples):
+            ws[f"A{row}"].value = s
+            ws[f"B{row}"].value ='Test'
+            row += 1            
+        sample_types.add(f"B2:B{len(ill_samples)+1}")
+    else:
+        ws['A1'].value, ws['B1'].value, ws['C1'].value = 'Barcode #', 'Sample ID', 'Sample Type'
+        bar_nums.sort()
+        barcodes = [f"barcode{i:02}" for i in bar_nums]
+        row=2
+        for r,b in enumerate(barcodes):
+            ws[f"A{row}"].value = b
+            ws[f"C{row}"].value ='Test'
+            row += 1
+        sample_types.add(f"C2:C{len(barcodes)+1}")
     wb.save(f'{data_root}/{run}/{run}_samplesheet.xlsx')
-        
+    print(ws)        
 
 @app.callback(
     Output("samplesheet", "children"),
-    [Input("select_run", "value"), Input('upload-data', 'contents')],
+    [Input("select_run", "value"),
+     Input('upload-data', 'contents'),
+     Input("experiment_type", "value")],
 )
 #only generate if csv already exitsts--otherwise, excel upload/parse functions display ss
-def generate_samplesheet(run, upload_data):
+def generate_samplesheet(run, upload_data, experiment_type):
     ss_glob = [
         i
         for i in glob(f"{data_root}/{run}/*.csv*")
@@ -285,11 +289,17 @@ def generate_samplesheet(run, upload_data):
             d.write(noCarriageReturn)
         data = pd.read_csv(ss_filename).to_dict("records")
         if len(data[0].keys()) > 2:
-            data_columns=[
-                {"id": "Barcode #", "name": "Barcode #"},
-                {"id": "Sample ID", "name": "Sample ID"},
-                {"id": "Sample Type", "name": "Sample Type", "presentation": "dropdown"},
-            ]
+            if 'Illumina' in experiment_type:
+                data_columns=[
+                    {"id": "Sample ID", "name": "Sample ID"},
+                    {"id": "Sample Type", "name": "Sample Type", "presentation": "dropdown"},
+                ]
+            else:    
+                data_columns=[
+                    {"id": "Barcode #", "name": "Barcode #"},
+                    {"id": "Sample ID", "name": "Sample ID"},
+                    {"id": "Sample Type", "name": "Sample Type", "presentation": "dropdown"},
+                ]
         else:
             data_columns=[
                 {"id": "Sample ID", "name": "Sample ID"},
