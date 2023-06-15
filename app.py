@@ -32,11 +32,8 @@ from openpyxl.worksheet.datavalidation import DataValidation as DV
 from openpyxl.worksheet.table import Table, TableStyleInfo
 import openpyxl as xl
 import re
-
+import requests
 import subprocess
-#from flask_caching import Cache
-
-#import diskcache  # type: ignore
 
 path.append(dirname(realpath(__file__)) + "/scripts/")
 import irma2dash  # type: ignore
@@ -52,15 +49,7 @@ app = dash.Dash(external_stylesheets=[dbc.themes.FLATLY])
 app.title = "MIRA"
 app.config["suppress_callback_exceptions"] = True
 
-# Caching
-#cache_timeout = 60 * 60 * 24 * 28
-#callback_cache = diskcache.Cache(f"{data_root}/.cache")
-#bkgnd_callback_manager = DiskcacheManager(callback_cache)
-#callback_cache.clear()
-
 previousClick = 0
-#imported_file = False
-
 
 
 @app.callback(Output("select_run", "options"), Input("run-refresh-button", "n_clicks"))
@@ -79,7 +68,6 @@ def refreshRuns(n_clicks):
         Input("irma-results-button", "n_clicks"),
     ],
 )
-#@callback_cache.memoize(expire=cache_timeout)
 def select_sample(plotClick, run, n_clicks):
     if not run:
         raise dash.exceptions.PreventUpdate
@@ -108,11 +96,7 @@ def select_sample(plotClick, run, n_clicks):
         Input("select_sample", "value"),
         Input("cov_linear_y", "value"),
         Input("irma-results-button", "n_clicks"),
-    ],
-    # background=True,
-    # manager=bkgnd_callback_manager,
-)
-#@callback_cache.memoize(expire=cache_timeout)
+    ])
 def single_sample_fig(run, sample, cov_linear_y, n_clicks):
     if not run or not sample:
         return html.Div()
@@ -141,8 +125,6 @@ def single_sample_fig(run, sample, cov_linear_y, n_clicks):
     Output("download_ss", "data"),
     [Input("select_run", "value"), Input("ss_dl_button", "n_clicks"), Input("experiment_type", "value")],
     prevent_initial_call=True,
-    # background=True,
-    # manager=bkgnd_callback_manager,
 )
 def download_ss(run, n_clicks, experiment_type):
     global selected_experiment_type
@@ -175,8 +157,6 @@ def parse_contents(contents, filename, date, run):
             # Assume that the user uploaded an excel file
             ss_df = pd.read_excel(io.BytesIO(decoded), engine='openpyxl')
             ss_df = ss_df.iloc[:,0:3]
-        #global imported_file
-        #imported_file = True
     except Exception as e:
         print(f'ERROR PARSING SS\n{e}\n--------END OF ERROR--------')
         return html.Div([
@@ -210,8 +190,10 @@ def parse_contents(contents, filename, date, run):
 
     ]), stmnt
 
-@app.callback([#Output('output-data-upload', 'children'),
-                Output("samplesheet_errors", "children")],
+@app.callback([ Output("samplesheet_errors", "children"),
+                Output("upload-data", 'contents'),
+                Output('upload-data', 'filename'),
+                Output('upload-data', 'last_modified')],
                 Input('upload-data', 'contents'),
                 Input("select_run", "value"),
                 State('upload-data', 'filename'),
@@ -223,12 +205,7 @@ def update_output(list_of_contents, run, list_of_names, list_of_dates):
             zip(list_of_contents, list_of_names, list_of_dates, itertools.repeat(run))]
         stmnt = children.pop(-1)
         stmnt = [stmnt[-1]]
-        #try:
-        #    df = df[["Barcode #", "Sample ID", "Sample Type"]]
-        #except:
-        #    df = df[["Sample ID", "Sample Type"]]
-        #return children, stmnt
-        return stmnt
+        return stmnt, None, None, None
 
 
 def generate_samplesheet_xl(run):
@@ -356,21 +333,47 @@ def run_snake_script_onClick(assembly_n_clicks, run, experiment_type, Amplicon_L
         os.remove(f'{data_root}/{run}/{run}_samplesheet.xlsx') # This is only the empty template generated. The used file is saved as samplesheet.csv
         return True
 
-
+@app.callback(Output("new-version", "children"),
+              Input("new-version-interval", "n_intervals"))
+def new_version_modal(n_interval):
+    with open('DESCRIPTION', 'r') as d:
+        current = ''.join(d.readlines()) 
+    available = requests.get("https://raw.githubusercontent.com/CDCgov/MIRA/prod/DESCRIPTION")
+    current = re.findall(r"Version.+(?=\n)", current)[0]
+    available = re.findall(r"Version.+(?=\r)", available.text)[0]
+    print(f"Current = {current}\nAvailable = {available}")
+    if current == available:
+        return html.Div()
+    else:
+        modal = dbc.Modal([
+                    dbc.ModalHeader(html.A(f"A new version of MIRA is available! ", style={'color':'indigo'})),
+                    dbc.ModalBody(dcc.Link("CLICK HERE", href="https://cdcgov.github.io/MIRA/articles/FAQs.html", target="_blank")),
+                    dbc.ModalBody(f"Current = {current}"),
+                    dbc.ModalBody(f"Available = {available}")
+                ],
+                size="lg",
+                is_open=True,
+                centered=True,
+                style={'font-size' :'300%', 'font-family':'arial'}
+            )
+        return modal
 @app.callback(
     Output("irma-progress", "children"),
     [
         Input("select_run", "value"),
         Input("watch-irma-progress", "value"),
         Input("irma-progress-interval", "n_intervals"),
+        Input("assembly-button", "n_clicks")
     ],
 )
-def display_irma_progress(run, toggle, n_intervals):
+def display_irma_progress(run, toggle, n_intervals, n_clicks):
     if not toggle:
         return html.Div()
     if len(glob(f"{data_root}/{run}/spyne_logs.tar.gz")) == 1:
         return html.Div("IRMA is finished! Click \"DISPLAY IRMA RESULTS\"")
     logs = glob(f"{data_root}/{run}/logs/*irma*out.log")
+    if os.path.exists(f"{data_root}/{run}/.snakemake") and len(logs) == 0:
+        return html.Div("Data processing has started, please wait...")
     if len(logs) == 0:
         return html.Div("No IRMA data is available")
     log_dic = {}
@@ -426,7 +429,6 @@ def alleles_table(run, n_clicks):
         df = pd.read_json(f"{data_root}/{run}/dash-json/alleles.json", orient="split")
     except:
         raise dash.exceptions.PreventUpdate
-        # return blank_fig()
     table = [
         html.Div(
             [
@@ -435,7 +437,6 @@ def alleles_table(run, n_clicks):
                     data=df.to_dict("records"),
                     sort_action="native",
                     filter_action="native",
-                    # persistence=True,
                     page_size=10,
                     export_format="xlsx",
                     export_headers="display",
@@ -460,7 +461,6 @@ def indels_table(run, n_clicks):
         df = pd.read_json(f"{data_root}/{run}/dash-json/indels.json", orient="split")
     except:
         raise dash.exceptions.PreventUpdate
-        # return blank_fig()
     table = [
         html.Div(
             [
@@ -469,7 +469,6 @@ def indels_table(run, n_clicks):
                     data=df.to_dict("records"),
                     sort_action="native",
                     filter_action="native",
-                    # persistence=True,
                     page_size=10,
                     export_format="xlsx",
                     export_headers="display",
@@ -494,7 +493,6 @@ def vars_table(run, n_clicks):
         df = pd.read_json(f"{data_root}/{run}/dash-json/dais_vars.json", orient="split")
     except:
         raise dash.exceptions.PreventUpdate
-        # return blank_fig()
     table = [
         html.Div(
             [
@@ -503,7 +501,6 @@ def vars_table(run, n_clicks):
                     data=df.to_dict("records"),
                     sort_action="native",
                     filter_action="native",
-                    # persistence=True,
                     page_size=10,
                     export_format="xlsx",
                     export_headers="display",
@@ -568,8 +565,6 @@ def irma_summary(run, n_clicks):
         df = pd.read_json(f"{data_root}/{run}/dash-json/irma_summary.json", orient="split")
     except Exception as E:
         pass
-        # raise dash.exceptions.PreventUpdate
-        # return f"... waiting for IRMA results... \n\n {E}", html.Div()
     fill_colors = conditional_color_range_perCol.discrete_background_color_bins(df, 8)
     table = html.Div(
         [
@@ -578,7 +573,6 @@ def irma_summary(run, n_clicks):
                 data=df.to_dict("records"),
                 sort_action="native",
                 style_data_conditional=fill_colors,
-                # persistence=True,
                 export_format="xlsx",
                 export_headers="display",
                 merge_duplicate_headers=True,
@@ -596,7 +590,6 @@ def irma_summary(run, n_clicks):
 def callback_heatmap(run, n_clicks):
     if not run:
         return blank_fig()
-        # raise dash.exceptions.PreventUpdate
     try:
         return pio.read_json(f"{data_root}/{run}/dash-json/heatmap.json")
     except FileNotFoundError:
@@ -610,7 +603,6 @@ def callback_heatmap(run, n_clicks):
 def callback_pass_fail_heatmap(run, n_clicks):
     if not run:
         return blank_fig()
-        # raise dash.exceptions.PreventUpdate
     try:
         return pio.read_json(f"{data_root}/{run}/dash-json/pass_fail_heatmap.json")
     except FileNotFoundError:
@@ -746,7 +738,9 @@ def blank_fig():
 content = html.Div(
     id="page-content",
     style=CONTENT_STYLE,
-    children=[
+    children=[html.Div(id="new-version")]
+    + [dcc.Interval(id="new-version-interval", interval=3000)] #interval in milliseconds
+    + [
         dbc.Row(
             [
                 dbc.Col(
@@ -757,8 +751,7 @@ content = html.Div(
                             for i in sorted(os.listdir(data_root))
                             if "." not in i
                         ],
-                        placeholder="Select sequencing run: "  # ,
-                        # persistence=True,
+                        placeholder="Select sequencing run: "
                     ),
                     width=4,
                 ),
@@ -778,8 +771,7 @@ content = html.Div(
                     {"label":"Flu-Illumina", "value":"Flu-Illumina"},
                     {"label":"SC2-Whole-Genome-Illumina", "value":"SC2-Whole-Genome-Illumina"}],
                 id="experiment_type",
-                placeholder="What kind of data is this?"  # ,
-                # persistence=True,
+                placeholder="What kind of data is this?"
             )
         )
     ]
@@ -833,30 +825,6 @@ content = html.Div(
     + [html.Br()]
     + [html.Div(id="samplesheet")]
     + [html.Div(id="samplesheet_errors")]
-    #+ [
-    #    html.Div(
-    #        dbc.Row(
-    #            [
-    #                dbc.Col(
-    #                    dbc.Button("Save Samplesheet", id="save_samplesheet_button", n_clicks=0),
-    #                    lg=3,
-    #                ),
-    #                dbc.Popover(
-    #                    html.P(
-    #                        "Samplesheet saved",
-    #                        className="display-6",
-    #                    ),
-    #                    target="save_samplesheet_button",
-    #                    body=True,
-    #                    trigger="focus",
-    #                    placement='right'
-    #                ),
-    #            ],
-    #            justify="between",
-    #            className="g-0",
-    #        )
-    #    )
-    #]
     + [html.Br()]
     + [
         dbc.Button("Start Genome Assembly", id="assembly-button", n_clicks=0, disabled=True),
@@ -885,7 +853,6 @@ content = html.Div(
         )
     ]
     + [html.P("Barcode Assignment", id="demux_head", className="display-6")]
-    # + [html.Br()]
     + [
         html.Div(
             [
@@ -926,8 +893,7 @@ content = html.Div(
                             width=11,
                             align="end",
                         )
-                    ]  # ,
-                    # no_gutters=True
+                    ]
                 )
             ]
         )
@@ -954,10 +920,9 @@ content = html.Div(
                             width=11,
                             align="end",
                         )
-                    ]  # ,
-                    # no_gutters=True
+                    ]
                 ),
-                dcc.Dropdown(id="select_sample"),  # , persistence=True
+                dcc.Dropdown(id="select_sample"),
                 html.Div(id="single_sample_figs"),
                 dbc.Col(
                     daq.ToggleSwitch(
