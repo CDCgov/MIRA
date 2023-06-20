@@ -341,7 +341,6 @@ def new_version_modal(n_interval):
     available = requests.get("https://raw.githubusercontent.com/CDCgov/MIRA/prod/DESCRIPTION")
     current = re.findall(r"Version.+(?=\n)", current)[0]
     available = re.findall(r"Version.+(?=\r)", available.text)[0]
-    print(f"Current = {current}\nAvailable = {available}")
     if current == available:
         return html.Div()
     else:
