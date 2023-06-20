@@ -342,7 +342,7 @@ def new_version_modal(n_interval):
     else:
         with open('DESCRIPTION', 'r') as d:
             current = ''.join(d.readlines()) 
-    available = requests.get("https://raw.githubusercontent.com/CDCgov/MIRA/prod/DESCRIPTION")
+    available = requests.get("https://raw.githubusercontent.com/CDCgov/MIRA/illumina-flu/DESCRIPTION")
     current = re.findall(r"Version.+(?=\n)", current)[0]
     available = re.findall(r"Version.+(?=\r)", available.text)[0]
     if current == available:
