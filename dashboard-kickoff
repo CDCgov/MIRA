@@ -5,7 +5,7 @@
 # Run whatever Bash commands here
 
 # Archive previous .appout and .apperr
-if [ -f /data/spyne_logs.tar.gz ]; then
+if [ -f /data/.apperr ]; then
 	tar --remove-files -czf $(date -d @$(stat -c %Y /data/.apperr) "+%Y%b%d-%H%M%S").applog.tar.gz /data/.appout /data/.apperr
 fi
 
