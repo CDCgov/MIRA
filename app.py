@@ -336,8 +336,12 @@ def run_snake_script_onClick(assembly_n_clicks, run, experiment_type, Amplicon_L
 @app.callback(Output("new-version", "children"),
               Input("new-version-interval", "n_intervals"))
 def new_version_modal(n_interval):
-    with open('DESCRIPTION', 'r') as d:
-        current = ''.join(d.readlines()) 
+    if CONFIG['DEPLOY']:
+        with open('/MIRA/DESCRIPTION', 'r') as d:
+            current = ''.join(d.readlines()) 
+    else:
+        with open('DESCRIPTION', 'r') as d:
+            current = ''.join(d.readlines()) 
     available = requests.get("https://raw.githubusercontent.com/CDCgov/MIRA/prod/DESCRIPTION")
     current = re.findall(r"Version.+(?=\n)", current)[0]
     available = re.findall(r"Version.+(?=\r)", available.text)[0]
