@@ -1,7 +1,7 @@
 Package: MIRA
 Type: Package
 Title: Dash
-Version: 1.0.0-new
+Version: 1.0.0
 Date: 2023-02-20
 Authors@R: 
   c(person(given="Ben", family="Rambo-Martin", role=c("aut","cre"), 

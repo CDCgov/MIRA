@@ -351,8 +351,8 @@ def new_version_modal(n_interval):
         modal = dbc.Modal([
                     dbc.ModalHeader(html.A(f"A new version of MIRA is available! ", style={'color':'indigo'})),
                     dbc.ModalBody(dcc.Link("CLICK HERE", href="https://cdcgov.github.io/MIRA/articles/FAQs.html", target="_blank")),
-                    dbc.ModalBody(f"Current = {current}"),
-                    dbc.ModalBody(f"Available = {available}")
+                    dbc.ModalBody(f"Current {current}"),
+                    dbc.ModalBody(f"Available {available}")
                 ],
                 size="lg",
                 is_open=True,
