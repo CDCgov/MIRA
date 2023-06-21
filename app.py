@@ -36,14 +36,16 @@ import requests
 import subprocess
 
 path.append(dirname(realpath(__file__)) + "/scripts/")
-import irma2dash  # type: ignore
-import dais2dash  # type: ignore
 import conditional_color_range_perCol  # type: ignore
 
 with open(argv[1], "r") as y:
     CONFIG = yaml.safe_load(y)
 data_root = CONFIG["DATA_ROOT"]
 DEBUG = CONFIG["DEBUG"]
+if DEBUG:
+    check_version_interval = 3000
+else:
+    check_version_interval = 1000*60*60*24 # milliseconds in 1 day
 
 app = dash.Dash(external_stylesheets=[dbc.themes.FLATLY])
 app.title = "MIRA"
@@ -59,6 +61,13 @@ def refreshRuns(n_clicks):
     ]
     return options
 
+@app.callback(Output("Amplicon_Library", "style"), 
+                   Input("experiment_type", "value"))
+def select_primers(exp_type):
+    if exp_type == 'SC2-Whole-Genome-Illumina':
+        return {'display':'block'}
+    else:
+        return {'display':'none'}
 
 @app.callback(
     [Output("select_sample", "options"), Output("select_sample", "value")],
@@ -360,6 +369,7 @@ def new_version_modal(n_interval):
                 style={'font-size' :'300%', 'font-family':'arial'}
             )
         return modal
+
 @app.callback(
     Output("irma-progress", "children"),
     [
@@ -742,7 +752,7 @@ content = html.Div(
     id="page-content",
     style=CONTENT_STYLE,
     children=[html.Div(id="new-version")]
-    + [dcc.Interval(id="new-version-interval", interval=3000)] #interval in milliseconds
+    + [dcc.Interval(id="new-version-interval", interval=check_version_interval)] #interval in milliseconds
     + [
         dbc.Row(
             [
@@ -778,7 +788,7 @@ content = html.Div(
             )
         )
     ]
-    + [
+    + [#html.Div(id="Amplicon_Library")
         dbc.Row(
             dcc.Dropdown(
                 [{"label":"Artic V3", "value":"articv3"}, 
@@ -791,7 +801,7 @@ content = html.Div(
                     {"label":"VarSkip", "value":"varskip"},
                     {"label":"None", "value":""}], #add handling here for no primers used
                 id="Amplicon_Library",
-                placeholder="For Illumina SC2, which primer schema was used?"  # ,
+                placeholder="For Illumina SC2, which primer schema was used?"
             )
         )
     ]
