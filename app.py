@@ -42,7 +42,8 @@ with open(argv[1], "r") as y:
     CONFIG = yaml.safe_load(y)
 data_root = CONFIG["DATA_ROOT"]
 DEBUG = CONFIG["DEBUG"]
-if DEBUG:
+DEPLOY = CONFIG["DEPLOY"]
+if DEPLOY:
     check_version_interval = 3000
 else:
     check_version_interval = 1000*60*60*24 # milliseconds in 1 day
@@ -312,10 +313,13 @@ def generate_samplesheet(run, upload_data, experiment_type):
         Input("assembly-button", "n_clicks"),
         Input("select_run", "value"),
         Input("experiment_type", "value"),
-        Input("Amplicon_Library", "value")
+        Input("Amplicon_Library", "value"),
+        Input("unlock-assembly-button", "n_clicks")
     ],
 )
-def run_snake_script_onClick(assembly_n_clicks, run, experiment_type, Amplicon_Library):
+def run_snake_script_onClick(assembly_n_clicks, run, experiment_type, Amplicon_Library, unlock_n_clicks):
+    if dash.ctx.triggered_id == 'unlock-assembly-button':
+        return False
     ss_glob = [
         i
         for i in glob(f"{data_root}/{run}/samplesheet.csv*")
@@ -339,13 +343,20 @@ def run_snake_script_onClick(assembly_n_clicks, run, experiment_type, Amplicon_L
         docker_cmd += f"CLEANUP-FOOTPRINT"
         print(f'launching docker_cmd == "{docker_cmd}"\n\n')
         subprocess.Popen(docker_cmd.split(), close_fds=True)
-        os.remove(f'{data_root}/{run}/{run}_samplesheet.xlsx') # This is only the empty template generated. The used file is saved as samplesheet.csv
+        if len(glob(f'{data_root}/{run}/{run}_samplesheet.xlsx')) > 0:
+            os.remove(f'{data_root}/{run}/{run}_samplesheet.xlsx') # This is only the empty template generated. The used file is saved as samplesheet.csv
         return True
+
+#@app.callback(Output("assembly-button", "disabled"),
+#              Input("unlock-assembly-button", "n_clicks"))
+#def unlock_assembly_button(n_clicks):
+#    return False
+    
 
 @app.callback(Output("new-version", "children"),
               Input("new-version-interval", "n_intervals"))
 def new_version_modal(n_interval):
-    if CONFIG['DEPLOY']:
+    if DEPLOY:
         with open('/MIRA/DESCRIPTION', 'r') as d:
             current = ''.join(d.readlines()) 
     else:
@@ -840,7 +851,12 @@ content = html.Div(
     + [html.Div(id="samplesheet_errors")]
     + [html.Br()]
     + [
-        dbc.Button("Start Genome Assembly", id="assembly-button", n_clicks=0, disabled=True),
+        dbc.Row([
+        dbc.Col(dbc.Button("Start Genome Assembly", id="assembly-button", n_clicks=0, disabled=True),
+         width='auto'),
+        dbc.Col(dbc.Button("Unlock Assembly Button", id='unlock-assembly-button', outline=True, color="secondary", className="me-1"),
+        width='auto')
+        ]),
         html.Div(id="output-container-button"),
         dcc.Interval(id="irma-progress-interval", interval=3000),
         html.Div(

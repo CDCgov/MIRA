@@ -5,8 +5,11 @@
 # Run whatever Bash commands here
 
 # Archive previous .appout and .apperr
+[ ! -d /data/.applogs ] && mkdir /data/.applogs
 if [ -f /data/.apperr ]; then
-	tar --remove-files -czf .$(date -d @$(stat -c %Y /data/.apperr) "+%Y%b%d-%H%M%S").applog.tar.gz /data/.appout /data/.apperr
+	tar --remove-files -czf /data/.applogs/.$(date -d @$(stat -c %Y /data/.apperr) "+%Y%b%d-%H%M%S").applog.tar.gz /data/.appout /data/.apperr
+elif [ -f /data/.applogs/.apperr ]; then
+	tar --remove-files -czf /data/.applogs/.$(date -d @$(stat -c %Y /data/.applogs/.apperr) "+%Y%b%d-%H%M%S").applog.tar.gz /data/.applogs/.appout /data/.applogs/.apperr
 fi
 
 RESOURCE_ROOT=/MIRA
