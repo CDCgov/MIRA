@@ -886,8 +886,8 @@ content = html.Div(
                     {"label": "Artic V4.1", "value": "articv4.1"},
                     {"label": "Artic V5.3.2", "value": "articv5.3.2"},
                     {"label": "Qiagen QIAseq", "value": "quiagen"},
-                    {"label": "Swift", "value": "swift"},
-                    {"label": "Swift V211206", "value": "swift_211206"},
+                    {"label": "xGen™ SARS-CoV-2 Amplicon Panel", "value": "swift"},
+                    {"label": "xGen™ SARS-CoV-2 Amplicon Panel 2022+", "value": "swift_211206"},
                     {"label": "VarSkip", "value": "varskip"},
                     {"label": "None", "value": ""},
                 ],  # add handling here for no primers used
