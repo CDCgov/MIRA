@@ -55,6 +55,7 @@ else:
 app = dash.Dash(external_stylesheets=[dbc.themes.FLATLY])
 app.title = "MIRA"
 app.config["suppress_callback_exceptions"] = True
+app.update_title = None
 
 previousClick = 0
 
@@ -109,17 +110,16 @@ def select_sample(plotClick, run, n_clicks):
     [
         Input("select_run", "value"),
         Input("select_sample", "value"),
-        Input("cov_linear_y", "value"),
         Input("irma-results-button", "n_clicks"),
     ],
 )
-def single_sample_fig(run, sample, cov_linear_y, n_clicks):
+def single_sample_fig(run, sample, n_clicks):
     if not run or not sample:
         return html.Div()
-    if not cov_linear_y:
-        y_axis_type = "linear"
-    else:
-        y_axis_type = "log"
+    # if not cov_linear_y:
+    y_axis_type = "linear"
+    # else:
+    #    y_axis_type = "log"
     try:
         sankeyfig = pio.read_json(f"{data_root}/{run}/dash-json/readsfig_{sample}.json")
         coveragefig = pio.read_json(
@@ -237,6 +237,8 @@ def update_output(list_of_contents, run, list_of_names, list_of_dates):
         stmnt = children.pop(-1)
         stmnt = [stmnt[-1]]
         return stmnt, None, None, None
+    else:
+        return html.Div(), None, None, None
 
 
 def generate_samplesheet_xl(run):
@@ -300,6 +302,8 @@ def generate_samplesheet_xl(run):
 )
 # only generate if csv already exitsts--otherwise, excel upload/parse functions display ss
 def generate_samplesheet(run, upload_data, experiment_type):
+    if None in (run, experiment_type):
+        return html.Div()
     ss_glob = [
         i
         for i in glob(f"{data_root}/{run}/*.csv*")
@@ -489,24 +493,27 @@ def display_irma_progress(run, toggle, n_intervals, n_clicks):
         )
     df = pd.DataFrame.from_dict(running_samples, orient="index")
     df = df.reset_index()
-    df.columns = ["Sample", "IRMA Stage"]
-    out = html.Div(
-        [
-            html.Div(f"IRMA finished samples: {', '.join(finished_samples)}"),
-            html.Div(
-                dash_table.DataTable(
-                    columns=[{"name": i, "id": i} for i in df.columns],
-                    data=df.to_dict("records"),
-                    style_cell={
-                        "whiteSpace": "pre-line",
-                        "height": "auto",
-                        "lineHeight": "15px",
-                        "text_align": "left",
-                    },
-                )
-            ),
-        ]
-    )
+    try:
+        df.columns = ["Sample", "IRMA Stage"]
+        out = html.Div(
+            [
+                html.Div(f"IRMA finished samples: {', '.join(finished_samples)}"),
+                html.Div(
+                    dash_table.DataTable(
+                        columns=[{"name": i, "id": i} for i in df.columns],
+                        data=df.to_dict("records"),
+                        style_cell={
+                            "whiteSpace": "pre-line",
+                            "height": "auto",
+                            "lineHeight": "15px",
+                            "text_align": "left",
+                        },
+                    )
+                ),
+            ]
+        )
+    except ValueError:
+        return html.Div()
     return out
 
 
@@ -517,10 +524,16 @@ def flfor(x, digits):
 @app.callback(
     [
         Output("minor_alleles_table", "children"),
-        [Input("select_run", "value"), Input("irma-results-button", "n_clicks")],
+        [
+            Input("select_run", "value"),
+            Input("irma-results-button", "n_clicks"),
+            Input("assembly-button", "n_clicks"),
+        ],
     ],
 )
-def alleles_table(run, n_clicks):
+def alleles_table(run, n_clicks, a_n_clicks):
+    if dash.ctx.triggered_id == "assembly-button":
+        return [html.Div()]  # blank_fig()
     if not run:
         raise dash.exceptions.PreventUpdate
     try:
@@ -549,10 +562,16 @@ def alleles_table(run, n_clicks):
 @app.callback(
     [
         Output("indels_table", "children"),
-        [Input("select_run", "value"), Input("irma-results-button", "n_clicks")],
+        [
+            Input("select_run", "value"),
+            Input("irma-results-button", "n_clicks"),
+            Input("assembly-button", "n_clicks"),
+        ],
     ],
 )
-def indels_table(run, n_clicks):
+def indels_table(run, n_clicks, a_n_clicks):
+    if dash.ctx.triggered_id == "assembly-button":
+        return [html.Div()]  # blank_fig()
     if not run:
         raise dash.exceptions.PreventUpdate
     try:
@@ -581,10 +600,16 @@ def indels_table(run, n_clicks):
 @app.callback(
     [
         Output("vars_table", "children"),
-        [Input("select_run", "value"), Input("irma-results-button", "n_clicks")],
+        [
+            Input("select_run", "value"),
+            Input("irma-results-button", "n_clicks"),
+            Input("assembly-button", "n_clicks"),
+        ],
     ],
 )
-def vars_table(run, n_clicks):
+def vars_table(run, n_clicks, a_n_clicks):
+    if dash.ctx.triggered_id == "assembly-button":
+        return [html.Div()]  # blank_fig()
     if not run:
         raise dash.exceptions.PreventUpdate
     try:
@@ -616,10 +641,16 @@ def vars_table(run, n_clicks):
 
 @app.callback(
     Output("demux_fig", "figure"),
-    [Input("select_run", "value"), Input("irma-results-button", "n_clicks")],
+    [
+        Input("select_run", "value"),
+        Input("irma-results-button", "n_clicks"),
+        Input("assembly-button", "n_clicks"),
+    ],
     prevent_initial_call=True,
 )
-def barcode_pie(run, n_clicks):
+def barcode_pie(run, n_clicks, a_n_clicks):
+    if dash.ctx.triggered_id == "assembly-button":
+        return blank_fig()
     try:
         fig = pio.read_json(f"{data_root}/{run}/dash-json/barcode_distribution.json")
     except:
@@ -655,39 +686,56 @@ def negative_qc_statement(run):
 
 @app.callback(
     [Output("irma_neg_statment", "children"), Output("irma_summary", "children")],
-    [Input("select_run", "value"), Input("irma-results-button", "n_clicks")],
+    [
+        Input("select_run", "value"),
+        Input("irma-results-button", "n_clicks"),
+        Input("assembly-button", "n_clicks"),
+    ],
 )
-def irma_summary(run, n_clicks):
+def irma_summary(run, n_clicks, a_n_clicks):
+    if dash.ctx.triggered_id == "assembly-button":
+        return html.Div(), html.Div()
     try:
         qc_statement = negative_qc_statement(run)
         df = pd.read_json(
             f"{data_root}/{run}/dash-json/irma_summary.json", orient="split"
         )
     except Exception as E:
-        pass
-    fill_colors = conditional_color_range_perCol.discrete_background_color_bins(df, 8)
-    table = html.Div(
-        [
-            dash_table.DataTable(
-                columns=[{"name": i, "id": i} for i in df.columns],
-                data=df.to_dict("records"),
-                sort_action="native",
-                style_data_conditional=fill_colors,
-                export_format="xlsx",
-                export_headers="display",
-                merge_duplicate_headers=True,
-                filter_action="native",
-            )
-        ]
-    )
+        qc_statement = html.Div()
+    try:
+        fill_colors = conditional_color_range_perCol.discrete_background_color_bins(
+            df, 8
+        )
+        table = html.Div(
+            [
+                dash_table.DataTable(
+                    columns=[{"name": i, "id": i} for i in df.columns],
+                    data=df.to_dict("records"),
+                    sort_action="native",
+                    style_data_conditional=fill_colors,
+                    export_format="xlsx",
+                    export_headers="display",
+                    merge_duplicate_headers=True,
+                    filter_action="native",
+                )
+            ]
+        )
+    except UnboundLocalError:
+        table = html.Div()
     return qc_statement, table
 
 
 @app.callback(
     Output("coverage-heat", "figure"),
-    [Input("select_run", "value"), Input("irma-results-button", "n_clicks")],
+    [
+        Input("select_run", "value"),
+        Input("irma-results-button", "n_clicks"),
+        Input("assembly-button", "n_clicks"),
+    ],
 )
-def callback_heatmap(run, n_clicks):
+def callback_heatmap(run, n_clicks, a_n_clicks):
+    if dash.ctx.triggered_id == "assembly-button":
+        return blank_fig()
     if not run:
         return blank_fig()
     try:
@@ -698,9 +746,15 @@ def callback_heatmap(run, n_clicks):
 
 @app.callback(
     Output("pass_fail_heat", "figure"),
-    [Input("select_run", "value"), Input("irma-results-button", "n_clicks")],
+    [
+        Input("select_run", "value"),
+        Input("irma-results-button", "n_clicks"),
+        Input("assembly-button", "n_clicks"),
+    ],
 )
-def callback_pass_fail_heatmap(run, n_clicks):
+def callback_pass_fail_heatmap(run, n_clicks, a_n_clicks):
+    if dash.ctx.triggered_id == "assembly-button":
+        return blank_fig()
     if not run:
         return blank_fig()
     try:
@@ -790,7 +844,15 @@ sidebar = html.Div(
         ),
         html.H2("MIRA", className="display-4"),
         html.P(
-            ["Influenza genome and SARS-CoV-2 spike sequence assembly"],
+            [
+                "Influenza genome and SARS-CoV-2 spike sequence assembly with ",
+                dcc.Link(
+                    "IRMA",
+                    href="https://bmcgenomics.biomedcentral.com/articles/10.1186/s12864-016-3030-6",
+                    target="_blank",
+                ),
+                " the Iterative Refinement Meta Assembler",
+            ],
             className="display-8",
         ),
         html.Hr(),
@@ -1059,16 +1121,6 @@ content = html.Div(
                 ),
                 dcc.Dropdown(id="select_sample"),
                 html.Div(id="single_sample_figs"),
-                dbc.Col(
-                    daq.ToggleSwitch(
-                        id="cov_linear_y",
-                        label="log y ----- linear y	",
-                        labelPosition="bottom",
-                        value=True,
-                    ),
-                    width=8,
-                    align="right",
-                ),
             ]
         )
     ]
@@ -1101,7 +1153,7 @@ content = html.Div(
 )
 
 app.layout = html.Div([sidebar, content])
-
+app.update_title = None
 ####################################################
 ####################### MAIN #######################
 ####################################################
