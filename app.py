@@ -86,11 +86,11 @@ def select_primers(exp_type):
 )
 def select_sample(plotClick, run, n_clicks):
     if not run:
-        raise dash.exceptions.PreventUpdate
+        return [],"" #dash.exceptions.PreventUpdate
     try:
         df = pd.read_json(f"{data_root}/{run}/dash-json/reads.json", orient="split")
     except:
-        raise dash.exceptions.PreventUpdate
+        return [],"" #None, None
     samples = df["Sample"].unique()
     samples.sort()
     options = [{"label": i, "value": i} for i in samples]
@@ -535,11 +535,11 @@ def alleles_table(run, n_clicks, a_n_clicks):
     if dash.ctx.triggered_id == "assembly-button":
         return [html.Div()]  # blank_fig()
     if not run:
-        raise dash.exceptions.PreventUpdate
+        return [html.Div()] #raise dash.exceptions.PreventUpdate
     try:
         df = pd.read_json(f"{data_root}/{run}/dash-json/alleles.json", orient="split")
     except:
-        raise dash.exceptions.PreventUpdate
+        return [html.Div()] #raise dash.exceptions.PreventUpdate
     table = [
         html.Div(
             [
@@ -573,11 +573,11 @@ def indels_table(run, n_clicks, a_n_clicks):
     if dash.ctx.triggered_id == "assembly-button":
         return [html.Div()]  # blank_fig()
     if not run:
-        raise dash.exceptions.PreventUpdate
+        return [html.Div()] # raise dash.exceptions.PreventUpdate
     try:
         df = pd.read_json(f"{data_root}/{run}/dash-json/indels.json", orient="split")
     except:
-        raise dash.exceptions.PreventUpdate
+        return [html.Div()] #raise dash.exceptions.PreventUpdate
     table = [
         html.Div(
             [
@@ -611,11 +611,11 @@ def vars_table(run, n_clicks, a_n_clicks):
     if dash.ctx.triggered_id == "assembly-button":
         return [html.Div()]  # blank_fig()
     if not run:
-        raise dash.exceptions.PreventUpdate
+        return [html.Div()] #raise dash.exceptions.PreventUpdate
     try:
         df = pd.read_json(f"{data_root}/{run}/dash-json/dais_vars.json", orient="split")
     except:
-        raise dash.exceptions.PreventUpdate
+        return [html.Div()] #raise dash.exceptions.PreventUpdate
     table = [
         html.Div(
             [
