@@ -82,18 +82,18 @@ def select_primers(exp_type):
         Input("coverage-heat", "clickData"),
         Input("select_run", "value"),
         Input("irma-results-button", "n_clicks"),
-        Input("assembly-button", "n_clicks")
+        Input("assembly-button", "n_clicks"),
     ],
 )
 def select_sample(plotClick, run, n_clicks, a_n_clicks):
     if dash.ctx.triggered_id == "assembly-button":
-        return [],""
+        return [], ""
     if not run:
-        return [],"" #dash.exceptions.PreventUpdate
+        return [], ""  # dash.exceptions.PreventUpdate
     try:
         df = pd.read_json(f"{data_root}/{run}/dash-json/reads.json", orient="split")
     except:
-        return [],"" #None, None
+        return [], ""  # None, None
     samples = df["Sample"].unique()
     samples.sort()
     options = [{"label": i, "value": i} for i in samples]
@@ -114,7 +114,7 @@ def select_sample(plotClick, run, n_clicks, a_n_clicks):
         Input("select_run", "value"),
         Input("select_sample", "value"),
         Input("irma-results-button", "n_clicks"),
-        Input("assembly-button", "n_clicks")
+        Input("assembly-button", "n_clicks"),
     ],
 )
 def single_sample_fig(run, sample, n_clicks, a_n_clicks):
@@ -135,8 +135,32 @@ def single_sample_fig(run, sample, n_clicks, a_n_clicks):
         sankeyfig, coveragefig = blank_fig(), blank_fig()
     content = dbc.Row(
         [
-            dbc.Col(dcc.Graph(figure=sankeyfig), width=4, align="start"),
-            dbc.Col(dcc.Graph(figure=coveragefig), width=8, align="center"),
+            dbc.Col(
+                dcc.Graph(
+                    figure=sankeyfig,
+                    config={
+                        "toImageButtonOptions": {
+                            "format": "svg",
+                            "filename": f"{run}_{sample}_sankey",
+                        }
+                    },
+                ),
+                width=4,
+                align="start",
+            ),
+            dbc.Col(
+                dcc.Graph(
+                    figure=coveragefig,
+                    config={
+                        "toImageButtonOptions": {
+                            "format": "svg",
+                            "filename": f"{run}_{sample}_coverage",
+                        }
+                    },
+                ),
+                width=8,
+                align="center",
+            ),
         ]
     )
 
@@ -541,11 +565,11 @@ def alleles_table(run, n_clicks, a_n_clicks):
     if dash.ctx.triggered_id == "assembly-button":
         return [html.Div()]  # blank_fig()
     if not run:
-        return [html.Div()] #raise dash.exceptions.PreventUpdate
+        return [html.Div()]  # raise dash.exceptions.PreventUpdate
     try:
         df = pd.read_json(f"{data_root}/{run}/dash-json/alleles.json", orient="split")
     except:
-        return [html.Div()] #raise dash.exceptions.PreventUpdate
+        return [html.Div()]  # raise dash.exceptions.PreventUpdate
     table = [
         html.Div(
             [
@@ -579,11 +603,11 @@ def indels_table(run, n_clicks, a_n_clicks):
     if dash.ctx.triggered_id == "assembly-button":
         return [html.Div()]  # blank_fig()
     if not run:
-        return [html.Div()] # raise dash.exceptions.PreventUpdate
+        return [html.Div()]  # raise dash.exceptions.PreventUpdate
     try:
         df = pd.read_json(f"{data_root}/{run}/dash-json/indels.json", orient="split")
     except:
-        return [html.Div()] #raise dash.exceptions.PreventUpdate
+        return [html.Div()]  # raise dash.exceptions.PreventUpdate
     table = [
         html.Div(
             [
@@ -617,11 +641,11 @@ def vars_table(run, n_clicks, a_n_clicks):
     if dash.ctx.triggered_id == "assembly-button":
         return [html.Div()]  # blank_fig()
     if not run:
-        return [html.Div()] #raise dash.exceptions.PreventUpdate
+        return [html.Div()]  # raise dash.exceptions.PreventUpdate
     try:
         df = pd.read_json(f"{data_root}/{run}/dash-json/dais_vars.json", orient="split")
     except:
-        return [html.Div()] #raise dash.exceptions.PreventUpdate
+        return [html.Div()]  # raise dash.exceptions.PreventUpdate
     table = [
         html.Div(
             [
@@ -955,7 +979,10 @@ content = html.Div(
                     {"label": "Artic V5.3.2", "value": "articv5.3.2"},
                     {"label": "Qiagen QIAseq", "value": "quiagen"},
                     {"label": "xGen™ SARS-CoV-2 Amplicon Panel", "value": "swift"},
-                    {"label": "xGen™ SARS-CoV-2 Amplicon Panel 2022+", "value": "swift_211206"},
+                    {
+                        "label": "xGen™ SARS-CoV-2 Amplicon Panel 2022+",
+                        "value": "swift_211206",
+                    },
                     {"label": "VarSkip", "value": "varskip"},
                     {"label": "None", "value": ""},
                 ],  # add handling here for no primers used
@@ -1063,7 +1090,18 @@ content = html.Div(
                         dcc.Loading(
                             id="demux-loading",
                             type="cube",
-                            children=[dcc.Graph(id="demux_fig", figure=blank_fig())],
+                            children=[
+                                dcc.Graph(
+                                    id="demux_fig",
+                                    figure=blank_fig(),
+                                    config={
+                                        "toImageButtonOptions": {
+                                            "format": "svg",
+                                            "filename": "demux",
+                                        }
+                                    },
+                                )
+                            ],
                         ),
                         width={"size": 6, "offset": 3},
                     )
@@ -1090,7 +1128,16 @@ content = html.Div(
                                 id="qcheat-loading",
                                 type="cube",
                                 children=[
-                                    dcc.Graph(id="pass_fail_heat", figure=blank_fig()),
+                                    dcc.Graph(
+                                        id="pass_fail_heat",
+                                        figure=blank_fig(),
+                                        config={
+                                            "toImageButtonOptions": {
+                                                "format": "svg",
+                                                "filename": "passfail_heatmap",
+                                            }
+                                        },
+                                    ),
                                 ],
                             ),
                             width=11,
@@ -1117,7 +1164,16 @@ content = html.Div(
                                 id="coverageheat-loading",
                                 type="cube",
                                 children=[
-                                    dcc.Graph(id="coverage-heat", figure=blank_fig())
+                                    dcc.Graph(
+                                        id="coverage-heat",
+                                        figure=blank_fig(),
+                                        config={
+                                            "toImageButtonOptions": {
+                                                "format": "svg",
+                                                "filename": "coverage_heatmap",
+                                            }
+                                        },
+                                    )
                                 ],
                             ),
                             width=11,
