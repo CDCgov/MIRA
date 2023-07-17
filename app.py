@@ -82,9 +82,12 @@ def select_primers(exp_type):
         Input("coverage-heat", "clickData"),
         Input("select_run", "value"),
         Input("irma-results-button", "n_clicks"),
+        Input("assembly-button", "n_clicks")
     ],
 )
-def select_sample(plotClick, run, n_clicks):
+def select_sample(plotClick, run, n_clicks, a_n_clicks):
+    if dash.ctx.triggered_id == "assembly-button":
+        return [],""
     if not run:
         return [],"" #dash.exceptions.PreventUpdate
     try:
@@ -111,9 +114,12 @@ def select_sample(plotClick, run, n_clicks):
         Input("select_run", "value"),
         Input("select_sample", "value"),
         Input("irma-results-button", "n_clicks"),
+        Input("assembly-button", "n_clicks")
     ],
 )
-def single_sample_fig(run, sample, n_clicks):
+def single_sample_fig(run, sample, n_clicks, a_n_clicks):
+    if dash.ctx.triggered_id == "assembly-button":
+        return [html.Div()]  # blank_fig()
     if not run or not sample:
         return html.Div()
     # if not cov_linear_y:
