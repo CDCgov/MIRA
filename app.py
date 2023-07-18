@@ -219,11 +219,12 @@ def parse_contents(contents, filename, date, run):
     if True in list(ss_df.duplicated("Sample ID")):
         ss_df["duplicated"] = ss_df.duplicated("Sample ID")
         stmnt = f"No duplicate sample IDs allowed. Please edit. Duplicates = {list(ss_df.loc[ss_df['duplicated']==True]['Sample ID'])}"
-        print(stmnt)
     elif True in list(ss_df["Sample ID"].str.contains(r"\s")):
         ss_df["spaces"] = ss_df["Sample ID"].str.contains(r"\s")
         stmnt = f"No spaces allowed in Sample IDs. Please edit. Offenders = {list(ss_df.loc[ss_df['spaces']==True]['Sample ID'])}"
-        print(stmnt)
+    elif True in list(ss_df["Sample ID"].str.contains(r"[\\/]")):
+        ss_df["slashes"] = ss_df["Sample ID"].str.contains(r"[\\/]")
+        stmnt = f"No '/' or '\\' (slashes) allowed in Sample IDs. Please edit. Offenders = {list(ss_df.loc[ss_df['slashes']==True]['Sample ID'])}"
     else:
         print(f"saving df")
         ss_df.to_csv(f"{data_root}/{run}/samplesheet.csv", index=False)
