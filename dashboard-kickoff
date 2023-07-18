@@ -14,4 +14,4 @@ fi
 
 RESOURCE_ROOT=/MIRA
 
-python3 $RESOURCE_ROOT/app.py $RESOURCE_ROOT/config/container-prod.yaml >> /data/.appout 2>> /data/.apperr
+python3 $RESOURCE_ROOT/app.py $RESOURCE_ROOT/config/container-prod.yaml >> /data/.appout 2>> >( grep -v POST >> /data/.apperr)
