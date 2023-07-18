@@ -793,7 +793,8 @@ def callback_pass_fail_heatmap(run, n_clicks, a_n_clicks):
         return blank_fig()
 
 
-dl_fasta_clicks = 0
+dl_passed_fasta_clicks = 0
+dl_failed_fasta_clicks = 0
 dl_ss_clicks = 0
 
 flu_numbers = {
@@ -821,15 +822,15 @@ flu_numbers = {
 
 
 @app.callback(
-    [Output("download_nt_fasta", "data"), Output("download_aa_fasta", "data")],
-    [Input("select_run", "value"), Input("fasta_dl_button", "n_clicks")],
+    [Output("download_passed_nt_fasta", "data"), Output("download_passed_aa_fasta", "data")],
+    [Input("select_run", "value"), Input("fasta_passed_dl_button", "n_clicks")],
     prevent_initial_call=True,
 )
-def download_nt_fastas(run, n_clicks):
+def download_passed_fastas(run, n_clicks):
     if not n_clicks:
         raise dash.exceptions.PreventUpdate
     global dl_fasta_clicks
-    if n_clicks > dl_fasta_clicks:
+    if n_clicks > dl_passed_fasta_clicks:
         dl_fasta_clicks = n_clicks
         content = open(f"{data_root}/{run}/amended_consensus.fasta").read()
         nt_fastas = dict(
@@ -840,6 +841,29 @@ def download_nt_fastas(run, n_clicks):
         aa_fastas = dict(
             content=content,
             filename=f"{run}_amino_acid_consensus.fasta",
+        )
+        return nt_fastas, aa_fastas
+
+@app.callback(
+    [Output("download_failed_nt_fasta", "data"), Output("download_failed_aa_fasta", "data")],
+    [Input("select_run", "value"), Input("fasta_failed_dl_button", "n_clicks")],
+    prevent_initial_call=True,
+)
+def download_failed_fastas(run, n_clicks):
+    if not n_clicks:
+        raise dash.exceptions.PreventUpdate
+    global dl_fasta_clicks
+    if n_clicks > dl_failed_fasta_clicks:
+        dl_fasta_clicks = n_clicks
+        content = open(f"{data_root}/{run}/failed_amended_consensus.fasta").read()
+        nt_fastas = dict(
+            content=content,
+            filename=f"{run}_amended_consensus_FAILED.fasta",
+        )
+        content = open(f"{data_root}/{run}/failed_amino_acid_consensus.fasta").read()
+        aa_fastas = dict(
+            content=content,
+            filename=f"{run}_amino_acid_consensus_FAILED.fasta",
         )
         return nt_fastas, aa_fastas
 
@@ -904,6 +928,7 @@ sidebar = html.Div(
                 ),
                 dbc.NavLink("Minor SNVs", href="#alleles_head", external_link=True),
                 dbc.NavLink("Minor Indels", href="#indels_head", external_link=True),
+                dbc.NavLink("Download Fastas", href="#dl_fastas", external_link=True),
             ],
             vertical=True,
             pills=True,
@@ -1203,12 +1228,16 @@ content = html.Div(
     + [html.Br()]
     + [dbc.Row(html.Div(id="indels_table"))]
     + [html.Br()]
+    + [html.P(id="dl_fastas")]
     + [
         html.Div(
             [
-                dbc.Button("Download Fastas", id="fasta_dl_button"),
-                dcc.Download(id="download_nt_fasta"),
-                dcc.Download(id="download_aa_fasta"),
+                dbc.Button("Download Fastas", id="fasta_passed_dl_button", color="primary"),
+                dcc.Download(id="download_passed_nt_fasta"),
+                dcc.Download(id="download_passed_aa_fasta"),
+                dbc.Button("Download Failed Fastas", id="fasta_failed_dl_button", color="secondary"),
+                dcc.Download(id="download_failed_nt_fasta"),
+                dcc.Download(id="download_failed_aa_fasta"),
             ]
         )
     ],
