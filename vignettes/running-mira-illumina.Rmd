@@ -21,33 +21,39 @@ _This documentation assumes you have the four required Docker containers (**IRMA
 <hr>
 
 ## Run genome assembly with MIRA
-1. Open Docker Desktop and navigate to the `Containers` tab on the left sidebar. Assure that the following containers are running or run each of them:
+* Open Docker Desktop and navigate to the `Containers` tab on the left sidebar. Assure that the following containers are running or run each of them:
     1. irma
     2. dais
     3. spyne
     4. MIRA
     
-2. Run MIRA by clicking the blue link "8020:8050". This will open MIRA into your default internet browser. You can "bookmark" this site in your browser.
+* Run MIRA by clicking the blue link "8020:8050". This will open MIRA into your default internet browser. You can "bookmark" this site in your browser.
  
     ![](images/mira_docker_rolleddown.png)
 
-3. Click the `REFRESH RUN LISTING` button and select your run from  the dropdown box.
+* Click the `REFRESH RUN LISTING` button and select your run from  the dropdown box.
 
     ![](images/mira_run_selection.png)
 
-4. Now, enter your `Barcode numbers`. Usually you will be running a simple range of barcode numbers, such as "1-24", but to allow for flexibilty, barcode numbers can be entered in a list combining both single numbers and number-ranges, such as "1-3,5,9,12-20". Now enter your `Sample ID`s. These can be copy and pasted from a column in an excel sheet. Sample names should only be numbers, letters, and underscores ("_"). **Do not use any other characters such as "-" or "/".** Next, select your `Sample Type`. Most of your sample's are test samples, so each row defaults to `test`, but select `- control` or `+ control` for your **negative** and **positive** controls respectively. Finally, select the `Barcode Expansion Pack` you have used during library preparation. CDC's laboratory protocol is currently using "EXP-NBD196".
+    * Next, click the box that say "What kind of data is this" and select Flu-Illumina or SC2-Whole-Genome-Illumina
 
-    - when running tiny_test_run_flu, enter barcode numbers `27,37,41` and make up sample names
-    - when running tiny_test_run_sc2, enter barcode numbers `2,3,5,8,28` and make up sample names
+![](images/mira_whatkindofdata.png)
 
-    ![](images/mira_samplesheet_barcode_entry.png)
-    ![](images/mira_samplesheet_fill.png)
+* Next, click `DOWNLOAD SAMPLESHEET TEMPLATE` and open the resulting Excel spreadsheet
+    
+![](images/mira_samplesheet_barcode_entry.png)
+    
+* Your samplenames will be inferred from the fastq filenames in your fastq directory
+    * Sample names should only be numbers, letters, dashes, and underscores ("-" or "_"). **Do not use any other characters such as "/".** 
+* Next, select your `Sample Type`. Most of your sample's are test samples, so each row defaults to `test`, but select `- control` or `+ control` for your **negative** and **positive** controls respectively. 
+* Save your samplesheet with changes in Excel
 
-5. Click `SAVE SAMPLESHEET`. _If you need to edit the number of samples/barcodes in your samplesheet after saving, you must click_ `RESTART SAMPLESHEET FILLING` _before editing it._ You will now have to restart filling your samplesheet from the beginning!
+* Back in MIRA, Click the "Drag and Drop your Samplesheet" to select your filled-in samplesheet. 
+    * A table in the application should now appear with your samples!
+
 
 6. Now select the correct data type from the drop down box, `What kind of data is this?` and click `START GENOME ASSEMBLY`. Now is a good time to go have a coffee. 
 
-    ![](images/mira_whatkindofdata.png)
 
     Click on the toggle button `Watch IRMA Progress`. Assembly will take some time, how long exactly is dependent on your sample number, the number of raw sequencing reads, and the power of your computer.
     ![](images/mira_run_status.png)
