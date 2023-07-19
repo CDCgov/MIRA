@@ -32,7 +32,7 @@ wsl --set-default-version 2
 ```
 
 ```bash
-wsl --install -d Ubuntu-22.04
+wsl --install -d Ubuntu-20.04
 ```
 If either of these commands errors out, try [troubleshooting](./troubleshooting.html#wsl-install-error)
 
