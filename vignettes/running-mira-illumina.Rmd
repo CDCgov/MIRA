@@ -2,7 +2,7 @@
 
 ![](images/mira-logo-midjourney_20230526_rmbkgnd.png)
 
-_This documentation assumes you have the four required Docker containers (**IRMA**, **DAIS-Ribosome**, **spyne**, and **MIRA**) already running. If not, please start with [setting up containers](setting-up-containers.html) instructions._
+_This documentation assumes you have the four required Docker containers (**IRMA**, **DAIS-Ribosome**, **spyne**, and **MIRA**) already running. If not, please start with [getting started](getting-started.html) and [MIRA install](mira-installation.html) instructions._
 
 <hr>
 

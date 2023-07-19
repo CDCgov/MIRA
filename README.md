@@ -20,6 +20,7 @@ service, product, or enterprise.
 
 ## **Documentation: [https://CDCgov.github.io/MIRA/](https://CDCgov.github.io/MIRA/)**
 
+### If you've previously installed MIRA and need to upgrade to the latest version, [CLICK HERE](https://cdcgov.github.io/MIRA/articles/upgrade-mira.html)
 <br>
 
 # Overview

@@ -44,6 +44,8 @@ navbar:
           href: articles/running-mira.html
         - text: Running Genome Assembly with MIRA -- ILLUMINA DATA
           href: articles/running-mira-illumina.html
+        - text: Upgrading MIRA
+          href: articles/upgrading-mira.html
     - text: Help
       menu:
       - text: FAQs
