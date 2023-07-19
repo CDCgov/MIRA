@@ -1,4 +1,4 @@
-## Running MIRA
+## Running MIRA with Oxford Nanopore Data
 
 ![](images/mira-logo-midjourney_20230526_rmbkgnd.png)
 
