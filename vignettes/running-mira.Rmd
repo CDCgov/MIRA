@@ -21,28 +21,30 @@ _This documentation assumes you have the four required Docker containers (**IRMA
 <hr>
 
 ## Run genome assembly with MIRA
+### Start the containers
 * Open Docker Desktop and navigate to the `Containers` tab on the left sidebar. Assure that the following containers are running or run each of them:
     1. irma
     2. dais
     3. spyne
     4. MIRA
-    
+### Open MIRA    
 * Run MIRA by clicking the blue link "8020:8050". This will open MIRA into your default internet browser. You can "bookmark" this site in your browser.
  
     ![](images/mira_docker_rolleddown.png)
 
+### Select runs, data type, and enter sample information
 * Click the `REFRESH RUN LISTING` button and select your run from  the dropdown box.
 
     ![](images/mira_run_selection.png)
 
-    * Next, click the box that say "What kind of data is this" and select Flu-ONT or SC2-ONT
+    * Next, click the box that say "What kind of data is this" and select Flu-ONT or SC2-Spike-Only-ONT
 
 
-![](images/mira_whatkindofdata.png)
+    ![](images/mira_whatkindofdata.png)
 
 * Next, click `DOWNLOAD SAMPLESHEET TEMPLATE` and open the resulting Excel spreadsheet
     
-![](images/mira_samplesheet_barcode_entry.png)
+    ![](images/mira_samplesheet_barcode_entry.png)
     
 * Your `Barcode numbers` column will be inferred from the fastq_pass folder inside of your run folder
 * Enter your sample IDs in the "Sample ID" column
@@ -50,22 +52,24 @@ _This documentation assumes you have the four required Docker containers (**IRMA
     * Sample names should only be numbers, letters, dashes, and underscores ("-" or "_"). **Do not use any other characters such as "/".** 
 * Next, select your `Sample Type`. Most of your sample's are test samples, so each row defaults to `test`, but select `- control` or `+ control` for your **negative** and **positive** controls respectively. 
 
-![](images/mira_samplesheet_fill.png)
+    ![](images/mira_samplesheet_fill.png)
 
 * Save your samplesheet with changes in Excel
 
 * Back in MIRA, Click the "Drag and Drop your Samplesheet" to select your filled-in samplesheet. 
     * A table in the application should now appear with your samples!
 
-![](images/mira_dash_table.PNG)
+    ![](images/mira_dash_table.PNG)
 
-6. Now select the correct data type from the drop down box, `What kind of data is this?` and click `START GENOME ASSEMBLY`. Now is a good time to go have a coffee. 
+### Start Genome Assembly
+* Now select `UNLOCK ASSEMBLY BUTTON` and click `START GENOME ASSEMBLY`. Now is a good time to go have a coffee. 
 
-
-    Click on the toggle button `Watch IRMA Progress`. Assembly will take some time, how long exactly is dependent on your sample number, the number of raw sequencing reads, and the power of your computer.
+    * Click on the toggle button `Watch IRMA Progress`. Assembly will take some time, how long exactly is dependent on your sample number, the number of raw sequencing reads, and the power of your computer.
     ![](images/mira_run_status.png)
+    * as IRMA completes assembly on each sample, they will be listed at the top of the progress indicator
 
-7. When IRMA has finished, it will say "IRMA is finished" and you can now click on "DISPLAY IRMA RESULTS".
+
+* When IRMA has finished, it will say "IRMA is finished" and you can now click on "DISPLAY IRMA RESULTS".
 
     ![](images/mira_display_results.png)
 
@@ -104,6 +108,8 @@ _This documentation assumes you have the four required Docker containers (**IRMA
 6. Inspect minor variation at single nucleotides, insertions and deletions _relative to the sample's generated consensus sequence._ These tables are for your own usage and not necessary to review in detail. They can be sorted and filtered and exported to excel sheets for further analyses.
 
     ![](images/mira_minor_vars.png)
+    * Minor variants greater than 5% frequency are shown
+    * Indels greater than 20% frequency are shown
 
 <hr>
 
@@ -112,6 +118,9 @@ _This documentation assumes you have the four required Docker containers (**IRMA
 - Export IRMA's _amended consensus_ nucleotide sequences and amino acid fasta files. This includes only those passing MIRA's QC criteria and are ready for submission to public databases!
 
     ![](images/mira_fasta_dl.png)
+    * The `DOWNLOAD FASTAS` button will only return passing samples. To investigate failed sequences, click the `DOWNLOAD FAILED FASTAS` button. Do not submit failed samples to public repositories!
+    
+    * You can open and view these Amino Acid and Nucleotide fastas in any sequence viewing application
     ![](images/mira_fastas.png)
 
 

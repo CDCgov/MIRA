@@ -21,27 +21,37 @@ _This documentation assumes you have the four required Docker containers (**IRMA
 <hr>
 
 ## Run genome assembly with MIRA
+### Start the containers
 * Open Docker Desktop and navigate to the `Containers` tab on the left sidebar. Assure that the following containers are running or run each of them:
     1. irma
     2. dais
     3. spyne
     4. MIRA
-    
+
+### Open MIRA    
 * Run MIRA by clicking the blue link "8020:8050". This will open MIRA into your default internet browser. You can "bookmark" this site in your browser.
  
     ![](images/mira_docker_rolleddown.png)
 
+### Select runs, data type, and enter sample information
 * Click the `REFRESH RUN LISTING` button and select your run from  the dropdown box.
 
     ![](images/mira_run_selection.png)
 
     * Next, click the box that say "What kind of data is this" and select Flu-Illumina or SC2-Whole-Genome-Illumina
 
-![](images/mira_whatkindofdata.png)
+    ![](images/mira_whatkindofdata.png)
+
+* If you select SC2-Whole-Genome-Illumina, a new box will appear for you to select your primer schema/amplicon approach 
+    * _NOTE: MIRA Whole Genome Illumina module's primer trimming has been tested and optimized for xGen primer panel. We cannot guarantee perfect trimming for other panels._
+
+    ![](images/mira_whatkindofdata_illumina.PNG)
+
+
 
 * Next, click `DOWNLOAD SAMPLESHEET TEMPLATE` and open the resulting Excel spreadsheet
     
-![](images/mira_samplesheet_barcode_entry.png)
+    ![](images/mira_samplesheet_barcode_entry.png)
     
 * Your samplenames will be inferred from the fastq filenames in your fastq directory
     * Sample names should only be numbers, letters, dashes, and underscores ("-" or "_"). **Do not use any other characters such as "/".** 
@@ -51,11 +61,15 @@ _This documentation assumes you have the four required Docker containers (**IRMA
 * Back in MIRA, Click the "Drag and Drop your Samplesheet" to select your filled-in samplesheet. 
     * A table in the application should now appear with your samples!
 
+    ![](images/mira_dash_table_illumina.PNG)
 
-6. Now select the correct data type from the drop down box, `What kind of data is this?` and click `START GENOME ASSEMBLY`. Now is a good time to go have a coffee. 
+### Start Genome Assembly
+* Now select `UNLOCK ASSEMBLY BUTTON` and click `START GENOME ASSEMBLY`. Now is a good time to go have a coffee. 
+    * _ESPECIALLY for Whole-Genome SARS-CoV-2: covering a 30kb genome with up to 200,000 short reads can take a very long time to process._
 
 
-    Click on the toggle button `Watch IRMA Progress`. Assembly will take some time, how long exactly is dependent on your sample number, the number of raw sequencing reads, and the power of your computer.
+
+    * Click on the toggle button `Watch IRMA Progress`. Assembly will take some time, how long exactly is dependent on your sample number, the number of raw sequencing reads, and the power of your computer.
     ![](images/mira_run_status.png)
 
 7. When IRMA has finished, it will say "IRMA is finished" and you can now click on "DISPLAY IRMA RESULTS".
@@ -70,7 +84,7 @@ _This documentation assumes you have the four required Docker containers (**IRMA
 
     ![](images/mira_barcode_distribution.png)
 
-2. Review the "Automatic Quality Control Decisions" heatmap. In addition to IRMA's built in quality control, MIRA requires a minimum median coverage of 50x, a minimum coverage of the reference length of 90%, and less than 10 minor variants >=5%. These are marked in yellow to orange according to the number of these failure types. Samples that failed to generate any assembly are marked in red. In addition, premature stop codons are flagged in yellow. CDC does not submit sequences with premature stop codons, particularly in HA, NA or SARS-CoV-2 Spike. Outside of those genes, premature stop codons near the end of the gene may be ok for submission. Hover your mouse over the figure to see individual results.
+2. Review the "Automatic Quality Control Decisions" heatmap. In addition to IRMA's built in quality control, MIRA requires a minimum median coverage of 100x, a minimum coverage of the reference length of 90%, and less than 10 minor variants >=5%. These are marked in yellow to orange according to the number of these failure types. Samples that failed to generate any assembly are marked in red. In addition, premature stop codons are flagged in yellow. CDC does not submit sequences with premature stop codons, particularly in HA, NA or SARS-CoV-2 Spike. Outside of those genes, premature stop codons near the end of the gene may be ok for submission. Hover your mouse over the figure to see individual results.
 
     | | |
     |--|--|
@@ -97,6 +111,8 @@ _This documentation assumes you have the four required Docker containers (**IRMA
 6. Inspect minor variation at single nucleotides, insertions and deletions _relative to the sample's generated consensus sequence._ These tables are for your own usage and not necessary to review in detail. They can be sorted and filtered and exported to excel sheets for further analyses.
 
     ![](images/mira_minor_vars.png)
+    * Minor variants greater than 5% frequency are shown
+    * Indels greater than 20% frequency are shown
 
 <hr>
 
@@ -105,6 +121,9 @@ _This documentation assumes you have the four required Docker containers (**IRMA
 - Export IRMA's _amended consensus_ nucleotide sequences and amino acid fasta files. This includes only those passing MIRA's QC criteria and are ready for submission to public databases!
 
     ![](images/mira_fasta_dl.png)
+    * The `DOWNLOAD FASTAS` button will only return passing samples. To investigate failed sequences, click the `DOWNLOAD FAILED FASTAS` button. Do not submit failed samples to public repositories!
+    
+    * You can open and view these Amino Acid and Nucleotide fastas in any sequence viewing application
     ![](images/mira_fastas.png)
 
 
