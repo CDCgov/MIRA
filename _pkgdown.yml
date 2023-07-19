@@ -38,6 +38,8 @@ navbar:
           href: articles/mac-getting-started.html
         - text: MIRA installation
           href: articles/mira-installation.html
+        - text: Data Transfer with Mk1C
+          href: articles/data-transfer.html
         - text: Running Genome Assembly with MIRA
           href: articles/running-mira.html
     - text: Help
