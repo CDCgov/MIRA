@@ -9,14 +9,14 @@ _This documentation assumes you have the four required Docker containers (**IRMA
 ## Stage your demultiplexed data
 * In your "FLU_SC2_SEQUENCING" folder, make a folder for your run. It is very helpful to name your runs with a consistent naming system, such as "YEAR-MONTH-DATE-FLOWCELL_ID", ie. 2022-11-13-ABC1234. 
    
-#### **_DO NOT PUT SPACES OR SLASHES IN YOU RUN FOLDER NAMES!_**
+### **_DO NOT PUT SPACES OR SLASHES IN YOU RUN FOLDER NAMES!_**
 
 ![](images/mira_run_directory_structure.png)
 
 * Copy the run's demultiplexed fastqs into the RUN-FOLDER.
-    * Copy the "fastq_pass" directory from the sequencer's output into the RUN-FOLDER. On a Mk1C instrument, this is found in /data/RUN_NAME/EXPERIMENT_NAME/NANOPORE-NAME/fastq_pass where RUN_NAME and EXPERIMENT_NAME are defined by you in MinKNOW when you set up the sequencing run on the device and the NANOPORE-NAME is created by the instrument during the run.
+    * Create another folder inside your RUN-FOLDER called "fastqs" and copy the folder containing demultiplexed fastqs into this newly created fastqs folder so that the folder structure is FLU_SC2_SEQUENCING/RUN-FOLDER/fastqs/demultiplexed-fastqs/sample-reads.fastq. There will be two fastq files per sample.
 
-![](./images/mira_run_directory_structure_fastq.png)
+![](images/mira_run_directory_structure_fastq_illumina.PNG)
 
 <hr>
 

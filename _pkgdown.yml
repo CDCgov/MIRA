@@ -40,8 +40,10 @@ navbar:
           href: articles/mira-installation.html
         - text: Data Transfer with Mk1C
           href: articles/data-transfer.html
-        - text: Running Genome Assembly with MIRA
+        - text: Running Genome Assembly with MIRA -- NANOPORE DATA
           href: articles/running-mira.html
+        - text: Running Genome Assembly with MIRA -- ILLUMINA DATA
+          href: articles/running-mira-illumina.html
     - text: Help
       menu:
       - text: FAQs
