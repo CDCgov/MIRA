@@ -53,7 +53,7 @@ Further details can be found on Microsoft's website here: [https://docs.microsof
 
 **_Windows 11 and updated versions of Windows 10 should automatically mount Linux. If you have "Linux" in your `File Explorer`, you are good to go and do not need to perform this step._
 
-![](./images/map_drive_win11-10_linux.png)
+![](./images/linux_file_explorer.png)
     
 If you do not see this, you need to ["map the WSL drive"](./troubleshooting.html#map-network-drive)
 
