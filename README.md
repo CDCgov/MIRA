@@ -54,18 +54,16 @@ mkdir ~/FLU_SC2_SEQUENCING
 cd ~/FLU_SC2_SEQUENCING
 ```
 
-- Download the install script:
+- Download the install yml:
    
 ```bash
-wget https://raw.githubusercontent.com/CDCgov/MIRA/prod/MIRA-INSTALL.sh
+ curl https://raw.githubusercontent.com/CDCgov/MIRA/prod/docker-compose-git.yml | sed "s%/path/to/data%$(pwd)/%g" > docker-compose.yml
 ```
 
 - Run the install script:
 
 ```bash
-chmod +x ./MIRA-INSTALL.sh
-
-sudo ./MIRA-INSTALL.sh
+sudo docker-compose up -d
 ```
     
 - [Click here to download test data](https://centersfordiseasecontrol.sharefile.com/d-sb2d3b06e9ef946cf89e1a43c5a141a3f)
