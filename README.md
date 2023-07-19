@@ -45,7 +45,7 @@ MIRA’s dashboard relies on four Docker containers to run its genome assembly a
 <hr>
 
 ## Quick Start on Ubuntu OS:
-_Need to set up an Ubuntu OS? Follow instructions in [Getting Started.](https://cdcgov.github.io/MIRA/articles/getting-started.html)_
+_Need to set up an Ubuntu OS? Follow instructions in [Getting Started.](./articles/getting-started.html)_
 
 - Create a folder called `FLU_SC2_SEQUENCING` to save your sequencing reads to. From the command line, run: 
   
