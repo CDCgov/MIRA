@@ -5,8 +5,13 @@
    ```bash
     cd ~/FLU_SC2_SEQUENCING
    ```
+2. Remove older MIRA versions (or iSpy or IRMA-spy if that's what you had installed)
 
-2. Download the installation script from the internet:
+   ```bash
+   sudo docker rm -f mira spyne irma dais
+   ```
+
+3. Download the installation script from the internet:
    
    ```bash
     curl https://raw.githubusercontent.com/CDCgov/MIRA/prod/docker-compose-git.yml | sed "s%/path/to/data%$(pwd)/%g" > docker-compose.yml
@@ -14,13 +19,13 @@
 
    _if you get a permissions error here, first run `sudo rm docker-compose.yml` then try again_
 
-3. Run a build command:
+4. Run a build command:
 
    ```bash
    sudo docker compose build
    ```
 
-4. Run the install script with `sudo` and `docker-compose`:
+5. Run the install script with `sudo` and `docker-compose`:
    
    ```bash
     sudo docker-compose up -d
