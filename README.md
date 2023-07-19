@@ -20,7 +20,7 @@ service, product, or enterprise.
 
 ## **Documentation: [https://CDCgov.github.io/MIRA/](https://CDCgov.github.io/MIRA/)**
 
-### If you've previously installed MIRA and need to upgrade to the latest version, [CLICK HERE](https://cdcgov.github.io/MIRA/articles/upgrade-mira.html)
+### If you've previously installed MIRA and need to upgrade to the latest version, [CLICK HERE](https://cdcgov.github.io/MIRA/articles/upgrading-mira.html)
 <br>
 
 # Overview
@@ -67,7 +67,7 @@ cd ~/FLU_SC2_SEQUENCING
 sudo docker-compose up -d
 ```
     
-- [Click here to download test data](https://centersfordiseasecontrol.sharefile.com/d-sb2d3b06e9ef946cf89e1a43c5a141a3f)
+- [Click here to download test data](https://centersfordiseasecontrol.sharefile.com/share/view/s3c52c0b25c2243078f506d60bd787c62)
 - unzip the file and find two folders:
     1. `tiny_test_run_flu`
     2. `tiny_test_run_sc2`
