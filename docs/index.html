@@ -63,7 +63,16 @@
       <a href="articles/mira-installation.html">MIRA installation</a>
     </li>
     <li>
-      <a href="articles/running-mira.html">Running Genome Assembly with MIRA</a>
+      <a href="articles/data-transfer.html">Data Transfer with Mk1C</a>
+    </li>
+    <li>
+      <a href="articles/running-mira.html">Running Genome Assembly with MIRA -- NANOPORE DATA</a>
+    </li>
+    <li>
+      <a href="articles/running-mira-illumina.html">Running Genome Assembly with MIRA -- ILLUMINA DATA</a>
+    </li>
+    <li>
+      <a href="articles/upgrading-mira.html">Upgrading MIRA</a>
     </li>
   </ul>
 </li>
@@ -124,7 +133,12 @@
 <h2 id="documentation-httpscdcgovgithubiomira">
 <strong>Documentation: <a href="https://CDCgov.github.io/MIRA/" class="external-link">https://CDCgov.github.io/MIRA/</a></strong><a class="anchor" aria-label="anchor" href="#documentation-httpscdcgovgithubiomira"></a>
 </h2>
+<div class="section level3">
+<h3 id="if-youve-previously-installed-mira-and-need-to-upgrade-to-the-latest-version-click-here">If you’ve previously installed MIRA and need to upgrade to the latest version, <a href="./articles/upgrading-mira.html">CLICK HERE</a>
+<a class="anchor" aria-label="anchor" href="#if-youve-previously-installed-mira-and-need-to-upgrade-to-the-latest-version-click-here"></a>
+</h3>
 <p><br></p>
+</div>
 </div>
 </div>
 <div class="section level1">
@@ -147,7 +161,7 @@
 <div class="section level2">
 <h2 id="quick-start-on-ubuntu-os">Quick Start on Ubuntu OS:<a class="anchor" aria-label="anchor" href="#quick-start-on-ubuntu-os"></a>
 </h2>
-<p><em>Need to set up an Ubuntu OS? Follow instructions in <a href="https://cdcgov.github.io/MIRA/articles/getting-started.html" class="external-link">Getting Started.</a></em></p>
+<p><em>Need to set up an Ubuntu OS? Follow instructions in <a href="./articles/getting-started.html">Getting Started.</a></em></p>
 <ul>
 <li>Create a folder called <code>FLU_SC2_SEQUENCING</code> to save your sequencing reads to. From the command line, run:</li>
 </ul>
@@ -155,17 +169,16 @@
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ~/FLU_SC2_SEQUENCING</span></code></pre></div>
 <ul>
-<li>Download the install script:</li>
+<li>Download the install yml:</li>
 </ul>
-<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">wget</span> https://raw.githubusercontent.com/CDCgov/MIRA/prod/MIRA-INSTALL.sh</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a> <span class="ex">curl</span> https://raw.githubusercontent.com/CDCgov/MIRA/prod/docker-compose-git.yml <span class="kw">|</span> <span class="fu">sed</span> <span class="st">"s%/path/to/data%</span><span class="va">$(</span><span class="bu">pwd</span><span class="va">)</span><span class="st">/%g"</span> <span class="op">&gt;</span> docker-compose.yml</span></code></pre></div>
 <ul>
 <li>Run the install script:</li>
 </ul>
-<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">chmod</span> +x ./MIRA-INSTALL.sh</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ./MIRA-INSTALL.sh</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> docker-compose up <span class="at">-d</span></span></code></pre></div>
 <ul>
-<li><a href="https://centersfordiseasecontrol.sharefile.com/d-sb2d3b06e9ef946cf89e1a43c5a141a3f" class="external-link">Click here to download test data</a></li>
+<li><a href="https://centersfordiseasecontrol.sharefile.com/d-s839d7319e9b04e2baba07b4d328f02c2" class="external-link">Click here to download tiny test data from ONT Influenza genome and SARS-CoV-2-spike - 40Mb</a></li>
+<li><a href="https://centersfordiseasecontrol.sharefile.com/d-s3c52c0b25c2243078f506d60bd787c62" class="external-link">Click here for the above data set + full genomes of Influenza and SARS-CoV-2 from Illumina MiSeqs - 1Gb</a></li>
 <li>unzip the file and find two folders:
 <ol style="list-style-type: decimal">
 <li><code>tiny_test_run_flu</code></li>
@@ -179,16 +192,21 @@
 </li>
 <li>Open your browser and type <a href="http://localhost:8020" class="external-link uri">http://localhost:8020</a> in the address bar.</li>
 <li>Click <code>Refresh Run Listing</code> in MIRA, you should now see these folders listed.</li>
-<li>Select “tiny_test_run_flu”, enter barcode numbers <code>27,37,41</code> and make up sample names.
+<li>Click <code>Download Samplesheet</code>.
 <ul>
-<li>Click ‘SAVE SAMPLESHEET’</li>
-<li>In the dropdown box ‘What kind of data is this?’, select ‘Flu-ONT’</li>
+<li>This will give you an excel sheet with available barcodes populated. Add in our samplenames for ONT data (Illumina data will self identify samplenames based on fastqs)</li>
+</ul>
+</li>
+<li>Save the samplesheet and then upload it by clicking on <code>Drag and Drop your Samplesheet or Click and Select the File</code>
+</li>
+<li>In the dropdown box ‘What kind of data is this?’, select the correct data type.
+<ul>
+<li>If SC2 full genome, also select your primers.</li>
+</ul>
+</li>
 <li>Click ‘START GENOME ASSEMBLY’</li>
 <li>Toggle ‘Watch IRMA progress’ to see IRMA’s stdout stream.</li>
 <li>When “IRMA is finished!” is displayed, Click “DISPLAY IRMA RESULTS”</li>
-</ul>
-</li>
-<li>Now select “tiny_test_run_sc2” from the very top dropdown and repeat the above steps except this time enter barcode numbers <code>2,3,5,8,28</code>.</li>
 </ul>
 <hr>
 </div>

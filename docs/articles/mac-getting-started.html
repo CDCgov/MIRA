@@ -59,7 +59,16 @@
       <a href="../articles/mira-installation.html">MIRA installation</a>
     </li>
     <li>
-      <a href="../articles/running-mira.html">Running Genome Assembly with MIRA</a>
+      <a href="../articles/data-transfer.html">Data Transfer with Mk1C</a>
+    </li>
+    <li>
+      <a href="../articles/running-mira.html">Running Genome Assembly with MIRA -- NANOPORE DATA</a>
+    </li>
+    <li>
+      <a href="../articles/running-mira-illumina.html">Running Genome Assembly with MIRA -- ILLUMINA DATA</a>
+    </li>
+    <li>
+      <a href="../articles/upgrading-mira.html">Upgrading MIRA</a>
     </li>
   </ul>
 </li>
@@ -151,7 +160,7 @@ system.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> ~/FLU_SC2_SEQUENCING</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ~/FLU_SC2_SEQUENCING</span></code></pre></div>
-<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://raw.githubusercontent.com/CDCgov/MIRA/prod/docker-compose-git.yml <span class="kw">|</span> <span class="fu">sed</span> <span class="st">"s%/path/to/data%</span><span class="va">$(</span><span class="bu">echo</span> ~<span class="va">)</span><span class="st">/FLU_SC2_SEQUENCING/%g"</span> <span class="op">&gt;</span> docker-compose.yml</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://raw.githubusercontent.com/CDCgov/MIRA/prod/docker-compose-git.yml <span class="kw">|</span> <span class="fu">sed</span> <span class="st">"s%/path/to/data%</span><span class="va">$(</span><span class="bu">pwd</span><span class="va">)</span><span class="st">/%g"</span> <span class="op">&gt;</span> docker-compose.yml</span></code></pre></div>
 <div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> docker-compose up <span class="at">-d</span></span></code></pre></div>
 <p>You are now running MIRA! You can proceed to <a href="./running-mira.html">Running MIRA</a></p>
 <p>If these instructions show errors, please refer to <a href="./troubleshooting.html">Troubleshooting: MIRA-INSTALL.sh

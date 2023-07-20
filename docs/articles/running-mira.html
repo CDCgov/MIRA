@@ -59,7 +59,16 @@
       <a href="../articles/mira-installation.html">MIRA installation</a>
     </li>
     <li>
-      <a href="../articles/running-mira.html">Running Genome Assembly with MIRA</a>
+      <a href="../articles/data-transfer.html">Data Transfer with Mk1C</a>
+    </li>
+    <li>
+      <a href="../articles/running-mira.html">Running Genome Assembly with MIRA -- NANOPORE DATA</a>
+    </li>
+    <li>
+      <a href="../articles/running-mira-illumina.html">Running Genome Assembly with MIRA -- ILLUMINA DATA</a>
+    </li>
+    <li>
+      <a href="../articles/upgrading-mira.html">Upgrading MIRA</a>
     </li>
   </ul>
 </li>
@@ -118,57 +127,55 @@
 
     
     
-<div class="section level3">
-<h3 id="running-mira">Running MIRA<a class="anchor" aria-label="anchor" href="#running-mira"></a>
-</h3>
-<p><img src="images/irma-spy.jpg"></p>
+<div class="section level2">
+<h2 id="running-mira-with-oxford-nanopore-data">Running MIRA with Oxford Nanopore Data<a class="anchor" aria-label="anchor" href="#running-mira-with-oxford-nanopore-data"></a>
+</h2>
+<p><img src="images/mira-logo-midjourney_20230526_rmbkgnd.png"></p>
 <p><em>This documentation assumes you have the four required Docker
 containers (<strong>IRMA</strong>, <strong>DAIS-Ribosome</strong>,
 <strong>spyne</strong>, and <strong>MIRA</strong>) already running. If
-not, please start with <a href="setting-up-containers.html">setting up
-containers</a> instructions.</em></p>
+not, please start with <a href="getting-started.html">getting
+started</a> and <a href="mira-installation.html">MIRA install</a>
+instructions.</em></p>
 <hr>
 </div>
-<div class="section level3">
-<h3 id="stage-your-demultiplexed-data">Stage your demultiplexed data<a class="anchor" aria-label="anchor" href="#stage-your-demultiplexed-data"></a>
-</h3>
-<ol style="list-style-type: decimal">
-<li>
-<p>In your “FLU_SC2_SEQUENCING” folder, make a folder for your run.
-It is very helpful to name your runs with a consistent naming system,
-such as “YEAR-MONTH-DATE-FLOWCELL_ID”, ie. 2022-11-13-ABC1234.</p>
-<h2 id="do-not-put-spaces-or-slashes-in-you-run-folder-names"><strong><em>DO
-NOT PUT SPACES OR SLASHES IN YOU RUN FOLDER NAMES!</em></strong></h2>
+<div class="section level2">
+<h2 id="stage-your-demultiplexed-data">Stage your demultiplexed data<a class="anchor" aria-label="anchor" href="#stage-your-demultiplexed-data"></a>
+</h2>
+<ul>
+<li>In your “FLU_SC2_SEQUENCING” folder, make a folder for your run. It
+is very helpful to name your runs with a consistent naming system, such
+as “YEAR-MONTH-DATE-FLOWCELL_ID”, ie. 2022-11-13-ABC1234.</li>
+</ul>
+<div class="section level4">
+<h4 id="do-not-put-spaces-or-slashes-in-you-run-folder-names">
+<strong><em>DO NOT PUT SPACES OR SLASHES IN YOU RUN FOLDER
+NAMES!</em></strong><a class="anchor" aria-label="anchor" href="#do-not-put-spaces-or-slashes-in-you-run-folder-names"></a>
+</h4>
 <p><img src="images/mira_run_directory_structure.png"></p>
-</li>
-<li>
-<p>Copy the run’s demultiplexed fastqs into the RUN-FOLDER.</p>
-<ol style="list-style-type: decimal">
-<li>If this run is from an Oxford Nanopore Technologies’ (ONT)
-sequencer, copy the “fastq_pass” directory from the sequencer’s output
-into the RUN-FOLDER. On a Mk1C instrument, this is found in
+<ul>
+<li>Copy the run’s demultiplexed fastqs into the RUN-FOLDER.
+<ul>
+<li>Copy the “fastq_pass” directory from the sequencer’s output into the
+RUN-FOLDER. On a Mk1C instrument, this is found in
 /data/RUN_NAME/EXPERIMENT_NAME/NANOPORE-NAME/fastq_pass where RUN_NAME
 and EXPERIMENT_NAME are defined by you in MinKNOW when you set up the
 sequencing run on the device and the NANOPORE-NAME is created by the
 instrument during the run.</li>
-</ol>
-<p><img src="images/mira_run_directory_structure_fastq.png"></p>
-<ol start="2" style="list-style-type: decimal">
-<li><del>If this run is from an Illumina instrument, create another
-folder inside your RUN-FOLDER called “fastqs” and copy the folder
-containing demultiplexed fastqs into this newly created fastqs folder so
-that the folder structure is
-FLU_SC2_SEQUENCING/RUN-FOLDER/fastqs/demultiplexed-fastqs/sample-reads.fastq.
-There will be two fastq files per sample.</del></li>
-</ol>
+</ul>
 </li>
-</ol>
+</ul>
+<p><img src="images/mira_run_directory_structure_fastq.png"></p>
 <hr>
 </div>
+</div>
+<div class="section level2">
+<h2 id="run-genome-assembly-with-mira">Run genome assembly with MIRA<a class="anchor" aria-label="anchor" href="#run-genome-assembly-with-mira"></a>
+</h2>
 <div class="section level3">
-<h3 id="run-genome-assembly-with-mira">Run genome assembly with MIRA<a class="anchor" aria-label="anchor" href="#run-genome-assembly-with-mira"></a>
+<h3 id="start-the-containers">Start the containers<a class="anchor" aria-label="anchor" href="#start-the-containers"></a>
 </h3>
-<ol style="list-style-type: decimal">
+<ul>
 <li>
 <p>Open Docker Desktop and navigate to the <code>Containers</code>
 tab on the left sidebar. Assure that the following containers are
@@ -177,7 +184,8 @@ running or run each of them:</p>
 <li>irma</li>
 <li>dais</li>
 <li>spyne</li>
-<li>MIRA</li>
+<li>MIRA ### Open MIRA<br>
+</li>
 </ol>
 </li>
 <li>
@@ -186,62 +194,89 @@ MIRA into your default internet browser. You can “bookmark” this site in
 your browser.</p>
 <p><img src="images/mira_docker_rolleddown.png"></p>
 </li>
+</ul>
+</div>
+<div class="section level3">
+<h3 id="select-runs-data-type-and-enter-sample-information">Select runs, data type, and enter sample information<a class="anchor" aria-label="anchor" href="#select-runs-data-type-and-enter-sample-information"></a>
+</h3>
+<ul>
 <li>
 <p>Click the <code>REFRESH RUN LISTING</code> button and select your
 run from the dropdown box.</p>
 <p><img src="images/mira_run_selection.png"></p>
-</li>
-<li>
-<p>Now, enter your <code>Barcode numbers</code>. Usually you will be
-running a simple range of barcode numbers, such as “1-24”, but to allow
-for flexibilty, barcode numbers can be entered in a list combining both
-single numbers and number-ranges, such as “1-3,5,9,12-20”. Now enter
-your <code>Sample ID</code>s. These can be copy and pasted from a column
-in an excel sheet. Sample names should only be numbers, letters, and
-underscores (“_“). <strong>Do not use any other characters such as ”-”
-or ”/”.</strong> Next, select your <code>Sample Type</code>. Most of
-your sample’s are test samples, so each row defaults to
-<code>test</code>, but select <code>- control</code> or
-<code>+ control</code> for your <strong>negative</strong> and
-<strong>positive</strong> controls respectively. Finally, select the
-<code>Barcode Expansion Pack</code> you have used during library
-preparation. CDC’s laboratory protocol is currently
-using”EXP-NBD196”.</p>
 <ul>
-<li>when running tiny_test_run_flu, enter barcode numbers
-<code>27,37,41</code> and make up sample names</li>
-<li>when running tiny_test_run_sc2, enter barcode numbers
-<code>2,3,5,8,28</code> and make up sample names</li>
+<li>Next, click the box that say “What kind of data is this” and select
+Flu-ONT or SC2-Spike-Only-ONT</li>
 </ul>
-<p><img src="images/mira_samplesheet_barcode_entry.png"><img src="images/mira_samplesheet_fill.png"></p>
+<p><img src="images/mira_whatkindofdata.png"></p>
 </li>
-<li><p>Click <code>SAVE SAMPLESHEET</code>. <em>If you need to edit the
-number of samples/barcodes in your samplesheet after saving, you must
-click</em> <code>RESTART SAMPLESHEET FILLING</code> <em>before editing
-it.</em> You will now have to restart filling your samplesheet from the
-beginning!</p></li>
 <li>
-<p>Now select the correct data type from the drop down box,
-<code>What kind of data is this?</code> and click
+<p>Next, click <code>DOWNLOAD SAMPLESHEET TEMPLATE</code> and open
+the resulting Excel spreadsheet</p>
+<p><img src="images/mira_samplesheet_barcode_entry.png"></p>
+</li>
+<li><p>Your <code>Barcode numbers</code> column will be inferred from
+the fastq_pass folder inside of your run folder</p></li>
+<li>
+<p>Enter your sample IDs in the “Sample ID” column</p>
+<ul>
+<li>These can be copy and pasted from a column in another excel
+sheet.</li>
+<li>Sample names should only be numbers, letters, dashes, and
+underscores (“-” or “_“). <strong>Do not use any other characters such
+as “/”.</strong>
+</li>
+</ul>
+</li>
+<li>
+<p>Next, select your <code>Sample Type</code>. Most of your sample’s
+are test samples, so each row defaults to <code>test</code>, but select
+<code>- control</code> or <code>+ control</code> for your
+<strong>negative</strong> and <strong>positive</strong> controls
+respectively.</p>
+<p><img src="images/mira_samplesheet_fill.png"></p>
+</li>
+<li><p>Save your samplesheet with changes in Excel</p></li>
+<li>
+<p>Back in MIRA, Click the “Drag and Drop your Samplesheet” to
+select your filled-in samplesheet.</p>
+<ul>
+<li>A table in the application should now appear with your samples!</li>
+</ul>
+<p><img src="images/mira_dash_table.PNG"></p>
+</li>
+</ul>
+</div>
+<div class="section level3">
+<h3 id="start-genome-assembly">Start Genome Assembly<a class="anchor" aria-label="anchor" href="#start-genome-assembly"></a>
+</h3>
+<ul>
+<li>
+<p>Now select <code>UNLOCK ASSEMBLY BUTTON</code> and click
 <code>START GENOME ASSEMBLY</code>. Now is a good time to go have a
 coffee.</p>
-<p><img src="images/mira_whatkindofdata.png"></p>
-<p>Click on the toggle button <code>Watch IRMA Progress</code>. Assembly
-will take some time, how long exactly is dependent on your sample
-number, the number of raw sequencing reads, and the power of your
-computer. <img src="images/mira_run_status.png"></p>
+<ul>
+<li>Click on the toggle button <code>Watch IRMA Progress</code>.
+Assembly will take some time, how long exactly is dependent on your
+sample number, the number of raw sequencing reads, and the power of your
+computer. <img src="images/mira_run_status.png">
+</li>
+<li>as IRMA completes assembly on each sample, they will be listed at
+the top of the progress indicator</li>
+</ul>
 </li>
 <li>
 <p>When IRMA has finished, it will say “IRMA is finished” and you
 can now click on “DISPLAY IRMA RESULTS”.</p>
 <p><img src="images/mira_display_results.png"></p>
 </li>
-</ol>
+</ul>
 <hr>
 </div>
-<div class="section level3">
-<h3 id="review-irma-results">Review IRMA results<a class="anchor" aria-label="anchor" href="#review-irma-results"></a>
-</h3>
+</div>
+<div class="section level2">
+<h2 id="review-irma-results">Review IRMA results<a class="anchor" aria-label="anchor" href="#review-irma-results"></a>
+</h2>
 <ol style="list-style-type: decimal">
 <li>
 <p>Review the distribution of reads assigned to each barcode. The
@@ -322,28 +357,40 @@ sequence.</em> These tables are for your own usage and not necessary to
 review in detail. They can be sorted and filtered and exported to excel
 sheets for further analyses.</p>
 <p><img src="images/mira_minor_vars.png"></p>
+<ul>
+<li>Minor variants greater than 5% frequency are shown</li>
+<li>Indels greater than 20% frequency are shown</li>
+</ul>
 </li>
 </ol>
 <hr>
 </div>
-<div class="section level3">
-<h3 id="save-your-sequences-in-a-fasta-file">Save your sequences in a fasta file<a class="anchor" aria-label="anchor" href="#save-your-sequences-in-a-fasta-file"></a>
-</h3>
+<div class="section level2">
+<h2 id="save-your-sequences-in-a-fasta-file">Save your sequences in a fasta file<a class="anchor" aria-label="anchor" href="#save-your-sequences-in-a-fasta-file"></a>
+</h2>
 <ul>
 <li>
 <p>Export IRMA’s <em>amended consensus</em> nucleotide sequences and
 amino acid fasta files. This includes only those passing MIRA’s QC
 criteria and are ready for submission to public databases!</p>
-<p><img src="images/mira_fasta_dl.png"><img src="images/mira_fastas.png"></p>
+<p><img src="images/mira_fasta_dl.png"></p>
+<ul>
+<li><p>The <code>DOWNLOAD FASTAS</code> button will only return passing
+samples. To investigate failed sequences, click the
+<code>DOWNLOAD FAILED FASTAS</code> button. Do not submit failed samples
+to public repositories!</p></li>
+<li><p>You can open and view these Amino Acid and Nucleotide fastas in
+any sequence viewing application <img src="images/mira_fastas.png"></p></li>
+</ul>
 </li>
 </ul>
 <hr>
 <hr>
-<div class="section level4">
-<h4 id="wow-you-are-doing-such-great-work--time-to-share-your-sequences-with-the-world-by-uploading-to-gisaid-andor-ncbi-and-to-start-analyzing-your-own-data">Wow! You are doing such great work. Time to share your sequences
+<div class="section level3">
+<h3 id="wow-you-are-doing-such-great-work--time-to-share-your-sequences-with-the-world-by-uploading-to-gisaid-andor-ncbi-and-to-start-analyzing-your-own-data">Wow! You are doing such great work. Time to share your sequences
 with the world by uploading to GISAID and/or NCBI and to start analyzing
 your own data!<a class="anchor" aria-label="anchor" href="#wow-you-are-doing-such-great-work--time-to-share-your-sequences-with-the-world-by-uploading-to-gisaid-andor-ncbi-and-to-start-analyzing-your-own-data"></a>
-</h4>
+</h3>
 <ul>
 <li>GISAID: <a href="https://gisaid.org/" class="external-link">https://gisaid.org/</a>
 </li>

@@ -59,7 +59,16 @@
       <a href="../articles/mira-installation.html">MIRA installation</a>
     </li>
     <li>
-      <a href="../articles/running-mira.html">Running Genome Assembly with MIRA</a>
+      <a href="../articles/data-transfer.html">Data Transfer with Mk1C</a>
+    </li>
+    <li>
+      <a href="../articles/running-mira.html">Running Genome Assembly with MIRA -- NANOPORE DATA</a>
+    </li>
+    <li>
+      <a href="../articles/running-mira-illumina.html">Running Genome Assembly with MIRA -- ILLUMINA DATA</a>
+    </li>
+    <li>
+      <a href="../articles/upgrading-mira.html">Upgrading MIRA</a>
     </li>
   </ul>
 </li>
@@ -168,7 +177,7 @@ powershell <strong>as administrator</strong></a></li>
 <li>Reopen Powershell and enter the following commands:</li>
 </ol>
 <div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">wsl</span> <span class="at">--set-default-version</span> 2</span></code></pre></div>
-<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">wsl</span> <span class="at">--install</span> <span class="at">-d</span> Ubuntu-22.04</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">wsl</span> <span class="at">--install</span> <span class="at">-d</span> Ubuntu-20.04</span></code></pre></div>
 <p>If either of these commands errors out, try <a href="./troubleshooting.html#wsl-install-error">troubleshooting</a></p>
 <p>Following successful installation, an Ubuntu terminal should pop up
 that looks like: <img src="images/ubuntu_setub_1.png" alt="alt text"></p>
@@ -197,7 +206,7 @@ Microsoft’s website here: <a href="https://docs.microsoft.com/en-us/windows/ws
 automatically mount Linux. If you have “Linux” in your
 <code>File Explorer</code>, you are good to go and do not need to
 perform this step.</em></p>
-<p><img src="images/map_drive_win11-10_linux.png"></p>
+<p><img src="images/linux_file_explorer.png"></p>
 <p>If you do not see this, you need to <a href="./troubleshooting.html#map-network-drive">“map the WSL
 drive”</a></p>
 </div>

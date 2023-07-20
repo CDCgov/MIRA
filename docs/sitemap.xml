@@ -7,6 +7,9 @@
     <loc>https://github.com/CDCgov/MIRA/articles/FAQs.html</loc>
   </url>
   <url>
+    <loc>https://github.com/CDCgov/MIRA/articles/data-transfer.html</loc>
+  </url>
+  <url>
     <loc>https://github.com/CDCgov/MIRA/articles/development-tips.html</loc>
   </url>
   <url>
@@ -25,6 +28,9 @@
     <loc>https://github.com/CDCgov/MIRA/articles/mira-installation.html</loc>
   </url>
   <url>
+    <loc>https://github.com/CDCgov/MIRA/articles/running-mira-illumina.html</loc>
+  </url>
+  <url>
     <loc>https://github.com/CDCgov/MIRA/articles/running-mira.html</loc>
   </url>
   <url>
@@ -32,6 +38,9 @@
   </url>
   <url>
     <loc>https://github.com/CDCgov/MIRA/articles/troubleshooting.html</loc>
+  </url>
+  <url>
+    <loc>https://github.com/CDCgov/MIRA/articles/upgrading-mira.html</loc>
   </url>
   <url>
     <loc>https://github.com/CDCgov/MIRA/authors.html</loc>
