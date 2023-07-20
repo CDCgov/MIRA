@@ -38,8 +38,14 @@ navbar:
           href: articles/mac-getting-started.html
         - text: MIRA installation
           href: articles/mira-installation.html
-        - text: Running Genome Assembly with MIRA
+        - text: Data Transfer with Mk1C
+          href: articles/data-transfer.html
+        - text: Running Genome Assembly with MIRA -- NANOPORE DATA
           href: articles/running-mira.html
+        - text: Running Genome Assembly with MIRA -- ILLUMINA DATA
+          href: articles/running-mira-illumina.html
+        - text: Upgrading MIRA
+          href: articles/upgrading-mira.html
     - text: Help
       menu:
       - text: FAQs

@@ -24,7 +24,7 @@ cd ~/FLU_SC2_SEQUENCING
 ```
 
 ```bash
-curl https://raw.githubusercontent.com/CDCgov/MIRA/prod/docker-compose-git.yml | sed "s%/path/to/data%$(echo ~)/FLU_SC2_SEQUENCING/%g" > docker-compose.yml
+curl https://raw.githubusercontent.com/CDCgov/MIRA/prod/docker-compose-git.yml | sed "s%/path/to/data%$(pwd)/%g" > docker-compose.yml
 ```
 
 ```bash
