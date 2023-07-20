@@ -59,7 +59,16 @@
       <a href="../articles/mira-installation.html">MIRA installation</a>
     </li>
     <li>
-      <a href="../articles/running-mira.html">Running Genome Assembly with MIRA</a>
+      <a href="../articles/data-transfer.html">Data Transfer with Mk1C</a>
+    </li>
+    <li>
+      <a href="../articles/running-mira.html">Running Genome Assembly with MIRA -- NANOPORE DATA</a>
+    </li>
+    <li>
+      <a href="../articles/running-mira-illumina.html">Running Genome Assembly with MIRA -- ILLUMINA DATA</a>
+    </li>
+    <li>
+      <a href="../articles/upgrading-mira.html">Upgrading MIRA</a>
     </li>
   </ul>
 </li>
@@ -128,32 +137,23 @@ defined folders or sockets on your computer.</p>
 <ol style="list-style-type: decimal">
 <li>
 <p>Open a terminal (Ubuntu if you installed WSL2 with this
-instructions). Create a folder to store your sequence run data and
-change to that directory:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a> <span class="fu">mkdir</span> ~/FLU_SC2_SEQUENCING</span></code></pre></div>
-<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a> <span class="bu">cd</span> ~/FLU_SC2_SEQUENCING</span></code></pre></div>
+instructions, Terminal if you are using a Mac). Create a folder to store
+your sequence run data and change to that directory:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a> <span class="fu">mkdir</span> ~/FLU_SC2_SEQUENCING</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a> <span class="bu">cd</span> ~/FLU_SC2_SEQUENCING</span></code></pre></div>
 </li>
 <li>
 <p>Download the installation script from the internet:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a> <span class="fu">wget</span> https://raw.githubusercontent.com/CDCgov/MIRA/prod/MIRA-INSTALL.sh</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a> <span class="ex">curl</span> https://raw.githubusercontent.com/CDCgov/MIRA/prod/docker-compose-git.yml <span class="kw">|</span> <span class="fu">sed</span> <span class="st">"s%/path/to/data%</span><span class="va">$(</span><span class="bu">pwd</span><span class="va">)</span><span class="st">/%g"</span> <span class="op">&gt;</span> docker-compose.yml</span></code></pre></div>
 </li>
 <li>
-<p>Run the install script with <code>sudo</code>:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a> <span class="fu">chmod</span> +x ./MIRA-INSTALL.sh</span></code></pre></div>
-<div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a> <span class="fu">sudo</span> ./MIRA-INSTALL.sh</span></code></pre></div>
-<p>You will then enter your password and the following statment will
-print to your screen , where <code>~</code>= the path to your home
-directory:</p>
-<pre><code>     Your individual sequencing runs must be saved inside ~/FLU_SC2_SEQUENCING
-     Enter "yes" to confirm.
-
-     Enter anything else to change the folder to save your
-     individual sequencing run folders into and change directory (cd)
-     into that folder and rerun this script.</code></pre>
+<p>Run the install script with <code>sudo</code> and
+<code>docker-compose</code>:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a> <span class="fu">sudo</span> docker-compose up <span class="at">-d</span></span></code></pre></div>
 </li>
 <li>
-<p>Enter <code>yes</code>. The download should begin and a lot of
-information will begin to appear in your terminal such as:</p>
+<p>The download should begin and a lot of information will begin to
+appear in your terminal such as:</p>
 <pre><code> ⠿ mira Warning                                                                                                                                                                                                                                          2.2s
  ⠦ irma Pulling                                                                                                                                                                                                                                         37.7s
 ⠿ 3b65ec22a9e9 Pull complete                                                                                                                                                                                                                         16.9s

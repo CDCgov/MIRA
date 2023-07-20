@@ -59,7 +59,16 @@
       <a href="../articles/mira-installation.html">MIRA installation</a>
     </li>
     <li>
-      <a href="../articles/running-mira.html">Running Genome Assembly with MIRA</a>
+      <a href="../articles/data-transfer.html">Data Transfer with Mk1C</a>
+    </li>
+    <li>
+      <a href="../articles/running-mira.html">Running Genome Assembly with MIRA -- NANOPORE DATA</a>
+    </li>
+    <li>
+      <a href="../articles/running-mira-illumina.html">Running Genome Assembly with MIRA -- ILLUMINA DATA</a>
+    </li>
+    <li>
+      <a href="../articles/upgrading-mira.html">Upgrading MIRA</a>
     </li>
   </ul>
 </li>
@@ -153,33 +162,33 @@ effect on your sequencing data.<a class="anchor" aria-label="anchor" href="#how-
 <div class="section level4">
 <h4 id="ispy-uninstall">iSpy uninstall<a class="anchor" aria-label="anchor" href="#ispy-uninstall"></a>
 </h4>
-<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> stop ispy</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> rm ispy</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> rmi ispy</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="ex">docker</span> stop ispy</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="ex">docker</span> rm ispy</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="ex">docker</span> rmi ispy</span></code></pre></div>
 </div>
 <div class="section level4">
 <h4 id="irma-spy-uninstall">IRMA-SPY uninstall<a class="anchor" aria-label="anchor" href="#irma-spy-uninstall"></a>
 </h4>
-<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> stop irma-spy</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> rm irma-spy</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> rmi irma-spy</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="ex">docker</span> stop irma-spy</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="ex">docker</span> rm irma-spy</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="ex">docker</span> rmi irma-spy</span></code></pre></div>
 </div>
 <div class="section level4">
 <h4 id="mira-uninstall">MIRA uninstall<a class="anchor" aria-label="anchor" href="#mira-uninstall"></a>
 </h4>
 <ol style="list-style-type: decimal">
 <li>Open an Ubuntu terminal</li>
-<li><div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a> <span class="co"># Show running containers</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a> <span class="ex">docker</span> ps</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a> <span class="co"># Stop running container you want to update. In this example we are updating mira and spyne.</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a> <span class="ex">docker</span> stop mira spyne</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a> <span class="co"># Delete containers</span></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a> <span class="ex">docker</span> rm mira spyne</span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a> <span class="co"># Delete images</span></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a> <span class="ex">docker</span> rmi mira spyne</span></code></pre></div></li>
+<li><div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a> <span class="co"># Show running containers</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a> <span class="ex">docker</span> ps</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a> <span class="co"># Stop running container you want to update. In this example we are updating mira and spyne.</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a> <span class="ex">docker</span> stop mira spyne</span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a> <span class="co"># Delete containers</span></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a> <span class="ex">docker</span> rm mira spyne</span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a> <span class="co"># Delete images</span></span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a> <span class="ex">docker</span> rmi mira spyne</span></code></pre></div></li>
 <li>Install the new MIRA and spyne containers: <a href="setting-up-containers.html">See NGS Training: Setting Up
 Containers</a>
 </li>
@@ -190,17 +199,17 @@ Containers</a>
 </h4>
 <ol style="list-style-type: decimal">
 <li>Open an Ubuntu terminal</li>
-<li><div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a> <span class="co"># Show running containers</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a> <span class="ex">docker</span> ps</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a> <span class="co"># Stop running container you want to update. In this example we are updating mira and spyne.</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a> <span class="ex">docker</span> stop mira spyne</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a> <span class="co"># Delete containers</span></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a> <span class="ex">docker</span> rm mira spyne</span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a> <span class="co"># Delete images</span></span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a> <span class="ex">docker</span> rmi mira spyne</span></code></pre></div></li>
+<li><div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a> <span class="co"># Show running containers</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a> <span class="ex">docker</span> ps</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a> <span class="co"># Stop running container you want to update. In this example we are updating mira and spyne.</span></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a> <span class="ex">docker</span> stop mira spyne</span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a> <span class="co"># Delete containers</span></span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a> <span class="ex">docker</span> rm mira spyne</span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a> <span class="co"># Delete images</span></span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a> <span class="ex">docker</span> rmi mira spyne</span></code></pre></div></li>
 <li>Install the latest version of MIRA: <a href="mira-installation.html">See NGS Training: Setting Up
 Containers</a>
 </li>

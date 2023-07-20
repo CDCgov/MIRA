@@ -1,17 +1,20 @@
-pandoc: 2.19.2
+pandoc: 3.1.1
 pkgdown: 2.0.7.9000
-pkgdown_sha: c354aa7e5ea1f9936692494c28c89e5bdd31fc68
+pkgdown_sha: c9206802f2888992de92aa41f517ba7812f05331
 articles:
-  FAQs: FAQs.html
+  data-transfer: data-transfer.html
   development-tips: development-tips.html
   docker-compose: docker-compose.html
+  FAQs: FAQs.html
   getting-started: getting-started.html
   mac-getting-started: mac-getting-started.html
   mira-installation: mira-installation.html
+  running-mira-illumina: running-mira-illumina.html
   running-mira: running-mira.html
   sequence-qc: sequence-qc.html
   troubleshooting: troubleshooting.html
-last_built: 2023-05-10T13:29Z
+  upgrading-mira: upgrading-mira.html
+last_built: 2023-07-20T19:50Z
 urls:
   reference: https://github.com/CDCgov/MIRA/reference
   article: https://github.com/CDCgov/MIRA/articles
