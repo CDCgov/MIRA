@@ -85,5 +85,6 @@ sudo docker-compose up -d
 - Click 'START GENOME ASSEMBLY'
 - Toggle 'Watch IRMA progress' to see IRMA's stdout stream.
 - When "IRMA is finished!" is displayed,  Click "DISPLAY IRMA RESULTS"
-    
+
+
 <hr>
