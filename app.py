@@ -892,11 +892,12 @@ CONTENT_STYLE = {
 
 sidebar = html.Div(
     [
-        html.Img(
+        html.A(href="https://cdcgov.github.io/MIRA/articles/running-mira.html",
+                             target="_blank",children=[html.Img(
             src=app.get_asset_url("mira-logo-midjourney_20230526_rmbkgnd.png"),
             height=125,
             width=125,
-        ),
+        )]),
         html.H2("MIRA", className="display-4"),
         html.P(
             [
@@ -934,8 +935,10 @@ sidebar = html.Div(
             vertical=True,
             pills=True,
         ),
+        
     ],
     style=SIDEBAR_STYLE,
+
 )
 
 
