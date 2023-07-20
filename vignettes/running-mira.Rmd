@@ -9,7 +9,7 @@ _This documentation assumes you have the four required Docker containers (**IRMA
 ## Stage your demultiplexed data
 * In your "FLU_SC2_SEQUENCING" folder, make a folder for your run. It is very helpful to name your runs with a consistent naming system, such as "YEAR-MONTH-DATE-FLOWCELL_ID", ie. 2022-11-13-ABC1234. 
    
-#### **_DO NOT PUT SPACES OR SLASHES IN YOU RUN FOLDER NAMES!_**
+**_DO NOT PUT SPACES OR SLASHES IN YOU RUN FOLDER NAMES!_**
 
 ![](images/mira_run_directory_structure.png)
 
@@ -27,6 +27,7 @@ _This documentation assumes you have the four required Docker containers (**IRMA
     2. dais
     3. spyne
     4. MIRA
+
 ### Open MIRA    
 * Run MIRA by clicking the blue link "8020:8050". This will open MIRA into your default internet browser. You can "bookmark" this site in your browser.
  
