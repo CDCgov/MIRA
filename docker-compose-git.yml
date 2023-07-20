@@ -32,6 +32,7 @@ services:
   dais: 
     container_name: dais
     image: *dais-version
+    restart: always
     networks:
       - backend
     volumes: 
