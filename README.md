@@ -67,7 +67,8 @@ cd ~/FLU_SC2_SEQUENCING
 sudo docker-compose up -d
 ```
     
-- [Click here to download test data](https://centersfordiseasecontrol.sharefile.com/share/view/s3c52c0b25c2243078f506d60bd787c62)
+- [Click here to download tiny test data from ONT Influenza genome and SARS-CoV-2-spike - 40Mb](https://centersfordiseasecontrol.sharefile.com/d-s839d7319e9b04e2baba07b4d328f02c2)
+- [Click here for the above data set + full genomes of Influenza and SARS-CoV-2 from Illumina MiSeqs - 1Gb](https://centersfordiseasecontrol.sharefile.com/d-s3c52c0b25c2243078f506d60bd787c62)
 - unzip the file and find two folders:
     1. `tiny_test_run_flu`
     2. `tiny_test_run_sc2`
@@ -76,12 +77,13 @@ sudo docker-compose up -d
 
 - Open your browser and type http://localhost:8020 in the address bar.
 - Click `Refresh Run Listing` in MIRA, you should now see these folders listed.
-- Select "tiny_test_run_flu", enter barcode numbers `27,37,41` and make up sample names.
-  - Click 'SAVE SAMPLESHEET'
-  - In the dropdown box 'What kind of data is this?', select 'Flu-ONT'
-  - Click 'START GENOME ASSEMBLY'
-  - Toggle 'Watch IRMA progress' to see IRMA's stdout stream.
-  - When "IRMA is finished!" is displayed,  Click "DISPLAY IRMA RESULTS"
-- Now select "tiny_test_run_sc2" from the very top dropdown and repeat the above steps except this time enter barcode numbers `2,3,5,8,28`.
+- Click `Download Samplesheet`.
+  - This will give you an excel sheet with available barcodes populated. Add in our samplenames for ONT data (Illumina data will self identify samplenames based on fastqs)
+- Save the samplesheet and then upload it by clicking on `Drag and Drop your Samplesheet or Click and Select the File`
+- In the dropdown box 'What kind of data is this?', select the correct data type.
+  - If SC2 full genome, also select your primers.
+- Click 'START GENOME ASSEMBLY'
+- Toggle 'Watch IRMA progress' to see IRMA's stdout stream.
+- When "IRMA is finished!" is displayed,  Click "DISPLAY IRMA RESULTS"
     
 <hr>
