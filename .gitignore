@@ -12,5 +12,4 @@ scripts/__pycache__/muscle.cpython-37.pyc
 .Rproj.user
 *Rproj
 vignettes/*.html
-docs/*
-docs
+docs/
