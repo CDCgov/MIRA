@@ -64,7 +64,7 @@ cd ~/FLU_SC2_SEQUENCING
 - Run the install script:
 
 ```bash
-sudo docker-compose up -d
+sudo docker compose up -d
 ```
     
 - [Click here to download tiny test data from ONT Influenza genome and SARS-CoV-2-spike - 40Mb](https://centersfordiseasecontrol.sharefile.com/d-s839d7319e9b04e2baba07b4d328f02c2)
