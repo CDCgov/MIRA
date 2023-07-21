@@ -198,7 +198,7 @@ def download_ss(run, n_clicks, experiment_type):
 # from https://dash.plotly.com/dash-core-components/upload
 
 
-def parse_contents(contents, filename, date, run):
+def parse_contents(contents, filename, date, run=''):
     content_type, content_string = contents.split(",")
     # global ss_df
     decoded = base64.b64decode(content_string)
@@ -213,9 +213,18 @@ def parse_contents(contents, filename, date, run):
     except Exception as e:
         print(f"ERROR PARSING SS\n{e}\n--------END OF ERROR--------")
         return html.Div(["There was an error processing this file."])
+    # Process seqsender config
+    if "submitter_config" in filename:
+        config_dict = ss_df.pivot(index='Repository', columns='Field', values='Value').to_dict(orient='index')
+        config_dict = {'Submission':config_dict}
+        os.makedirs(f"{data_root}/.seqsender", exist_ok=True)
+        with open(f"{data_root}/.seqsender/config.yaml", 'w') as out:
+            yaml.dump(config_dict, out, default_flow_style=False)
+        return "Submitter config saved"
+    # Else go on to process samplesheet
     for c in ss_df.columns:
         ss_df[c] = ss_df[c].apply(lambda x: str(x))
-        ss_df[c] = ss_df[c].apply(lambda x: x.strip("^M").strip())
+        #ss_df[c] = ss_df[c].apply(lambda x: x.strip("^M").strip())
     if True in list(ss_df.duplicated("Sample ID")):
         ss_df["duplicated"] = ss_df.duplicated("Sample ID")
         stmnt = f"No duplicate sample IDs allowed. Please edit. Duplicates = {list(ss_df.loc[ss_df['duplicated']==True]['Sample ID'])}"
@@ -868,6 +877,84 @@ def download_failed_fastas(run, n_clicks):
         )
         return nt_fastas, aa_fastas
 
+dl_sub_con_temp = 0
+
+@app.callback(Output("dl_submitter_template", "data"),
+              Input("dl_submitter_template_button", "n_clicks"))
+def download_submitter_config_template(n_clicks):
+    if not n_clicks:
+        raise dash.exceptions.PreventUpdate
+    global dl_sub_con_temp
+    if n_clicks > dl_sub_con_temp:
+        dl_sub_con_temp = n_clicks
+        #return dict(content=open('scripts/submitter_config_template.xlsx', 'rb').read(),
+        #    filename='submitter_config_template.xlsx')
+        return dcc.send_file('scripts/submitter_config_template.xlsx')
+
+@app.callback(
+    Output("seqsender_config_modal", "children"),
+    Input("upload_submitter_template", "contents"),
+    State("upload_submitter_template", "filename"),
+    State("upload_submitter_template", "last_modified"),
+)
+def save_seqsender_config(list_of_contents, list_of_names, list_of_dates):
+    if list_of_contents is not None:
+        for c, n, d in zip(list_of_contents, list_of_names, list_of_dates):
+            stmnt = parse_contents(c, n, d)
+        modal = dbc.Modal([
+                    dbc.ModalBody(stmnt)
+                ],
+                    size="sm",
+                    is_open=True,
+                    centered=True,
+                    style={"font-size": "100%", "font-family": "arial"},
+                )
+        return modal 
+
+@app.callback(
+    Output("new_version", "children"), Input("new-version-interval", "n_intervals")
+)
+def new_version_modal(n_interval):
+    if DEPLOY:
+        with open("/MIRA/DESCRIPTION", "r") as d:
+            current = "".join(d.readlines())
+    else:
+        with open("DESCRIPTION", "r") as d:
+            current = "".join(d.readlines())
+    available = requests.get(
+        "https://raw.githubusercontent.com/CDCgov/MIRA/illumina-flu/DESCRIPTION"
+    )
+    current = re.findall(r"Version.+(?=\n)", current)[0]
+    available = re.findall(r"Version.+(?=\r)", available.text)[0]
+    if current == available:
+        return html.Div()
+    else:
+        modal = dbc.Modal(
+            [
+                dbc.ModalHeader(
+                    html.A(
+                        f"A new version of MIRA is available! ",
+                        style={"color": "indigo"},
+                    )
+                ),
+                dbc.ModalBody(
+                    dcc.Link(
+                        "CLICK HERE",
+                        href="https://cdcgov.github.io/MIRA/articles/FAQs.html",
+                        target="_blank",
+                    )
+                ),
+                dbc.ModalBody(f"Current {current}"),
+                dbc.ModalBody(f"Available {available}"),
+            ],
+            size="lg",
+            is_open=True,
+            centered=True,
+            style={"font-size": "300%", "font-family": "arial"},
+        )
+        return modal
+
+
 
 ########################################################
 ###################### LAYOUT ##########################
@@ -946,12 +1033,11 @@ def blank_fig():
     fig.update_yaxes(showgrid=False, showticklabels=False, zeroline=False)
     return fig
 
-
 # import dash_uploader as du
 content = html.Div(
     id="page-content",
     style=CONTENT_STYLE,
-    children=[html.Div(id="new-version")]
+    children=[html.Div(id="new-version"), html.Div(id="seqsender_config_modal")]
     + [
         dcc.Interval(id="new-version-interval", interval=check_version_interval)
     ]  # interval in milliseconds
@@ -1241,7 +1327,36 @@ content = html.Div(
                 dcc.Download(id="download_failed_aa_fasta"),
             ]
         )
-    ],
+    ]
+    +[html.Br()]
+    +[html.Div([
+        dbc.Row([
+            dbc.Col(dbc.Button("Download submitter data template",id='dl_submitter_template_button')),
+            dbc.Col(dcc.Download("dl_submitter_template"), width=1),
+            dbc.Col(dcc.Upload(
+                    id="upload_submitter_template",
+                    children=html.Div(
+                        [
+                            "Drag and Drop your ",
+                            html.B("Submitter Data"),
+                            " or Click and Select the File",
+                        ]
+                    ),
+                    style={
+                        "width": "100%",
+                        "height": "60px",
+                        "lineHeight": "60px",
+                        "borderWidth": "1px",
+                        "borderStyle": "dashed",
+                        "borderRadius": "5px",
+                        "textAlign": "center",
+                        "margin": "10px",
+                    },
+                    # Allow multiple files to be uploaded
+                    multiple=True,
+                ),width=4)
+    ]),
+    ])],
 )
 
 app.layout = html.Div([sidebar, content])
