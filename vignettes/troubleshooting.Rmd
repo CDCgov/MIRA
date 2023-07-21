@@ -61,11 +61,12 @@ MIRA-install.sh expects an Ubuntu 18+ operating system or WSL2 distribution. If 
         ```
 
 ## WSL install error
-From the Windows search bar, open `Turn Windows Features on or off` and make sure the following 4 features are checked off:
-- Hyper-V
-- Virtual Machine Platform
-- Windows Hypervisor Platform
-- Windows Subsystem for Linux
+From the Windows search bar, open `Turn Windows Features on or off` and make sure the following 4 features are enabled:
+
+* Hyper-V
+* Virtual Machine Platform
+* Windows Hypervisor Platform
+* Windows Subsystem for Linux
 
 
 ## Map network drive
