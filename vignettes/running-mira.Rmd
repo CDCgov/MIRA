@@ -47,7 +47,8 @@ _This documentation assumes you have the four required Docker containers (**IRMA
     
     ![](images/mira_samplesheet_barcode_entry.png)
     
-* Your `Barcode numbers` column will be inferred from the fastq_pass folder inside of your run folder
+* Your `Barcode numbers` column will be inferred from the fastq_pass folder inside of your run folder.     
+    * If you do not see a barcode that you expect, this is because that barcode does not have a fastq to process. 
 * Enter your sample IDs in the "Sample ID" column
     * These can be copy and pasted from a column in another excel sheet. 
     * Sample names should only be numbers, letters, dashes, and underscores ("-" or "_"). **Do not use any other characters such as "/".** 
