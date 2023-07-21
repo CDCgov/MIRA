@@ -25,8 +25,8 @@
    sudo docker compose build
    ```
 
-5. Run the install script with `sudo` and `docker-compose`:
+5. Run the install script with `sudo` and `docker compose`:
    
    ```bash
-    sudo docker-compose up -d
+    sudo docker compose up -d
    ```
