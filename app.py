@@ -215,7 +215,7 @@ def parse_contents(contents, filename, date, run):
         return html.Div(["There was an error processing this file."])
     for c in ss_df.columns:
         ss_df[c] = ss_df[c].apply(lambda x: str(x))
-        ss_df[c] = ss_df[c].apply(lambda x: x.strip("^M").strip())
+        #ss_df[c] = ss_df[c].apply(lambda x: x.strip("^M").strip())
     if True in list(ss_df.duplicated("Sample ID")):
         ss_df["duplicated"] = ss_df.duplicated("Sample ID")
         stmnt = f"No duplicate sample IDs allowed. Please edit. Duplicates = {list(ss_df.loc[ss_df['duplicated']==True]['Sample ID'])}"
