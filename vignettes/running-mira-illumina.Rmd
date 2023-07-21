@@ -53,7 +53,8 @@ _This documentation assumes you have the four required Docker containers (**IRMA
     
     ![](images/mira_samplesheet_barcode_entry.png)
     
-* Your samplenames will be inferred from the fastq filenames in your fastq directory
+* Your samplenames will be inferred from the fastq filenames in your fastq directory. **Do not change these sample names**
+    * If you do not see a sample that you expect, this is because that sample name does not have a fastq to process.
     * Sample names should only be numbers, letters, dashes, and underscores ("-" or "_"). **Do not use any other characters such as "/".** 
 * Next, select your `Sample Type`. Most of your sample's are test samples, so each row defaults to `test`, but select `- control` or `+ control` for your **negative** and **positive** controls respectively. 
 * Save your samplesheet with changes in Excel
