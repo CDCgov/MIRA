@@ -10,7 +10,11 @@ x-irma-version:
 
 x-spyne-git-version:
   &spyne-git-version  
-  https://github.com/nbx0/spyne.git#prod
+  https://github.com/CDCgov/spyne.git#prod
+
+x-seqsender-git-version:
+  &seqsender-git-version  
+  https://github.com/CDCgov/seqsender.git#dev
 
 x-mira-git-version:
   &mira-git-version  
@@ -19,7 +23,7 @@ x-mira-git-version:
 x-data-volumes:
   &data-volume
   type: bind
-  source: /path/to/data
+  source: /c/Users/snu3-su/github/mira_testdata
   target: /data
 
 x-docker-volumes:
@@ -32,6 +36,7 @@ services:
   dais: 
     container_name: dais
     image: *dais-version
+    restart: always      
     networks:
       - backend
     volumes: 
@@ -51,12 +56,12 @@ services:
   spyne: 
     container_name: spyne
     image: spyne
+    restart: always
     build: 
       context: *spyne-git-version 
     depends_on:
       - dais
       - irma
-    restart: always
     networks:
       - backend
     volumes:
@@ -64,21 +69,33 @@ services:
       - *docker-socket
     command: tail -f /dev/null
 
+  seqsender: 
+    container_name: seqsender
+    image: seqsender
+    restart: always
+    build: 
+      context: *seqsender-git-version 
+    networks:
+      - backend
+    volumes: 
+      - *data-volume
+    command: tail -f /dev/null
+
   mira: 
     container_name: mira
     image: mira
+    restart: always
     build: 
       context: *mira-git-version  
     depends_on:
       - dais
       - irma
       - spyne
-    restart: always
     networks:
       - frontend
       - backend
     ports: 
-      - 8020:8050
+      - 8080:8050
     volumes:
       - *data-volume
       - *docker-socket
