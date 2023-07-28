@@ -41,6 +41,7 @@ import subprocess
 
 path.append(dirname(realpath(__file__)) + "/scripts/")
 import conditional_color_range_perCol  # type: ignore
+import public_submission_templates
 
 with open(argv[1], "r") as y:
     CONFIG = yaml.safe_load(y)
@@ -209,19 +210,25 @@ def parse_contents(contents, filename, date, run=''):
         elif "xls" in filename:
             # Assume that the user uploaded an excel file
             ss_df = pd.read_excel(io.BytesIO(decoded), engine="openpyxl")
-            ss_df = ss_df.iloc[:, 0:3]
     except Exception as e:
         print(f"ERROR PARSING SS\n{e}\n--------END OF ERROR--------")
         return html.Div(["There was an error processing this file."])
     # Process seqsender config
     if "submitter_config" in filename:
-        config_dict = ss_df.pivot(index='Repository', columns='Field', values='Value').to_dict(orient='index')
-        config_dict = {'Submission':config_dict}
+        ss_df_g = ss_df.loc[ss_df["Repository"] == "GISAID"]
+        ss_df_n = ss_df.loc[ss_df["Repository"] == "NCBI"]
+        g_dict = ss_df_g.pivot(index='Repository', columns='Field', values='Value').to_dict(orient='index')
+        n_dict = ss_df_n.pivot(index='Repository', columns='Field', values='Value').to_dict(orient='index')
+        config_dict = {'Submission':{**n_dict, **g_dict}}
         os.makedirs(f"{data_root}/.seqsender", exist_ok=True)
         with open(f"{data_root}/.seqsender/config.yaml", 'w') as out:
             yaml.dump(config_dict, out, default_flow_style=False)
         return "Submitter config saved"
+    elif "submission_final" in filename:
+        ss_df.to_csv(f"{data_root}/{run}/{run}_gisaid_submission_metadata.csv", index=False)
+        return f"FINAL submission metadata saved to:\n{data_root}/{run}/{run}_gisaid_submission_metadata.csv"
     # Else go on to process samplesheet
+    ss_df = ss_df.iloc[:, 0:3]
     for c in ss_df.columns:
         ss_df[c] = ss_df[c].apply(lambda x: str(x))
         #ss_df[c] = ss_df[c].apply(lambda x: x.strip("^M").strip())
@@ -887,10 +894,23 @@ def download_submitter_config_template(n_clicks):
     global dl_sub_con_temp
     if n_clicks > dl_sub_con_temp:
         dl_sub_con_temp = n_clicks
-        #return dict(content=open('scripts/submitter_config_template.xlsx', 'rb').read(),
-        #    filename='submitter_config_template.xlsx')
         return dcc.send_file('scripts/submitter_config_template.xlsx')
 
+@app.callback(Output("dl_submitter_draft", "data"),
+              Input("dl_submitter_draft_button", "n_clicks"),
+              Input("select_run", "value"))
+def download_submitter_config_draft(n_clicks, run):
+    if not n_clicks:
+        raise dash.exceptions.PreventUpdate
+    global dl_sub_con_temp
+    if n_clicks > dl_sub_con_temp:
+        dl_sub_con_temp = n_clicks
+        df = pd.read_json(
+            f"{data_root}/{run}/dash-json/irma_summary.json", orient="split"
+        )
+        public_submission_templates.generate_samples_template_xlsx(passed_df=df, rundir=f"{data_root}/{run}")
+        return dcc.send_file(f"{data_root}/{run}/{run}_submission_draft.xlsx")
+    
 @app.callback(
     Output("seqsender_config_modal", "children"),
     Input("upload_submitter_template", "contents"),
@@ -910,6 +930,48 @@ def save_seqsender_config(list_of_contents, list_of_names, list_of_dates):
                     style={"font-size": "100%", "font-family": "arial"},
                 )
         return modal 
+
+@app.callback(
+    Output("dl_submitter_final", "data"),
+    Input("select_run", "value"),
+    Input("upload_submitter_draft", "contents"),
+    State("upload_submitter_draft", "filename")
+)
+def save_seqsender_sub_final(run, contents, list_of_names):
+    if list_of_names is not None:
+        for f,c in zip(list_of_names, contents):
+            if "submission_draft" in f:
+                decoded = base64.b64decode(c.split(',')[1])
+                wb = xl.load_workbook(io.BytesIO(decoded))
+                print(wb.active)
+                wb.save(f"{data_root}/{run}/{run}_submission_draft.xlsx")
+                #d = c.encode("utf8").split(b";base64,")[1]
+                #d =  base64.b64decode(c.split(',')[1])#c.encode("utf-8") #.split(b" ;base64, ")[1]
+                #with open(f"{data_root}/{run}/{run}_submission_draft.xlsx", 'wb') as out:
+                #    out.write(base64.decodebytes(d))
+                public_submission_templates.generate_isolate_names(f"{data_root}/{run}", f"{data_root}/{run}/{run}_submission_draft.xlsx")
+            return dcc.send_file(f"{data_root}/{run}/{run}_submission_final.xlsx")
+
+@app.callback(
+    Output("seqsender_final_modal", "children"),
+    Input("upload_submission_final", "contents"),
+    State("upload_submission_final", "filename"),
+    State("upload_submission_final", "last_modified"),
+    Input("select_run", "value")
+)
+def save_seqsender_final(list_of_contents, list_of_names, list_of_dates, run):
+    if list_of_contents is not None:
+        for c, n, d in zip(list_of_contents, list_of_names, list_of_dates):
+            stmnt = parse_contents(c, n, d, run)
+        modal = dbc.Modal([
+                    dbc.ModalBody(stmnt)
+                ],
+                    size="xl",
+                    is_open=True,
+                    centered=True,
+                    style={"font-size": "100%", "font-family": "arial"},
+                )
+        return modal
 
 @app.callback(
     Output("new_version", "children"), Input("new-version-interval", "n_intervals")
@@ -1016,7 +1078,8 @@ sidebar = html.Div(
                 ),
                 dbc.NavLink("Minor SNVs", href="#alleles_head", external_link=True),
                 dbc.NavLink("Minor Indels", href="#indels_head", external_link=True),
-                dbc.NavLink("Download Fastas", href="#dl_fastas", external_link=True),
+                #dbc.NavLink("Download Fastas", href="#dl_fastas", external_link=True),
+                dbc.NavLink("Submit Sequences", href="#submit_seqs", external_link=True)
             ],
             vertical=True,
             pills=True,
@@ -1037,7 +1100,7 @@ def blank_fig():
 content = html.Div(
     id="page-content",
     style=CONTENT_STYLE,
-    children=[html.Div(id="new-version"), html.Div(id="seqsender_config_modal")]
+    children=[html.Div(id="new-version"), html.Div(id="seqsender_config_modal"), html.Div(id="seqsender_final_modal")]
     + [
         dcc.Interval(id="new-version-interval", interval=check_version_interval)
     ]  # interval in milliseconds
@@ -1315,7 +1378,8 @@ content = html.Div(
     + [html.Br()]
     + [dbc.Row(html.Div(id="indels_table"))]
     + [html.Br()]
-    + [html.P(id="dl_fastas")]
+    + [html.Br()]
+    +[html.P("Submit Sequences to Public Databases", id="submit_seqs", className="display-6")]
     + [
         html.Div(
             [
@@ -1333,13 +1397,13 @@ content = html.Div(
         dbc.Row([
             dbc.Col(dbc.Button("Download submitter data template",id='dl_submitter_template_button')),
             dbc.Col(dcc.Download("dl_submitter_template"), width=1),
+        dbc.Row([
             dbc.Col(dcc.Upload(
                     id="upload_submitter_template",
                     children=html.Div(
                         [
                             "Drag and Drop your ",
-                            html.B("Submitter Data"),
-                            " or Click and Select the File",
+                            html.B("Submitter Data Template.xlsx")
                         ]
                     ),
                     style={
@@ -1351,11 +1415,61 @@ content = html.Div(
                         "borderRadius": "5px",
                         "textAlign": "center",
                         "margin": "10px",
+                        'whiteSpace': 'pre-wrap'
                     },
                     # Allow multiple files to be uploaded
                     multiple=True,
                 ),width=4)
-    ]),
+        ]),
+        ]),
+        dbc.Row([
+            dbc.Col(dbc.Button("Download submission draft",id='dl_submitter_draft_button')),
+            dbc.Col(dcc.Download("dl_submitter_draft"), width=1),]),
+        dbc.Row([
+            dbc.Col(dcc.Upload(id="upload_submitter_draft",
+                       children=html.Div(
+                        [
+                            html.B("Auto-generate Isolate_Names\n", style={"fontSize":"120%"}),
+                            "by dropping your ",
+                            html.B("Submission Draft Metadata.xlsx")
+                        ]
+                    ),
+                    style={
+                        "width": "100%",
+                        "height": "70px",
+                        "lineHeight": "30px",
+                        "borderWidth": "1px",
+                        "borderStyle": "dashed",
+                        "borderRadius": "5px",
+                        "textAlign": "center",
+                        "margin": "10px",
+                        'whiteSpace': 'pre-wrap'
+                    },
+                    # Allow multiple files to be uploaded
+                    multiple=True),width=4),
+                    dcc.Download("dl_submitter_final")
+        ]),
+        dbc.Row([
+            dbc.Col(dcc.Upload(id="upload_submission_final",
+                       children=html.Div(
+                        [   "Drag and Drop your\n",
+                            html.B("Submission Final Metadata.csv", style={"fontSize":"130%"}),
+                        ]
+                    ),
+                    style={
+                        "width": "100%",
+                        "height": "70px",
+                        "lineHeight": "30px",
+                        "borderWidth": "3px",
+                        "borderStyle": "dashed",
+                        "borderRadius": "5px",
+                        "textAlign": "center",
+                        "margin": "10px",
+                        'whiteSpace': 'pre-wrap'
+                    },
+                    # Allow multiple files to be uploaded
+                    multiple=True),width=4)
+        ])
     ])],
 )
 
