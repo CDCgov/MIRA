@@ -893,6 +893,8 @@ def download_submitter_config_template(n_clicks):
         raise dash.exceptions.PreventUpdate
     global dl_sub_con_temp
     if n_clicks > dl_sub_con_temp:
+        ### Would be better to generate here with public_submission_templates.generate_submitter_template_xlsx
+        ### rather then from the static scripts/submitter_config_template.xlsx
         dl_sub_con_temp = n_clicks
         return dcc.send_file('scripts/submitter_config_template.xlsx')
 
