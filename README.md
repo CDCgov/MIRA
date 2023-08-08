@@ -20,6 +20,7 @@ service, product, or enterprise.
 
 ## **Documentation: [https://CDCgov.github.io/MIRA/](https://CDCgov.github.io/MIRA/)**
 
+### If you've previously installed MIRA and need to upgrade to the latest version, [CLICK HERE](./articles/upgrading-mira.html)
 <br>
 
 # Overview
@@ -44,29 +45,30 @@ MIRA’s dashboard relies on four Docker containers to run its genome assembly a
 <hr>
 
 ## Quick Start on Ubuntu OS:
-Need to set up Ubuntu OS? Follow instructions in [Getting Started.](https://cdcgov.github.io/MIRA/articles/getting-started.html)
-- <a href="https://raw.githubusercontent.com/CDCgov/MIRA/prod/MIRA-INSTALL.sh" download>Right click this link and click 'save as'</a> and save it into the folder that you will add new run-folders to, ie. `FLU_SC2_SEQUENCING`.
-  - if you haven't created your `FLU_SC2_SEQUENCING` folder, from the command line, run 
-   ```bash
+_Need to set up an Ubuntu OS? Follow instructions in [Getting Started.](./articles/getting-started.html)_
+
+- Create a folder called `FLU_SC2_SEQUENCING` to save your sequencing reads to. From the command line, run: 
+  
+```bash
+mkdir ~/FLU_SC2_SEQUENCING
+
+cd ~/FLU_SC2_SEQUENCING
+```
+
+- Download the install yml:
    
-   mkdir ~/FLU_SC2_SEQUENCING
-   ```
-   then instead of right click and 'save as':
-   ```bash
+```bash
+ curl https://raw.githubusercontent.com/CDCgov/MIRA/prod/docker-compose-git.yml | sed "s%/path/to/data%$(pwd)/%g" > docker-compose.yml
+```
 
-   cd ~/FLU_SC2_SEQUENCING
+- Run the install script:
 
-   wget https://raw.githubusercontent.com/CDCgov/MIRA/prod/MIRA-INSTALL.sh
-   ```
-- Navigate to that folder on the command line and run:
-    ```
-    chmod +x ./MIRA-INSTALL.sh
-    ```
-- Run the install script with sudo:
-    ```
-    sudo ./MIRA-INSTALL.sh
-    ```
-- [Click here to download test data](https://centersfordiseasecontrol.sharefile.com/d-sb2d3b06e9ef946cf89e1a43c5a141a3f)
+```bash
+sudo docker compose up -d
+```
+    
+- [Click here to download tiny test data from ONT Influenza genome and SARS-CoV-2-spike - 40Mb](https://centersfordiseasecontrol.sharefile.com/d-s839d7319e9b04e2baba07b4d328f02c2)
+- [Click here for the above data set + full genomes of Influenza and SARS-CoV-2 from Illumina MiSeqs - 1Gb](https://centersfordiseasecontrol.sharefile.com/d-s3c52c0b25c2243078f506d60bd787c62)
 - unzip the file and find two folders:
     1. `tiny_test_run_flu`
     2. `tiny_test_run_sc2`
@@ -75,12 +77,14 @@ Need to set up Ubuntu OS? Follow instructions in [Getting Started.](https://cdcg
 
 - Open your browser and type http://localhost:8020 in the address bar.
 - Click `Refresh Run Listing` in MIRA, you should now see these folders listed.
-- Select "tiny_test_run_flu", enter barcode numbers `27,37,41` and make up sample names.
-  - Click 'SAVE SAMPLESHEET'
-  - In the dropdown box 'What kind of data is this?', select 'Flu-ONT'
-  - Click 'START GENOME ASSEMBLY'
-  - Toggle 'Watch IRMA progress' to see IRMA's stdout stream.
-  - When "IRMA is finished!" is displayed,  Click "DISPLAY IRMA RESULTS"
-- Now select "tiny_test_run_sc2" from the very top dropdown and repeat the above steps except this time enter barcode numbers `2,3,5,8,28`.
-    
+- Click `Download Samplesheet`.
+  - This will give you an excel sheet with available barcodes populated. Add in our samplenames for ONT data (Illumina data will self identify samplenames based on fastqs)
+- Save the samplesheet and then upload it by clicking on `Drag and Drop your Samplesheet or Click and Select the File`
+- In the dropdown box 'What kind of data is this?', select the correct data type.
+  - If SC2 full genome, also select your primers.
+- Click 'START GENOME ASSEMBLY'
+- Toggle 'Watch IRMA progress' to see IRMA's stdout stream.
+- When "IRMA is finished!" is displayed,  Click "DISPLAY IRMA RESULTS"
+
+
 <hr>

@@ -1,4 +1,4 @@
-## Running MIRA with Oxford Nanopore Data
+## Running MIRA with Illumina Data
 
 ![](images/mira-logo-midjourney_20230526_rmbkgnd.png)
 
@@ -14,9 +14,9 @@ _This documentation assumes you have the four required Docker containers (**IRMA
 ![](images/mira_run_directory_structure.png)
 
 * Copy the run's demultiplexed fastqs into the RUN-FOLDER.
-    * Copy the "fastq_pass" directory from the sequencer's output into the RUN-FOLDER. On a Mk1C instrument, this is found in /data/RUN_NAME/EXPERIMENT_NAME/NANOPORE-NAME/fastq_pass where RUN_NAME and EXPERIMENT_NAME are defined by you in MinKNOW when you set up the sequencing run on the device and the NANOPORE-NAME is created by the instrument during the run.
+    * Create another folder inside your RUN-FOLDER called "fastqs" and copy the folder containing demultiplexed fastqs into this newly created fastqs folder so that the folder structure is FLU_SC2_SEQUENCING/RUN-FOLDER/fastqs/demultiplexed-fastqs/sample-reads.fastq. There will be two fastq files per sample.
 
-![](./images/mira_run_directory_structure_fastq.png)
+![](images/mira_run_directory_structure_fastq_illumina.PNG)
 
 <hr>
 
@@ -38,40 +38,42 @@ _This documentation assumes you have the four required Docker containers (**IRMA
 
     ![](images/mira_run_selection.png)
 
-    * Next, click the box that say "What kind of data is this" and select Flu-ONT or SC2-Spike-Only-ONT
-
+    * Next, click the box that say "What kind of data is this" and select Flu-Illumina or SC2-Whole-Genome-Illumina
 
     ![](images/mira_whatkindofdata.png)
+
+* If you select SC2-Whole-Genome-Illumina, a new box will appear for you to select your primer schema/amplicon approach 
+    * _NOTE: MIRA Whole Genome Illumina module's primer trimming has been tested and optimized for xGen primer panel. We cannot guarantee perfect trimming for other panels._
+
+    ![](images/mira_whatkindofdata_illumina.PNG)
+
+
 
 * Next, click `DOWNLOAD SAMPLESHEET TEMPLATE` and open the resulting Excel spreadsheet
     
     ![](images/mira_samplesheet_barcode_entry.png)
     
-* Your `Barcode numbers` column will be inferred from the fastq_pass folder inside of your run folder.     
-    * If you do not see a barcode that you expect, this is because that barcode does not have a fastq to process. 
-* Enter your sample IDs in the "Sample ID" column
-    * These can be copy and pasted from a column in another excel sheet. 
+* Your samplenames will be inferred from the fastq filenames in your fastq directory. **Do not change these sample names**
+    * If you do not see a sample that you expect, this is because that sample name does not have a fastq to process.
     * Sample names should only be numbers, letters, dashes, and underscores ("-" or "_"). **Do not use any other characters such as "/".** 
 * Next, select your `Sample Type`. Most of your sample's are test samples, so each row defaults to `test`, but select `- control` or `+ control` for your **negative** and **positive** controls respectively. 
-
-    ![](images/mira_samplesheet_fill.png)
-
 * Save your samplesheet with changes in Excel
 
 * Back in MIRA, Click the "Drag and Drop your Samplesheet" to select your filled-in samplesheet. 
     * A table in the application should now appear with your samples!
 
-    ![](images/mira_dash_table.PNG)
+    ![](images/mira_dash_table_illumina.PNG)
 
 ### Start Genome Assembly
 * Now select `UNLOCK ASSEMBLY BUTTON` and click `START GENOME ASSEMBLY`. Now is a good time to go have a coffee. 
+    * _ESPECIALLY for Whole-Genome SARS-CoV-2: covering a 30kb genome with up to 200,000 short reads can take a very long time to process._
+
+
 
     * Click on the toggle button `Watch IRMA Progress`. Assembly will take some time, how long exactly is dependent on your sample number, the number of raw sequencing reads, and the power of your computer.
     ![](images/mira_run_status.png)
-    * as IRMA completes assembly on each sample, they will be listed at the top of the progress indicator
 
-
-* When IRMA has finished, it will say "IRMA is finished" and you can now click on "DISPLAY IRMA RESULTS".
+7. When IRMA has finished, it will say "IRMA is finished" and you can now click on "DISPLAY IRMA RESULTS".
 
     ![](images/mira_display_results.png)
 
@@ -83,7 +85,7 @@ _This documentation assumes you have the four required Docker containers (**IRMA
 
     ![](images/mira_barcode_distribution.png)
 
-2. Review the "Automatic Quality Control Decisions" heatmap. In addition to IRMA's built in quality control, MIRA requires a minimum median coverage of 50x, a minimum coverage of the reference length of 90%, and less than 10 minor variants >=5%. These are marked in yellow to orange according to the number of these failure types. Samples that failed to generate any assembly are marked in red. In addition, premature stop codons are flagged in yellow. CDC does not submit sequences with premature stop codons, particularly in HA, NA or SARS-CoV-2 Spike. Outside of those genes, premature stop codons near the end of the gene may be ok for submission. Hover your mouse over the figure to see individual results.
+2. Review the "Automatic Quality Control Decisions" heatmap. In addition to IRMA's built in quality control, MIRA requires a minimum median coverage of 100x, a minimum coverage of the reference length of 90%, and less than 10 minor variants >=5%. These are marked in yellow to orange according to the number of these failure types. Samples that failed to generate any assembly are marked in red. In addition, premature stop codons are flagged in yellow. CDC does not submit sequences with premature stop codons, particularly in HA, NA or SARS-CoV-2 Spike. Outside of those genes, premature stop codons near the end of the gene may be ok for submission. Hover your mouse over the figure to see individual results.
 
     | | |
     |--|--|

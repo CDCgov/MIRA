@@ -1,0 +1,32 @@
+## How to upgrade MIRA to the latest version
+
+1. Open a terminal (Ubuntu if you installed WSL2 with this instructions, Terminal if you are using a Mac). `cd` to the folder with your sequence run data:
+   
+   ```bash
+    cd ~/FLU_SC2_SEQUENCING
+   ```
+2. Remove older MIRA versions (or iSpy or IRMA-spy if that's what you had installed)
+
+   ```bash
+   sudo docker rm -f mira spyne irma dais
+   ```
+
+3. Download the installation script from the internet:
+   
+   ```bash
+    curl https://raw.githubusercontent.com/CDCgov/MIRA/prod/docker-compose-git.yml | sed "s%/path/to/data%$(pwd)/%g" > docker-compose.yml
+   ```
+
+   _if you get a permissions error here, first run `sudo rm docker-compose.yml` then try again_
+
+4. Run a build command:
+
+   ```bash
+   sudo docker compose build
+   ```
+
+5. Run the install script with `sudo` and `docker compose`:
+   
+   ```bash
+    sudo docker compose up -d
+   ```
