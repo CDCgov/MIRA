@@ -225,6 +225,12 @@ def parse_contents(contents, filename, date, run):
     elif True in list(ss_df["Sample ID"].str.contains(r"[\\/]")):
         ss_df["slashes"] = ss_df["Sample ID"].str.contains(r"[\\/]")
         stmnt = f"No '/' or '\\' (slashes) allowed in Sample IDs. Please edit. Offenders = {list(ss_df.loc[ss_df['slashes']==True]['Sample ID'])}"
+    elif selected_experiment_type is None:
+        stmnt = f"You have not selected what kind of data this run is! Please select from the \"What kind of data is this?\" dropdown above"
+    elif "illumina" in selected_experiment_type.lower() and "Barcode #" in ss_df.columns:
+        stmnt = f"You have selected a Nanopore Samplesheet for an Illumina Run!! Please reload with an Illumina Samplesheet"
+    elif "ont" in selected_experiment_type.lower() and "Barcode #" not in ss_df.columns:
+        stmnt = f"You have selected an Illumina Samplesheet for a Nanopore run!! Please reload with a Nanopore Samplsheet"
     else:
         print(f"saving df")
         ss_df.to_csv(f"{data_root}/{run}/samplesheet.csv", index=False)
@@ -497,7 +503,7 @@ def new_version_modal(n_interval):
 def display_irma_progress(run, toggle, n_intervals, n_clicks):
     if not toggle:
         return html.Div()
-    if len(glob(f"{data_root}/{run}/spyne_logs.tar.gz")) == 1:
+    if len(glob(f"{data_root}/{run}/amended_consensus.fasta")) == 1:
         return html.Div('IRMA is finished! Click "DISPLAY IRMA RESULTS"')
     logs = glob(f"{data_root}/{run}/logs/*irma*out.log")
     if os.path.exists(f"{data_root}/{run}/.snakemake") and len(logs) == 0:
