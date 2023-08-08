@@ -1,2 +1,3 @@
 DATA_ROOT: /data/
 DEBUG: False
+DEPLOY: True

@@ -31,10 +31,12 @@ If this command errors out, you may need to turn on []"virtualization".](./troub
 wsl --set-default-version 2
 ```
 
+
 ```bash
 wsl --install -d Ubuntu-20.04
 ```
 If either of these commands errors out, try [troubleshooting](./troubleshooting.html#wsl-install-error)
+
 
 Following successful installation, an Ubuntu terminal should pop up that looks like:
 ![alt text](./images/ubuntu_setub_1.png)

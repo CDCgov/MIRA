@@ -10,7 +10,7 @@ x-irma-version:
 
 x-spyne-git-version:
   &spyne-git-version  
-  https://github.com/nbx0/spyne.git#prod
+  https://github.com/cdcgov/spyne.git#prod
 
 x-mira-git-version:
   &mira-git-version  

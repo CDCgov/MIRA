@@ -1,8 +1,8 @@
 Package: MIRA
 Type: Package
-Title: Dash
-Version: 1.0.0
-Date: 2023-02-20
+Title: MIRA
+Version: 1.1.0
+Date: 2023-08-08
 Authors@R: 
   c(person(given="Ben", family="Rambo-Martin", role=c("aut","cre"), 
            email="nbx0@cdc.gov", comment=c(ORCID="0000-0002-8591-3954")), 
