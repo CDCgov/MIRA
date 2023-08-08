@@ -42,7 +42,7 @@ x-irma-version:\n\
 \n\
 x-spyne-git-version:\n\
   &spyne-git-version  \n\
-  https://github.com/nbx0/spyne.git#prod\n\
+  https://github.com/cdcgov/spyne.git#prod\n\
 \n\
 x-mira-git-version:\n\
   &mira-git-version  \n\
