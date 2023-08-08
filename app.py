@@ -505,9 +505,13 @@ def display_irma_progress(run, toggle, n_intervals, n_clicks):
         return html.Div()
     if len(glob(f"{data_root}/{run}/amended_consensus.fasta")) == 1:
         return html.Div('IRMA is finished! Click "DISPLAY IRMA RESULTS"')
+    if (len(glob(f"{data_root}/{run}/dash-json")) == 1) or (len(glob(f"{data_root}/{run}/DAIS_ribosome_input.fasta")) == 1):
+        return html.Div('Annotating genomes and creating images, please wait...')
     logs = glob(f"{data_root}/{run}/logs/*irma*out.log")
     if os.path.exists(f"{data_root}/{run}/.snakemake") and len(logs) == 0:
         return html.Div("Data processing has started, please wait...")
+    if (len(glob(f"{data_root}/{run}/spyne_logs.tar.gz")) == 1) and (len(glob(f"{data_root}/{run}/dash-json")) == 0):
+        return html.Div("Run has failed. If you need further help, please contact us at IDSeqsupport@cdc.gov") 
     if len(logs) == 0:
         return html.Div("No IRMA data is available")
     log_dic = {}
