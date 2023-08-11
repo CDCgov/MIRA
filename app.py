@@ -215,7 +215,7 @@ def parse_contents(contents, filename, date, run):
         return html.Div(["There was an error processing this file."])
     for c in ss_df.columns:
         ss_df[c] = ss_df[c].apply(lambda x: str(x))
-        #ss_df[c] = ss_df[c].apply(lambda x: x.strip("^M").strip())
+        # ss_df[c] = ss_df[c].apply(lambda x: x.strip("^M").strip())
     if True in list(ss_df.duplicated("Sample ID")):
         ss_df["duplicated"] = ss_df.duplicated("Sample ID")
         stmnt = f"No duplicate sample IDs allowed. Please edit. Duplicates = {list(ss_df.loc[ss_df['duplicated']==True]['Sample ID'])}"
@@ -226,8 +226,10 @@ def parse_contents(contents, filename, date, run):
         ss_df["slashes"] = ss_df["Sample ID"].str.contains(r"[\\/]")
         stmnt = f"No '/' or '\\' (slashes) allowed in Sample IDs. Please edit. Offenders = {list(ss_df.loc[ss_df['slashes']==True]['Sample ID'])}"
     elif selected_experiment_type is None:
-        stmnt = f"You have not selected what kind of data this run is! Please select from the \"What kind of data is this?\" dropdown above"
-    elif "illumina" in selected_experiment_type.lower() and "Barcode #" in ss_df.columns:
+        stmnt = f'You have not selected what kind of data this run is! Please select from the "What kind of data is this?" dropdown above'
+    elif (
+        "illumina" in selected_experiment_type.lower() and "Barcode #" in ss_df.columns
+    ):
         stmnt = f"You have selected a Nanopore Samplesheet for an Illumina Run!! Please reload with an Illumina Samplesheet"
     elif "ont" in selected_experiment_type.lower() and "Barcode #" not in ss_df.columns:
         stmnt = f"You have selected an Illumina Samplesheet for a Nanopore run!! Please reload with a Nanopore Samplsheet"
@@ -505,13 +507,19 @@ def display_irma_progress(run, toggle, n_intervals, n_clicks):
         return html.Div()
     if len(glob(f"{data_root}/{run}/amended_consensus.fasta")) == 1:
         return html.Div('IRMA is finished! Click "DISPLAY IRMA RESULTS"')
-    if (len(glob(f"{data_root}/{run}/dash-json")) == 1) or (len(glob(f"{data_root}/{run}/DAIS_ribosome_input.fasta")) == 1):
-        return html.Div('Annotating genomes and creating images, please wait...')
+    if (len(glob(f"{data_root}/{run}/dash-json")) == 1) or (
+        len(glob(f"{data_root}/{run}/DAIS_ribosome_input.fasta")) == 1
+    ):
+        return html.Div("Annotating genomes and creating images, please wait...")
     logs = glob(f"{data_root}/{run}/logs/*irma*out.log")
     if os.path.exists(f"{data_root}/{run}/.snakemake") and len(logs) == 0:
         return html.Div("Data processing has started, please wait...")
-    if (len(glob(f"{data_root}/{run}/spyne_logs.tar.gz")) == 1) and (len(glob(f"{data_root}/{run}/dash-json")) == 0):
-        return html.Div("Run has failed. If you need further help, please contact us at IDSeqsupport@cdc.gov") 
+    if (len(glob(f"{data_root}/{run}/spyne_logs.tar.gz")) == 1) and (
+        len(glob(f"{data_root}/{run}/dash-json")) == 0
+    ):
+        return html.Div(
+            "Run has failed. If you need further help, please contact us at IDSeqsupport@cdc.gov"
+        )
     if len(logs) == 0:
         return html.Div("No IRMA data is available")
     log_dic = {}
@@ -833,16 +841,19 @@ flu_numbers = {
 
 
 @app.callback(
-    [Output("download_passed_nt_fasta", "data"), Output("download_passed_aa_fasta", "data")],
+    [
+        Output("download_passed_nt_fasta", "data"),
+        Output("download_passed_aa_fasta", "data"),
+    ],
     [Input("select_run", "value"), Input("fasta_passed_dl_button", "n_clicks")],
     prevent_initial_call=True,
 )
 def download_passed_fastas(run, n_clicks):
     if not n_clicks:
         raise dash.exceptions.PreventUpdate
-    global dl_fasta_clicks
+    global dl_passed_fasta_clicks
     if n_clicks > dl_passed_fasta_clicks:
-        dl_fasta_clicks = n_clicks
+        dl_passed_fasta_clicks = n_clicks
         content = open(f"{data_root}/{run}/amended_consensus.fasta").read()
         nt_fastas = dict(
             content=content,
@@ -855,17 +866,21 @@ def download_passed_fastas(run, n_clicks):
         )
         return nt_fastas, aa_fastas
 
+
 @app.callback(
-    [Output("download_failed_nt_fasta", "data"), Output("download_failed_aa_fasta", "data")],
+    [
+        Output("download_failed_nt_fasta", "data"),
+        Output("download_failed_aa_fasta", "data"),
+    ],
     [Input("select_run", "value"), Input("fasta_failed_dl_button", "n_clicks")],
     prevent_initial_call=True,
 )
 def download_failed_fastas(run, n_clicks):
     if not n_clicks:
         raise dash.exceptions.PreventUpdate
-    global dl_fasta_clicks
+    global dl_failed_fasta_clicks
     if n_clicks > dl_failed_fasta_clicks:
-        dl_fasta_clicks = n_clicks
+        dl_failed_fasta_clicks = n_clicks
         content = open(f"{data_root}/{run}/failed_amended_consensus.fasta").read()
         nt_fastas = dict(
             content=content,
@@ -902,12 +917,17 @@ CONTENT_STYLE = {
 
 sidebar = html.Div(
     [
-        html.A(href="https://cdcgov.github.io/MIRA/articles/running-mira.html",
-                             target="_blank",children=[html.Img(
-            src=app.get_asset_url("mira-logo-midjourney_20230526_rmbkgnd.png"),
-            height=125,
-            width=125,
-        )]),
+        html.A(
+            href="https://cdcgov.github.io/MIRA/articles/running-mira.html",
+            target="_blank",
+            children=[
+                html.Img(
+                    src=app.get_asset_url("mira-logo-midjourney_20230526_rmbkgnd.png"),
+                    height=125,
+                    width=125,
+                )
+            ],
+        ),
         html.H2("MIRA", className="display-4"),
         html.P(
             [
@@ -945,10 +965,8 @@ sidebar = html.Div(
             vertical=True,
             pills=True,
         ),
-        
     ],
     style=SIDEBAR_STYLE,
-
 )
 
 
@@ -1246,10 +1264,16 @@ content = html.Div(
     + [
         html.Div(
             [
-                dbc.Button("Download Fastas", id="fasta_passed_dl_button", color="primary"),
+                dbc.Button(
+                    "Download Fastas", id="fasta_passed_dl_button", color="primary"
+                ),
                 dcc.Download(id="download_passed_nt_fasta"),
                 dcc.Download(id="download_passed_aa_fasta"),
-                dbc.Button("Download Failed Fastas", id="fasta_failed_dl_button", color="secondary"),
+                dbc.Button(
+                    "Download Failed Fastas",
+                    id="fasta_failed_dl_button",
+                    color="secondary",
+                ),
                 dcc.Download(id="download_failed_nt_fasta"),
                 dcc.Download(id="download_failed_aa_fasta"),
             ]
