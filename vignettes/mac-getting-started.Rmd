@@ -4,7 +4,6 @@
 - A minimum of 8 CPU cores. 16 are recommended.
 
 
-
 ## [Install Docker Desktop](https://www.docker.com/products/docker-desktop/)
 Docker allows you to run software inside an isolated "container image" on your computer with all of that application's needed dependencies. Make sure to install the version for your operating system.
 
@@ -14,8 +13,22 @@ Docker allows you to run software inside an isolated "container image" on your c
 
 ## MIRA Installation
 
-- Open Docker Desktop, and once it is running
-- Open the terminal, and copy/paste these commands
+- Open Docker Desktop, and once it is running:
+
+Open Settings -> Features in development -> Experimental Features:
+
+- Ensure "Access Experimental Features" and "Enable backround SBOM Indexing" are both checked on
+
+![](images/docker_features_in_development.png)
+
+
+- Then, in __Beta Features__, enable "Use Rosetta for x86/amd66 emulation on Apple Silicon"
+- This will help MIRA run faster and remain more stable
+- Save these settings by clicking "Apply & restart"
+
+
+
+### Open the terminal, and copy/paste these commands ###
 
 ```bash
 mkdir ~/FLU_SC2_SEQUENCING
@@ -33,4 +46,4 @@ sudo docker-compose up -d
 
 You are now running MIRA! You can proceed to [Running MIRA](./running-mira.html)
 
-If these instructions show errors, please refer to [Troubleshooting: MIRA-INSTALL.sh failed](./troubleshooting.html)
+If these instructions show errors, please refer to our [Troubleshooting](./troubleshooting.html) page
