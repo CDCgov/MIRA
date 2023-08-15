@@ -19,12 +19,14 @@ Open Settings -> Features in development -> Experimental Features:
 
 - Ensure "Access Experimental Features" and "Enable backround SBOM Indexing" are both checked on
 
+
 ![](./images/docker_features_in_development.png)
 
 
-- Then, in __Beta Features__, enable "Use Rosetta for x86/amd66 emulation on Apple Silicon"
-- This will help MIRA run faster and remain more stable
-- Save these settings by clicking "Apply & restart"
+Next, in __Beta Features__, enable "Use Rosetta for x86/amd66 emulation on Apple Silicon". This will help MIRA run faster and remain more stable
+
+
+Save these settings by clicking "Apply & restart"
 
 
 
