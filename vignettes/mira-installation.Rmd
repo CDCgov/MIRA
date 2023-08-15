@@ -21,7 +21,7 @@ MIRA runs inside Docker containers. Containers have all of the code and dependen
 3. Run the install script with `sudo` and `docker-compose`:
    
    ```bash
-    sudo docker-compose up -d
+    sudo docker compose up -d
    ```
 
 
