@@ -303,7 +303,10 @@ def generate_samplesheet_xl(run):
                     set([re.findall(r".+(?=_R[12])", i)[0] for i in fqs])
                 )
         except IndexError:
-            ill_samples = list(set([re.findall(r".+(?=_R[12])", i)[0] for i in fqs]))
+            try:
+                ill_samples = list(set([re.findall(r".+(?=_R[12])", i)[0] for i in fqs]))
+            except:
+                ill_samples = list(set([i for i in fqs]))
         ill_samples.sort()
         print(fqs, ill_samples)
         ws["A1"].value, ws["B1"].value = "Sample ID", "Sample Type"
@@ -448,7 +451,7 @@ def run_snake_script_onClick(
 # def unlock_assembly_button(n_clicks):
 #    return False
 
-
+"""
 @app.callback(
     Output("new-version", "children"), Input("new-version-interval", "n_intervals")
 )
@@ -491,7 +494,7 @@ def new_version_modal(n_interval):
             style={"font-size": "300%", "font-family": "arial"},
         )
         return modal
-
+"""
 
 @app.callback(
     Output("irma-progress", "children"),
