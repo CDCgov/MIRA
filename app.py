@@ -302,7 +302,7 @@ def generate_samplesheet_xl(run):
             try:
                 ill_samples = list(set([re.findall(r".+(?=_R[12])", i)[0] for i in fqs]))
             except:
-                ill_samples = list(set([re.findall(r".+(?=.fastq)", i) for i in fqs]))
+                ill_samples = list(set([re.findall(r".+(?=.fastq)", i)[0] for i in fqs]))
         ill_samples.sort()
         print(fqs, ill_samples)
         ws["A1"].value, ws["B1"].value = "Sample ID", "Sample Type"
