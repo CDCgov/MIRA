@@ -1020,6 +1020,7 @@ content = html.Div(
                         "label": "SC2-Whole-Genome-Illumina",
                         "value": "SC2-Whole-Genome-Illumina",
                     },
+                    {"label": "Flu-Single-End", "value":"Flu-Single-End"}
                 ],
                 id="experiment_type",
                 placeholder="What kind of data is this?",
