@@ -47,6 +47,7 @@ with open(argv[1], "r") as y:
 data_root = CONFIG["DATA_ROOT"]
 DEBUG = CONFIG["DEBUG"]
 DEPLOY = CONFIG["DEPLOY"]
+AVAILABLE_VERSION = CONFIG["VERSION_URL"]
 if DEPLOY:
     check_version_interval = 3000
 else:
@@ -459,9 +460,7 @@ def new_version_modal(n_interval):
     else:
         with open("DESCRIPTION", "r") as d:
             current = "".join(d.readlines())
-    available = requests.get(
-        "https://raw.githubusercontent.com/CDCgov/MIRA/illumina-flu/DESCRIPTION"
-    )
+    available = requests.get(AVAILABLE_VERSION)
     current = re.findall(r"Version.+(?=\n)", current)[0]
     available = re.findall(r"Version.+(?=\r)", available.text)[0]
     if current == available:
@@ -478,7 +477,7 @@ def new_version_modal(n_interval):
                 dbc.ModalBody(
                     dcc.Link(
                         "CLICK HERE",
-                        href="https://cdcgov.github.io/MIRA/articles/FAQs.html",
+                        href="https://cdcgov.github.io/MIRA/articles/upgrading-mira.html",
                         target="_blank",
                     )
                 ),
