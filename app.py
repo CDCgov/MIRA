@@ -47,10 +47,6 @@ with open(argv[1], "r") as y:
 data_root = CONFIG["DATA_ROOT"]
 DEBUG = CONFIG["DEBUG"]
 DEPLOY = CONFIG["DEPLOY"]
-if DEPLOY:
-    check_version_interval = 3000
-else:
-    check_version_interval = 1000 * 60 * 60 * 24  # milliseconds in 1 day
 
 app = dash.Dash(external_stylesheets=[dbc.themes.FLATLY])
 app.title = "MIRA"
@@ -306,7 +302,7 @@ def generate_samplesheet_xl(run):
             try:
                 ill_samples = list(set([re.findall(r".+(?=_R[12])", i)[0] for i in fqs]))
             except:
-                ill_samples = list(set([i for i in fqs]))
+                ill_samples = list(set([re.findall(r".+(?=.fastq)", i) for i in fqs]))
         ill_samples.sort()
         print(fqs, ill_samples)
         ws["A1"].value, ws["B1"].value = "Sample ID", "Sample Type"
@@ -451,50 +447,6 @@ def run_snake_script_onClick(
 # def unlock_assembly_button(n_clicks):
 #    return False
 
-"""
-@app.callback(
-    Output("new-version", "children"), Input("new-version-interval", "n_intervals")
-)
-def new_version_modal(n_interval):
-    if DEPLOY:
-        with open("/MIRA/DESCRIPTION", "r") as d:
-            current = "".join(d.readlines())
-    else:
-        with open("DESCRIPTION", "r") as d:
-            current = "".join(d.readlines())
-    available = requests.get(
-        "https://raw.githubusercontent.com/CDCgov/MIRA/illumina-flu/DESCRIPTION"
-    )
-    current = re.findall(r"Version.+(?=\n)", current)[0]
-    available = re.findall(r"Version.+(?=\r)", available.text)[0]
-    if current == available:
-        return html.Div()
-    else:
-        modal = dbc.Modal(
-            [
-                dbc.ModalHeader(
-                    html.A(
-                        f"A new version of MIRA is available! ",
-                        style={"color": "indigo"},
-                    )
-                ),
-                dbc.ModalBody(
-                    dcc.Link(
-                        "CLICK HERE",
-                        href="https://cdcgov.github.io/MIRA/articles/FAQs.html",
-                        target="_blank",
-                    )
-                ),
-                dbc.ModalBody(f"Current {current}"),
-                dbc.ModalBody(f"Available {available}"),
-            ],
-            size="lg",
-            is_open=True,
-            centered=True,
-            style={"font-size": "300%", "font-family": "arial"},
-        )
-        return modal
-"""
 
 @app.callback(
     Output("irma-progress", "children"),
@@ -985,11 +937,7 @@ def blank_fig():
 content = html.Div(
     id="page-content",
     style=CONTENT_STYLE,
-    children=[html.Div(id="new-version")]
-    + [
-        dcc.Interval(id="new-version-interval", interval=check_version_interval)
-    ]  # interval in milliseconds
-    + [
+    children=[
         dbc.Row(
             [
                 dbc.Col(
