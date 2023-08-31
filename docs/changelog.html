@@ -93,14 +93,29 @@
       <h1>NA</h1>
     </div>
 
+
 <div class="section level4">
-<h4 id="v101">v1.0.1<a class="anchor" aria-label="anchor" href="#v101"></a></h4>
-<ul><li>looks for samplesheet with case insensitive matching of glob(data/run/*csv) items containing “samplesheet” or “data”</li>
-<li>removes carriage return: ^M from samplesheet which occurs when user copy and pastes sample IDs from excel into SPY’s samplesheet creator.</li>
-<li>Button added to refresh run listing</li>
-<li>Downloaded fasta for FLU now changes the flu segment numbers to the gene name</li>
-<li>TO DO: REDUCE DAIS RESULT TABLE FOR FLU TO FULL PROTEINS, (ie remove ha signal, etc….)</li>
+<h4 id="v111">v.1.1.1<a class="anchor" aria-label="anchor" href="#v111"></a></h4>
+<ul><li>Pandas version –&gt; 1.1.0</li>
+<li>Mac docs updated to show Rosetta usage in Docker Desktop</li>
+<li>More thorough error and status messaging during assembly</li>
 </ul></div>
+<div class="section level4">
+<h4 id="v110">v1.1.0<a class="anchor" aria-label="anchor" href="#v110"></a></h4>
+<ul><li>Illumina sequencing for WGS SC2 and Flu</li>
+<li>Auto-samplesheet building</li>
+<li>Samplesheet download/upload functionality</li>
+<li>Button added to refresh run listing</li>
+<li>Button added to download failed fastas</li>
+<li>Downloaded fasta for FLU now changes the flu segment numbers to the gene name</li>
+<li>Allow numeric samplenames, and allow “-” in sample names</li>
+<li>Toss broken reads for ONT fastqs</li>
+<li>Return only closer Flu B reference in amino acid variants table</li>
+<li>Better error handling for empty/failed nanopore barcodes</li>
+<li>Indel table filtered to &gt;20%, Minor variant table filtered to &gt;5%</li>
+<li>Archive previous run logs in the even of a re-run</li>
+</ul></div>
+
 
   </div>
 
