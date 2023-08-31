@@ -47,6 +47,7 @@ with open(argv[1], "r") as y:
 data_root = CONFIG["DATA_ROOT"]
 DEBUG = CONFIG["DEBUG"]
 DEPLOY = CONFIG["DEPLOY"]
+AVAILABLE_VERSION = CONFIG["VERSION_URL"]
 if DEPLOY:
     check_version_interval = 3000
 else:
@@ -357,7 +358,7 @@ def generate_samplesheet(run, upload_data, experiment_type):
         )
         with open(ss_filename, "w") as d:
             d.write(noCarriageReturn)
-        data = pd.read_csv(ss_filename).to_dict("records")
+        data = pd.read_csv(ss_filename, skip_blank_lines=True).to_dict("records")
         if len(data[0].keys()) > 2:
             if "Illumina" in experiment_type:
                 data_columns = [
@@ -459,9 +460,7 @@ def new_version_modal(n_interval):
     else:
         with open("DESCRIPTION", "r") as d:
             current = "".join(d.readlines())
-    available = requests.get(
-        "https://raw.githubusercontent.com/CDCgov/MIRA/illumina-flu/DESCRIPTION"
-    )
+    available = requests.get(AVAILABLE_VERSION)
     current = re.findall(r"Version.+(?=\n)", current)[0]
     available = re.findall(r"Version.+(?=\r)", available.text)[0]
     if current == available:
@@ -478,7 +477,7 @@ def new_version_modal(n_interval):
                 dbc.ModalBody(
                     dcc.Link(
                         "CLICK HERE",
-                        href="https://cdcgov.github.io/MIRA/articles/FAQs.html",
+                        href="https://cdcgov.github.io/MIRA/articles/upgrading-mira.html",
                         target="_blank",
                     )
                 ),
@@ -510,7 +509,12 @@ def display_irma_progress(run, toggle, n_intervals, n_clicks):
     if (len(glob(f"{data_root}/{run}/dash-json")) == 1) or (
         len(glob(f"{data_root}/{run}/DAIS_ribosome_input.fasta")) == 1
     ):
-        return html.Div("Annotating genomes and creating images, please wait...")
+        if not len(glob(f"{data_root}/{run}/spyne_logs.tar.gz")) == 1:
+            return html.Div("Annotating genomes and creating images, please wait...")
+        else:
+            return html.Div(
+            "Run has failed during annotation and figure creation. If you need further help, please contact us at IDSeqsupport@cdc.gov"
+        )
     logs = glob(f"{data_root}/{run}/logs/*irma*out.log")
     if os.path.exists(f"{data_root}/{run}/.snakemake") and len(logs) == 0:
         return html.Div("Data processing has started, please wait...")
@@ -1016,6 +1020,7 @@ content = html.Div(
                     {"label": "Flu-ONT", "value": "Flu-ONT"},
                     {"label": "SC2-Spike-Only-ONT", "value": "SC2-Spike-Only-ONT"},
                     {"label": "Flu-Illumina", "value": "Flu-Illumina"},
+                    {"label": "SC2-Whole-Genome-ONT", "value":"SC2-Whole-Genome-ONT"},
                     {
                         "label": "SC2-Whole-Genome-Illumina",
                         "value": "SC2-Whole-Genome-Illumina",
