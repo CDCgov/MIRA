@@ -2,6 +2,8 @@
 # MIRA 1.1.1
 * Github Repo: https://github.com/CDCgov/MIRA
 * Documentation: https://cdcgov.github.io/MIRA
+
+  
 #### v.1.1.1
 - Pandas version --> 1.1.0
 - Mac docs updated to show Rosetta usage in Docker Desktop
