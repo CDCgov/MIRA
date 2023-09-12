@@ -21,6 +21,17 @@ MIRA installation with docker compose expects an Ubuntu 18+ operating system or 
 
 <hr>
 
+## My containers are running in Ubuntu, but I don't see them in Docker Desktop
+Following successful installation, you should see your containers running in Ubuntu and in Docker Desktop.
+However, if you have multiple Ubuntu distributions installed, you may need to enable the right one in Docker Desktop.
+
+
+Click the "Settings" icon in the top right corner of Docker Desktop, then Resources, then WSL Integration. Here, you can enable the right distribution if you see multiple Ubuntu versions listed:
+
+![](./images/WSL_docker.png)
+
+<br>
+Then click Apply and Restart
 
 ## WSL install error
 From the Windows search bar, open `Turn Windows Features on or off` and make sure the following 4 features are enabled:
@@ -30,6 +41,9 @@ From the Windows search bar, open `Turn Windows Features on or off` and make sur
 * Windows Hypervisor Platform
 * Windows Subsystem for Linux
 
+## apt-get update error
+If your `apt-get update` fails with a message related to certificates not valid for another 3 hours (for example), this means your computer time zone does not match Ubuntu time zone.
+Change your Windows time to auto-update and match the current timezone, then try again.
 
 ## Map network drive
 

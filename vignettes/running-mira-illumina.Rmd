@@ -18,6 +18,10 @@ _This documentation assumes you have the four required Docker containers (**IRMA
 
 ![](images/mira_run_directory_structure_fastq_illumina.PNG)
 
+<br>
+**This screenshot shows "Ubuntu-18.04" but many users just see "Ubuntu". This can vary, particularly if you happen to have multiple Ubuntu versions installed. If you have multiple Ubunut distributions installed, move the fastqs to whichever "Ubuntu" contains FLU_SC2_SEQUENCING within home>USERNAME>FLU_SC2_SEQUENCING**
+
+
 <hr>
 
 ## Run genome assembly with MIRA
