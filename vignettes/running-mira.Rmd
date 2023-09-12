@@ -110,6 +110,49 @@ _This documentation assumes you have the four required Docker containers (**IRMA
 
     ![](images/mira_aa_vars.png)
 
+Here, you may see some mutations that do not match Amino Acid letters.
+
+### Special translated characters
+Translation produces standard amino acid codes with the two non-standard exceptions (. and ~) listed below.  The translation engine stops when it encounters a stop codon, but corrects itself to continue in-frame when a frameshift is encountered.
+
+
+
+```{css, echo=FALSE}
+th {
+  font-weight: bold;
+}
+
+th, td {
+  border: 1px solid black
+}
+```
+
+
+<table>
+<tr>
+<th>Character</th>
+<th>Interpretation</th>
+</tr>
+<tr>
+<td>.</td>
+<td>Missing alignment data</td>
+</tr>
+<tr>
+<td>-</td>
+<td>Gap in alignment (ex: deletion)</td>
+</tr>
+<tr>
+<td>~</td>
+<td>Partial codon (ex: frameshift)</td>
+</tr>
+<tr>
+<td>X</td>
+<td>Ambiguous codon translation</td>
+</tr>
+</table>
+
+<br>
+
 6. Inspect minor variation at single nucleotides, insertions and deletions _relative to the sample's generated consensus sequence._ These tables are for your own usage and not necessary to review in detail. They can be sorted and filtered and exported to excel sheets for further analyses.
 
     ![](images/mira_minor_vars.png)
