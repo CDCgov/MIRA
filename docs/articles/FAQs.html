@@ -194,27 +194,40 @@ Containers</a>
 </li>
 </ol>
 </div>
-<div class="section level4">
-<h4 id="mira-uninstall-1">mira uninstall<a class="anchor" aria-label="anchor" href="#mira-uninstall-1"></a>
-</h4>
-<ol style="list-style-type: decimal">
-<li>Open an Ubuntu terminal</li>
-<li><div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a> <span class="co"># Show running containers</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a> <span class="ex">docker</span> ps</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a> <span class="co"># Stop running container you want to update. In this example we are updating mira and spyne.</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a> <span class="ex">docker</span> stop mira spyne</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a> <span class="co"># Delete containers</span></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a> <span class="ex">docker</span> rm mira spyne</span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a> <span class="co"># Delete images</span></span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a> <span class="ex">docker</span> rmi mira spyne</span></code></pre></div></li>
-<li>Install the latest version of MIRA: <a href="mira-installation.html">See NGS Training: Setting Up
-Containers</a>
-</li>
-</ol>
 </div>
+<div class="section level3">
+<h3 id="how-do-i-customize-the-number-of-cores-mira-uses">How do I customize the number of cores MIRA uses?<a class="anchor" aria-label="anchor" href="#how-do-i-customize-the-number-of-cores-mira-uses"></a>
+</h3>
+<p>This is best achieved by setting <code>resources</code> in the
+<code>docker-compose.yml</code> for a container’s <code>deploy</code>
+settings:</p>
+<p>For example:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">spyne:</span> </span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="ex">container_name:</span> spyne</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="ex">image:</span> spyne</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="ex">build:</span> </span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>      <span class="ex">context:</span> <span class="pp">*</span>spyne-git-version </span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="ex">depends_on:</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>      <span class="ex">-</span> dais</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>      <span class="ex">-</span> irma</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="ex">restart:</span> always</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    <span class="ex">networks:</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>      <span class="ex">-</span> backend</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    <span class="ex">volumes:</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>      <span class="ex">-</span> <span class="pp">*</span>data-volume</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>      <span class="ex">-</span> <span class="pp">*</span>docker-socket</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    <span class="ex">command:</span> tail <span class="at">-f</span> /dev/null</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>    <span class="ex">deploy:</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>      <span class="ex">resources:</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>        <span class="ex">limits:</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>          <span class="ex">cpus:</span> <span class="st">'0.001'</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>          <span class="ex">memory:</span> 50M</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>        <span class="ex">reservations:</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>          <span class="ex">cpus:</span> <span class="st">'0.0001'</span></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>          <span class="ex">memory:</span> 20M</span></code></pre></div>
+<p>Read more <a href="https://docs.docker.com/compose/compose-file/compose-file-v3/#resources" class="external-link">here</a>
+in the official Docker Docs</p>
+<p><br></p>
 </div>
 <div class="section level3">
 <h3 id="docker-compose-operations">Docker compose operations<a class="anchor" aria-label="anchor" href="#docker-compose-operations"></a>

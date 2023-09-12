@@ -163,6 +163,12 @@ instrument during the run.</li>
 </li>
 </ul>
 <p><img src="images/mira_run_directory_structure_fastq.png"></p>
+<p><br><strong>This screenshot shows “Ubuntu-18.04” but many users just
+see “Ubuntu”. This can vary, particularly if you happen to have multiple
+Ubuntu versions installed. If you have multiple Ubunut distributions
+installed, move the fastqs to whichever “Ubuntu” contains
+FLU_SC2_SEQUENCING within
+home&gt;USERNAME&gt;FLU_SC2_SEQUENCING</strong></p>
 <hr>
 </div>
 <div class="section level2">
@@ -356,6 +362,69 @@ plot.</p>
 sequences.</p>
 <p><img src="images/mira_aa_vars.png"></p>
 </li>
+</ol>
+<p>Here, you may see some mutations that do not match Amino Acid
+letters.</p>
+<div class="section level3">
+<h3 id="special-translated-characters">Special translated characters<a class="anchor" aria-label="anchor" href="#special-translated-characters"></a>
+</h3>
+<p>Translation produces standard amino acid codes with the two
+non-standard exceptions (. and ~) listed below. The translation engine
+stops when it encounters a stop codon, but corrects itself to continue
+in-frame when a frameshift is encountered.</p>
+<style type="text/css">
+th {
+  font-weight: bold;
+}
+
+th, td {
+  border: 1px solid black
+}
+</style>
+<table class="table">
+<tr>
+<th>
+Character
+</th>
+<th>
+Interpretation
+</th>
+</tr>
+<tr>
+<td>
+.
+</td>
+<td>
+Missing alignment data
+</td>
+</tr>
+<tr>
+<td>
+-
+</td>
+<td>
+Gap in alignment (ex: deletion)
+</td>
+</tr>
+<tr>
+<td>
+~
+</td>
+<td>
+Partial codon (ex: frameshift)
+</td>
+</tr>
+<tr>
+<td>
+X
+</td>
+<td>
+Ambiguous codon translation
+</td>
+</tr>
+</table>
+<p><br></p>
+<ol start="6" style="list-style-type: decimal">
 <li>
 <p>Inspect minor variation at single nucleotides, insertions and
 deletions <em>relative to the sample’s generated consensus
@@ -370,6 +439,7 @@ sheets for further analyses.</p>
 </li>
 </ol>
 <hr>
+</div>
 </div>
 <div class="section level2">
 <h2 id="save-your-sequences-in-a-fasta-file">Save your sequences in a fasta file<a class="anchor" aria-label="anchor" href="#save-your-sequences-in-a-fasta-file"></a>

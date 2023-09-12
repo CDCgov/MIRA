@@ -152,6 +152,20 @@ MIRA</a></p></li>
 <hr>
 </div>
 <div class="section level3">
+<h3 id="my-containers-are-running-in-ubuntu-but-i-dont-see-them-in-docker-desktop">My containers are running in Ubuntu, but I don’t see them in Docker
+Desktop<a class="anchor" aria-label="anchor" href="#my-containers-are-running-in-ubuntu-but-i-dont-see-them-in-docker-desktop"></a>
+</h3>
+<p>Following successful installation, you should see your containers
+running in Ubuntu and in Docker Desktop. However, if you have multiple
+Ubuntu distributions installed, you may need to enable the right one in
+Docker Desktop.</p>
+<p>Click the “Settings” icon in the top right corner of Docker Desktop,
+then Resources, then WSL Integration. Here, you can enable the right
+distribution if you see multiple Ubuntu versions listed:</p>
+<p><img src="images/WSL_docker.png"></p>
+<p><br> Then click Apply and Restart</p>
+</div>
+<div class="section level3">
 <h3 id="wsl-install-error">WSL install error<a class="anchor" aria-label="anchor" href="#wsl-install-error"></a>
 </h3>
 <p>From the Windows search bar, open
@@ -163,6 +177,15 @@ MIRA</a></p></li>
 <li>Windows Hypervisor Platform</li>
 <li>Windows Subsystem for Linux</li>
 </ul>
+</div>
+<div class="section level3">
+<h3 id="apt-get-update-error">apt-get update error<a class="anchor" aria-label="anchor" href="#apt-get-update-error"></a>
+</h3>
+<p>If your <code>apt-get update</code> fails with a message related to
+certificates not valid for another 3 hours (for example), this means
+your computer time zone does not match Ubuntu time zone. Change your
+Windows time to auto-update and match the current timezone, then try
+again.</p>
 </div>
 <div class="section level3">
 <h3 id="map-network-drive">Map network drive<a class="anchor" aria-label="anchor" href="#map-network-drive"></a>
