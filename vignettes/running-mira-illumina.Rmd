@@ -18,6 +18,10 @@ _This documentation assumes you have the four required Docker containers (**IRMA
 
 ![](images/mira_run_directory_structure_fastq_illumina.PNG)
 
+<br>
+**This screenshot shows "Ubuntu-18.04" but many users just see "Ubuntu". This can vary, particularly if you happen to have multiple Ubuntu versions installed. If you have multiple Ubunut distributions installed, move the fastqs to whichever "Ubuntu" contains FLU_SC2_SEQUENCING within home>USERNAME>FLU_SC2_SEQUENCING**
+
+
 <hr>
 
 ## Run genome assembly with MIRA
@@ -108,6 +112,50 @@ _This documentation assumes you have the four required Docker containers (**IRMA
 5. Inspect amino acid variants against popular reference sequences.
 
     ![](images/mira_aa_vars.png)
+
+Here, you may see some mutations that do not match Amino Acid letters.
+
+### Special translated characters
+Translation produces standard amino acid codes with the two non-standard exceptions (. and ~) listed below.  The translation engine stops when it encounters a stop codon, but corrects itself to continue in-frame when a frameshift is encountered.
+
+
+
+```{css, echo=FALSE}
+th {
+  font-weight: bold;
+}
+
+th, td {
+  border: 1px solid black
+}
+```
+
+
+<table>
+<tr>
+<th>Character</th>
+<th>Interpretation</th>
+</tr>
+<tr>
+<td>.</td>
+<td>Missing alignment data</td>
+</tr>
+<tr>
+<td>-</td>
+<td>Gap in alignment (ex: deletion)</td>
+</tr>
+<tr>
+<td>~</td>
+<td>Partial codon (ex: frameshift)</td>
+</tr>
+<tr>
+<td>X</td>
+<td>Ambiguous codon translation</td>
+</tr>
+</table>
+
+<br>
+
 
 6. Inspect minor variation at single nucleotides, insertions and deletions _relative to the sample's generated consensus sequence._ These tables are for your own usage and not necessary to review in detail. They can be sorted and filtered and exported to excel sheets for further analyses.
 
