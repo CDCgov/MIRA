@@ -4,9 +4,9 @@ x-dais-version:
   &dais-version 
   public.ecr.aws/n3z8t4o2/dais-ribosome:1.3.2
 
-x-irma-version:
-  &irma-version 
-  public.ecr.aws/n3z8t4o2/irma:1.0.5
+x-irma-git-version:
+  &irma-git-version 
+  https://git.biotech.cdc.gov/vfn4/flu-amd.git
 
 x-spyne-git-version:
   &spyne-git-version  
@@ -41,7 +41,14 @@ services:
 
   irma: 
     container_name: irma
-    image: *irma-version
+    image: irma:latest
+    build:
+      context: *irma-git-version
+      args:
+        - ssw_branch=IRMA@v1.0
+        - irma_branch=master
+        - label_branch=master
+        - irma_core_branch=IRMA@v1.1.0
     restart: always
     networks:
       - backend
