@@ -1,10 +1,15 @@
 
-# MIRA 1.1.1
+# MIRA 1.1.2
 * Github Repo: https://github.com/CDCgov/MIRA
 * Documentation: https://cdcgov.github.io/MIRA
 
+### v1.1.2
+- Whole-Genome SC2 Nanopore module
+- Illumina 2x75 support
+- Java instability fixed
+- New Version Checking
   
-#### v.1.1.1
+#### v1.1.1
 - Pandas version --> 1.1.0
 - Mac docs updated to show Rosetta usage in Docker Desktop
 - More thorough error and status messaging during assembly
