@@ -46,6 +46,9 @@ navbar:
           href: articles/running-mira-illumina.html
         - text: Upgrading MIRA
           href: articles/upgrading-mira.html
+    - text: "Lab Protocols"
+        - text: Influenza A MRT-PCR
+          href: articles/influenza-rt-pcr.html
     - text: Help
       menu:
       - text: FAQs
