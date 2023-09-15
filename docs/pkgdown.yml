@@ -12,10 +12,11 @@ articles:
   mira-installation: mira-installation.html
   running-mira-illumina: running-mira-illumina.html
   running-mira: running-mira.html
+  s-gene-rt-pcr: s-gene-rt-pcr.html
   sequence-qc: sequence-qc.html
   troubleshooting: troubleshooting.html
   upgrading-mira: upgrading-mira.html
-last_built: 2023-09-14T20:34Z
+last_built: 2023-09-15T13:44Z
 urls:
   reference: https://github.com/CDCgov/MIRA/reference
   article: https://github.com/CDCgov/MIRA/articles
