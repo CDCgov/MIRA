@@ -57,7 +57,7 @@ th {
 }
 
 th, td {
-  border: 3px solid black
+  border: 1px solid black
 }
 .center {
   margin-left: auto;
@@ -83,13 +83,13 @@ th, td {
 <td>MBTuni-12.4</td>
 <td>22</td>
 <td>ACGCGTGATCAGCGAAAGCAGG</td>
-<td>2</td>
+<td>3</td>
 </tr>
 <tr>
 <td>MBTuni-13</td>
 <td>23</td>
 <td>ACGCGTGATCAGTAGAAACAAGG</td>
-<td>2</td>
+<td>5</td>
 </tr>
 </table>
 
@@ -320,3 +320,6 @@ Stock propagated isolates ordered from the [International Reagent Resource](www.
 ### 15.0	References<br>
 15.1	&nbsp;&nbsp;Product information sheet: SuperScript™ III One-Step RT-PCR System with Platinum™ Taq DNA Polymerase (Invitrogen)<br>
 15.2	&nbsp;&nbsp;Biosafety in Microbiological and Biomedical Laboratories (BMBL), current edition<br>
+
+<hr>
+**LP-497, R-1D (M. Wilson & M. Keller)**                
