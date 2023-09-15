@@ -1,0 +1,34 @@
+#### Table 3: RT-PCR master mix for each SARS-CoV-2 amplicon
+
+<table class="center">
+<tr>
+<th>Reagent</th>
+<th>Volume (µL) Per Reaction</th>
+<th>µL Per Master Mix</th>
+</tr>
+<tr>
+<td>Nuclease-free Water</td>
+<td>4.25</td>
+<td></td>
+</tr>
+<tr>
+<td>SSIV 2X Reaction Mix</td>
+<td>12.5</td>
+<td></td>
+</tr>
+<tr>
+<td>SuperScript IV RT Mix</td>
+<td>0.25</td>
+<td></td>
+</tr>
+<tr>
+<td>S1 or S2 Primer Pool</td>
+<td>5</td>
+<td></td>
+</tr>
+<tr>
+<td>**Subtotal**</td>
+<td>**22**</td>
+<td></td>
+</tr>
+</table>
