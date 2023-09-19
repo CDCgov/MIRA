@@ -1,0 +1,16 @@
+
+
+---
+title: "&#32;"
+output: html_document
+---
+
+
+```{r setup, include=FALSE, message=FALSE, warnings=FALSE}
+library(knitr)
+```
+
+
+```{r pdf, out.height = "1000px", out.width='100%', include=TRUE, fig.align="center", fig.cap="", echo=FALSE}
+knitr::include_graphics("./images/LP-512Rev00D_-_Native_Library_Prep__Nanopore_Sequencing_of_InfA_Virus__SARS-CoV-2_S-gene_Amplicons.pdf")
+```

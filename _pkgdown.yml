@@ -50,6 +50,8 @@ navbar:
       menu:
         - text: Influenza A MRT-PCR
           href: articles/influenza-rt-pcr.html
+        - text: Nanopore A MRT-PCR
+          href: articles/nanopore-rt-pcr.html
     - text: Help
       menu:
       - text: FAQs
