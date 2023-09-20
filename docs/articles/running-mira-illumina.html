@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">MIRA</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.1</span>
       </span>
     </div>
 
@@ -69,6 +69,24 @@
     </li>
     <li>
       <a href="../articles/upgrading-mira.html">Upgrading MIRA</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Lab Protocols
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+<li>
+      <a href="../articles/influenza-mrt-pcr.html">Influenza A MRT-PCR</a>
+    </li>
+    <li>
+      <a href="../articles/sars-cov-2-rt-pcr.html">SARS-COV-2 RT-PCR</a>
+    </li>
+    <li>
+      <a href="../articles/influenza-sars-cov-2-s-gene-amplicons-nanopore.html">Library Prep and Nanopore Sequencing of Influenza and SARS-COV-2 S-gene Amplicons</a>
     </li>
   </ul>
 </li>
@@ -147,11 +165,8 @@ instructions.</em></p>
 is very helpful to name your runs with a consistent naming system, such
 as “YEAR-MONTH-DATE-FLOWCELL_ID”, ie. 2022-11-13-ABC1234.</li>
 </ul>
-<div class="section level3">
-<h3 id="do-not-put-spaces-or-slashes-in-you-run-folder-names">
-<strong><em>DO NOT PUT SPACES OR SLASHES IN YOU RUN FOLDER
-NAMES!</em></strong><a class="anchor" aria-label="anchor" href="#do-not-put-spaces-or-slashes-in-you-run-folder-names"></a>
-</h3>
+<p><strong><em>DO NOT PUT SPACES OR SLASHES IN YOU RUN FOLDER
+NAMES!</em></strong></p>
 <p><img src="images/mira_run_directory_structure.png"></p>
 <ul>
 <li>Copy the run’s demultiplexed fastqs into the RUN-FOLDER.
@@ -165,8 +180,13 @@ There will be two fastq files per sample.</li>
 </li>
 </ul>
 <p><img src="images/mira_run_directory_structure_fastq_illumina.PNG"></p>
+<p><br><strong>This screenshot shows “Ubuntu-18.04” but many users just
+see “Ubuntu”. This can vary, particularly if you happen to have multiple
+Ubuntu versions installed. If you have multiple Ubunut distributions
+installed, move the fastqs to whichever “Ubuntu” contains
+FLU_SC2_SEQUENCING within
+home&gt;USERNAME&gt;FLU_SC2_SEQUENCING</strong></p>
 <hr>
-</div>
 </div>
 <div class="section level2">
 <h2 id="run-genome-assembly-with-mira">Run genome assembly with MIRA<a class="anchor" aria-label="anchor" href="#run-genome-assembly-with-mira"></a>
@@ -230,8 +250,11 @@ the resulting Excel spreadsheet</p>
 </li>
 <li>
 <p>Your samplenames will be inferred from the fastq filenames in
-your fastq directory</p>
+your fastq directory. <strong>Do not change these sample
+names</strong></p>
 <ul>
+<li>If you do not see a sample that you expect, this is because that
+sample name does not have a fastq to process.</li>
 <li>Sample names should only be numbers, letters, dashes, and
 underscores (“-” or “_“). <strong>Do not use any other characters such
 as “/”.</strong>
@@ -358,6 +381,69 @@ plot.</p>
 sequences.</p>
 <p><img src="images/mira_aa_vars.png"></p>
 </li>
+</ol>
+<p>Here, you may see some mutations that do not match Amino Acid
+letters.</p>
+<div class="section level3">
+<h3 id="special-translated-characters">Special translated characters<a class="anchor" aria-label="anchor" href="#special-translated-characters"></a>
+</h3>
+<p>Translation produces standard amino acid codes with the two
+non-standard exceptions (. and ~) listed below. The translation engine
+stops when it encounters a stop codon, but corrects itself to continue
+in-frame when a frameshift is encountered.</p>
+<style type="text/css">
+th {
+  font-weight: bold;
+}
+
+th, td {
+  border: 1px solid black
+}
+</style>
+<table class="table">
+<tr>
+<th>
+Character
+</th>
+<th>
+Interpretation
+</th>
+</tr>
+<tr>
+<td>
+.
+</td>
+<td>
+Missing alignment data
+</td>
+</tr>
+<tr>
+<td>
+-
+</td>
+<td>
+Gap in alignment (ex: deletion)
+</td>
+</tr>
+<tr>
+<td>
+~
+</td>
+<td>
+Partial codon (ex: frameshift)
+</td>
+</tr>
+<tr>
+<td>
+X
+</td>
+<td>
+Ambiguous codon translation
+</td>
+</tr>
+</table>
+<p><br></p>
+<ol start="6" style="list-style-type: decimal">
 <li>
 <p>Inspect minor variation at single nucleotides, insertions and
 deletions <em>relative to the sample’s generated consensus
@@ -372,6 +458,7 @@ sheets for further analyses.</p>
 </li>
 </ol>
 <hr>
+</div>
 </div>
 <div class="section level2">
 <h2 id="save-your-sequences-in-a-fasta-file">Save your sequences in a fasta file<a class="anchor" aria-label="anchor" href="#save-your-sequences-in-a-fasta-file"></a>
@@ -430,7 +517,7 @@ your own data!<a class="anchor" aria-label="anchor" href="#wow-you-are-doing-suc
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.9000.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer>

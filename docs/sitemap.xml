@@ -4,12 +4,6 @@
     <loc>https://github.com/CDCgov/MIRA/404.html</loc>
   </url>
   <url>
-    <loc>https://github.com/CDCgov/MIRA/News.html</loc>
-  </url>
-  <url>
-    <loc>https://github.com/CDCgov/MIRA/articles/FAQs.html</loc>
-  </url>
-  <url>
     <loc>https://github.com/CDCgov/MIRA/articles/data-transfer.html</loc>
   </url>
   <url>
@@ -22,6 +16,9 @@
     <loc>https://github.com/CDCgov/MIRA/articles/docker.html</loc>
   </url>
   <url>
+    <loc>https://github.com/CDCgov/MIRA/articles/FAQs.html</loc>
+  </url>
+  <url>
     <loc>https://github.com/CDCgov/MIRA/articles/getting-started.html</loc>
   </url>
   <url>
@@ -32,6 +29,12 @@
   </url>
   <url>
     <loc>https://github.com/CDCgov/MIRA/articles/index.html</loc>
+  </url>
+  <url>
+    <loc>https://github.com/CDCgov/MIRA/articles/influenza-mrt-pcr.html</loc>
+  </url>
+  <url>
+    <loc>https://github.com/CDCgov/MIRA/articles/influenza-sars-cov-2-s-gene-amplicons-nanopore.html</loc>
   </url>
   <url>
     <loc>https://github.com/CDCgov/MIRA/articles/mac-getting-started.html</loc>
@@ -50,6 +53,12 @@
   </url>
   <url>
     <loc>https://github.com/CDCgov/MIRA/articles/running-mira.html</loc>
+  </url>
+  <url>
+    <loc>https://github.com/CDCgov/MIRA/articles/s-gene-rt-pcr.html</loc>
+  </url>
+  <url>
+    <loc>https://github.com/CDCgov/MIRA/articles/sars-cov-2-rt-pcr.html</loc>
   </url>
   <url>
     <loc>https://github.com/CDCgov/MIRA/articles/sequence-qc.html</loc>
@@ -77,6 +86,12 @@
   </url>
   <url>
     <loc>https://github.com/CDCgov/MIRA/news/news-1.0.html</loc>
+  </url>
+  <url>
+    <loc>https://github.com/CDCgov/MIRA/news/news-1.1.html</loc>
+  </url>
+  <url>
+    <loc>https://github.com/CDCgov/MIRA/News.html</loc>
   </url>
   <url>
     <loc>https://github.com/CDCgov/MIRA/reference/index.html</loc>
