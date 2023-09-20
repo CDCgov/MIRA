@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">MIRA</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.1</span>
       </span>
     </div>
 
@@ -51,6 +51,22 @@
     </li>
     <li>
       <a href="articles/upgrading-mira.html">Upgrading MIRA</a>
+    </li>
+  </ul></li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Lab Protocols
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu"><li>
+      <a href="articles/influenza-mrt-pcr.html">Influenza A MRT-PCR</a>
+    </li>
+    <li>
+      <a href="articles/sars-cov-2-rt-pcr.html">SARS-COV-2 RT-PCR</a>
+    </li>
+    <li>
+      <a href="articles/influenza-sars-cov-2-s-gene-amplicons-nanopore.html">Library Prep and Nanopore Sequencing of Influenza and SARS-COV-2 S-gene Amplicons</a>
     </li>
   </ul></li>
 <li class="dropdown">
@@ -93,14 +109,29 @@
       <h1>NA</h1>
     </div>
 
+
 <div class="section level4">
-<h4 id="v101">v1.0.1<a class="anchor" aria-label="anchor" href="#v101"></a></h4>
-<ul><li>looks for samplesheet with case insensitive matching of glob(data/run/*csv) items containing “samplesheet” or “data”</li>
-<li>removes carriage return: ^M from samplesheet which occurs when user copy and pastes sample IDs from excel into SPY’s samplesheet creator.</li>
-<li>Button added to refresh run listing</li>
-<li>Downloaded fasta for FLU now changes the flu segment numbers to the gene name</li>
-<li>TO DO: REDUCE DAIS RESULT TABLE FOR FLU TO FULL PROTEINS, (ie remove ha signal, etc….)</li>
+<h4 id="v111">v.1.1.1<a class="anchor" aria-label="anchor" href="#v111"></a></h4>
+<ul><li>Pandas version –&gt; 1.1.0</li>
+<li>Mac docs updated to show Rosetta usage in Docker Desktop</li>
+<li>More thorough error and status messaging during assembly</li>
 </ul></div>
+<div class="section level4">
+<h4 id="v110">v1.1.0<a class="anchor" aria-label="anchor" href="#v110"></a></h4>
+<ul><li>Illumina sequencing for WGS SC2 and Flu</li>
+<li>Auto-samplesheet building</li>
+<li>Samplesheet download/upload functionality</li>
+<li>Button added to refresh run listing</li>
+<li>Button added to download failed fastas</li>
+<li>Downloaded fasta for FLU now changes the flu segment numbers to the gene name</li>
+<li>Allow numeric samplenames, and allow “-” in sample names</li>
+<li>Toss broken reads for ONT fastqs</li>
+<li>Return only closer Flu B reference in amino acid variants table</li>
+<li>Better error handling for empty/failed nanopore barcodes</li>
+<li>Indel table filtered to &gt;20%, Minor variant table filtered to &gt;5%</li>
+<li>Archive previous run logs in the even of a re-run</li>
+</ul></div>
+
 
   </div>
 
@@ -117,7 +148,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.9000.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer></div>

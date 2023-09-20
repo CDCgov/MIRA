@@ -49,9 +49,11 @@ navbar:
     - text: "Lab Protocols"
       menu:
         - text: Influenza A MRT-PCR
-          href: articles/influenza-rt-pcr.html
-        - text: Nanopore A MRT-PCR
-          href: articles/nanopore-rt-pcr.html
+          href: articles/influenza-mrt-pcr.html
+        - text: SARS-COV-2 RT-PCR
+          href: articles/sars-cov-2-rt-pcr.html
+        - text: Library Prep and Nanopore Sequencing of Influenza and SARS-COV-2 S-gene Amplicons
+          href: articles/influenza-sars-cov-2-s-gene-amplicons-nanopore.html          
     - text: Help
       menu:
       - text: FAQs
