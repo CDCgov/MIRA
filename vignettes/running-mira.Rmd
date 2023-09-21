@@ -38,10 +38,10 @@ _This documentation assumes you have the four required Docker containers (**IRMA
 
     ![](images/mira_run_selection.png)
 
-    * Next, click the box that say "What kind of data is this" and select Flu-ONT or SC2-Spike-Only-ONT
+    * Next, click the box that say "What kind of data is this" and select Flu-ONT, SC2-Whole-Genome-ONT, or SC2-Spike-Only-ONT
 
 
-    ![](images/mira_whatkindofdata.png)
+    ![](images/mira_whatkindofdata_ont.PNG)
 
 * Next, click `DOWNLOAD SAMPLESHEET TEMPLATE` and open the resulting Excel spreadsheet
     
