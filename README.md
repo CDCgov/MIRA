@@ -47,6 +47,54 @@ MIRA’s dashboard relies on four Docker containers to run its genome assembly a
 ## Quick Start on Ubuntu OS:
 _Need to set up an Ubuntu OS? Follow instructions in [Getting Started.](./articles/getting-started.html)_
 
+### Install Docker CLI and Docker Compose:
+
+```bash
+sudo apt-get update
+```
+
+```bash
+sudo apt-get install ca-certificates curl gnupg lsb-release
+```
+
+- During installation, you will be prompted to enter 'y' or 'n' to proceed. Each time, input 'y' and click `Enter`
+
+```bash
+sudo mkdir -p /etc/apt/keyrings
+```
+
+```bash
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+```
+
+```bash
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+```
+
+```bash
+sudo apt-get update
+```
+
+```bash
+sudo chmod a+r /etc/apt/keyrings/docker.gpg
+```
+
+```bash
+sudo apt-get update
+```
+
+```bash
+sudo apt-get install docker-ce docker-ce-cli containerd.io docker-compose-plugin
+```
+5. Verify successful installation
+
+```bash
+sudo docker run hello-world
+```
+- This command downloads a test image and runs it in a container. When the container runs, it prints a confirmation message and exits.
+
+### MIRA Container Installation with Docker Compose
+
 - Create a folder called `FLU_SC2_SEQUENCING` to save your sequencing reads to. From the command line, run: 
   
 ```bash

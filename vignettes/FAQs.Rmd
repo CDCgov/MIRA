@@ -61,23 +61,40 @@ docker rmi irma-spy
     ```
 3. Install the new MIRA and spyne containers: [See NGS Training: Setting Up Containers](setting-up-containers.html)
 
-### mira uninstall
+## How do I customize the number of cores MIRA uses?
+This is best achieved by setting `resources` in the `docker-compose.yml` for a container's `deploy` settings:
 
-1. Open an Ubuntu terminal
-2. ```bash 
-    # Show running containers
-    docker ps
-    
-    # Stop running container you want to update. In this example we are updating mira and spyne.
-    docker stop mira spyne
+For example:
 
-    # Delete containers
-    docker rm mira spyne
+```bash
+spyne: 
+    container_name: spyne
+    image: spyne
+    build: 
+      context: *spyne-git-version 
+    depends_on:
+      - dais
+      - irma
+    restart: always
+    networks:
+      - backend
+    volumes:
+      - *data-volume
+      - *docker-socket
+    command: tail -f /dev/null
+    deploy:
+      resources:
+        limits:
+          cpus: '0.001'
+          memory: 50M
+        reservations:
+          cpus: '0.0001'
+          memory: 20M
+```
+Read more [here](https://docs.docker.com/compose/compose-file/compose-file-v3/#resources) in the official Docker Docs
 
-    # Delete images
-    docker rmi mira spyne
-    ```
-3. Install the latest version of MIRA: [See NGS Training: Setting Up Containers](mira-installation.html)
+
+<br>
 
 ## Docker compose operations
 
