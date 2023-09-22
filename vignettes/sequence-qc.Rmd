@@ -48,6 +48,9 @@ Second, consensus sequences undergo additional genome-level QC to ensure complet
 ## Post-Assembly QC Curation
 
 - Minimum median coverage of 50x
+- For SARS-CoV-2: Spike gene median coverage of 100X
 - Minimum coverage of the reference length of 90%
-- Less than 10 minor variants >=5%
-- No premature stop codons in Spike (SC2), HA (Flu), or NA (Flu)
+- For SARS-CoV-2: Spike gene minimum coverage length of 90%
+- Less than 10 minor variants >=5% for each Flu Segment
+- Less than 20 minor variants >=5% for SARS-CoV-2 whole-genome
+- No premature stop codons in Spike (SC2), HA (Flu), or NA (Flu) Illumina sequencing
