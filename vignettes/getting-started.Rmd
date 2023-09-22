@@ -22,7 +22,7 @@ wsl --install
 
 **To paste into a terminal, you "right click"**
 
-If this command errors out, you may need to turn on []"virtualization".](./troubleshooting.html#virtualization-error)
+If this command errors out, you may need to turn on ["virtualization".](./troubleshooting.html#virtualization-error)
 
 5. Restart your computer
 6. Reopen Powershell and enter the following commands:

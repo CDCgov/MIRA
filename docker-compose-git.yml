@@ -6,7 +6,7 @@ x-dais-version:
 
 x-irma-version:
   &irma-version 
-  public.ecr.aws/n3z8t4o2/irma:1.0.5
+  nbx0/irma:v1.1.1
 
 x-spyne-git-version:
   &spyne-git-version  
@@ -41,14 +41,16 @@ services:
 
   irma: 
     container_name: irma
-    image: *irma-version
+    image: irma:latest
+    build:
+      context: *irma-version
     restart: always
     networks:
       - backend
     volumes:
       - *data-volume
     command: tail -f /dev/null
-
+    
   spyne: 
     container_name: spyne
     image: spyne
