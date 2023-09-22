@@ -463,7 +463,7 @@ def new_version_modal(n_interval):
     available = requests.get(AVAILABLE_VERSION)
     current = re.findall(r"Version.+(?=\n)", current)[0]
     available = re.findall(r"Version.+(?=\r)", available.text)[0]
-    if current <= available:
+    if current >= available:
         return html.Div()
     else:
         modal = dbc.Modal(
