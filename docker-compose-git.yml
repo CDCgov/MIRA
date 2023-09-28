@@ -6,7 +6,7 @@ x-dais-version:
 
 x-irma-version:
   &irma-version 
-  nbx0/irma:v1.1.1
+  nbx0/irma-dev:v1.1.1
 
 x-spyne-git-version:
   &spyne-git-version  
