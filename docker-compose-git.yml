@@ -41,9 +41,7 @@ services:
 
   irma: 
     container_name: irma
-    image: irma:latest
-    build:
-      context: *irma-version
+    image: *irma-version
     restart: always
     networks:
       - backend
