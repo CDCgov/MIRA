@@ -1251,6 +1251,13 @@ content = html.Div(
     + [html.Br()]
     + [html.P("Reference Variants", id="variants_head", className="display-6")]
     + [html.Br()]
+    + [html.P( ["Non-amino-acid variants ", dcc.Link(
+                    "key",
+                    href="https://cdcgov.github.io/MIRA/articles/running-mira.html#special-translated-characters",
+                    target="_blank",
+                ), ], className="display-8")
+                ]
+    + [html.Br()]
     + [dbc.Row(html.Div(id="vars_table"))]
     + [html.Br()]
     + [html.P("Minor SNVs", id="alleles_head", className="display-6")]
