@@ -5,14 +5,14 @@
 
 ### v1.1.2
 - Whole-Genome SC2 Nanopore module
-- Illumina 2x75 support
+- Illumina 2x75 support for Flu and SC2 whole-genome modules
 - Java instability fixed
 - New Version Checking
 - Lab protocols published on documentation website
 - Docker compose steps added to quickstart on documentation website
 - Quality control checks for S-gene specific metrics added to Whole-Genome SC2 modules
 - IRMA container V1.1.1
-- Final amended .bams included in tarball
+- [Final sorted, amended .bams](https://wonder.cdc.gov/amd/flu/irma/output.html) included in tarball. This is in addition to the F1 .bam, which is the first iteration of alignment before reference editing.
   
 #### v1.1.1
 - Pandas version --> 1.1.0
