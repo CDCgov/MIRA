@@ -293,7 +293,7 @@ def generate_samplesheet_xl(run):
     if len(bar_nums) == 0:
         fqs = [
             i.split("/")[-1]
-            for i in glob(f"{data_root}/{run}/**/*fastq.gz", recursive=True)
+            for i in glob(f"{data_root}/{run}/**/*.fastq*", recursive=True)
         ]
         try:
             ill_samples = list(
@@ -301,10 +301,10 @@ def generate_samplesheet_xl(run):
             )
             if len(ill_samples) < len(fqs) / 2:
                 ill_samples = list(
-                    set([re.findall(r".+(?=_R[12])", i)[0] for i in fqs])
+                    set([re.findall(r".+(?=[_/.]R[12])", i)[0] for i in fqs])
                 )
         except IndexError:
-            ill_samples = list(set([re.findall(r".+(?=_R[12])", i)[0] for i in fqs]))
+            ill_samples = list(set([re.findall(r".+(?=[_/.]R[12])", i)[0] for i in fqs]))
         ill_samples.sort()
         print(fqs, ill_samples)
         ws["A1"].value, ws["B1"].value = "Sample ID", "Sample Type"
