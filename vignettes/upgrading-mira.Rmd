@@ -19,7 +19,7 @@
 
    _if you get a permissions error here, first run `sudo rm docker-compose.yml` then try again_
 
-4. Run a build command:
+4. After you ensure that your Docker Desktop application is open, run a build command in Ubuntu:
 
    ```bash
    sudo docker compose build
