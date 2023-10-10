@@ -504,7 +504,7 @@ def new_version_modal(n_interval):
 def display_irma_progress(run, toggle, n_intervals, n_clicks):
     if not toggle:
         return html.Div()
-    if len(glob(f"{data_root}/{run}/*amended_consensus.fasta")) == 1:
+    if len(glob(f"{data_root}/{run}/*amended_consensus.fasta")) >= 1:
         return html.Div('IRMA is finished! Click "DISPLAY IRMA RESULTS"')
     if (len(glob(f"{data_root}/{run}/dash-json")) == 1) or (
         len(glob(f"{data_root}/{run}/DAIS_ribosome_input.fasta")) == 1
