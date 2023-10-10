@@ -511,7 +511,7 @@ def display_irma_progress(run, toggle, n_intervals, n_clicks):
     ):
         if not len(glob(f"{data_root}/{run}/spyne_logs.tar.gz")) == 1:
             return html.Div("Annotating genomes and creating images, please wait...")
-        else:
+        elif len(glob(f"{data_root}/{run}/*amended_consensus.fasta")) == 0:
             return html.Div(
             "Run has failed during annotation and figure creation. If you need further help, please contact us at IDSeqsupport@cdc.gov"
         )
