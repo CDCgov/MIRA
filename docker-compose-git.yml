@@ -51,7 +51,7 @@ services:
     
   spyne: 
     container_name: spyne
-    image: spyne
+    image: *spyne-version
     depends_on:
       - dais
       - irma
@@ -65,7 +65,7 @@ services:
 
   mira: 
     container_name: mira
-    image: mira
+    image: *mira-version
     depends_on:
       - dais
       - irma
