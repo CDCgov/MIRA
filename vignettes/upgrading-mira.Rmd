@@ -8,7 +8,7 @@
 2. Remove older MIRA versions (or iSpy or IRMA-spy if that's what you had installed)
 
    ```bash
-   sudo docker rm -f mira spyne irma dais
+    sudo docker rmi -f $(docker images | grep -e irma -e dais -e mira -e spyne | tr -s " " | cut -f3 -d" ")
    ```
 
 3. Download the installation script from the internet:
@@ -19,13 +19,7 @@
 
    _if you get a permissions error here, first run `sudo rm docker-compose.yml` then try again_
 
-4. After you ensure that your Docker Desktop application is open, run a build command in Ubuntu:
-
-   ```bash
-   sudo docker compose build
-   ```
-
-5. Run the install script with `sudo` and `docker compose`:
+4. After you ensure that your Docker Desktop application is open, run the install script with `sudo` and `docker compose`:
    
    ```bash
     sudo docker compose up -d

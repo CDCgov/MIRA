@@ -8,13 +8,13 @@ x-irma-version:
   &irma-version 
   nbx0/irma-dev:v1.1.1
 
-x-spyne-git-version:
-  &spyne-git-version  
-  https://github.com/cdcgov/spyne.git#prod
+x-spyne-version:
+  &spyne-version  
+  nbx0/spyne:v1.1.2
 
-x-mira-git-version:
-  &mira-git-version  
-  https://github.com/CDCgov/MIRA.git#prod
+x-mira-version:
+  &mira-version  
+  nbx0/mira:v1.1.2
 
 x-data-volumes:
   &data-volume
@@ -52,8 +52,6 @@ services:
   spyne: 
     container_name: spyne
     image: spyne
-    build: 
-      context: *spyne-git-version 
     depends_on:
       - dais
       - irma
@@ -68,8 +66,6 @@ services:
   mira: 
     container_name: mira
     image: mira
-    build: 
-      context: *mira-git-version  
     depends_on:
       - dais
       - irma
