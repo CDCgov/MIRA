@@ -85,10 +85,10 @@ spyne:
     deploy:
       resources:
         limits:
-          cpus: '0.001'
+          cpus: '0.50'
           memory: 50M
         reservations:
-          cpus: '0.0001'
+          cpus: '0.25'
           memory: 20M
 ```
 Read more [here](https://docs.docker.com/compose/compose-file/compose-file-v3/#resources) in the official Docker Docs

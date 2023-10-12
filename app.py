@@ -47,6 +47,7 @@ with open(argv[1], "r") as y:
 data_root = CONFIG["DATA_ROOT"]
 DEBUG = CONFIG["DEBUG"]
 DEPLOY = CONFIG["DEPLOY"]
+AVAILABLE_VERSION = CONFIG["VERSION_URL"]
 if DEPLOY:
     check_version_interval = 3000
 else:
@@ -292,7 +293,7 @@ def generate_samplesheet_xl(run):
     if len(bar_nums) == 0:
         fqs = [
             i.split("/")[-1]
-            for i in glob(f"{data_root}/{run}/**/*fastq.gz", recursive=True)
+            for i in glob(f"{data_root}/{run}/**/*.fastq*", recursive=True)
         ]
         try:
             ill_samples = list(
@@ -300,10 +301,10 @@ def generate_samplesheet_xl(run):
             )
             if len(ill_samples) < len(fqs) / 2:
                 ill_samples = list(
-                    set([re.findall(r".+(?=_R[12])", i)[0] for i in fqs])
+                    set([re.findall(r".+(?=[_/.]R[12])", i)[0] for i in fqs])
                 )
         except IndexError:
-            ill_samples = list(set([re.findall(r".+(?=_R[12])", i)[0] for i in fqs]))
+            ill_samples = list(set([re.findall(r".+(?=[_/.]R[12])", i)[0] for i in fqs]))
         ill_samples.sort()
         print(fqs, ill_samples)
         ws["A1"].value, ws["B1"].value = "Sample ID", "Sample Type"
@@ -357,7 +358,7 @@ def generate_samplesheet(run, upload_data, experiment_type):
         )
         with open(ss_filename, "w") as d:
             d.write(noCarriageReturn)
-        data = pd.read_csv(ss_filename).to_dict("records")
+        data = pd.read_csv(ss_filename, skip_blank_lines=True).to_dict("records")
         if len(data[0].keys()) > 2:
             if "Illumina" in experiment_type:
                 data_columns = [
@@ -459,12 +460,10 @@ def new_version_modal(n_interval):
     else:
         with open("DESCRIPTION", "r") as d:
             current = "".join(d.readlines())
-    available = requests.get(
-        "https://raw.githubusercontent.com/CDCgov/MIRA/illumina-flu/DESCRIPTION"
-    )
+    available = requests.get(AVAILABLE_VERSION)
     current = re.findall(r"Version.+(?=\n)", current)[0]
     available = re.findall(r"Version.+(?=\r)", available.text)[0]
-    if current == available:
+    if current >= available:
         return html.Div()
     else:
         modal = dbc.Modal(
@@ -478,7 +477,7 @@ def new_version_modal(n_interval):
                 dbc.ModalBody(
                     dcc.Link(
                         "CLICK HERE",
-                        href="https://cdcgov.github.io/MIRA/articles/FAQs.html",
+                        href="https://cdcgov.github.io/MIRA/articles/upgrading-mira.html",
                         target="_blank",
                     )
                 ),
@@ -505,12 +504,17 @@ def new_version_modal(n_interval):
 def display_irma_progress(run, toggle, n_intervals, n_clicks):
     if not toggle:
         return html.Div()
-    if len(glob(f"{data_root}/{run}/amended_consensus.fasta")) == 1:
+    if len(glob(f"{data_root}/{run}/*amended_consensus.fasta")) >= 1:
         return html.Div('IRMA is finished! Click "DISPLAY IRMA RESULTS"')
     if (len(glob(f"{data_root}/{run}/dash-json")) == 1) or (
         len(glob(f"{data_root}/{run}/DAIS_ribosome_input.fasta")) == 1
     ):
-        return html.Div("Annotating genomes and creating images, please wait...")
+        if not len(glob(f"{data_root}/{run}/spyne_logs.tar.gz")) == 1:
+            return html.Div("Annotating genomes and creating images, please wait...")
+        elif len(glob(f"{data_root}/{run}/*amended_consensus.fasta")) == 0:
+            return html.Div(
+            "Run has failed during annotation and figure creation. If you need further help, please contact us at IDSeqsupport@cdc.gov"
+        )
     logs = glob(f"{data_root}/{run}/logs/*irma*out.log")
     if os.path.exists(f"{data_root}/{run}/.snakemake") and len(logs) == 0:
         return html.Div("Data processing has started, please wait...")
@@ -1016,6 +1020,7 @@ content = html.Div(
                     {"label": "Flu-ONT", "value": "Flu-ONT"},
                     {"label": "SC2-Spike-Only-ONT", "value": "SC2-Spike-Only-ONT"},
                     {"label": "Flu-Illumina", "value": "Flu-Illumina"},
+                    {"label": "SC2-Whole-Genome-ONT", "value":"SC2-Whole-Genome-ONT"},
                     {
                         "label": "SC2-Whole-Genome-Illumina",
                         "value": "SC2-Whole-Genome-Illumina",
@@ -1245,6 +1250,13 @@ content = html.Div(
     ]
     + [html.Br()]
     + [html.P("Reference Variants", id="variants_head", className="display-6")]
+    + [html.Br()]
+    + [html.P( ["Non-amino-acid variants ", dcc.Link(
+                    "key",
+                    href="https://cdcgov.github.io/MIRA/articles/running-mira.html#special-translated-characters",
+                    target="_blank",
+                ), ], className="display-8")
+                ]
     + [html.Br()]
     + [dbc.Row(html.Div(id="vars_table"))]
     + [html.Br()]
