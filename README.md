@@ -1,11 +1,6 @@
 
 # MIRA: Interactive Dashboard for Influenza Genome and SARS-CoV-2 Spike-Gene Assembly and Curation
 
-Version: 1.0.0 (Beta)
-
-**Beta version** This pipeline is currently in Beta testing and issues
-could appear during submission, use at your own risk. Feedback and
-suggestions are welcome!
 
 **General disclaimer** This repository was created for use by CDC
 programs to collaborate on public health related projects in support of
