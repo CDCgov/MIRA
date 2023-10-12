@@ -6,15 +6,15 @@ x-dais-version:
 
 x-irma-version:
   &irma-version 
-  public.ecr.aws/n3z8t4o2/irma:1.0.5
+  nbx0/irma-dev:v1.1.1
 
-x-spyne-git-version:
-  &spyne-git-version  
-  https://github.com/cdcgov/spyne.git#prod
+x-spyne-version:
+  &spyne-version  
+  nbx0/spyne:v1.1.2
 
-x-mira-git-version:
-  &mira-git-version  
-  https://github.com/CDCgov/MIRA.git#prod
+x-mira-version:
+  &mira-version  
+  nbx0/mira:v1.1.2
 
 x-data-volumes:
   &data-volume
@@ -48,12 +48,10 @@ services:
     volumes:
       - *data-volume
     command: tail -f /dev/null
-
+    
   spyne: 
     container_name: spyne
-    image: spyne
-    build: 
-      context: *spyne-git-version 
+    image: *spyne-version
     depends_on:
       - dais
       - irma
@@ -67,9 +65,7 @@ services:
 
   mira: 
     container_name: mira
-    image: mira
-    build: 
-      context: *mira-git-version  
+    image: *mira-version
     depends_on:
       - dais
       - irma
