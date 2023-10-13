@@ -2,19 +2,19 @@ version: "3.9"
 
 x-dais-version:
   &dais-version 
-  public.ecr.aws/n3z8t4o2/dais-ribosome:1.3.2
+  cdcgov/dais-ribosome:1.3.2
 
 x-irma-version:
   &irma-version 
-  nbx0/irma-dev:v1.1.1
+  cdcgov/irma:v1.1.1
 
 x-spyne-version:
   &spyne-version  
-  nbx0/spyne:v1.1.2
+  cdcgov/spyne:v1.1.2
 
 x-mira-version:
   &mira-version  
-  nbx0/mira:v1.1.2
+  cdcgov/mira:v1.1.2
 
 x-data-volumes:
   &data-volume
