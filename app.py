@@ -428,13 +428,14 @@ def run_snake_script_onClick(
     if dash.ctx.triggered_id == "select_run":
         return True
     if dash.ctx.triggered_id == "assembly-button":
-        docker_cmd = "docker exec -w /data spyne bash snake-kickoff "
-        docker_cmd += f"{run}/samplesheet.csv "
-        docker_cmd += f"{run} "
-        docker_cmd += f"{experiment_type} "
+        docker_cmd = "docker exec -w /data spyne bash MIRA.sh "
+        docker_cmd += f"-s {run}/samplesheet.csv "
+        docker_cmd += f"-r {run} "
+        docker_cmd += f"-e {experiment_type} "
+        docker_cmd += "-a "
         if "sc2-whole-genome-illumina" in experiment_type.lower():
-            docker_cmd += f"{Amplicon_Library} "
-        docker_cmd += f"CLEANUP-FOOTPRINT"
+            docker_cmd += f"-p {Amplicon_Library} "
+        docker_cmd += f"-c CLEANUP-FOOTPRINT"
         print(f'launching docker_cmd == "{docker_cmd}"\n\n')
         subprocess.Popen(docker_cmd.split(), close_fds=True)
         if len(glob(f"{data_root}/{run}/{run}_samplesheet.xlsx")) > 0:
