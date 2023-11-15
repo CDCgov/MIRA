@@ -1,7 +1,8 @@
 url: https://github.com/CDCgov/MIRA
 
 template:
-  bootswatch: cosmo
+  params:
+    bootswatch: cosmo
 
 authors:
   Ben Rambo-Martin:
@@ -15,20 +16,13 @@ news:
   one_page: false
    
 home:
-  sidebar: 
-    structure: [github_links, github_issues, license, citation, authors]
-    components:
-      github_links:
-        title: Browse source code
-        text: https://github.com/CDCgov/MIRA
-      github_issues:
-        title: Report a bug
-        text: https://github.com/CDCgov/MIRA/issues
-
+  sidebar:
+    structure: [license, citation, authors]
+    
 navbar:
   title: "MIRA"
   left:
-    - text: "Home"
+    - icon: fa-home
       href: index.html
     - text: "NGS-Training"
       menu:
@@ -67,6 +61,10 @@ navbar:
   right:
     - text: "Change Log"
       href: news/index.html
+    - icon: fa-envelope
+      href: "mailto: idseqsupport@cdc.gov"
+    - icon: fa-comments
+      href: https://github.com/CDCgov/MIRA/issues
     - icon: fa-github
       href: https://github.com/CDCgov/MIRA
       

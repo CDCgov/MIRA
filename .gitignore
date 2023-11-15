@@ -1,14 +1,22 @@
-__pycache__/
-scripts/__pycache__/
 *pyc
-__pycache__
 cache-directory
-scripts/__pycache__
-scripts/__pycache__/*
+__pycache__
+__pycache__/
 *__pycache__*
+scripts/__pycache__
+scripts/__pycache__/
+scripts/__pycache__/*
 scripts/__pycache__/muscle.cpython-37.pyc
-.vscode
-.Rhistory
-.Rproj.user
+
+# ignore file extensions
+*.vscode
+*.DS_Store
+*.Rhistory
+*.Rbuildignore
+*.Rproj
 vignettes/*.html
-*Rproj
+
+# ignore folders
+**/.Rproj.user
+
+
