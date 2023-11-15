@@ -5,13 +5,13 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MIRA • MIRA</title>
-<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
+<title>Dashboard for Influenza and SARS-COV-2 Spike-Gene Genome Assembly and Curation • MIRA</title>
+<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.4.0/cosmo/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="bootstrap-toc.css">
 <script src="bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
-<script src="pkgdown.js"></script><meta property="og:title" content="MIRA">
+<script src="pkgdown.js"></script><meta property="og:title" content="Dashboard for Influenza and SARS-COV-2 Spike-Gene Genome Assembly and Curation">
 <meta property="og:description" content="MIRA is an interactive dashboard created using Dash, a python framework 
   written on the top of Flask, Plotly.js and React.js. The Dash dashboard 
   allows users to interactively create a metadata and config file for Influenza
@@ -44,7 +44,10 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li>
-  <a href="index.html">Home</a>
+  <a href="index.html">
+    <span class="fa fa-home"></span>
+     
+  </a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -121,6 +124,18 @@
   <a href="news/index.html">Change Log</a>
 </li>
 <li>
+  <a href="mailto:%20idseqsupport@cdc.gov">
+    <span class="fa fa-envelope"></span>
+     
+  </a>
+</li>
+<li>
+  <a href="https://github.com/CDCgov/MIRA/issues">
+    <span class="fa fa-comments"></span>
+     
+  </a>
+</li>
+<li>
   <a href="https://github.com/CDCgov/MIRA">
     <span class="fa fa-github"></span>
      
@@ -140,17 +155,18 @@
   <div class="contents col-md-9">
 
 <div class="section level1">
-<div class="page-header"><h1 id="mira-interactive-dashboard-for-influenza-genome-and-sars-cov-2-spike-gene-assembly-and-curation">MIRA: Interactive Dashboard for Influenza Genome and SARS-CoV-2 Spike-Gene Assembly and Curation<a class="anchor" aria-label="anchor" href="#mira-interactive-dashboard-for-influenza-genome-and-sars-cov-2-spike-gene-assembly-and-curation"></a>
+<div class="page-header"><h1 id="mira-interactive-dashboard-for-influenza-genome-and-sars-cov-2-spike-gene-assembly-and-curation-">MIRA: Interactive Dashboard for Influenza Genome and SARS-CoV-2 Spike-Gene Assembly and Curation <img src="reference/figures/logo.png" align="right" width="200"><a class="anchor" aria-label="anchor" href="#mira-interactive-dashboard-for-influenza-genome-and-sars-cov-2-spike-gene-assembly-and-curation-"></a>
 </h1></div>
+<p><img src="https://github.com/cdcgov/mira/workflows/pkgdown/badge.svg" alt="pkgdown"><img src="https://img.shields.io/docker/pulls/cdcgov/mira" alt="Docker pulls"><img src="https://img.shields.io/docker/image-size/cdcgov/mira" alt="Docker image size"><img src="https://img.shields.io/github/last-commit/cdcgov/mira" alt="GitHub last commit"></p>
 <p><strong>General disclaimer</strong> This repository was created for use by CDC programs to collaborate on public health related projects in support of the <a href="https://www.cdc.gov/about/organization/mission.htm" class="external-link">CDC mission</a>. GitHub is not hosted by the CDC, but is a third party website used by CDC and its partners to share information and collaborate on software. CDC use of GitHub does not imply an endorsement of any one particular service, product, or enterprise.</p>
 <hr>
 <p><br></p>
 <div class="section level2">
 <h2 id="documentation-httpscdcgovgithubiomira">
-<strong>Documentation: <a href="https://CDCgov.github.io/MIRA/" class="external-link">https://CDCgov.github.io/MIRA/</a></strong><a class="anchor" aria-label="anchor" href="#documentation-httpscdcgovgithubiomira"></a>
+<strong>Documentation: <a href="https://CDCgov.github.io/MIRA" class="external-link">https://CDCgov.github.io/MIRA</a></strong><a class="anchor" aria-label="anchor" href="#documentation-httpscdcgovgithubiomira"></a>
 </h2>
 <div class="section level3">
-<h3 id="if-youve-previously-installed-mira-and-need-to-upgrade-to-the-latest-version-click-here">If you’ve previously installed MIRA and need to upgrade to the latest version, <a href="./articles/upgrading-mira.html">CLICK HERE</a>
+<h3 id="if-youve-previously-installed-mira-and-need-to-upgrade-to-the-latest-version-click-here">If you’ve previously installed MIRA and need to upgrade to the latest version, <a href="https://CDCgov.github.io/MIRA/articles/upgrading-mira.html" class="external-link">CLICK HERE</a>
 <a class="anchor" aria-label="anchor" href="#if-youve-previously-installed-mira-and-need-to-upgrade-to-the-latest-version-click-here"></a>
 </h3>
 <p><br></p>
@@ -177,7 +193,7 @@
 <div class="section level2">
 <h2 id="quick-start-on-ubuntu-os">Quick Start on Ubuntu OS:<a class="anchor" aria-label="anchor" href="#quick-start-on-ubuntu-os"></a>
 </h2>
-<p><em>Need to set up an Ubuntu OS? Follow instructions in <a href="./articles/getting-started.html">Getting Started.</a></em></p>
+<p><em>Need to set up an Ubuntu OS? Follow instructions in <a href="https://CDCgov.github.io/MIRA/articles/getting-started.html" class="external-link">Getting Started.</a></em></p>
 <div class="section level3">
 <h3 id="install-docker-cli-and-docker-compose">Install Docker CLI and Docker Compose:<a class="anchor" aria-label="anchor" href="#install-docker-cli-and-docker-compose"></a>
 </h3>
@@ -259,21 +275,7 @@
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
-    <div class="browse-source-code">
-<h2 data-toc-skip>Browse source code</h2>
-<ul class="list-unstyled">
-<li><p><a href="https://github.com/CDCgov/MIRA" class="uri">https://github.com/CDCgov/MIRA</a></p></li>
-</ul>
-</div>
-
-<div class="report-a-bug">
-<h2 data-toc-skip>Report a bug</h2>
-<ul class="list-unstyled">
-<li><p><a href="https://github.com/CDCgov/MIRA/issues" class="uri">https://github.com/CDCgov/MIRA/issues</a></p></li>
-</ul>
-</div>
-
-<div class="license">
+    <div class="license">
 <h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">
 <li>

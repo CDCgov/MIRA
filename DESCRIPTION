@@ -1,6 +1,6 @@
 Package: MIRA
 Type: Package
-Title: MIRA
+Title: Dashboard for Influenza and SARS-COV-2 Spike-Gene Genome Assembly and Curation
 Version: 1.1.2
 Date: 2023-08-08
 Authors@R: 
