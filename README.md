@@ -1,6 +1,10 @@
 
-# MIRA: Interactive Dashboard for Influenza Genome and SARS-CoV-2 Spike-Gene Assembly and Curation
+# MIRA: Interactive Dashboard for Influenza Genome and SARS-CoV-2 Spike-Gene Assembly and Curation <img src="man/figures/logo.png" align="right" width="200" />
 
+![pkgdown](https://github.com/cdcgov/mira/workflows/pkgdown/badge.svg)
+![Docker pulls](https://img.shields.io/docker/pulls/cdcgov/mira)
+![Docker image size](https://img.shields.io/docker/image-size/cdcgov/mira) 
+![GitHub last commit](https://img.shields.io/github/last-commit/cdcgov/mira)
 
 **General disclaimer** This repository was created for use by CDC
 programs to collaborate on public health related projects in support of
@@ -13,9 +17,9 @@ service, product, or enterprise.
 <hr>
 <br>
 
-## **Documentation: [https://CDCgov.github.io/MIRA/](https://CDCgov.github.io/MIRA/)**
+## **Documentation: [https://CDCgov.github.io/MIRA](https://CDCgov.github.io/MIRA)**
 
-### If you've previously installed MIRA and need to upgrade to the latest version, [CLICK HERE](./articles/upgrading-mira.html)
+### If you've previously installed MIRA and need to upgrade to the latest version, [CLICK HERE](https://CDCgov.github.io/MIRA/articles/upgrading-mira.html)
 <br>
 
 # Overview
@@ -40,7 +44,7 @@ MIRA’s dashboard relies on four Docker containers to run its genome assembly a
 <hr>
 
 ## Quick Start on Ubuntu OS:
-_Need to set up an Ubuntu OS? Follow instructions in [Getting Started.](./articles/getting-started.html)_
+_Need to set up an Ubuntu OS? Follow instructions in [Getting Started.](https://CDCgov.github.io/MIRA/articles/getting-started.html)_
 
 ### Install Docker CLI and Docker Compose:
 
