@@ -1,10 +1,13 @@
 
-# MIRA: Interactive Dashboard for Influenza Genome and SARS-CoV-2 Spike-Gene Assembly and Curation <img src="man/figures/logo.png" align="right" width="200" />
+
+# <img src="man/figures/logo.png" align="left" width="190" /> MIRA: Interactive Dashboard for Influenza Genome and SARS-CoV-2 Spike-Gene Assembly and Curation
 
 ![pkgdown](https://github.com/cdcgov/mira/workflows/pkgdown/badge.svg)
 ![Docker pulls](https://img.shields.io/docker/pulls/cdcgov/mira)
 ![Docker image size](https://img.shields.io/docker/image-size/cdcgov/mira) 
 ![GitHub last commit](https://img.shields.io/github/last-commit/cdcgov/mira)
+
+<br>
 
 **General disclaimer** This repository was created for use by CDC
 programs to collaborate on public health related projects in support of
