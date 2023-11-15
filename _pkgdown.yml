@@ -1,4 +1,4 @@
-url: https://github.com/CDCgov/MIRA
+url: https://github.com/CDCgov/MIRA/, https://cdcgov.github.io/MIRA/
 
 template:
   params:
@@ -62,7 +62,7 @@ navbar:
     - text: "Change Log"
       href: news/index.html
     - icon: fa-envelope
-      href: "mailto: idseqsupport@cdc.gov"
+      href: "mailto:idseqsupport@cdc.gov"
     - icon: fa-comments
       href: https://github.com/CDCgov/MIRA/issues
     - icon: fa-github
