@@ -17,15 +17,9 @@ services:
     build:
       context: *mira-git-version
       args:
-        - spyne_image=rchau88/spyne:latest
+        - spyne_image=cdcgov/spyne-dev:latest
     restart: always
-    networks:
-      - frontend
     ports: 
       - 8050:8050
     volumes:
       - *data-volume
-
-networks:
-  frontend:
-    name: frontend
