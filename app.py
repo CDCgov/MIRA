@@ -428,7 +428,7 @@ def run_snake_script_onClick(
     if dash.ctx.triggered_id == "select_run":
         return True
     if dash.ctx.triggered_id == "assembly-button":
-        docker_cmd = "docker exec -w /data spyne bash snake-kickoff "
+        docker_cmd = "bash snake-kickoff "
         docker_cmd += f"{run}/samplesheet.csv "
         docker_cmd += f"{run} "
         docker_cmd += f"{experiment_type} "
