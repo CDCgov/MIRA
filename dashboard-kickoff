@@ -4,14 +4,15 @@
 
 # Run whatever Bash commands here
 
+PROJECT_DIR=${PROJECT_DIR:-/MIRA}
+WORKDIR=${WORKDIR:-/data}
+
 # Archive previous .appout and .apperr
-[ ! -d /data/.applogs ] && mkdir /data/.applogs
-if [ -f /data/.apperr ]; then
-	tar --remove-files -czf /data/.applogs/.$(date -d @$(stat -c %Y /data/.apperr) "+%Y%b%d-%H%M%S").applog.tar.gz /data/.appout /data/.apperr
-elif [ -f /data/.applogs/.apperr ]; then
-	tar --remove-files -czf /data/.applogs/.$(date -d @$(stat -c %Y /data/.applogs/.apperr) "+%Y%b%d-%H%M%S").applog.tar.gz /data/.applogs/.appout /data/.applogs/.apperr
+[ ! -d ${WORKDIR}/.applogs ] && mkdir ${WORKDIR}/.applogs
+if [ -f ${WORKDIR}/.apperr ]; then
+	tar --remove-files -czf ${WORKDIR}/.applogs/.$(date -d @$(stat -c %Y ${WORKDIR}/.apperr) "+%Y%b%d-%H%M%S").applog.tar.gz ${WORKDIR}/.appout ${WORKDIR}/.apperr
+elif [ -f ${WORKDIR}/.applogs/.apperr ]; then
+	tar --remove-files -czf ${WORKDIR}/.applogs/.$(date -d @$(stat -c %Y ${WORKDIR}/.applogs/.apperr) "+%Y%b%d-%H%M%S").applog.tar.gz ${WORKDIR}/.applogs/.appout ${WORKDIR}/.applogs/.apperr
 fi
 
-RESOURCE_ROOT=/MIRA
-
-python3 $RESOURCE_ROOT/app.py $RESOURCE_ROOT/config/container-prod.yaml >> /data/.appout 2>> >( grep -v POST >> /data/.apperr)
+python3 $PROJECT_DIR/app.py ${PROJECT_DIR}/config/container-prod.yaml >> ${WORKDIR}/.appout 2>> >( grep -v POST >> ${WORKDIR}/.apperr)
