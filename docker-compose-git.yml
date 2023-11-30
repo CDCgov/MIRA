@@ -1,8 +1,8 @@
 version: "3.9"
 
-x-mira-version: 
-  &mira-version 
-  cdcgov/mira-dev:latest
+x-mira-git-version: 
+  &mira-git-version 
+  https://github.com/CDCgov/MIRA.git#single_mira_container
 
 x-data-volumes:
   &data-volume
@@ -13,7 +13,11 @@ x-data-volumes:
 services:
   mira: 
     container_name: mira
-    image: *mira-version
+    image: mira:latest
+    build:
+      context: *mira-git-version
+      args:
+        - spyne_image=cdcgov/spyne-dev:latest
     restart: always
     ports: 
       - 8050:8050
