@@ -142,7 +142,7 @@ If you are seeing errors, [click here.](./troubleshooting.html#docker-cli-errors
 
 
 ## Install a sequence viewer
-- [Windows Bio Edit](https://bioedit.software.informer.com/download/#downloading)
+- [Jalview](https://www.jalview.org/download/)
 - [Mac Aliview](https://ormbunkar.se/aliview/#DOWNLOAD)
 
 

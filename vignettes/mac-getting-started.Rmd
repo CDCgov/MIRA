@@ -49,3 +49,6 @@ sudo docker-compose up -d
 You are now running MIRA! You can proceed to [Running MIRA](./running-mira.html)
 
 If these instructions show errors, please refer to our [Troubleshooting](./troubleshooting.html) page
+
+## Install a sequence viewer
+- [Jalview](https://www.jalview.org/download/)
