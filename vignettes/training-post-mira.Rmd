@@ -1,0 +1,9 @@
+# Post-MIRA consensus sequence analysis training
+
+## Goals
+1. Identify which nextclade module to use to analyze consensus sequence
+2. 
+
+## Download test data
+[Click here to download](https://centersfordiseasecontrol.sharefile.com/d-s4d3bbf8ecfeb4df18ed546c7af8286eb).
+_You will be required to put in your name and email_

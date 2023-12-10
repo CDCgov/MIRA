@@ -1,0 +1,17 @@
+# Flu
+
+|Barcode|ID|Subtype|Nextclade-clade|
+|barcode31||H1N1||
+|barcode38||H1N2||
+|barcode41||H3N2||
+|barcode44|NTC-1|||
+
+
+# SC2
+
+|Barcode|ID|WHO-clade|Nextclade-pango-clade|
+|barcode02|NTC-1||
+|barcode05|||A.1|
+|barcode11||recombinant|XD|
+|barcode19|Delta|AY.4|
+|barcode22||Omicron|XBB.1.5|
