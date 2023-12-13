@@ -38,6 +38,8 @@ navbar:
           href: articles/running-mira.html
         - text: Running Genome Assembly with MIRA -- ILLUMINA DATA
           href: articles/running-mira-illumina.html
+        - text: Post MIRA sequence analysis with Nextclade
+          href: articles/training-post-mira.html
         - text: Upgrading MIRA
           href: articles/upgrading-mira.html
     - text: "Lab Protocols"
