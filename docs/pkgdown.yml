@@ -16,9 +16,11 @@ articles:
   s-gene-rt-pcr: s-gene-rt-pcr.html
   sars-cov-2-rt-pcr: sars-cov-2-rt-pcr.html
   sequence-qc: sequence-qc.html
+  training-answers: training-answers.html
+  training-post-mira: training-post-mira.html
   troubleshooting: troubleshooting.html
   upgrading-mira: upgrading-mira.html
-last_built: 2023-12-07T15:59Z
+last_built: 2023-12-13T11:45Z
 urls:
   reference: https://github.com/CDCgov/MIRA/, https://cdcgov.github.io/MIRA/reference
   article: https://github.com/CDCgov/MIRA/, https://cdcgov.github.io/MIRA/articles
