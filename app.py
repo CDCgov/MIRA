@@ -86,6 +86,17 @@ def select_primers(exp_type):
         Input("assembly-button", "n_clicks"),
     ],
 )
+
+def current_version():
+    descript_dict = {}
+    with open("/MIRA/DESCRIPTION", 'r') as infi:
+        for line in infi:
+            try:
+                descript_dict[line.split(':')[0]]=line.split(":")[1]
+            except:
+                continue
+    return descript_dict['Version'].strip()
+
 def select_sample(plotClick, run, n_clicks, a_n_clicks):
     if dash.ctx.triggered_id == "assembly-button":
         return [], ""
@@ -932,7 +943,7 @@ sidebar = html.Div(
                 )
             ],
         ),
-        html.H2("MIRA", className="display-4"),
+        html.H2(f"MIRA v{current_version()}", className="display-4"),
         html.P(
             [
                 "Influenza genome and SARS-CoV-2 spike sequence assembly with ",
