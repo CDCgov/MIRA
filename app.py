@@ -86,17 +86,6 @@ def select_primers(exp_type):
         Input("assembly-button", "n_clicks"),
     ],
 )
-
-def current_version():
-    descript_dict = {}
-    with open("/MIRA/DESCRIPTION", 'r') as infi:
-        for line in infi:
-            try:
-                descript_dict[line.split(':')[0]]=line.split(":")[1]
-            except:
-                continue
-    return descript_dict['Version'].strip()
-
 def select_sample(plotClick, run, n_clicks, a_n_clicks):
     if dash.ctx.triggered_id == "assembly-button":
         return [], ""
@@ -908,6 +897,16 @@ def download_failed_fastas(run, n_clicks):
         )
         return nt_fastas, aa_fastas
 
+
+def current_version():
+    descript_dict = {}
+    with open("/MIRA/DESCRIPTION", 'r') as infi:
+        for line in infi:
+            try:
+                descript_dict[line.split(':')[0]]=line.split(":")[1]
+            except:
+                continue
+    return descript_dict['Version'].strip()
 
 ########################################################
 ###################### LAYOUT ##########################
