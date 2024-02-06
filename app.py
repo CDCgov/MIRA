@@ -49,9 +49,9 @@ DEBUG = CONFIG["DEBUG"]
 DEPLOY = CONFIG["DEPLOY"]
 AVAILABLE_VERSION = CONFIG["VERSION_URL"]
 if DEPLOY:
-    check_version_interval = 3000
-else:
     check_version_interval = 1000 * 60 * 60 * 24  # milliseconds in 1 day
+else:
+    check_version_interval = 3000
 
 app = dash.Dash(external_stylesheets=[dbc.themes.FLATLY])
 app.title = "MIRA"
@@ -473,7 +473,7 @@ def new_version_modal(n_interval):
             current = "".join(d.readlines())
     available = requests.get(AVAILABLE_VERSION)
     current = re.findall(r"Version.+(?=\n)", current)[0]
-    available = re.findall(r"Version.+(?=\r)", available.text)[0]
+    available = re.findall(r"Version.+(?=\n)", available.text)[0]
     if current >= available:
         return html.Div()
     else:
