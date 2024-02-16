@@ -946,7 +946,7 @@ sidebar = html.Div(
         html.H2(f"MIRA v{current_version()}", className="display-4"),
         html.P(
             [
-                "Influenza genome and SARS-CoV-2 spike sequence assembly with ",
+                "Influenza, SARS-CoV-2, and RSV sequence assembly with ",
                 dcc.Link(
                     "IRMA",
                     href="https://bmcgenomics.biomedcentral.com/articles/10.1186/s12864-016-3030-6",
@@ -1036,6 +1036,8 @@ content = html.Div(
                         "label": "SC2-Whole-Genome-Illumina",
                         "value": "SC2-Whole-Genome-Illumina",
                     },
+                    {"label": "RSV-Illumina", "value": "RSV-Illumina"},
+                    {"label": "RSV-ONT", "value": "RSV-ONT"},
                 ],
                 id="experiment_type",
                 placeholder="What kind of data is this?",
