@@ -214,7 +214,7 @@ def parse_contents(contents, filename, date, run):
                 ss_df = ss_df.iloc[:, 0:3]
             else:
                 ss_df = ss_df.iloc[:, 0:2]
-                ss_df = ss_df.dropna()
+                ss_df = ss_df.dropna(how='all')
     except Exception as e:
         print(f"ERROR PARSING SS\n{e}\n--------END OF ERROR--------")
         return html.Div(["There was an error processing this file."])
