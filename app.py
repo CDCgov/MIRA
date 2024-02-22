@@ -210,7 +210,11 @@ def parse_contents(contents, filename, date, run):
         elif "xls" in filename:
             # Assume that the user uploaded an excel file
             ss_df = pd.read_excel(io.BytesIO(decoded), engine="openpyxl")
-            ss_df = ss_df.iloc[:, 0:3]
+            if "Barcode #" in ss_df.columns:
+                ss_df = ss_df.iloc[:, 0:3]
+            else:
+                ss_df = ss_df.iloc[:, 0:2]
+                ss_df = ss_df.dropna()
     except Exception as e:
         print(f"ERROR PARSING SS\n{e}\n--------END OF ERROR--------")
         return html.Div(["There was an error processing this file."])
