@@ -1,0 +1,16 @@
+
+
+---
+title: "Preparation of the DNA Libraries for Loading onto the MiSeq"
+output: html_document
+---
+
+
+```{r setup, include=FALSE, message=FALSE, warnings=FALSE}
+library(knitr)
+```
+
+
+```{r pdf, out.height = "1000px", out.width='100%', include=TRUE, fig.align="center", fig.cap="", echo=FALSE}
+knitr::include_graphics("./images/LP-309Rev02D - MiSeq Library Loading Preparation.pdf")
+```

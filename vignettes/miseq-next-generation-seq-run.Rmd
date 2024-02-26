@@ -1,0 +1,16 @@
+
+
+---
+title: "Performing a MiSeq Next Generation Sequencing Run"
+output: html_document
+---
+
+
+```{r setup, include=FALSE, message=FALSE, warnings=FALSE}
+library(knitr)
+```
+
+
+```{r pdf, out.height = "1000px", out.width='100%', include=TRUE, fig.align="center", fig.cap="", echo=FALSE}
+knitr::include_graphics("./images/LP-517Rev00D - Performing a MiSeq Next Generation Sequencing Run.pdf")
+```

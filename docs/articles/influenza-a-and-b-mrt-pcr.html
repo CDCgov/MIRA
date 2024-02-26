@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title> • MIRA</title>
+<title>Multi-segment Reverse Transcription-PCR (MRT-PCR) of Influenza A and B Viruses • MIRA</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
 <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png">
@@ -17,7 +17,7 @@
 <script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../pkgdown.js"></script><meta property="og:title" content="">
+<script src="../pkgdown.js"></script><meta property="og:title" content="Multi-segment Reverse Transcription-PCR (MRT-PCR) of Influenza A and B Viruses">
 <meta property="og:description" content="MIRA">
 <meta property="og:image" content="https://github.com/CDCgov/MIRA/, https://cdcgov.github.io/MIRA/logo.png">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
@@ -199,152 +199,23 @@
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
-      <h1 data-toc-skip></h1>
+      <h1 data-toc-skip>Multi-segment Reverse Transcription-PCR
+(MRT-PCR) of Influenza A and B Viruses</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/CDCgov/MIRA/blob/HEAD/vignettes/troubleshooting.Rmd" class="external-link"><code>vignettes/troubleshooting.Rmd</code></a></small>
-      <div class="hidden name"><code>troubleshooting.Rmd</code></div>
+      <small class="dont-index">Source: <a href="https://github.com/CDCgov/MIRA/blob/HEAD/vignettes/influenza-a-and-b-mrt-pcr.Rmd" class="external-link"><code>vignettes/influenza-a-and-b-mrt-pcr.Rmd</code></a></small>
+      <div class="hidden name"><code>influenza-a-and-b-mrt-pcr.Rmd</code></div>
 
     </div>
 
     
     
-<div class="section level2">
-<h2 id="troubleshooting">Troubleshooting<a class="anchor" aria-label="anchor" href="#troubleshooting"></a>
-</h2>
-<hr>
-<div class="section level3">
-<h3 id="mira-installation-failed">MIRA installation failed<a class="anchor" aria-label="anchor" href="#mira-installation-failed"></a>
-</h3>
-<p>MIRA installation with docker compose expects an Ubuntu 18+ operating
-system or WSL2 distribution. If you have this, perform the
-following:</p>
-<ol style="list-style-type: decimal">
-<li><p>Restart your computer</p></li>
-<li>
-<p>Add google’s domain name server (DNS) to /etc/resolv.confirm</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> echo 8.8.8.8 <span class="op">&gt;&gt;</span> /etc/resolv.conf</span></code></pre></div>
-</li>
-<li><p>Open Docker Desktop and select all containers and Delete them.
-<img src="images/mira_docker_delete_containers.png" alt="alt text"><img src="images/mira_docker_delete_images.png" alt="alt text"></p></li>
-<li><p>Go to <a href="./articles/mira-installation.html">Installing
-MIRA</a></p></li>
-</ol>
-<p><a href="#Contents">Return to contents</a></p>
-<hr>
+<embed src="./images/LP-513Rev00D%20-%20Multi-segment%20Reverse%20Transcription-PCR%20(M-RTPCR)%20of%20Inf%20A%20and%20B.pdf" width="100%" height="1000px" style="display: block; margin: auto;" type="application/pdf"></embed>
 </div>
-<div class="section level3">
-<h3 id="my-containers-are-running-in-ubuntu-but-i-dont-see-them-in-docker-desktop">My containers are running in Ubuntu, but I don’t see them in Docker
-Desktop<a class="anchor" aria-label="anchor" href="#my-containers-are-running-in-ubuntu-but-i-dont-see-them-in-docker-desktop"></a>
-</h3>
-<p>Following successful installation, you should see your containers
-running in Ubuntu and in Docker Desktop. However, if you have multiple
-Ubuntu distributions installed, you may need to enable the right one in
-Docker Desktop.</p>
-<p>Click the “Settings” icon in the top right corner of Docker Desktop,
-then Resources, then WSL Integration. Here, you can enable the right
-distribution if you see multiple Ubuntu versions listed:</p>
-<p><img src="images/WSL_docker.png"></p>
-<p><br> Then click Apply and Restart</p>
-</div>
-<div class="section level3">
-<h3 id="wsl-install-error">WSL install error<a class="anchor" aria-label="anchor" href="#wsl-install-error"></a>
-</h3>
-<p>From the Windows search bar, open
-<code>Turn Windows Features on or off</code> and make sure the following
-4 features are enabled:</p>
-<ul>
-<li>Hyper-V</li>
-<li>Virtual Machine Platform</li>
-<li>Windows Hypervisor Platform</li>
-<li>Windows Subsystem for Linux</li>
-</ul>
-</div>
-<div class="section level3">
-<h3 id="apt-get-update-error">apt-get update error<a class="anchor" aria-label="anchor" href="#apt-get-update-error"></a>
-</h3>
-<p>If your <code>apt-get update</code> fails with a message related to
-certificates not valid for another 3 hours (for example), this means
-your computer time zone does not match Ubuntu time zone. Change your
-Windows time to auto-update and match the current timezone, then try
-again.</p>
-</div>
-<div class="section level3">
-<h3 id="map-network-drive">Map network drive<a class="anchor" aria-label="anchor" href="#map-network-drive"></a>
-</h3>
-<p>**<em>Many computers have trouble with this step; the folders are not
-selectable during this step. First, make sure that an Ubuntu terminal is
-opened and then open the <code>File Explorer</code>. If “Ubuntu” is
-still not showing up in <code>File Explorer</code>, you can try to find
-the solution here: <a href="https://github.com/microsoft/WSL/issues/3996" class="external-link">https://github.com/microsoft/WSL/issues/3996</a>.</em></p>
-<ol style="list-style-type: decimal">
-<li>
-<p>Open <a href="./images/file_explorer.png" target="_blank">File
-Explorer</a></p>
-<ul>
-<li><em>If you have a Windows 10 or 11 OS, WSL is likely automatically
-mapped and visible in the left hand sidebar as “Ubuntu”</em></li>
-</ul>
-</li>
-<li><p>Right click
-<a href="./images/map_drive_1.png" target="_blank">This PC and click Map
-network drive</a></p></li>
-<li><p>Enter <code>\\wsl$</code> into Folder:
-<a href="./images/map_drive_2.png" target="_blank">and click
-Browse</a></p></li>
-<li>
-<p>Click on <code>wsl$</code> to unfold directories, select
-<code>Ubuntu-18.04</code>
-<a href="./images/map_drive_3.png" target="_blank">and click OK</a> and
-then <code>Finish</code>. You should now see your WSL “drive” available
-in <code>File Explorer</code>:</p>
-<p><img src="images/map_drive_4.png"></p>
-</li>
-</ol>
-</div>
-<div class="section level3">
-<h3 id="docker-cli-errors">Docker CLI errors<a class="anchor" aria-label="anchor" href="#docker-cli-errors"></a>
-</h3>
-<ul>
-<li>If you get an error related to starting Docker, run the following
-command, then try to run hello-world again</li>
-</ul>
-<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> service docker start</span></code></pre></div>
-<ul>
-<li>If you get an error related to “Permission Denied” of docker.sock,
-run the following command, then try to run hello-world again</li>
-</ul>
-<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> chmod <span class="at">-755</span> /run/docker.sock</span></code></pre></div>
-<ul>
-<li>If your hello-world container still is not showing, open the
-Ubuntu-22.04 command prompt and run:</li>
-</ul>
-<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">-d</span> <span class="at">-p</span> 80:80 docker/getting-started</span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="virtualization-error">Virtualization error<a class="anchor" aria-label="anchor" href="#virtualization-error"></a>
-</h3>
-<ul>
-<li>If you see a message relating to Virtualization needing to be
-enabled, follow instructions below to access your machine’s BIOS setup:
-<ul>
-<li><a href="https://support.microsoft.com/en-us/windows/enable-virtualization-on-windows-11-pcs-c5578302-6e43-4b4b-a449-8ced115f58e1" class="external-link">Windows
-11 virtualization instructions</a></li>
-<li><a href="https://www.geeksforgeeks.org/how-to-enable-virtualization-vt-x-in-windows-10-bios/" class="external-link">Windows
-10 virtualization instructions</a></li>
-</ul>
-</li>
-</ul>
-<p><a href="#Contents">Return to contents</a></p>
-</div>
-</div>
-  </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
 
-        <nav id="toc" data-toggle="toc"><h2 data-toc-skip>Contents</h2>
-    </nav>
-</div>
+      </div>
 
 </div>
 
