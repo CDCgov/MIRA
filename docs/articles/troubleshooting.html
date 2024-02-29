@@ -40,7 +40,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">MIRA</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.3</span>
       </span>
     </div>
 
@@ -223,7 +223,7 @@ following:</p>
 <li><p>Restart your computer</p></li>
 <li>
 <p>Add google’s domain name server (DNS) to /etc/resolv.confirm</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> echo 8.8.8.8 <span class="op">&gt;&gt;</span> /etc/resolv.conf</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">sudo</span> echo 8.8.8.8 <span class="op">&gt;&gt;</span> /etc/resolv.conf</span></code></pre></div>
 </li>
 <li><p>Open Docker Desktop and select all containers and Delete them.
 <img src="images/mira_docker_delete_containers.png" alt="alt text"><img src="images/mira_docker_delete_images.png" alt="alt text"></p></li>
@@ -309,17 +309,17 @@ in <code>File Explorer</code>:</p>
 <li>If you get an error related to starting Docker, run the following
 command, then try to run hello-world again</li>
 </ul>
-<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> service docker start</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">sudo</span> service docker start</span></code></pre></div>
 <ul>
 <li>If you get an error related to “Permission Denied” of docker.sock,
 run the following command, then try to run hello-world again</li>
 </ul>
-<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> chmod <span class="at">-755</span> /run/docker.sock</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">sudo</span> chmod <span class="at">-755</span> /run/docker.sock</span></code></pre></div>
 <ul>
 <li>If your hello-world container still is not showing, open the
 Ubuntu-22.04 command prompt and run:</li>
 </ul>
-<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">-d</span> <span class="at">-p</span> 80:80 docker/getting-started</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">-d</span> <span class="at">-p</span> 80:80 docker/getting-started</span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="virtualization-error">Virtualization error<a class="anchor" aria-label="anchor" href="#virtualization-error"></a>

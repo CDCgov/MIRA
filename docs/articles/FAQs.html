@@ -40,7 +40,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">MIRA</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.3</span>
       </span>
     </div>
 
@@ -244,33 +244,33 @@ effect on your sequencing data.<a class="anchor" aria-label="anchor" href="#how-
 <div class="section level4">
 <h4 id="ispy-uninstall">iSpy uninstall<a class="anchor" aria-label="anchor" href="#ispy-uninstall"></a>
 </h4>
-<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> stop ispy</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> rm ispy</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> rmi ispy</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="ex">docker</span> stop ispy</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="ex">docker</span> rm ispy</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="ex">docker</span> rmi ispy</span></code></pre></div>
 </div>
 <div class="section level4">
 <h4 id="irma-spy-uninstall">IRMA-SPY uninstall<a class="anchor" aria-label="anchor" href="#irma-spy-uninstall"></a>
 </h4>
-<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> stop irma-spy</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> rm irma-spy</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> rmi irma-spy</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="ex">docker</span> stop irma-spy</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="ex">docker</span> rm irma-spy</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="ex">docker</span> rmi irma-spy</span></code></pre></div>
 </div>
 <div class="section level4">
 <h4 id="mira-uninstall">MIRA uninstall<a class="anchor" aria-label="anchor" href="#mira-uninstall"></a>
 </h4>
 <ol style="list-style-type: decimal">
 <li>Open an Ubuntu terminal</li>
-<li><div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a> <span class="co"># Show running containers</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a> <span class="ex">docker</span> ps</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a> <span class="co"># Stop running container you want to update. In this example we are updating mira and spyne.</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a> <span class="ex">docker</span> stop mira spyne</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a> <span class="co"># Delete containers</span></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a> <span class="ex">docker</span> rm mira spyne</span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a> <span class="co"># Delete images</span></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a> <span class="ex">docker</span> rmi mira spyne</span></code></pre></div></li>
+<li><div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a> <span class="co"># Show running containers</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a> <span class="ex">docker</span> ps</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a> <span class="co"># Stop running container you want to update. In this example we are updating mira and spyne.</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a> <span class="ex">docker</span> stop mira spyne</span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a> <span class="co"># Delete containers</span></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a> <span class="ex">docker</span> rm mira spyne</span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a> <span class="co"># Delete images</span></span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a> <span class="ex">docker</span> rmi mira spyne</span></code></pre></div></li>
 <li>Install the new MIRA and spyne containers: <a href="setting-up-containers.html">See NGS Training: Setting Up
 Containers</a>
 </li>
@@ -284,29 +284,29 @@ Containers</a>
 <code>docker-compose.yml</code> for a container’s <code>deploy</code>
 settings:</p>
 <p>For example:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">spyne:</span> </span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="ex">container_name:</span> spyne</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="ex">image:</span> spyne</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="ex">build:</span> </span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>      <span class="ex">context:</span> <span class="pp">*</span>spyne-git-version </span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="ex">depends_on:</span></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>      <span class="ex">-</span> dais</span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>      <span class="ex">-</span> irma</span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="ex">restart:</span> always</span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    <span class="ex">networks:</span></span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>      <span class="ex">-</span> backend</span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    <span class="ex">volumes:</span></span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>      <span class="ex">-</span> <span class="pp">*</span>data-volume</span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>      <span class="ex">-</span> <span class="pp">*</span>docker-socket</span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    <span class="ex">command:</span> tail <span class="at">-f</span> /dev/null</span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>    <span class="ex">deploy:</span></span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>      <span class="ex">resources:</span></span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>        <span class="ex">limits:</span></span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>          <span class="ex">cpus:</span> <span class="st">'0.50'</span></span>
-<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>          <span class="ex">memory:</span> 50M</span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>        <span class="ex">reservations:</span></span>
-<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>          <span class="ex">cpus:</span> <span class="st">'0.25'</span></span>
-<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>          <span class="ex">memory:</span> 20M</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="ex">spyne:</span> </span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>    <span class="ex">container_name:</span> spyne</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>    <span class="ex">image:</span> spyne</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>    <span class="ex">build:</span> </span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>      <span class="ex">context:</span> <span class="pp">*</span>spyne-git-version </span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>    <span class="ex">depends_on:</span></span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>      <span class="ex">-</span> dais</span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>      <span class="ex">-</span> irma</span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a>    <span class="ex">restart:</span> always</span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a>    <span class="ex">networks:</span></span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a>      <span class="ex">-</span> backend</span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a>    <span class="ex">volumes:</span></span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a>      <span class="ex">-</span> <span class="pp">*</span>data-volume</span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a>      <span class="ex">-</span> <span class="pp">*</span>docker-socket</span>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a>    <span class="ex">command:</span> tail <span class="at">-f</span> /dev/null</span>
+<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a>    <span class="ex">deploy:</span></span>
+<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a>      <span class="ex">resources:</span></span>
+<span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a>        <span class="ex">limits:</span></span>
+<span id="cb4-19"><a href="#cb4-19" tabindex="-1"></a>          <span class="ex">cpus:</span> <span class="st">'0.50'</span></span>
+<span id="cb4-20"><a href="#cb4-20" tabindex="-1"></a>          <span class="ex">memory:</span> 50M</span>
+<span id="cb4-21"><a href="#cb4-21" tabindex="-1"></a>        <span class="ex">reservations:</span></span>
+<span id="cb4-22"><a href="#cb4-22" tabindex="-1"></a>          <span class="ex">cpus:</span> <span class="st">'0.25'</span></span>
+<span id="cb4-23"><a href="#cb4-23" tabindex="-1"></a>          <span class="ex">memory:</span> 20M</span></code></pre></div>
 <p>Read more <a href="https://docs.docker.com/compose/compose-file/compose-file-v3/#resources" class="external-link">here</a>
 in the official Docker Docs</p>
 <p><br></p>
