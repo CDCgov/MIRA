@@ -1,7 +1,15 @@
 
-# MIRA 1.1.2
+# MIRA 1.1.3
 * Github Repo: https://github.com/CDCgov/MIRA
 * Documentation: https://cdcgov.github.io/MIRA
+
+### v1.1.3
+- MIRA version displayed in app and in IRMA summary table (along with config)
+- IRMA version bump 1.1.4
+- fixed pulp version
+- Turn off padding for S gene module
+- Packaged fastq in irma .tar.gz
+- Error fixes for single-sample runs
 
 ### v1.1.2
 - Whole-Genome SC2 Nanopore module
