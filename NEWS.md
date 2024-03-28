@@ -1,7 +1,11 @@
 
-# MIRA 1.1.3
+# MIRA 1.1.4
 * Github Repo: https://github.com/CDCgov/MIRA
 * Documentation: https://cdcgov.github.io/MIRA
+
+### v1.1.4
+- Empty Illumina fastq error-handling
+- Illumina fastq reads less than 70 bases error-handling
 
 ### v1.1.3
 - MIRA version displayed in app and in IRMA summary table (along with config)
