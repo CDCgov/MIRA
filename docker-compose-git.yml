@@ -10,11 +10,11 @@ x-irma-version:
 
 x-spyne-version:
   &spyne-version  
-  cdcgov/spyne:v1.1.3
+  cdcgov/spyne:v1.1.4
 
 x-mira-version:
   &mira-version  
-  cdcgov/mira:v1.1.3
+  cdcgov/mira:v1.1.4
 
 x-data-volumes:
   &data-volume

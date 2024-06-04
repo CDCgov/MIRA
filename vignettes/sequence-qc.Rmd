@@ -27,12 +27,12 @@ Second, consensus sequences undergo additional genome-level QC to ensure complet
 
 ### Illumina QC thresholds
 #### Flu
+- Minimum coverage to call base >= 30X depth
 - Read length >= 125
 - Read median quality score >= 30
 - Insertion frequency >= 25%
 - Deletion frequency >= 60%
 - Mixed [IUPAC](https://www.bioinformatics.org/sms/iupac.html) base when Minor Allele Frequency >= 20%
-
 
 #### Whole Genome SARS-CoV-2
 - Read length >= 80

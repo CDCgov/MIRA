@@ -1,14 +1,13 @@
 pandoc: 3.1.11
-pkgdown: 2.0.7
+pkgdown: 2.0.9
 pkgdown_sha: ~
 articles:
-  FAQs: FAQs.html
-  QIAxcel-sample-preparation-and-quality-control: QIAxcel-sample-preparation-and-quality-control.html
   automated-rna-extraction: automated-rna-extraction.html
   data-transfer: data-transfer.html
   development-tips: development-tips.html
   dna-quantification: dna-quantification.html
   docker-compose: docker-compose.html
+  FAQs: FAQs.html
   getting-started: getting-started.html
   influenza-a-and-b-mrt-pcr: influenza-a-and-b-mrt-pcr.html
   influenza-mrt-pcr: influenza-mrt-pcr.html
@@ -20,6 +19,7 @@ articles:
   miseq-next-generation-seq-run: miseq-next-generation-seq-run.html
   mrt-pcr-purification: mrt-pcr-purification.html
   nanopore-frameshift-correction: nanopore-frameshift-correction.html
+  QIAxcel-sample-preparation-and-quality-control: QIAxcel-sample-preparation-and-quality-control.html
   running-mira-illumina: running-mira-illumina.html
   running-mira: running-mira.html
   s-gene-rt-pcr: s-gene-rt-pcr.html
@@ -29,7 +29,7 @@ articles:
   training-post-mira: training-post-mira.html
   troubleshooting: troubleshooting.html
   upgrading-mira: upgrading-mira.html
-last_built: 2024-03-28T17:58Z
+last_built: 2024-06-04T14:41Z
 urls:
   reference: https://github.com/CDCgov/MIRA/, https://cdcgov.github.io/MIRA/reference
   article: https://github.com/CDCgov/MIRA/, https://cdcgov.github.io/MIRA/articles
