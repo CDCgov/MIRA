@@ -442,7 +442,7 @@ def run_snake_script_onClick(
         docker_cmd += f"{run}/samplesheet.csv "
         docker_cmd += f"{run} "
         docker_cmd += f"{experiment_type} "
-        if "sc2-whole-genome-illumina" in experiment_type.lower():
+        if "sc2-whole-genome-illumina" in experiment_type.lower() or "rsv-illumina" in experiment_type.lower():
             docker_cmd += f"{Amplicon_Library} "
         docker_cmd += f"CLEANUP-FOOTPRINT"
         print(f'launching docker_cmd == "{docker_cmd}"\n\n')
