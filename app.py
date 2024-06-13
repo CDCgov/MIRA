@@ -77,16 +77,6 @@ def select_primers(exp_type):
         return {"display": "none"}
 
 
-@app.callback(
-    [Output("select_sample", "options"), Output("select_sample", "value")],
-    [
-        Input("coverage-heat", "clickData"),
-        Input("select_run", "value"),
-        Input("irma-results-button", "n_clicks"),
-        Input("assembly-button", "n_clicks"),
-    ],
-)
-
 def current_version():
     descript_dict = {}
     with open("/MIRA/DESCRIPTION", 'r') as infi:
@@ -97,6 +87,15 @@ def current_version():
                 continue
     return descript_dict['Version'].strip()
 
+@app.callback(
+    [Output("select_sample", "options"), Output("select_sample", "value")],
+    [
+        Input("coverage-heat", "clickData"),
+        Input("select_run", "value"),
+        Input("irma-results-button", "n_clicks"),
+        Input("assembly-button", "n_clicks"),
+    ],
+)
 def select_sample(plotClick, run, n_clicks, a_n_clicks):
     if dash.ctx.triggered_id == "assembly-button":
         return [], ""
