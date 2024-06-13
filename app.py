@@ -71,7 +71,7 @@ def refreshRuns(n_clicks):
 
 @app.callback(Output("Amplicon_Library", "style"), Input("experiment_type", "value"))
 def select_primers(exp_type):
-    if exp_type == "SC2-Whole-Genome-Illumina":
+    if exp_type == "SC2-Whole-Genome-Illumina" or exp_type == "RSV-Illumina":
         return {"display": "block"}
     else:
         return {"display": "none"}
@@ -1032,12 +1032,9 @@ content = html.Div(
                     {"label": "SC2-Spike-Only-ONT", "value": "SC2-Spike-Only-ONT"},
                     {"label": "Flu-Illumina", "value": "Flu-Illumina"},
                     {"label": "SC2-Whole-Genome-ONT", "value":"SC2-Whole-Genome-ONT"},
-                    {
-                        "label": "SC2-Whole-Genome-Illumina",
-                        "value": "SC2-Whole-Genome-Illumina",
-                    },
+                    {"label": "SC2-Whole-Genome-Illumina", "value": "SC2-Whole-Genome-Illumina"},
                     {"label": "RSV-Illumina", "value": "RSV-Illumina"},
-                    {"label": "RSV-ONT", "value": "RSV-ONT"},
+                    {"label": "RSV-ONT", "value": "RSV-ONT",},
                 ],
                 id="experiment_type",
                 placeholder="What kind of data is this?",
@@ -1048,6 +1045,7 @@ content = html.Div(
         dbc.Row(
             dcc.Dropdown(
                 [
+                    {"label": "RSV CDC 8 amplicon 230901", "value": "RSV_CDC_8amplicon_230901"},
                     {"label": "Artic V3", "value": "articv3"},
                     {"label": "Artic V4", "value": "articv4"},
                     {"label": "Artic V4.1", "value": "articv4.1"},
@@ -1062,7 +1060,7 @@ content = html.Div(
                     {"label": "None", "value": ""},
                 ],  # add handling here for no primers used
                 id="Amplicon_Library",
-                placeholder="For Illumina SC2, which primer schema was used?",
+                placeholder="For Illumina SC2 or Illumina RSV, which primer schema was used?",
             )
         )
     ]
