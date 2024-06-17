@@ -48,10 +48,10 @@ data_root = CONFIG["DATA_ROOT"]
 DEBUG = CONFIG["DEBUG"]
 DEPLOY = CONFIG["DEPLOY"]
 AVAILABLE_VERSION = CONFIG["VERSION_URL"]
-if DEPLOY:
-    check_version_interval = 3000
-else:
-    check_version_interval = 1000 * 60 * 60 * 24  # milliseconds in 1 day
+#if DEPLOY:
+check_version_interval = 1000 * 60 * 60 * 24  # milliseconds in 1 day
+#else:
+#    check_version_interval = 3000
 
 app = dash.Dash(external_stylesheets=[dbc.themes.FLATLY])
 app.title = "MIRA"
@@ -79,7 +79,8 @@ def select_primers(exp_type):
 
 def current_version():
     descript_dict = {}
-    with open("/MIRA/DESCRIPTION", 'r') as infi:
+    description_file = f"{dirname(realpath(__file__))}/DESCRIPTION"
+    with open(description_file, 'r') as infi:
         for line in infi:
             try:
                 descript_dict[line.split(':')[0]]=line.split(":")[1]
