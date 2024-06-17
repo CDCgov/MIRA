@@ -1,7 +1,7 @@
 Package: MIRA
 Type: Package
 Title: Dashboard for Influenza and SARS-COV-2 Spike-Gene Genome Assembly and Curation
-Version: 1.1.3
+Version: 2.0.0
 Date: 2023-08-08
 Authors@R: 
   c(person(given="Ben", family="Rambo-Martin", role=c("aut","cre"), 
