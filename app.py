@@ -69,14 +69,14 @@ def refreshRuns(n_clicks):
     return options
 
 
-@app.callback(Output("Amplicon_Library", "style"), Input("experiment_type", "value"))
+@app.callback(Output("Amplicon_Library_SC2", "style"), Input("experiment_type", "value"))
 def select_primers_sc2(exp_type):
     if exp_type == "SC2-Whole-Genome-Illumina":
         return {"display": "block"}
     else:
         return {"display": "none"}
 
-@app.callback(Output("Amplicon_Library", "style"), Input("experiment_type", "value"))
+@app.callback(Output("Amplicon_Library_RSV", "style"), Input("experiment_type", "value"))
 def select_primers_rsv(exp_type):
     if exp_type == "RSV-Illumina":
         return {"display": "block"}
@@ -422,12 +422,13 @@ def generate_samplesheet(run, upload_data, experiment_type):
         Input("assembly-button", "n_clicks"),
         Input("select_run", "value"),
         Input("experiment_type", "value"),
-        Input("Amplicon_Library", "value"),
+        Input("Amplicon_Library_SC2", "value")
+        Input("Amplicon_Library_RSV", "value"),
         Input("unlock-assembly-button", "n_clicks"),
     ],
 )
 def run_snake_script_onClick(
-    assembly_n_clicks, run, experiment_type, Amplicon_Library, unlock_n_clicks
+    assembly_n_clicks, run, experiment_type, Amplicon_Library_SC2, Amplicon_Library_RSV, unlock_n_clicks
 ):
     if dash.ctx.triggered_id == "unlock-assembly-button":
         return False
@@ -449,8 +450,10 @@ def run_snake_script_onClick(
         docker_cmd += f"{run}/samplesheet.csv "
         docker_cmd += f"{run} "
         docker_cmd += f"{experiment_type} "
-        if "sc2-whole-genome-illumina" in experiment_type.lower() or "rsv-illumina" in experiment_type.lower():
-            docker_cmd += f"{Amplicon_Library} "
+        if "sc2-whole-genome-illumina" in experiment_type.lower():
+            docker_cmd += f"{Amplicon_Library_SC2} "
+        elif  "rsv-illumina" in experiment_type.lower():
+            docker_cmd += f"{Amplicon_Library_RSV} "
         docker_cmd += f"CLEANUP-FOOTPRINT"
         print(f'launching docker_cmd == "{docker_cmd}"\n\n')
         subprocess.Popen(docker_cmd.split(), close_fds=True)
@@ -1047,7 +1050,7 @@ content = html.Div(
             )
         )
     ]
-    + [  # html.Div(id="Amplicon_Library")
+    + [
         dbc.Row(
             dcc.Dropdown(
                 [
@@ -1064,7 +1067,7 @@ content = html.Div(
                     {"label": "VarSkip", "value": "varskip"},
                     {"label": "None", "value": ""},
                 ],  # add handling here for no primers used
-                id="Amplicon_Library",
+                id="Amplicon_Library_SC2",
                 placeholder="For Illumina SC2, which primer schema was used?",
             )
         )
@@ -1075,7 +1078,7 @@ content = html.Div(
                 [
                     {"label": "RSV CDC 8 amplicon 230901", "value": "RSV_CDC_8amplicon_230901"},
                 ],  # add handling here for no primers used
-                id="Amplicon_Library",
+                id="Amplicon_Library_RSV",
                 placeholder="For Illumina RSV, which primer schema was used?",
             )
         )
