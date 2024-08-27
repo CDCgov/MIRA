@@ -69,14 +69,14 @@ def refreshRuns(n_clicks):
     return options
 
 
-@app.callback(Output("Amplicon_Library_SC2", "style"), Input("experiment_type", "value"))
+@app.callback(Output("Amplicon_Library", "style"), Input("experiment_type", "value"))
 def select_primers_sc2(exp_type):
     if exp_type == "SC2-Whole-Genome-Illumina":
         return {"display": "block"}
     else:
         return {"display": "none"}
 
-@app.callback(Output("Amplicon_Library_RSV", "style"), Input("experiment_type", "value"))
+@app.callback(Output("Amplicon_Library", "style"), Input("experiment_type", "value"))
 def select_primers_rsv(exp_type):
     if exp_type == "RSV-Illumina":
         return {"display": "block"}
@@ -1064,7 +1064,7 @@ content = html.Div(
                     {"label": "VarSkip", "value": "varskip"},
                     {"label": "None", "value": ""},
                 ],  # add handling here for no primers used
-                id="Amplicon_Library_SC2",
+                id="Amplicon_Library",
                 placeholder="For Illumina SC2, which primer schema was used?",
             )
         )
@@ -1075,7 +1075,7 @@ content = html.Div(
                 [
                     {"label": "RSV CDC 8 amplicon 230901", "value": "RSV_CDC_8amplicon_230901"},
                 ],  # add handling here for no primers used
-                id="Amplicon_Library_RSV",
+                id="Amplicon_Library",
                 placeholder="For Illumina RSV, which primer schema was used?",
             )
         )
