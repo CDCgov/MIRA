@@ -2,11 +2,11 @@ version: "3.9"
 
 x-dais-version:
   &dais-version 
-  cdcgov/dais-ribosome:v1.3.2
+  cdcgov/dais-ribosome:v1.5.4
 
 x-irma-version:
   &irma-version 
-  cdcgov/irma:v1.1.1
+  cdcgov/irma:v1.2.0
 
 x-spyne-version:
   &spyne-version  
