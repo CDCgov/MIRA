@@ -422,7 +422,7 @@ def generate_samplesheet(run, upload_data, experiment_type):
         Input("assembly-button", "n_clicks"),
         Input("select_run", "value"),
         Input("experiment_type", "value"),
-        Input("Amplicon_Library_SC2", "value")
+        Input("Amplicon_Library_SC2", "value"),
         Input("Amplicon_Library_RSV", "value"),
         Input("unlock-assembly-button", "n_clicks"),
     ],
