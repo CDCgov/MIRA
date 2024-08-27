@@ -1051,7 +1051,6 @@ content = html.Div(
         dbc.Row(
             dcc.Dropdown(
                 [
-                    {"label": "RSV CDC 8 amplicon 230901", "value": "RSV_CDC_8amplicon_230901"},
                     {"label": "Artic V3", "value": "articv3"},
                     {"label": "Artic V4", "value": "articv4"},
                     {"label": "Artic V4.1", "value": "articv4.1"},
