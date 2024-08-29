@@ -1082,6 +1082,7 @@ content = html.Div(
             dcc.Dropdown(
                 [
                     {"label": "RSV CDC 8 amplicon 230901", "value": "RSV_CDC_8amplicon_230901"},
+                    {"label": "Dong et al. 230312", "value": "dong_et_al"}
                 ],  # add handling here for no primers used
                 id="Amplicon_Library_RSV",
                 placeholder="For Illumina RSV, which primer schema was used?",
