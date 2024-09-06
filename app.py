@@ -48,10 +48,10 @@ data_root = CONFIG["DATA_ROOT"]
 DEBUG = CONFIG["DEBUG"]
 DEPLOY = CONFIG["DEPLOY"]
 AVAILABLE_VERSION = CONFIG["VERSION_URL"]
-if DEPLOY:
-    check_version_interval = 3000
-else:
-    check_version_interval = 1000 * 60 * 60 * 24  # milliseconds in 1 day
+#if DEPLOY:
+check_version_interval = 1000 * 60 * 60 * 24  # milliseconds in 1 day
+#else:
+#    check_version_interval = 3000
 
 app = dash.Dash(external_stylesheets=[dbc.themes.FLATLY])
 app.title = "MIRA"
@@ -69,13 +69,30 @@ def refreshRuns(n_clicks):
     return options
 
 
-@app.callback(Output("Amplicon_Library", "style"), Input("experiment_type", "value"))
-def select_primers(exp_type):
+@app.callback(Output("Amplicon_Library_SC2", "style"), Input("experiment_type", "value"))
+def select_primers_sc2(exp_type):
     if exp_type == "SC2-Whole-Genome-Illumina":
         return {"display": "block"}
     else:
         return {"display": "none"}
 
+@app.callback(Output("Amplicon_Library_RSV", "style"), Input("experiment_type", "value"))
+def select_primers_rsv(exp_type):
+    if exp_type == "RSV-Illumina":
+        return {"display": "block"}
+    else:
+        return {"display": "none"}
+
+def current_version():
+    descript_dict = {}
+    description_file = f"{dirname(realpath(__file__))}/DESCRIPTION"
+    with open(description_file, 'r') as infi:
+        for line in infi:
+            try:
+                descript_dict[line.split(':')[0]]=line.split(":")[1]
+            except:
+                continue
+    return descript_dict['Version'].strip()
 
 @app.callback(
     [Output("select_sample", "options"), Output("select_sample", "value")],
@@ -210,7 +227,11 @@ def parse_contents(contents, filename, date, run):
         elif "xls" in filename:
             # Assume that the user uploaded an excel file
             ss_df = pd.read_excel(io.BytesIO(decoded), engine="openpyxl")
-            ss_df = ss_df.iloc[:, 0:3]
+            if "Barcode #" in ss_df.columns:
+                ss_df = ss_df.iloc[:, 0:3]
+            else:
+                ss_df = ss_df.iloc[:, 0:2]
+            ss_df = ss_df.dropna(how='all')
     except Exception as e:
         print(f"ERROR PARSING SS\n{e}\n--------END OF ERROR--------")
         return html.Div(["There was an error processing this file."])
@@ -405,12 +426,13 @@ def generate_samplesheet(run, upload_data, experiment_type):
         Input("assembly-button", "n_clicks"),
         Input("select_run", "value"),
         Input("experiment_type", "value"),
-        Input("Amplicon_Library", "value"),
+        Input("Amplicon_Library_SC2", "value"),
+        Input("Amplicon_Library_RSV", "value"),
         Input("unlock-assembly-button", "n_clicks"),
     ],
 )
 def run_snake_script_onClick(
-    assembly_n_clicks, run, experiment_type, Amplicon_Library, unlock_n_clicks
+    assembly_n_clicks, run, experiment_type, Amplicon_Library_SC2, Amplicon_Library_RSV, unlock_n_clicks
 ):
     if dash.ctx.triggered_id == "unlock-assembly-button":
         return False
@@ -432,8 +454,11 @@ def run_snake_script_onClick(
         docker_cmd += f"{run}/samplesheet.csv "
         docker_cmd += f"{run} "
         docker_cmd += f"{experiment_type} "
+        docker_cmd += "-a "
         if "sc2-whole-genome-illumina" in experiment_type.lower():
-            docker_cmd += f"{Amplicon_Library} "
+            docker_cmd += f"-p {Amplicon_Library_SC2} "
+        elif  "rsv-illumina" in experiment_type.lower():
+            docker_cmd += f"-p {Amplicon_Library_RSV} "
         docker_cmd += f"CLEANUP-FOOTPRINT"
         print(f'launching docker_cmd == "{docker_cmd}"\n\n')
         subprocess.Popen(docker_cmd.split(), close_fds=True)
@@ -462,7 +487,7 @@ def new_version_modal(n_interval):
             current = "".join(d.readlines())
     available = requests.get(AVAILABLE_VERSION)
     current = re.findall(r"Version.+(?=\n)", current)[0]
-    available = re.findall(r"Version.+(?=\r)", available.text)[0]
+    available = re.findall(r"Version.+(?=\n)", available.text)[0]
     if current >= available:
         return html.Div()
     else:
@@ -932,10 +957,10 @@ sidebar = html.Div(
                 )
             ],
         ),
-        html.H2("MIRA", className="display-4"),
+        html.H2(f"MIRA v{current_version()}", className="display-4"),
         html.P(
             [
-                "Influenza genome and SARS-CoV-2 spike sequence assembly with ",
+                "Influenza, SARS-CoV-2, and RSV sequence assembly with ",
                 dcc.Link(
                     "IRMA",
                     href="https://bmcgenomics.biomedcentral.com/articles/10.1186/s12864-016-3030-6",
@@ -1021,17 +1046,16 @@ content = html.Div(
                     {"label": "SC2-Spike-Only-ONT", "value": "SC2-Spike-Only-ONT"},
                     {"label": "Flu-Illumina", "value": "Flu-Illumina"},
                     {"label": "SC2-Whole-Genome-ONT", "value":"SC2-Whole-Genome-ONT"},
-                    {
-                        "label": "SC2-Whole-Genome-Illumina",
-                        "value": "SC2-Whole-Genome-Illumina",
-                    },
+                    {"label": "SC2-Whole-Genome-Illumina", "value": "SC2-Whole-Genome-Illumina"},
+                    {"label": "RSV-Illumina", "value": "RSV-Illumina"},
+                    {"label": "RSV-ONT", "value": "RSV-ONT",},
                 ],
                 id="experiment_type",
                 placeholder="What kind of data is this?",
             )
         )
     ]
-    + [  # html.Div(id="Amplicon_Library")
+    + [
         dbc.Row(
             dcc.Dropdown(
                 [
@@ -1048,8 +1072,20 @@ content = html.Div(
                     {"label": "VarSkip", "value": "varskip"},
                     {"label": "None", "value": ""},
                 ],  # add handling here for no primers used
-                id="Amplicon_Library",
+                id="Amplicon_Library_SC2",
                 placeholder="For Illumina SC2, which primer schema was used?",
+            )
+        )
+    ]
+    + [
+        dbc.Row(
+            dcc.Dropdown(
+                [
+                    {"label": "RSV CDC 8 amplicon 230901", "value": "RSV_CDC_8amplicon_230901"},
+                    {"label": "Dong et al. 230312", "value": "dong_et_al"}
+                ],  # add handling here for no primers used
+                id="Amplicon_Library_RSV",
+                placeholder="For Illumina RSV, which primer schema was used?",
             )
         )
     ]

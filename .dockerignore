@@ -26,5 +26,5 @@ change_log.txt
 MIRA-INSTALL.sh
 install_docker.sh
 docker-compose.yml
-docker-compose_*.yml
+docker-compose-*.yml
 _pkgdown.yml

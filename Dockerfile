@@ -16,13 +16,7 @@ RUN apt-get update --allow-releaseinfo-change --fix-missing
 FROM ${spyne_image} as spyne
 RUN echo "Getting spyne image"
 
-############# final image ##################
-FROM base as final
-
-# copy irma build to final image
-COPY --from=spyne / /
-
-# Install system libraries of general use
+# Install and update system libraries of general use
 RUN apt-get update --allow-releaseinfo-change --fix-missing \
   && apt-get install --no-install-recommends -y \
   build-essential \ 

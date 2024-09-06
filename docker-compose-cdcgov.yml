@@ -1,0 +1,21 @@
+version: "3.9"
+
+x-mira-docker-version:
+  &mira-docker-version
+  cdcgov/mira-dev:v2.0.0
+
+x-data-volume:
+  &data-volume
+  type: bind
+  source: ~/Github/FLU_SC2_SEQUENCING
+  target: /data
+
+services:
+  mira:
+    container_name: mira
+    image: *mira-docker-version
+    restart: always
+    ports:
+      - 8050:8050
+    volumes:
+      - *data-volume
