@@ -1,7 +1,7 @@
 version: "3.9"
 
-x-mira-docker-version:
-  &mira-docker-version
+x-mira-image:
+  &mira-image
   cdcgov/mira-dev:v2.0.0
 
 x-data-volume:
@@ -13,7 +13,7 @@ x-data-volume:
 services:
   mira:
     container_name: mira
-    image: *mira-docker-version
+    image: *mira-image
     restart: always
     ports:
       - 8050:8050

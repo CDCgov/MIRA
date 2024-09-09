@@ -1,12 +1,12 @@
 version: "3.9"
 
-x-mira-git-version:
-  &mira-git-version
+x-mira-git-repo:
+  &mira-git-repo
   https://github.com/CDCgov/MIRA.git#single_mira_container
 
-x-spyne-docker-version:
-  &spyne-docker-version
-  cdcgov/spyne-dev:v2.0.0
+x-spyne-image:
+  &spyne-image
+  spyne_image: cdcgov/spyne-dev:v2.0.0
 
 x-data-volume:
   &data-volume
@@ -19,10 +19,10 @@ services:
     container_name: mira
     image: mira:latest
     build:
-      context: *mira-git-version
+      context: *mira-git-repo
       dockerfile: Dockerfile
       args:
-        - spyne_image: *spyne-docker-version
+        << : [*spyne-image]
     restart: always
     ports:
       - 8050:8050

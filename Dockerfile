@@ -3,18 +3,8 @@
 ARG spyne_image
 ARG spyne_image=${spyne_image:-cdcgov/spyne:latest}
 
-############# base image ##################
-FROM --platform=$BUILDPLATFORM ubuntu:focal as base
-
-# local apt mirror support
-# start every stage with updated apt sources
-ARG APT_MIRROR_NAME=
-RUN if [ -n "$APT_MIRROR_NAME" ]; then sed -i.bak -E '/security/! s^https?://.+?/(debian|ubuntu)^http://'"$APT_MIRROR_NAME"'/\1^' /etc/apt/sources.list && grep '^deb' /etc/apt/sources.list; fi
-RUN apt-get update --allow-releaseinfo-change --fix-missing
-
-############# spyne image ##################
+############# spyne image as base ##################
 FROM ${spyne_image} as spyne
-RUN echo "Getting spyne image"
 
 # Install and update system libraries of general use
 RUN apt-get update --allow-releaseinfo-change --fix-missing \

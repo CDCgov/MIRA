@@ -1,8 +1,8 @@
 version: "3.9"
 
-x-spyne-docker-version:
-  &spyne-docker-version
-  cdcgov/spyne-dev:v2.0.0
+x-spyne-image:
+  &spyne-image
+  spyne_image: cdcgov/spyne-dev:v2.0.0
 
 x-data-volume:
   &data-volume
@@ -18,7 +18,7 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        - spyne_image: *spyne-docker-version
+        << : [*spyne-image]
     restart: always
     ports:
       - 8050:8050
