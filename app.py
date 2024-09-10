@@ -450,11 +450,12 @@ def run_snake_script_onClick(
     if dash.ctx.triggered_id == "select_run":
         return True
     if dash.ctx.triggered_id == "assembly-button":
-        docker_cmd = "bash snake-kickoff "
-        docker_cmd += f"{run}/samplesheet.csv "
-        docker_cmd += f"{run} "
-        docker_cmd += f"{experiment_type} "
+        docker_cmd = "bash /spyne/MIRA.sh "
+        docker_cmd += f"-s {run}/samplesheet.csv "
+        docker_cmd += f"-r {run} "
+        docker_cmd += f"-e {experiment_type} "
         docker_cmd += "-a "
+        print(docker_cmd)
         if "sc2-whole-genome-illumina" in experiment_type.lower():
             docker_cmd += f"-p {Amplicon_Library_SC2} "
         elif  "rsv-illumina" in experiment_type.lower():

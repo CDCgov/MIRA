@@ -4,7 +4,7 @@
 
 # Run whatever Bash commands here
 
-PROJECT_DIR=${PROJECT_DIR:-/MIRA}
+MIRA_PROGRAM_DIR=${MIRA_PROGRAM_DIR:-/MIRA}
 WORKDIR=${WORKDIR:-/data}
 
 # Archive previous .appout and .apperr
@@ -15,4 +15,4 @@ elif [ -f ${WORKDIR}/.applogs/.apperr ]; then
 	tar --remove-files -czf ${WORKDIR}/.applogs/.$(date -d @$(stat -c %Y ${WORKDIR}/.applogs/.apperr) "+%Y%b%d-%H%M%S").applog.tar.gz ${WORKDIR}/.applogs/.appout ${WORKDIR}/.applogs/.apperr
 fi
 
-python3 $PROJECT_DIR/app.py ${PROJECT_DIR}/config/container-prod.yaml >> ${WORKDIR}/.appout 2>> >( grep -v POST >> ${WORKDIR}/.apperr)
+python3 ${MIRA_PROGRAM_DIR}/app.py ${MIRA_PROGRAM_DIR}/config/container-prod.yaml >> ${WORKDIR}/.appout 2>> >( grep -v POST >> ${WORKDIR}/.apperr)

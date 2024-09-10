@@ -16,6 +16,6 @@ services:
     image: *mira-image
     restart: always
     ports:
-      - 8050:8050
+      - 8020:8050
     volumes:
       - *data-volume

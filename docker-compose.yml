@@ -4,10 +4,16 @@ x-spyne-image:
   &spyne-image
   spyne_image: cdcgov/spyne-dev:v2.0.0
 
+x-mira-volume:
+  &mira-volume
+  type: bind
+  source: /home/snu3/Github/MIRA
+  target: /MIRA
+
 x-data-volume:
   &data-volume
   type: bind
-  source: /home/snu3/Github/FLU_SC2_SEQUENCING
+  source: /home/snu3/irma-testings/rsv-support/FLU_SC2_SEQUENCING
   target: /data
 
 services:
@@ -21,6 +27,7 @@ services:
         << : [*spyne-image]
     restart: always
     ports:
-      - 8050:8050
+      - 8020:8050
     volumes:
       - *data-volume
+      - *mira-volume
