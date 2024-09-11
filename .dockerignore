@@ -1,4 +1,3 @@
-
 # ignore file extensions
 *.DS_Store
 *.Rmd
@@ -10,16 +9,16 @@
 *.Rproj
 
 # ignore folders
-**/.git
-**/.github
-**/.Rproj.user
+**.git
+**.github
+**.Rproj.user
 *docs
 *vignettes
 *man
 *docker
-*images
 *inst
 *data
+*pkgdown
 
 # ignore specific files
 change_log.txt
@@ -28,3 +27,7 @@ install_docker.sh
 docker-compose.yml
 docker-compose-*.yml
 _pkgdown.yml
+MIRA-INSTALL.sh
+MIRA.code-workspace
+NAMESPACE
+
