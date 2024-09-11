@@ -76,7 +76,6 @@ def select_primers_sc2(exp_type):
     else:
         return {"display": "none"}
 
-<<<<<<< HEAD
 @app.callback(Output("Amplicon_Library_RSV", "style"), Input("experiment_type", "value"))
 def select_primers_rsv(exp_type):
     if exp_type == "RSV-Illumina":
@@ -94,8 +93,6 @@ def current_version():
             except:
                 continue
     return descript_dict['Version'].strip()
-=======
->>>>>>> prod
 
 @app.callback(
     [Output("select_sample", "options"), Output("select_sample", "value")],

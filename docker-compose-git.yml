@@ -4,27 +4,11 @@ x-mira-git-repo:
   &mira-git-repo
   https://github.com/CDCgov/MIRA.git#single_mira_container
 
-<<<<<<< HEAD
 x-spyne-image:
   &spyne-image
   spyne_image: cdcgov/spyne-dev:v2.0.0
 
 x-data-volume:
-=======
-x-irma-version:
-  &irma-version 
-  cdcgov/irma:v1.1.4
-
-x-spyne-version:
-  &spyne-version  
-  cdcgov/spyne:v1.1.4
-
-x-mira-version:
-  &mira-version  
-  cdcgov/mira:v1.1.4
-
-x-data-volumes:
->>>>>>> prod
   &data-volume
   type: bind
   source: /home/snu3/Github/FLU_SC2_SEQUENCING
