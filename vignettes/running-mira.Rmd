@@ -153,6 +153,8 @@ th, td {
 
 <br>
 
+If you have frameshifts in your data, [click here](./nanopore-frameshift-correction.Rmd) for instructions on how to fix them
+
 6. Inspect minor variation at single nucleotides, insertions and deletions _relative to the sample's generated consensus sequence._ These tables are for your own usage and not necessary to review in detail. They can be sorted and filtered and exported to excel sheets for further analyses.
 
     ![](images/mira_minor_vars.png)

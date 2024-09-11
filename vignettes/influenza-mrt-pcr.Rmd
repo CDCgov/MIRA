@@ -12,5 +12,5 @@ library(knitr)
 
 
 ```{r pdf, out.height = "1000px", out.width='100%', include=TRUE, fig.align="center", fig.cap="", echo=FALSE}
-knitr::include_graphics("./images/LP-497Rev01D - MRT-PCR of Influenza A Viruses for Sequencing.pdf")
+knitr::include_graphics("./images/LP-497Rev02D - MRT-PCR of Influenza A Viruses for Sequencing.pdf")
 ```

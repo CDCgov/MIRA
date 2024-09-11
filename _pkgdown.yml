@@ -44,11 +44,33 @@ navbar:
           href: articles/upgrading-mira.html
     - text: "Lab Protocols"
       menu:
-        - text: Influenza A MRT-PCR
+        - text: Sequencing Template Generation
+        - text: Automated RNA Extraction using QIAcube HT
+          href: articles/automated-rna-extraction.html
+        - text: Multi-segment Reverse Transcription-PCR (MRT-PCR) of Influenza A and B Viruses
+          href: articles/influenza-a-and-b-mrt-pcr.html
+        - text: Influenza A Virus MRT-PCR
+          icon: fa-star
           href: articles/influenza-mrt-pcr.html
-        - text: SARS-COV-2 RT-PCR
+        - text: SARS-COV-2 Virus RT-PCR
+          icon: fa-star
           href: articles/sars-cov-2-rt-pcr.html
+        - text: MRT-PCR Purification using Exonuclease
+          href: articles/mrt-pcr-purification.html
+        - text: QIAxcel Sample Preparation and Quality Control Procedure
+          href: articles/QIAxcel-sample-preparation-and-quality-control.html
+        - text: Illumina Library Preparation and Sequencing
+        - text: Manual Procedure Illumina DNA Library Preparation
+          href: articles/manual-illumina-dna-prep-library.html
+        - text: DNA Quantification with Qubit ds DNA High Sensitivity Kit
+          href: articles/dna-quantification.html
+        - text: Performing a MiSeq Next Generation Sequencing Run
+          href: articles/miseq-next-generation-seq-run.html
+        - text: Preparation of the DNA Libraries for Loading onto the MiSeq
+          href: articles/miseq-library-loading-preparation.html
+        - text: Oxford Nanopore Library Preparation and Sequencing
         - text: Library Preparation and Nanopore Sequencing of Influenza and SARS-COV-2 S-gene Amplicons
+          icon: fa-star
           href: articles/influenza-sars-cov-2-s-gene-amplicons-nanopore.html          
     - text: Help
       menu:

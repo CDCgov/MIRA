@@ -76,6 +76,7 @@ def select_primers_sc2(exp_type):
     else:
         return {"display": "none"}
 
+<<<<<<< HEAD
 @app.callback(Output("Amplicon_Library_RSV", "style"), Input("experiment_type", "value"))
 def select_primers_rsv(exp_type):
     if exp_type == "RSV-Illumina":
@@ -93,6 +94,8 @@ def current_version():
             except:
                 continue
     return descript_dict['Version'].strip()
+=======
+>>>>>>> prod
 
 @app.callback(
     [Output("select_sample", "options"), Output("select_sample", "value")],
@@ -923,6 +926,17 @@ def download_failed_fastas(run, n_clicks):
         )
         return nt_fastas, aa_fastas
 
+
+def current_version():
+    descript_dict = {}
+    description_file = f"{dirname(realpath(__file__))}/DESCRIPTION"
+    with open(description_file, 'r') as infi:
+        for line in infi:
+            try:
+                descript_dict[line.split(':')[0]]=line.split(":")[1]
+            except:
+                continue
+    return descript_dict['Version'].strip()
 
 ########################################################
 ###################### LAYOUT ##########################
