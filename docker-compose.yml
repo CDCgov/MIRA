@@ -7,7 +7,7 @@ x-spyne-image:
 x-data-volume:
   &data-volume
   type: bind
-  source: /home/snu3/irma-testings/rsv-support/FLU_SC2_SEQUENCING
+  source: /home/snu3/FLU_SC2_SEQUENCING
   target: /data
 
 services:

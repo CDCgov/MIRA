@@ -460,7 +460,7 @@ def run_snake_script_onClick(
             docker_cmd += f"-p {Amplicon_Library_SC2} "
         elif  "rsv-illumina" in experiment_type.lower():
             docker_cmd += f"-p {Amplicon_Library_RSV} "
-        docker_cmd += f"CLEANUP-FOOTPRINT"
+        docker_cmd += f"-c CLEANUP-FOOTPRINT"
         print(f'launching docker_cmd == "{docker_cmd}"\n\n')
         subprocess.Popen(docker_cmd.split(), close_fds=True)
         if len(glob(f"{data_root}/{run}/{run}_samplesheet.xlsx")) > 0:
