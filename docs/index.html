@@ -12,7 +12,7 @@
 <link rel="apple-touch-icon" type="image/png" sizes="120x120" href="apple-touch-icon-120x120.png">
 <link rel="apple-touch-icon" type="image/png" sizes="76x76" href="apple-touch-icon-76x76.png">
 <link rel="apple-touch-icon" type="image/png" sizes="60x60" href="apple-touch-icon-60x60.png">
-<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.4.0/cosmo/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><!-- Bootstrap --><link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.4.0/cosmo/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="bootstrap-toc.css">
 <script src="bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
@@ -26,7 +26,7 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
-    
+
 
     <div class="container template-home">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -40,7 +40,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">MIRA</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.4</span>
       </span>
     </div>
 
@@ -49,13 +49,37 @@
 <li>
   <a href="index.html">
     <span class="fa fa-home"></span>
-     
+
   </a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-    NGS-Training
-     
+    MIRA in Docker Desktop
+
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+<li>
+      <a href="articles/mira-dd-getting-started.html">Getting Started and Installation</a>
+    </li>
+    <li>
+      <a href="articles/running-mira-dd-ont.html">Running Genome Assembly with MIRA -- NANOPORE DATA</a>
+    </li>
+    <li>
+      <a href="articles/running-mira-dd-illumina.html">Running Genome Assembly with MIRA -- ILLUMINA DATA</a>
+    </li>
+    <li>
+      <a href="articles/training-post-mira-single-container.html">Post MIRA sequence analysis with Nextclade</a>
+    </li>
+    <li>
+      <a href="articles/upgrading-mira-dd.html">Upgrading MIRA Docker Desktop</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    MIRA-CLI
+
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
@@ -63,32 +87,29 @@
       <a href="articles/getting-started.html">PC Getting Started</a>
     </li>
     <li>
-      <a href="articles/mac-getting-started.html">MAC Getting Started</a>
+      <a href="articles/mira-cli-mac-getting-started.html">MAC Getting Started</a>
     </li>
     <li>
-      <a href="articles/mira-installation.html">MIRA installation</a>
+      <a href="articles/mira-cli-installation.html">MIRA installation</a>
     </li>
     <li>
-      <a href="articles/data-transfer.html">Data Transfer with Mk1C</a>
+      <a href="articles/running-mira-cli-ont.html">Running Genome Assembly with MIRA-CLI -- NANOPORE DATA</a>
     </li>
     <li>
-      <a href="articles/running-mira.html">Running Genome Assembly with MIRA -- NANOPORE DATA</a>
+      <a href="articles/running-mira-cli-illumina.html">Running Genome Assembly with MIRA-CLI -- ILLUMINA DATA</a>
     </li>
     <li>
-      <a href="articles/running-mira-illumina.html">Running Genome Assembly with MIRA -- ILLUMINA DATA</a>
+      <a href="articles/training-post-mira-single-container.html">Post MIRA sequence analysis with Nextclade</a>
     </li>
     <li>
-      <a href="articles/training-post-mira.html">Post MIRA sequence analysis with Nextclade</a>
-    </li>
-    <li>
-      <a href="articles/upgrading-mira.html">Upgrading MIRA</a>
+      <a href="articles/upgrading-mira-cli.html">Upgrading MIRA-CLI</a>
     </li>
   </ul>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Lab Protocols
-     
+
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
@@ -102,14 +123,14 @@
     <li>
       <a href="articles/influenza-mrt-pcr.html">
         <span class="fa fa-star"></span>
-         
+
         Influenza A Virus MRT-PCR
       </a>
     </li>
     <li>
       <a href="articles/sars-cov-2-rt-pcr.html">
         <span class="fa fa-star"></span>
-         
+
         SARS-COV-2 Virus RT-PCR
       </a>
     </li>
@@ -136,7 +157,7 @@
     <li>
       <a href="articles/influenza-sars-cov-2-s-gene-amplicons-nanopore.html">
         <span class="fa fa-star"></span>
-         
+
         Library Preparation and Nanopore Sequencing of Influenza and SARS-COV-2 S-gene Amplicons
       </a>
     </li>
@@ -145,7 +166,7 @@
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Help
-     
+
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
@@ -163,6 +184,37 @@
     </li>
   </ul>
 </li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Legacy
+
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+<li>
+      <a href="articles/getting-started.html">Retired PC Getting Started</a>
+    </li>
+    <li>
+      <a href="articles/mac-getting-started.html">Retired MAC Getting Started</a>
+    </li>
+    <li>
+      <a href="articles/mira-installation.html">Retired MIRA installation</a>
+    </li>
+    <li>
+      <a href="articles/data-transfer.html">Retired Data Transfer with Mk1C</a>
+    </li>
+    <li>
+      <a href="articles/running-mira.html">Retired Running Genome Assembly -- NANOPORE DATA</a>
+    </li>
+    <li>
+      <a href="articles/running-mira-illumina.html">Retired Running Genome Assembly -- ILLUMINA DATA</a>
+    </li>
+    <li>
+      <a href="articles/training-post-mira.html">Retired Post MIRA sequence analysis with Nextclade</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown-header">Lab Protocols</li>
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
@@ -171,19 +223,19 @@
 <li>
   <a href="mailto:idseqsupport@cdc.gov">
     <span class="fa fa-envelope"></span>
-     
+
   </a>
 </li>
 <li>
   <a href="https://github.com/CDCgov/MIRA/issues" class="external-link">
     <span class="fa fa-comments"></span>
-     
+
   </a>
 </li>
 <li>
   <a href="https://github.com/CDCgov/MIRA" class="external-link">
     <span class="fa fa-github"></span>
-     
+
   </a>
 </li>
       </ul>
@@ -194,94 +246,103 @@
 </div>
 <!--/.navbar -->
 
-      
+
 
       </header><div class="row">
   <div class="contents col-md-9">
 
 <div class="section level1">
-<div class="page-header"><h1 id="id_-mira-interactive-dashboard-for-influenza-genome-and-sars-cov-2-spike-gene-assembly-and-curation">
-<img src="reference/figures/logo.png" align="left" width="190"> MIRA: Interactive Dashboard for Influenza Genome and SARS-CoV-2 Spike-Gene Assembly and Curation<a class="anchor" aria-label="anchor" href="#id_-mira-interactive-dashboard-for-influenza-genome-and-sars-cov-2-spike-gene-assembly-and-curation"></a>
+<div class="page-header"><h1 id="id_-mira-interactive-dashboard-for-influenza-sars-cov-2-and-rsv-assembly-and-curation">
+<img src="reference/figures/logo.png" align="left" width="190"> MIRA: Interactive Dashboard for Influenza, SARS-CoV-2 and RSV Assembly and Curation<a class="anchor" aria-label="anchor" href="#id_-mira-interactive-dashboard-for-influenza-sars-cov-2-and-rsv-assembly-and-curation"></a>
 </h1></div>
 <p><img src="https://github.com/cdcgov/mira/workflows/pkgdown/badge.svg" alt="pkgdown"><img src="https://img.shields.io/docker/pulls/cdcgov/mira" alt="Docker pulls"><img src="https://img.shields.io/docker/image-size/cdcgov/mira" alt="Docker image size"><img src="https://img.shields.io/github/last-commit/cdcgov/mira" alt="GitHub last commit"></p>
 <p><br></p>
-<p><strong>General disclaimer</strong> This repository was created for use by CDC programs to collaborate on public health related projects in support of the <a href="https://www.cdc.gov/about/organization/mission.htm" class="external-link">CDC mission</a>. GitHub is not hosted by the CDC, but is a third party website used by CDC and its partners to share information and collaborate on software. CDC use of GitHub does not imply an endorsement of any one particular service, product, or enterprise.</p>
+<p><strong>General disclaimer</strong> This repository was created for use by CDC programs to collaborate on public health related projects in support of the <a href="https://www.cdc.gov/about/divisions-offices/index.html" class="external-link">CDC mission</a>. GitHub is not hosted by the CDC, but is a third party website used by CDC and its partners to share information and collaborate on software. CDC use of GitHub does not imply an endorsement of any one particular service, product, or enterprise.</p>
 <hr>
 <p><br></p>
-<div class="section level2">
-<h2 id="documentation-httpscdcgovgithubiomira">
-<strong>Documentation: <a href="https://CDCgov.github.io/MIRA" class="external-link">https://CDCgov.github.io/MIRA</a></strong><a class="anchor" aria-label="anchor" href="#documentation-httpscdcgovgithubiomira"></a>
-</h2>
-<div class="section level3">
-<h3 id="if-youve-previously-installed-mira-and-need-to-upgrade-to-the-latest-version-click-here">If you’ve previously installed MIRA and need to upgrade to the latest version, <a href="https://CDCgov.github.io/MIRA/articles/upgrading-mira.html" class="external-link">CLICK HERE</a>
-<a class="anchor" aria-label="anchor" href="#if-youve-previously-installed-mira-and-need-to-upgrade-to-the-latest-version-click-here"></a>
-</h3>
-<p><br></p>
-</div>
-</div>
 </div>
 <div class="section level1">
 <h1 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
 </h1>
-<p><strong>MIRA</strong> is an interactive dashboard created using <strong><a href="https://dash.plotly.com/introduction" class="external-link">Dash</a></strong>, a python framework written on the top of <strong>Flask</strong>, <strong>Plotly.js</strong> and <strong>React.js</strong>. The dashboard allows users to interactively create a metadata and config file for running Influenza Genome and SARS-CoV-2 Spike-Gene Assembly. Coming soon, it will allow for upload via FTP to NCBI’s databases <strong>Genbank</strong>, <strong>BioSample</strong>, and <strong>SRA</strong>, as well as <strong>GISAID</strong>.</p>
-<p>MIRA’s dashboard relies on four Docker containers to run its genome assembly and curation:</p>
-<ul>
-<li>
-<strong>IRMA (Iterative Refinement Meta-Assembler):</strong> designed for the robust assembly, variant calling, and phasing of highly variable RNA viruses. IRMA is deployed with modules for influenza, ebolavirus and coronavirus.</li>
-<li>
-<strong>DAIS-Ribosome:</strong> compartmentalizes the translation engine developed for the CDC Influenza Division protein analytics database. The tool has been extended for use with Betacoronavirus.</li>
-<li>
-<strong>spyne:</strong> a Snakemake workflow manager designed for running Influenza Genome and SARS-CoV-2 Spike-Gene assembly.</li>
-<li>
-<strong>MIRA:</strong> a GUI web interface that allows users to interactively create a metadata and config file for running Influenza Genome and SARS-CoV-2 Spike-Gene assembly and curation.</li>
-</ul>
-<p><img src="reference/figures/mira_flowchart_mermaid.png"></p>
+<p><strong>MIRA</strong> is a bioinformatics pipeline that assembles Influenza genomes, SARS-CoV-2 genomes, the SARS-CoV-2 spike-gene and RSV genomes when given the raw fastq files and a samplesheet. MIRA can analyze reads from both Illumina and OxFord Nanopore sequencing machines. Coming soon, it will allow for upload via FTP to NCBI’s databases <strong>Genbank</strong>, <strong>BioSample</strong>, and <strong>SRA</strong>, as well as <strong>GISAID</strong>.</p>
+<p><img src="reference/figures/MIRA_flowchart_pptx.png"></p>
 <hr>
 <div class="section level2">
-<h2 id="quick-start-on-ubuntu-os">Quick Start on Ubuntu OS:<a class="anchor" aria-label="anchor" href="#quick-start-on-ubuntu-os"></a>
+<h2 id="which-mira-is-right-for-you">Which MIRA is right for you?<a class="anchor" aria-label="anchor" href="#which-mira-is-right-for-you"></a>
 </h2>
-<p><em>Need to set up an Ubuntu OS? Follow instructions in <a href="https://CDCgov.github.io/MIRA/articles/getting-started.html" class="external-link">Getting Started.</a></em></p>
 <div class="section level3">
-<h3 id="install-docker-cli-and-docker-compose">Install Docker CLI and Docker Compose:<a class="anchor" aria-label="anchor" href="#install-docker-cli-and-docker-compose"></a>
+<h3 id="running-mira-with-docker-desktop">Running MIRA with Docker Desktop<a class="anchor" aria-label="anchor" href="#running-mira-with-docker-desktop"></a>
 </h3>
-<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">sudo</span> apt-get update</span></code></pre></div>
-<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">sudo</span> apt-get install ca-certificates curl gnupg lsb-release</span></code></pre></div>
+<p>MIRA-GUI is run on a local computer. It is ideal for users who are not familiar with using the command line, but would still like to perform genomic analysis and render quality figures.</p>
+<p>Computational Requirements:</p>
 <ul>
-<li>During installation, you will be prompted to enter ‘y’ or ‘n’ to proceed. Each time, input ‘y’ and click <code>Enter</code>
-</li>
+<li>A minimum of 16GB of memory is required. &gt;=32GB is recommended.</li>
+<li>A minimum of 8 CPU cores. 16 are recommended.</li>
 </ul>
-<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">sudo</span> mkdir <span class="at">-p</span> /etc/apt/keyrings</span></code></pre></div>
-<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-fsSL</span> https://download.docker.com/linux/ubuntu/gpg <span class="kw">|</span> <span class="fu">sudo</span> gpg <span class="at">--dearmor</span> <span class="at">-o</span> /etc/apt/keyrings/docker.gpg</span></code></pre></div>
-<div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"deb [arch=</span><span class="va">$(</span><span class="ex">dpkg</span> <span class="at">--print-architecture</span><span class="va">)</span><span class="st"> signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu </span><span class="va">$(</span><span class="ex">lsb_release</span> <span class="at">-cs</span><span class="va">)</span><span class="st"> stable"</span> <span class="kw">|</span> <span class="fu">sudo</span> tee /etc/apt/sources.list.d/docker.list <span class="op">&gt;</span> /dev/null</span></code></pre></div>
-<div class="sourceCode" id="cb6"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">sudo</span> apt-get update</span></code></pre></div>
-<div class="sourceCode" id="cb7"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">sudo</span> chmod a+r /etc/apt/keyrings/docker.gpg</span></code></pre></div>
-<div class="sourceCode" id="cb8"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="fu">sudo</span> apt-get update</span></code></pre></div>
-<div class="sourceCode" id="cb9"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">sudo</span> apt-get install docker-ce docker-ce-cli containerd.io docker-compose-plugin</span></code></pre></div>
-<ol start="5" style="list-style-type: decimal">
-<li>Verify successful installation</li>
-</ol>
-<div class="sourceCode" id="cb10"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="fu">sudo</span> docker run hello-world</span></code></pre></div>
+<p>Skill Needed:</p>
 <ul>
-<li>This command downloads a test image and runs it in a container. When the container runs, it prints a confirmation message and exits.</li>
+<li>Understanding of fastq files and their file structure.</li>
 </ul>
+<p>Key features:</p>
+<ul>
+<li>GUI web interface</li>
+</ul>
+<p>To run MIRA with Docker Desktop you can get started <a href="">here</a>.</p>
 </div>
 <div class="section level3">
-<h3 id="mira-container-installation-with-docker-compose">MIRA Container Installation with Docker Compose<a class="anchor" aria-label="anchor" href="#mira-container-installation-with-docker-compose"></a>
+<h3 id="running-mira-cli-with-docker">Running MIRA-CLI with Docker<a class="anchor" aria-label="anchor" href="#running-mira-cli-with-docker"></a>
 </h3>
+<p>MIRA-CLI is ran on a local computer in the command line. It is ideal for users who are familiar with using the command line and would like to perform genomic analysis and render quality figures.</p>
+<p>Computational Requirements:</p>
 <ul>
-<li>Create a folder called <code>FLU_SC2_SEQUENCING</code> to save your sequencing reads to. From the command line, run:</li>
-</ul>
-<div class="sourceCode" id="cb11"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="fu">mkdir</span> ~/FLU_SC2_SEQUENCING</span>
-<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a></span>
-<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a><span class="bu">cd</span> ~/FLU_SC2_SEQUENCING</span></code></pre></div>
+<li>A minimum of 16GB of memory is required. &gt;=32GB is recommended.</li>
+<li>A minimum of 8 CPU cores. 16 are recommended.</li>
+<li><strong>Administrative privileges are required on a Windows operating system <em>to run linux</em>.</strong></li>
+<li>A linux/unix (includes Intel-based* MacOS) operating system is required.
 <ul>
-<li>Download the install yml:</li>
+<li>*This software has not yet been tested on Apple’s M-chip based OS</li>
+<li>If you are using a Mac, <a href="mira-cli-mac-getting-started.htmll">go to Mac Getting Started.</a>
+</li>
 </ul>
-<div class="sourceCode" id="cb12"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a> <span class="ex">curl</span> https://raw.githubusercontent.com/CDCgov/MIRA/prod/docker-compose-git.yml <span class="kw">|</span> <span class="fu">sed</span> <span class="st">"s%/path/to/data%</span><span class="va">$(</span><span class="bu">pwd</span><span class="va">)</span><span class="st">/%g"</span> <span class="op">&gt;</span> docker-compose.yml</span></code></pre></div>
+</li>
+</ul>
+<p>Skill Needed:</p>
 <ul>
-<li>Run the install script:</li>
+<li>Familiarity with command line interface.</li>
+<li>Understanding of fastq files and their file structure.</li>
 </ul>
-<div class="sourceCode" id="cb13"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a><span class="fu">sudo</span> docker compose up <span class="at">-d</span></span></code></pre></div>
+<p>Key features:</p>
+<ul>
+<li>HTML reports</li>
+</ul>
+<p>To run MIRA-CLI you can get started with our <a href="getting-started.html">PC instructions</a> or <a href="mira-cli-mac-getting-started.html">Mac instructions</a> .</p>
+</div>
+<div class="section level3">
+<h3 id="running-mira-nf-with-nextflow">Running MIRA-NF with Nextflow<a class="anchor" aria-label="anchor" href="#running-mira-nf-with-nextflow"></a>
+</h3>
+<p>MIRA-NF is ran on a high performing computing (HPC) cluster or in a cloud computing platform. It is ideal for users who are familiar with using the command line, familiar with high computing clusters and would like to perform genomic analysis and render quality figures.</p>
+<p>Computational Requirements:</p>
+<ul>
+<li>Access to an HPC or cloud computing platform.</li>
+</ul>
+<p>Skill Needed:</p>
+<ul>
+<li>Familiarity with analyzing data in HPC and cloud computing platforms.</li>
+<li>Strong understanding of command line interface.</li>
+<li>Understanding of fastq files and their file structure.</li>
+</ul>
+<p>Key features:</p>
+<ul>
+<li>Able to run large data sets without the need for subsampling</li>
+<li>HTML reports</li>
+</ul>
+<p>To run MIRA-NF you can get started <a href="https://github.com/CDCgov/MIRA-NF" class="external-link">here</a>.</p>
+<hr>
+</div>
+</div>
+<div class="section level2">
+<h2 id="test-your-mira-setup">Test your MIRA Setup<a class="anchor" aria-label="anchor" href="#test-your-mira-setup"></a>
+</h2>
 <ul>
 <li><a href="https://centersfordiseasecontrol.sharefile.com/d-s839d7319e9b04e2baba07b4d328f02c2" class="external-link">Click here to download tiny test data from ONT Influenza genome and SARS-CoV-2-spike - 40Mb</a></li>
 <li><a href="https://centersfordiseasecontrol.sharefile.com/d-s3c52c0b25c2243078f506d60bd787c62" class="external-link">Click here for the above data set + full genomes of Influenza and SARS-CoV-2 from Illumina MiSeqs - 1Gb</a></li>
@@ -317,7 +378,6 @@
 <hr>
 </div>
 </div>
-</div>
 
   </div>
 
@@ -347,6 +407,8 @@
 <a href="https://github.com/kristinelacek" class="external-link">Kristine Lacek</a> <br><small class="roles"> Author </small> <a href="https://orcid.org/0000-0002-6247-5082" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
 <li>
 <a href="https://github.com/rchau88" class="external-link">Reina Chau</a> <br><small class="roles"> Author </small> <a href="https://orcid.org/0000-0003-3012-1404" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
+<li>
+<a href="https://github.com/mandysulli" class="external-link">Amanda Sullivan</a> <br><small class="roles"> Author </small> <a href="https://orcid.org/0000-0003-2007-4210" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
 </ul>
 </div>
 
@@ -356,21 +418,21 @@
 
       <footer><div class="copyright">
   <p></p>
-<p>Developed by <a href="https://github.com/nbx0" class="external-link">Ben Rambo-Martin</a>, <a href="https://github.com/kristinelacek" class="external-link">Kristine Lacek</a>, <a href="https://github.com/rchau88" class="external-link">Reina Chau</a>.</p>
+<p>Developed by <a href="https://github.com/nbx0" class="external-link">Ben Rambo-Martin</a>, <a href="https://github.com/kristinelacek" class="external-link">Kristine Lacek</a>, <a href="https://github.com/rchau88" class="external-link">Reina Chau</a>, <a href="https://github.com/mandysulli" class="external-link">Amanda Sullivan</a>.</p>
 </div>
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.9000.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
 </div>
 
       </footer>
 </div>
 
-  
 
 
-  
+
+
 
   </body>
 </html>

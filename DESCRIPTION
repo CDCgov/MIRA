@@ -9,7 +9,9 @@ Authors@R:
     person(given="Kristine", family="Lacek", role=c("aut"), 
            email="qgx6@cdc.gov", comment=c(ORCID="0000-0002-6247-5082")),
     person(given="Reina", family="Chau", role=c("aut"), 
-           email="snu3@cdc.gov", comment=c(ORCID="0000-0003-3012-1404"))
+           email="snu3@cdc.gov", comment=c(ORCID="0000-0003-3012-1404")),
+    person(given="Amanda", family="Sullivan", role=c("aut"), 
+           email="xpa3@cdc.gov", comment=c(ORCID="0000-0003-2007-4210"))
   )
 Description: MIRA is an interactive dashboard created using Dash, a python framework 
   written on the top of Flask, Plotly.js and React.js. The Dash dashboard 

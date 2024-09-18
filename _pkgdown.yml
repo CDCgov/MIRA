@@ -11,6 +11,8 @@ authors:
     href: https://github.com/kristinelacek
   Reina Chau:
     href: https://github.com/rchau88
+  Amanda Sullivan:
+    href: https://github.com/mandysulli
 
 news:
   one_page: false
@@ -24,24 +26,34 @@ navbar:
   left:
     - icon: fa-home
       href: index.html
-    - text: "NGS-Training"
+    - text: "MIRA in Docker Desktop"
+      menu:
+        - text: Getting Started and Installation
+          href: articles/mira-dd-getting-started.html
+        - text: Running Genome Assembly with MIRA -- NANOPORE DATA
+          href: articles/running-mira-dd-ont.html
+        - text: Running Genome Assembly with MIRA -- ILLUMINA DATA
+          href: articles/running-mira-dd-illumina.html
+        - text: Post MIRA sequence analysis with Nextclade
+          href: articles/training-post-mira-single-container.html
+        - text: Upgrading MIRA Docker Desktop
+          href: articles/upgrading-mira-dd.html
+    - text: "MIRA-CLI"
       menu:
         - text: PC Getting Started
           href: articles/getting-started.html
         - text: MAC Getting Started
-          href: articles/mac-getting-started.html
+          href: articles/mira-cli-mac-getting-started.html
         - text: MIRA installation
-          href: articles/mira-installation.html
-        - text: Data Transfer with Mk1C
-          href: articles/data-transfer.html
-        - text: Running Genome Assembly with MIRA -- NANOPORE DATA
-          href: articles/running-mira.html
-        - text: Running Genome Assembly with MIRA -- ILLUMINA DATA
-          href: articles/running-mira-illumina.html
+          href: articles/mira-cli-installation.html
+        - text: Running Genome Assembly with MIRA-CLI -- NANOPORE DATA
+          href: articles/running-mira-cli-ont.html
+        - text: Running Genome Assembly with MIRA-CLI -- ILLUMINA DATA
+          href: articles/running-mira-cli-illumina.html
         - text: Post MIRA sequence analysis with Nextclade
-          href: articles/training-post-mira.html
-        - text: Upgrading MIRA
-          href: articles/upgrading-mira.html
+          href: articles/training-post-mira-single-container.html
+        - text: Upgrading MIRA-CLI
+          href: articles/upgrading-mira-cli.html
     - text: "Lab Protocols"
       menu:
         - text: Sequencing Template Generation
@@ -82,6 +94,23 @@ navbar:
         href: articles/sequence-qc.html
       - text: Development Tips
         href: articles/development-tips.html
+    - text: Legacy
+      menu:
+        - text: Retired PC Getting Started
+          href: articles/getting-started.html
+        - text: Retired MAC Getting Started
+          href: articles/mac-getting-started.html
+        - text: Retired MIRA installation
+          href: articles/mira-installation.html
+        - text: Retired Data Transfer with Mk1C
+          href: articles/data-transfer.html
+        - text: Retired Running Genome Assembly -- NANOPORE DATA
+          href: articles/running-mira.html
+        - text: Retired Running Genome Assembly -- ILLUMINA DATA
+          href: articles/running-mira-illumina.html
+        - text: Retired Post MIRA sequence analysis with Nextclade
+          href: articles/training-post-mira.html
+    - text: "Lab Protocols"
   right:
     - text: "Change Log"
       href: news/index.html

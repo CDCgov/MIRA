@@ -1,9 +1,3 @@
-
-## Computer requirements
-- A minimum of 16GB of memory is required. >=32GB is recommended.
-- A minimum of 8 CPU cores. 16 are recommended.
-
-
 ## [Install Docker Desktop](https://www.docker.com/products/docker-desktop/)
 Docker allows you to run software inside an isolated "container image" on your computer with all of that application's needed dependencies. Make sure to install the version for your operating system.
 

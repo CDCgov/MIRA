@@ -1,0 +1,45 @@
+# Running MIRA through Docker Desktop.
+
+## [Install Docker Desktop](https://www.docker.com/products/docker-desktop/)
+Docker allows you to run software inside an isolated "container image" on your computer with all of that application's needed dependencies. Make sure to install the version for your operating system.
+
+- [Windows](https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe?utm_source=docker&utm_medium=webreferral&utm_campaign=dd-smartbutton&utm_location=header)
+- [Mac-Intel](https://desktop.docker.com/mac/main/amd64/Docker.dmg?utm_source=docker&utm_medium=webreferral&utm_campaign=dd-smartbutton&utm_location=module)
+- [Mac-AppleChip](https://desktop.docker.com/mac/main/arm64/Docker.dmg?utm_source=docker&utm_medium=webreferral&utm_campaign=dd-smartbutton&utm_location=module)
+- [Linux](https://docs.docker.com/desktop/linux/install/)
+
+
+After installing Docker Desktop, double click on the app to open it. If it is your first time using Docker Desktop, you will be asked to agree to the terms of use. 
+
+## Setting Up Docker Desktop using PC
+
+When setting up the configuration for a Windows computer, we recommend using WSL 2 on the back-end and adding shortcuts to you desktop. 
+
+![](./images/docker-default-settings.png)
+<hr>
+
+## Setting Up Docker Desktop using Mac
+
+When setting up the configuration for a Windows computer, we recommend using the default settings that allow Docker Desktop to automatically set the necessary configuration.
+
+![](./images/mac-docker-default-settings.png)
+
+<hr>
+
+## MIRA Installation within Docker Desktop
+
+In the search bar at the top of the Docker Desktop App type in cdcgov/mira. Once the image has come up, check that the tag is set to latest +
+and click the 'pull' button.
+
+![](./images/pulled-mira-single-img.png)
+
+MIRA's single image is about 3 GB and will take a couple of minutes to pull to youe images area. Once docker has finished downloading the image, you should see under your images tab. 
+
+![](./images/run-mira-single-container-image.png)
+<hr>
+
+## Next Steps
+
+[Run MIRA in Docker Desktop with Illumina Data](running-mira-dd-illumina.html)
+
+[Run MIRA in Docker Desktop with Oxford Nanopore Data](running-mira-dd-ont.html)

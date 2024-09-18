@@ -15,7 +15,7 @@ MIRA installation with docker compose expects an Ubuntu 18+ operating system or 
     ![alt text](./images/mira_docker_delete_containers.png)
     ![alt text](./images/mira_docker_delete_images.png)
    
-   4. Go to [Installing MIRA](./articles/mira-installation.html)
+   4. Go to [Installing MIRA](mira-installation.html)
 
 [Return to contents](#Contents)
 
