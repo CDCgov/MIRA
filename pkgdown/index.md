@@ -47,7 +47,8 @@ Skill Needed:
 
 Key features:
 
-- GUI web interface
+- Easy to use Graphical User Interface (GUI).
+- No command line needed/
 
 To run MIRA with Docker Desktop you can get started [here]().
 
@@ -70,9 +71,9 @@ Skill Needed:
 
 Key features:
 
-- HTML reports
+- HTML reports.
 
-To run MIRA-CLI you can get started with our [PC instructions](getting-started.html) or [Mac instructions](mira-cli-mac-getting-started.html) .
+To run MIRA-CLI you can get started with our [Quick Start for Ubuntu instrcutions](quick-start-ubuntu.html), [PC instructions](getting-started.html) or [Mac instructions](mira-cli-mac-getting-started.html).
 
 ### Running MIRA-NF with Nextflow
 MIRA-NF is ran on a high performing computing (HPC) cluster or in a cloud computing platform. It is ideal for users who are familiar with using the command line, familiar with high computing clusters and would like to perform genomic analysis and render quality figures. 
@@ -89,10 +90,10 @@ Skill Needed:
 
 Key features:
 
-- Able to run large data sets without the need for subsampling
-- HTML reports
+- Able to run large data sets without the need for subsampling.
+- HTML reports.
 
-To run MIRA-NF you can get started [here](https://github.com/CDCgov/MIRA-NF).
+### To run MIRA-NF you can get started by cloning the [MIRA-NF Repo](https://github.com/CDCgov/MIRA-NF)!
 
 <hr>
 
@@ -103,19 +104,8 @@ To run MIRA-NF you can get started [here](https://github.com/CDCgov/MIRA-NF).
 - unzip the file and find two folders:
     1. `tiny_test_run_flu`
     2. `tiny_test_run_sc2`
-- move these folders into `FLU_SC2_SEQUENCING`
-  - if you cannot find the FLU_SC2_SEQUENCING folder in your Linux section of file explorer, look in Linux-->home-->your username
-
-- Open your browser and type http://localhost:8020 in the address bar.
-- Click `Refresh Run Listing` in MIRA, you should now see these folders listed.
-- Click `Download Samplesheet`.
-  - This will give you an excel sheet with available barcodes populated. Add in our samplenames for ONT data (Illumina data will self identify samplenames based on fastqs)
-- Save the samplesheet and then upload it by clicking on `Drag and Drop your Samplesheet or Click and Select the File`
-- In the dropdown box 'What kind of data is this?', select the correct data type.
-  - If SC2 full genome, also select your primers.
-- Click 'START GENOME ASSEMBLY'
-- Toggle 'Watch IRMA progress' to see IRMA's stdout stream.
-- When "IRMA is finished!" is displayed,  Click "DISPLAY IRMA RESULTS"
+- move these folders into `MIRA_NGS`
+  - if you cannot find the MIRA_NGS folder in your Linux section of file explorer, look in Linux-->home-->your username
 
 
 <hr>

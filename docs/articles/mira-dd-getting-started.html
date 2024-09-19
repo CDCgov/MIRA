@@ -38,7 +38,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">MIRA</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.0</span>
       </span>
     </div>
 
@@ -67,9 +67,6 @@
       <a href="../articles/running-mira-dd-illumina.html">Running Genome Assembly with MIRA -- ILLUMINA DATA</a>
     </li>
     <li>
-      <a href="../articles/training-post-mira-single-container.html">Post MIRA sequence analysis with Nextclade</a>
-    </li>
-    <li>
       <a href="../articles/upgrading-mira-dd.html">Upgrading MIRA Docker Desktop</a>
     </li>
   </ul>
@@ -82,6 +79,9 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
+      <a href="../articles/quick-start-ubuntu.html">Quick Start in Ubuntu</a>
+    </li>
+    <li>
       <a href="../articles/getting-started.html">PC Getting Started</a>
     </li>
     <li>
@@ -95,9 +95,6 @@
     </li>
     <li>
       <a href="../articles/running-mira-cli-illumina.html">Running Genome Assembly with MIRA-CLI -- ILLUMINA DATA</a>
-    </li>
-    <li>
-      <a href="../articles/training-post-mira-single-container.html">Post MIRA sequence analysis with Nextclade</a>
     </li>
     <li>
       <a href="../articles/upgrading-mira-cli.html">Upgrading MIRA-CLI</a>
@@ -180,6 +177,9 @@
     <li>
       <a href="../articles/development-tips.html">Development Tips</a>
     </li>
+    <li>
+      <a href="../articles/nanopore-frameshift-correction.html">Nanopore Frameshift Correction</a>
+    </li>
   </ul>
 </li>
 <li class="dropdown">
@@ -212,7 +212,6 @@
     </li>
   </ul>
 </li>
-<li class="dropdown-header">Lab Protocols</li>
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
@@ -299,7 +298,7 @@ automatically set the necessary configuration.</p>
 <hr>
 </div>
 <div class="section level3">
-<h3 id="mira-installation-within-docker-desktop">MIRA Installation within Docker Desktop<a class="anchor" aria-label="anchor" href="#mira-installation-within-docker-desktop"></a>
+<h3 id="pull-mira-image-within-docker-desktop">Pull MIRA Image within Docker Desktop<a class="anchor" aria-label="anchor" href="#pull-mira-image-within-docker-desktop"></a>
 </h3>
 <p>In the search bar at the top of the Docker Desktop App type in
 cdcgov/mira. Once the image has come up, check that the tag is set to
@@ -309,6 +308,58 @@ latest + and click the ‘pull’ button.</p>
 to pull to youe images area. Once docker has finished downloading the
 image, you should see under your images tab.</p>
 <img src="images/run-mira-single-container-image.png"><hr>
+</div>
+<div class="section level3">
+<h3 id="install-mira-container">Install MIRA Container<a class="anchor" aria-label="anchor" href="#install-mira-container"></a>
+</h3>
+<p>In the Documents folder on your computer. Create a folder named
+“MIRA_NGS”. This is where you will put the data that you would like to
+analyze with MIRA. We will be mounting the container to this folder</p>
+<p><img src="images/mira_dd_run_directory_structure.png"></p>
+<p>In Docker Desktop, navigate to the images tab and press the run
+button.</p>
+<p><img src="images/run-mira-single-container-image.png"></p>
+<div class="section level4">
+<h4 id="provide-the-settings-for-the-container">Provide the Settings for the Container<a class="anchor" aria-label="anchor" href="#provide-the-settings-for-the-container"></a>
+</h4>
+<p>The container settings should be filled out as seen in the screenshot
+below.</p>
+<p><img src="images/mira-dd-container-settings.png"></p>
+<ul>
+<li>You will need to provide a name for the container.</li>
+<li>Set the “Host Port” to 8020</li>
+<li>Under Volumes you will provide the file path to the “MIRA_NGS”
+folder in the “Host Path” box. <img src="images/select_folders_with_runs.png"><strong>There is an
+option to select the folder via a file browser as shown in the
+screenshot above</strong>
+</li>
+<li>Under Volumes you will make the “Container Path” data.</li>
+</ul>
+</div>
+</div>
+<div class="section level3">
+<h3 id="test-your-mira-setup">Test your MIRA Setup<a class="anchor" aria-label="anchor" href="#test-your-mira-setup"></a>
+</h3>
+<ul>
+<li><a href="https://centersfordiseasecontrol.sharefile.com/d-s839d7319e9b04e2baba07b4d328f02c2" class="external-link">Click
+here to download tiny test data from ONT Influenza genome and
+SARS-CoV-2-spike - 40Mb</a></li>
+<li><a href="https://centersfordiseasecontrol.sharefile.com/d-s3c52c0b25c2243078f506d60bd787c62" class="external-link">Click
+here for the above data set + full genomes of Influenza and SARS-CoV-2
+from Illumina MiSeqs - 1Gb</a></li>
+<li>unzip the file and find two folders:
+<ol style="list-style-type: decimal">
+<li><code>tiny_test_run_flu</code></li>
+<li><code>tiny_test_run_sc2</code></li>
+</ol>
+</li>
+<li>move these folders into <code>MIRA_NGS</code>
+<ul>
+<li>if you cannot find the MIRA_NGS folder in your Linux section of file
+explorer, look in Linux–&gt;home–&gt;your username</li>
+</ul>
+</li>
+</ul>
 </div>
 <div class="section level3">
 <h3 id="next-steps">Next Steps<a class="anchor" aria-label="anchor" href="#next-steps"></a>

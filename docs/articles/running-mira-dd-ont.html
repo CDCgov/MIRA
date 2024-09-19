@@ -38,7 +38,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">MIRA</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.0</span>
       </span>
     </div>
 
@@ -67,9 +67,6 @@
       <a href="../articles/running-mira-dd-illumina.html">Running Genome Assembly with MIRA -- ILLUMINA DATA</a>
     </li>
     <li>
-      <a href="../articles/training-post-mira-single-container.html">Post MIRA sequence analysis with Nextclade</a>
-    </li>
-    <li>
       <a href="../articles/upgrading-mira-dd.html">Upgrading MIRA Docker Desktop</a>
     </li>
   </ul>
@@ -82,6 +79,9 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
+      <a href="../articles/quick-start-ubuntu.html">Quick Start in Ubuntu</a>
+    </li>
+    <li>
       <a href="../articles/getting-started.html">PC Getting Started</a>
     </li>
     <li>
@@ -95,9 +95,6 @@
     </li>
     <li>
       <a href="../articles/running-mira-cli-illumina.html">Running Genome Assembly with MIRA-CLI -- ILLUMINA DATA</a>
-    </li>
-    <li>
-      <a href="../articles/training-post-mira-single-container.html">Post MIRA sequence analysis with Nextclade</a>
     </li>
     <li>
       <a href="../articles/upgrading-mira-cli.html">Upgrading MIRA-CLI</a>
@@ -180,6 +177,9 @@
     <li>
       <a href="../articles/development-tips.html">Development Tips</a>
     </li>
+    <li>
+      <a href="../articles/nanopore-frameshift-correction.html">Nanopore Frameshift Correction</a>
+    </li>
   </ul>
 </li>
 <li class="dropdown">
@@ -212,7 +212,6 @@
     </li>
   </ul>
 </li>
-<li class="dropdown-header">Lab Protocols</li>
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
@@ -272,11 +271,9 @@ instructions.</em></p>
 <h2 id="stage-your-demultiplexed-data">Stage your demultiplexed data<a class="anchor" aria-label="anchor" href="#stage-your-demultiplexed-data"></a>
 </h2>
 <ul>
-<li><p>In the Documents folder on your computer. Create a folder name
-“MIRA_NGS”.</p></li>
-<li><p>In your “MIRA” folder, make a folder for your run. It is very
+<li>In your “MIRA_NGS” folder, make a folder for your run. It is very
 helpful to name your runs with a consistent naming system, such as
-“YEAR-MONTH-DATE-FLOWCELL_ID”, ie. 2022-11-13-ABC1234.</p></li>
+“YEAR-MONTH-DATE-FLOWCELL_ID”, ie. 2022-11-13-ABC1234.</li>
 </ul>
 <p><strong><em>DO NOT PUT SPACES OR SLASHES IN YOU RUN FOLDER
 NAMES!</em></strong></p>
@@ -292,32 +289,8 @@ folder where the “MIRA_NGS” folder was created.</strong></p>
 <hr>
 </div>
 <div class="section level2">
-<h2 id="run-genome-assembly-with-mira">Run genome assembly with MIRA<a class="anchor" aria-label="anchor" href="#run-genome-assembly-with-mira"></a>
+<h2 id="run-genome-assembly-with-mira">Run Genome Assembly with MIRA<a class="anchor" aria-label="anchor" href="#run-genome-assembly-with-mira"></a>
 </h2>
-<div class="section level3">
-<h3 id="start-the-container">Start the container<a class="anchor" aria-label="anchor" href="#start-the-container"></a>
-</h3>
-<p>In Docker Desktop, navigate to the images tab and press the run
-button.</p>
-<p><img src="images/run-mira-single-container-image.png"></p>
-</div>
-<div class="section level3">
-<h3 id="provide-the-settings-for-the-container">Provide the Settings for the Container<a class="anchor" aria-label="anchor" href="#provide-the-settings-for-the-container"></a>
-</h3>
-<p>The container settings should be filled out as seen in the screenshot
-below.</p>
-<p><img src="images/mira-dd-container-settings.png"></p>
-<ul>
-<li>You will need to provide a name for the container.</li>
-<li>Set the “Host Port” to 8020</li>
-<li>Under Volumes you will provide the file path to the “MIRA_NGS”
-folder in the “Host Path” box. <img src="images/select_folders_with_runs.png"><strong>There is an
-option to select the folder via a file browser as shown in the
-screenshot above</strong><br>
-</li>
-<li>Under Volumes you will make the “Container Path” data.</li>
-</ul>
-</div>
 <div class="section level3">
 <h3 id="open-mira">Open MIRA<a class="anchor" aria-label="anchor" href="#open-mira"></a>
 </h3>

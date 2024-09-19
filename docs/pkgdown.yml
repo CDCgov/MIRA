@@ -23,6 +23,7 @@ articles:
   mrt-pcr-purification: mrt-pcr-purification.html
   nanopore-frameshift-correction: nanopore-frameshift-correction.html
   QIAxcel-sample-preparation-and-quality-control: QIAxcel-sample-preparation-and-quality-control.html
+  quick-start-ubuntu: quick-start-ubuntu.html
   running-mira-cli-illumina: running-mira-cli-illumina.html
   running-mira-cli-ont: running-mira-cli-ont.html
   running-mira-dd-illumina: running-mira-dd-illumina.html
@@ -33,13 +34,12 @@ articles:
   sars-cov-2-rt-pcr: sars-cov-2-rt-pcr.html
   sequence-qc: sequence-qc.html
   training-answers: training-answers.html
-  training-post-mira-single-container: training-post-mira-single-container.html
   training-post-mira: training-post-mira.html
   troubleshooting: troubleshooting.html
   upgrading-mira-cli: upgrading-mira-cli.html
   upgrading-mira-dd: upgrading-mira-dd.html
   upgrading-mira: upgrading-mira.html
-last_built: 2024-09-18T17:55Z
+last_built: 2024-09-19T15:08Z
 urls:
   reference: https://github.com/CDCgov/MIRA/, https://cdcgov.github.io/MIRA/reference
   article: https://github.com/CDCgov/MIRA/, https://cdcgov.github.io/MIRA/articles

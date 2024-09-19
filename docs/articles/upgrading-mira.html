@@ -38,7 +38,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">MIRA</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.0</span>
       </span>
     </div>
 
@@ -67,9 +67,6 @@
       <a href="../articles/running-mira-dd-illumina.html">Running Genome Assembly with MIRA -- ILLUMINA DATA</a>
     </li>
     <li>
-      <a href="../articles/training-post-mira-single-container.html">Post MIRA sequence analysis with Nextclade</a>
-    </li>
-    <li>
       <a href="../articles/upgrading-mira-dd.html">Upgrading MIRA Docker Desktop</a>
     </li>
   </ul>
@@ -82,6 +79,9 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
+      <a href="../articles/quick-start-ubuntu.html">Quick Start in Ubuntu</a>
+    </li>
+    <li>
       <a href="../articles/getting-started.html">PC Getting Started</a>
     </li>
     <li>
@@ -95,9 +95,6 @@
     </li>
     <li>
       <a href="../articles/running-mira-cli-illumina.html">Running Genome Assembly with MIRA-CLI -- ILLUMINA DATA</a>
-    </li>
-    <li>
-      <a href="../articles/training-post-mira-single-container.html">Post MIRA sequence analysis with Nextclade</a>
     </li>
     <li>
       <a href="../articles/upgrading-mira-cli.html">Upgrading MIRA-CLI</a>
@@ -180,6 +177,9 @@
     <li>
       <a href="../articles/development-tips.html">Development Tips</a>
     </li>
+    <li>
+      <a href="../articles/nanopore-frameshift-correction.html">Nanopore Frameshift Correction</a>
+    </li>
   </ul>
 </li>
 <li class="dropdown">
@@ -212,7 +212,6 @@
     </li>
   </ul>
 </li>
-<li class="dropdown-header">Lab Protocols</li>
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
@@ -260,27 +259,29 @@
     
     
 <div class="section level2">
-<h2 id="how-to-upgrade-mira-to-the-latest-version">How to upgrade MIRA to the latest version<a class="anchor" aria-label="anchor" href="#how-to-upgrade-mira-to-the-latest-version"></a>
+<h2 id="how-to-upgrade-mira-to-the-lastest-version-in-the-command-line">How to upgrade MIRA to the lastest version in the command line<a class="anchor" aria-label="anchor" href="#how-to-upgrade-mira-to-the-lastest-version-in-the-command-line"></a>
 </h2>
+<div class="section level3">
+<h3 id="upagrading-mira-single-container">Upagrading MIRA single container<a class="anchor" aria-label="anchor" href="#upagrading-mira-single-container"></a>
+</h3>
 <ol style="list-style-type: decimal">
 <li>
 <p>Open a terminal (Ubuntu if you installed WSL2 with this
 instructions, Terminal if you are using a Mac). <code>cd</code> to the
 folder with your sequence run data:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a> <span class="bu">cd</span> ~/FLU_SC2_SEQUENCING</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a> <span class="bu">cd</span> ~/MIRA_NGS</span></code></pre></div>
 </li>
 <li>
-<p>Remove current running MIRA containers:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a> <span class="ex">docker</span> rm <span class="at">-f</span> mira spyne irma dais</span></code></pre></div>
+<p>Remove current running MIRA container:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a> <span class="ex">docker</span> rm <span class="at">-f</span> mira</span></code></pre></div>
 </li>
 <li>
-<p>Remove older MIRA image versions (or iSpy or IRMA-spy if that’s
-what you had installed)</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a> <span class="fu">sudo</span> docker rmi <span class="at">-f</span> <span class="va">$(</span><span class="ex">docker</span> images <span class="kw">|</span> <span class="fu">grep</span> <span class="at">-e</span> irma <span class="at">-e</span> dais <span class="at">-e</span> mira <span class="at">-e</span> spyne <span class="kw">|</span> <span class="fu">tr</span> <span class="at">-s</span> <span class="st">" "</span> <span class="kw">|</span> <span class="fu">cut</span> <span class="at">-f3</span> <span class="at">-d</span><span class="st">" "</span><span class="va">)</span></span></code></pre></div>
+<p>Remove older MIRA image version:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a> <span class="fu">sudo</span> docker rmi <span class="at">-f</span> <span class="va">$(</span><span class="ex">docker</span> images <span class="kw">|</span> <span class="fu">grep</span> <span class="at">-e</span> mira <span class="kw">|</span> <span class="fu">tr</span> <span class="at">-s</span> <span class="st">" "</span> <span class="kw">|</span> <span class="fu">cut</span> <span class="at">-f3</span> <span class="at">-d</span><span class="st">" "</span><span class="va">)</span></span></code></pre></div>
 </li>
 <li>
 <p>Download the installation script from the internet:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a> <span class="ex">curl</span> https://raw.githubusercontent.com/CDCgov/MIRA/prod/docker-compose-git.yml <span class="kw">|</span> <span class="fu">sed</span> <span class="st">"s%/path/to/data%</span><span class="va">$(</span><span class="bu">pwd</span><span class="va">)</span><span class="st">/%g"</span> <span class="op">&gt;</span> docker-compose.yml</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a> <span class="ex">curl</span> https://raw.githubusercontent.com/CDCgov/MIRA/prod/docker-compose-cdcgov.yml <span class="kw">|</span> <span class="fu">sed</span> <span class="st">"s%/path/to/data%</span><span class="va">$(</span><span class="bu">pwd</span><span class="va">)</span><span class="st">/%g"</span> <span class="op">&gt;</span> docker-compose.yml</span></code></pre></div>
 <p><em>if you get a permissions error here, first run
 <code>sudo rm docker-compose.yml</code> then try again</em></p>
 </li>
@@ -291,6 +292,40 @@ run the install script with <code>sudo</code> and
 <div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a> <span class="fu">sudo</span> docker compose up <span class="at">-d</span></span></code></pre></div>
 </li>
 </ol>
+</div>
+<div class="section level3">
+<h3 id="upgrading-mira-with-four-containers-to-mira-single-container">Upgrading MIRA with four containers to MIRA single container<a class="anchor" aria-label="anchor" href="#upgrading-mira-with-four-containers-to-mira-single-container"></a>
+</h3>
+<ol style="list-style-type: decimal">
+<li>
+<p>Open a terminal (Ubuntu if you installed WSL2 with this
+instructions, Terminal if you are using a Mac). <code>cd</code> to the
+folder with your sequence run data:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a> <span class="bu">cd</span> ~/FLU_SC2_SEQUENCING</span></code></pre></div>
+</li>
+<li>
+<p>Remove current running MIRA containers:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a> <span class="ex">docker</span> rm <span class="at">-f</span> mira spyne irma dais</span></code></pre></div>
+</li>
+<li>
+<p>Remove older MIRA image versions (or iSpy or IRMA-spy if that’s
+what you had installed)</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a> <span class="fu">sudo</span> docker rmi <span class="at">-f</span> <span class="va">$(</span><span class="ex">docker</span> images <span class="kw">|</span> <span class="fu">grep</span> <span class="at">-e</span> irma <span class="at">-e</span> dais <span class="at">-e</span> mira <span class="at">-e</span> spyne <span class="kw">|</span> <span class="fu">tr</span> <span class="at">-s</span> <span class="st">" "</span> <span class="kw">|</span> <span class="fu">cut</span> <span class="at">-f3</span> <span class="at">-d</span><span class="st">" "</span><span class="va">)</span></span></code></pre></div>
+</li>
+<li>
+<p>Download the installation script from the internet:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a> <span class="ex">curl</span> https://raw.githubusercontent.com/CDCgov/MIRA/prod/docker-compose-cdcgov.yml <span class="kw">|</span> <span class="fu">sed</span> <span class="st">"s%/path/to/data%</span><span class="va">$(</span><span class="bu">pwd</span><span class="va">)</span><span class="st">/%g"</span> <span class="op">&gt;</span> docker-compose.yml</span></code></pre></div>
+<p><em>if you get a permissions error here, first run
+<code>sudo rm docker-compose.yml</code> then try again</em></p>
+</li>
+<li>
+<p>After you ensure that your Docker Desktop application is open,
+run the install script with <code>sudo</code> and
+<code>docker compose</code>:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a> <span class="fu">sudo</span> docker compose up <span class="at">-d</span></span></code></pre></div>
+</li>
+</ol>
+</div>
 </div>
   </div>
 

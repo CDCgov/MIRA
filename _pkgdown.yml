@@ -34,12 +34,12 @@ navbar:
           href: articles/running-mira-dd-ont.html
         - text: Running Genome Assembly with MIRA -- ILLUMINA DATA
           href: articles/running-mira-dd-illumina.html
-        - text: Post MIRA sequence analysis with Nextclade
-          href: articles/training-post-mira-single-container.html
         - text: Upgrading MIRA Docker Desktop
           href: articles/upgrading-mira-dd.html
     - text: "MIRA-CLI"
       menu:
+        - text: Quick Start in Ubuntu
+          href: articles/quick-start-ubuntu.html
         - text: PC Getting Started
           href: articles/getting-started.html
         - text: MAC Getting Started
@@ -50,8 +50,6 @@ navbar:
           href: articles/running-mira-cli-ont.html
         - text: Running Genome Assembly with MIRA-CLI -- ILLUMINA DATA
           href: articles/running-mira-cli-illumina.html
-        - text: Post MIRA sequence analysis with Nextclade
-          href: articles/training-post-mira-single-container.html
         - text: Upgrading MIRA-CLI
           href: articles/upgrading-mira-cli.html
     - text: "Lab Protocols"
@@ -94,6 +92,8 @@ navbar:
         href: articles/sequence-qc.html
       - text: Development Tips
         href: articles/development-tips.html
+      - text: Nanopore Frameshift Correction
+        href: articles/nanopore-frameshift-correction.html
     - text: Legacy
       menu:
         - text: Retired PC Getting Started
@@ -110,7 +110,6 @@ navbar:
           href: articles/running-mira-illumina.html
         - text: Retired Post MIRA sequence analysis with Nextclade
           href: articles/training-post-mira.html
-    - text: "Lab Protocols"
   right:
     - text: "Change Log"
       href: news/index.html

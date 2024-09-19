@@ -8,9 +8,7 @@ _This documentation assumes you have pulled the MIRA docker image into your Dock
 
 ## Stage your demultiplexed data
 
-* In the Documents folder on your computer. Create a folder name "MIRA_NGS".
-
-* In your "MIRA" folder, make a folder for your run. It is very helpful to name your runs with a consistent naming system, such as "YEAR-MONTH-DATE-FLOWCELL_ID", ie. 2022-11-13-ABC1234. 
+* In your "MIRA_NGS" folder, make a folder for your run. It is very helpful to name your runs with a consistent naming system, such as "YEAR-MONTH-DATE-FLOWCELL_ID", ie. 2022-11-13-ABC1234. 
    
 **_DO NOT PUT SPACES OR SLASHES IN YOU RUN FOLDER NAMES!_**
 
@@ -26,27 +24,7 @@ _This documentation assumes you have pulled the MIRA docker image into your Dock
 
 <hr>
 
-## Run genome assembly with MIRA
-
-### Start the container
-
-In Docker Desktop, navigate to the images tab and press the run button. 
-
-![](./images/run-mira-single-container-image.png)
-
-### Provide the Settings for the Container
-
-The container settings should be filled out as seen in the screenshot below.
-
-  ![](./images/mira-dd-container-settings.png)
-
- * You will need to provide a name for the container.
- * Set the "Host Port" to 8020
- * Under Volumes you will provide the file path to the "MIRA_NGS" folder in the "Host Path" box.
-  ![](./images/select_folders_with_runs.png)
-**There is an option to select the folder via a file browser as shown in the screenshot above**\
- * Under Volumes you will make the "Container Path" data.
- 
+## Run Genome Assembly with MIRA
  
 ### Open MIRA    
 * Open MIRA by clicking the blue link "8020:8050". This will open MIRA into your default internet browser. You can "bookmark" this site in your browser.

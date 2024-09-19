@@ -26,7 +26,7 @@ When setting up the configuration for a Windows computer, we recommend using the
 
 <hr>
 
-## MIRA Installation within Docker Desktop
+## Pull MIRA Image within Docker Desktop
 
 In the search bar at the top of the Docker Desktop App type in cdcgov/mira. Once the image has come up, check that the tag is set to latest +
 and click the 'pull' button.
@@ -37,6 +37,41 @@ MIRA's single image is about 3 GB and will take a couple of minutes to pull to y
 
 ![](./images/run-mira-single-container-image.png)
 <hr>
+
+
+## Install MIRA Container
+
+In the Documents folder on your computer. Create a folder named "MIRA_NGS". This is where you will put the data that you would like to analyze with MIRA. We will be mounting the container to this folder
+
+![](images/mira_dd_run_directory_structure.png)
+
+In Docker Desktop, navigate to the images tab and press the run button. 
+
+![](./images/run-mira-single-container-image.png)
+
+### Provide the Settings for the Container
+
+The container settings should be filled out as seen in the screenshot below.
+
+  ![](./images/mira-dd-container-settings.png)
+
+ * You will need to provide a name for the container.
+ * Set the "Host Port" to 8020
+ * Under Volumes you will provide the file path to the "MIRA_NGS" folder in the "Host Path" box.
+  ![](./images/select_folders_with_runs.png)
+**There is an option to select the folder via a file browser as shown in the screenshot above**
+ * Under Volumes you will make the "Container Path" data.
+
+## Test your MIRA Setup
+    
+- [Click here to download tiny test data from ONT Influenza genome and SARS-CoV-2-spike - 40Mb](https://centersfordiseasecontrol.sharefile.com/d-s839d7319e9b04e2baba07b4d328f02c2)
+- [Click here for the above data set + full genomes of Influenza and SARS-CoV-2 from Illumina MiSeqs - 1Gb](https://centersfordiseasecontrol.sharefile.com/d-s3c52c0b25c2243078f506d60bd787c62)
+- unzip the file and find two folders:
+    1. `tiny_test_run_flu`
+    2. `tiny_test_run_sc2`
+- move these folders into `MIRA_NGS`
+  - if you cannot find the MIRA_NGS folder in your Linux section of file explorer, look in Linux-->home-->your username
+
 
 ## Next Steps
 

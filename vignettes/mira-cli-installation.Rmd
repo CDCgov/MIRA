@@ -16,7 +16,7 @@ MIRA runs inside Docker containers. Containers have all of the code and dependen
 2. Download the installation script from the internet:
    
    ```bash
-    curl https://raw.githubusercontent.com/CDCgov/MIRA/prod/docker-compose-git.yml | sed "s%/path/to/data%$(pwd)/%g" > docker-compose.yml
+    curl https://raw.githubusercontent.com/CDCgov/MIRA/prod/docker-compose-cdcgov.yml | sed "s%/path/to/data%$(pwd)/%g" > docker-compose.yml
    ```
 3. Run the install script with `sudo` and `docker-compose`:
    
@@ -29,7 +29,7 @@ MIRA runs inside Docker containers. Containers have all of the code and dependen
 
    ```
     ⠿ mira Warning                                                                                                                                                                                                                                          2.2s
- ⠦ irma Pulling                                                                                                                                                                                                                                         37.7s
+
    ⠿ 3b65ec22a9e9 Pull complete                                                                                                                                                                                                                         16.9s
    ⠿ 4f4fb700ef54 Download complete                                                                                                                                                                                                                     35.4s
    ⠿ 1c1f5954eb75 Pull complete                                                                                                                                                                                                                         18.7s
@@ -41,8 +41,6 @@ MIRA runs inside Docker containers. Containers have all of the code and dependen
    ⠼ 2d6fb277dca0 Download complete                                                                                                                                                                                                                     35.4s
    ⠼ c5227e837167 Download complete                                                                                                                                                                                                                     35.4s
    ⠼ 4b4467648e29 Download complete                                                                                                                                                                                                                     35.4s
- ⠿ spyne Warning                                                                                                                                                                                                                                         2.2s
- ⠦ dais Pulling                                                                                                                                                                                                                                         37.7s
    ⠸ 675920708c8b Extracting [========================>                          ]  14.16MB/28.57MB                                                                                                                                                     35.4s
    ⠸ e69b9363318d Downloading [==========================>                        ]  14.48MB/27.07MB                                                                                                                                                    35.4s
    ⠸ 59f3820cb75a Download complete                                                                                                                                                                                                                     35.4s
@@ -70,6 +68,16 @@ MIRA runs inside Docker containers. Containers have all of the code and dependen
    ```
 
 - If your installation is not successful, please refer to [Troubleshooting](./troubleshooting.html)
+
+## Test your MIRA Setup
+    
+- [Click here to download tiny test data from ONT Influenza genome and SARS-CoV-2-spike - 40Mb](https://centersfordiseasecontrol.sharefile.com/d-s839d7319e9b04e2baba07b4d328f02c2)
+- [Click here for the above data set + full genomes of Influenza and SARS-CoV-2 from Illumina MiSeqs - 1Gb](https://centersfordiseasecontrol.sharefile.com/d-s3c52c0b25c2243078f506d60bd787c62)
+- unzip the file and find two folders:
+    1. `tiny_test_run_flu`
+    2. `tiny_test_run_sc2`
+- move these folders into `MIRA_NGS`
+  - if you cannot find the MIRA_NGS folder in your Linux section of file explorer, look in Linux-->home-->your username
 
 ### Upon successful installation, you can proceed to running MIRA with [Oxford Nanopore data](./running-mira-cli.html) or [Illumina data](./running-mira-cli-illumina.html)
 
