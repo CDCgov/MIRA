@@ -20,6 +20,11 @@ service, product, or enterprise.
 <hr>
 <br>
 
+# Get Started with MIRA Today! 
+
+<img src="man/figures/mira-tutorial.gif" alt="Running MIRA" width="800" height="700">
+
+
 # Overview
 
 **MIRA** is a bioinformatics pipeline that assembles Influenza genomes, SARS-CoV-2 genomes, the SARS-CoV-2 spike-gene and RSV genomes when given the raw fastq files and a samplesheet. MIRA can analyze reads from both Illumina and OxFord Nanopore sequencing machines. Coming soon, it

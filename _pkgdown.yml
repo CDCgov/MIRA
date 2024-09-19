@@ -110,6 +110,8 @@ navbar:
           href: articles/running-mira-illumina.html
         - text: Retired Post MIRA sequence analysis with Nextclade
           href: articles/training-post-mira.html
+  search:
+    exclude: ['news/index.html']
   right:
     - text: "Change Log"
       href: news/index.html
@@ -119,7 +121,6 @@ navbar:
       href: https://github.com/CDCgov/MIRA/issues
     - icon: fa-github
       href: https://github.com/CDCgov/MIRA
-      
 footer:
   structure: 
     left: developed_by
