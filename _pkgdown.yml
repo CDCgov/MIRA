@@ -2,17 +2,18 @@ url: https://github.com/CDCgov/MIRA/, https://cdcgov.github.io/MIRA/
 
 template:
   params:
+    bootstrap: 5
     bootswatch: cosmo
 
 authors:
-  Ben Rambo-Martin:
-    href: https://github.com/nbx0
   Kristine Lacek:
     href: https://github.com/kristinelacek
   Reina Chau:
     href: https://github.com/rchau88
   Amanda Sullivan:
     href: https://github.com/mandysulli
+  Ben Rambo-Martin:
+    href: https://github.com/nbx0
 
 news:
   one_page: false
