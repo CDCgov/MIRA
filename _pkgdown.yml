@@ -35,6 +35,8 @@ navbar:
           href: articles/running-mira-dd-ont.html
         - text: Running Genome Assembly with MIRA -- ILLUMINA DATA
           href: articles/running-mira-dd-illumina.html
+        - text: Data Transfer with Mk1C
+          href: articles/data-transfer.html  
         - text: Upgrading MIRA Docker Desktop
           href: articles/upgrading-mira-dd.html
     - text: "MIRA-CLI"
