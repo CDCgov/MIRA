@@ -37,12 +37,14 @@ curl https://raw.githubusercontent.com/CDCgov/MIRA/prod/docker-compose-git.yml |
 ```
 
 ```bash
-sudo docker-compose up -d
+docker-compose up -d
 ```
+
+If the docker compose command fails with a permissions error, please try again with `sudo` added before the command.
 
 You are now running MIRA! You can proceed to Running MIRA with [Oxford Nanopore data](./running-mira.html) or [Illumina data](./running-mira-illumina.html)
 
-If these instructions show errors, please refer to our [Troubleshooting](./troubleshooting.html) page
+If these instructions show errors, please refer to our [Troubleshooting](./troubleshooting.html) page or email us at [idseqsupport@cdc.gov](mailto:idseqsupport@cdc.gov)
 
-## Install a sequence viewer
+## Optional: Install a sequence viewer to open output .fastas
 - [Jalview](https://www.jalview.org/download/)
