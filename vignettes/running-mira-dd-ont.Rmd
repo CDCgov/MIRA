@@ -7,11 +7,11 @@ _This documentation assumes you have pulled the MIRA docker image into your Dock
 <hr>
 
 #### Contents
-* [Stage your demultiplexed data](#Stage-your-demultiplexed-data)
-* [Open MIRA](#Open-MIRA)
+* [Stage your demultiplexed data](#stage-your-demultiplexed-data)
+* [Open MIRA](#open-mira)
 * [Select run, date type, and enter sample information](#select-run-data-type-and-enter-sample-information)
-* [Start Genome Assembly](#Start-Genome-Assembly)
-* [Review MIRA results](#Review-MIRA-results)
+* [Start Genome Assembly](#start-genome-assembly)
+* [Review MIRA results](#review-mira-results)
 
 <hr>
 
