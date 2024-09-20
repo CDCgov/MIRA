@@ -1,8 +1,8 @@
 Package: MIRA
 Type: Package
-Title: Dashboard for Influenza, SARS-COV-2 and RSV Assembly and Curation
+Title: Dashboard for Influenza, SARS-COV-2, and RSV Assembly and Curation
 Version: 2.0.0
-Date: 2024-09-18
+Date: 2024-09-23
 Authors@R: 
   c(person(given="Ben", family="Rambo-Martin", role=c("aut","cre"), 
            email="nbx0@cdc.gov", comment=c(ORCID="0000-0002-8591-3954")), 
