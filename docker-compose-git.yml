@@ -27,7 +27,7 @@ x-mira-image:
 x-data-volume:
   &data-volume
   type: bind
-  source: /path/to/data
+  source: /home/snu3/Github/FLU_SC2_SEQUENCING
   target: /data
  
 services:
