@@ -52,14 +52,14 @@ If this command returns an error relating to permissions, try again with `sudo` 
    ⠸ ae01c60d8873 Waiting                                                                                                                                                                                                                               35.4s
    ```
 
-   MIRA is about 3 GB in total size and may take a long time to download [depending on your internet speed](https://www.omnicalculator.com/other/download-time), ie:
+   MIRA is about 800 MB in total size and may take a long time to download [depending on your internet speed](https://www.omnicalculator.com/other/download-time), ie:
 
     |Internet Speed|Download Time|
     |--|--|
-    |500 Kbps|1 hour 28 minutes|
-    |10 Mbps|40 minutes|
-    |25 Mbps|16 minutes|
-    |100 Mpbs|4 minutes|
+    |500 Kbps|3 hour 33 minutes|
+    |10 Mbps|11 minutes|
+    |25 Mbps|4 minutes|
+    |100 Mpbs|1 minute|
 
 5. A successful installation will end with your terminal showing:
 
