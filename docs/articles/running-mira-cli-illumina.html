@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title> • MIRA</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
@@ -12,248 +12,126 @@
 <link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png">
 <link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png">
 <link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png">
-<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><!-- Bootstrap --><link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.4.0/cosmo/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="../bootstrap-toc.css">
-<script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
-<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../pkgdown.js"></script><meta property="og:title" content="">
-<!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
-<script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
-<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-<![endif]-->
+<script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.4.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="">
 </head>
-<body data-spy="scroll" data-target="#toc">
+<body>
+    <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <div class="container template-article">
-      <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
-  <div class="container">
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <span class="navbar-brand">
-        <a class="navbar-link" href="../index.html">MIRA</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.0</span>
-      </span>
-    </div>
+    <nav class="navbar navbar-expand-lg fixed-top " aria-label="Site navigation"><div class="container">
 
-    <div id="navbar" class="navbar-collapse collapse">
-      <ul class="nav navbar-nav">
-<li>
-  <a href="../index.html">
-    <span class="fa fa-home"></span>
+    <a class="navbar-brand me-2" href="../index.html">MIRA</a>
 
-  </a>
-</li>
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-    MIRA in Docker Desktop
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.0.0</small>
 
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
-<li>
-      <a href="../articles/mira-dd-getting-started.html">Getting Started and Installation</a>
-    </li>
-    <li>
-      <a href="../articles/running-mira-dd-ont.html">Running Genome Assembly with MIRA -- NANOPORE DATA</a>
-    </li>
-    <li>
-      <a href="../articles/running-mira-dd-illumina.html">Running Genome Assembly with MIRA -- ILLUMINA DATA</a>
-    </li>
-    <li>
-      <a href="../articles/upgrading-mira-dd.html">Upgrading MIRA Docker Desktop</a>
-    </li>
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div id="navbar" class="collapse navbar-collapse ms-3">
+      <ul class="navbar-nav me-auto">
+<li class="nav-item"><a class="nav-link" href="../index.html"><span class="fa fa-home"></span></a></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-mira-in-docker-desktop" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">MIRA in Docker Desktop</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-mira-in-docker-desktop">
+<li><a class="dropdown-item" href="../articles/mira-dd-getting-started.html">Getting Started and Installation</a></li>
+    <li><a class="dropdown-item" href="../articles/running-mira-dd-ont.html">Running Genome Assembly with MIRA -- NANOPORE DATA</a></li>
+    <li><a class="dropdown-item" href="../articles/running-mira-dd-illumina.html">Running Genome Assembly with MIRA -- ILLUMINA DATA</a></li>
+    <li><a class="dropdown-item" href="../articles/data-transfer.html">Data Transfer with Mk1C</a></li>
+    <li><a class="dropdown-item" href="../articles/upgrading-mira-dd.html">Upgrading MIRA Docker Desktop</a></li>
   </ul>
 </li>
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-    MIRA-CLI
-
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
-<li>
-      <a href="../articles/quick-start-ubuntu.html">Quick Start in Ubuntu</a>
-    </li>
-    <li>
-      <a href="../articles/getting-started.html">PC Getting Started</a>
-    </li>
-    <li>
-      <a href="../articles/mira-cli-mac-getting-started.html">MAC Getting Started</a>
-    </li>
-    <li>
-      <a href="../articles/mira-cli-installation.html">MIRA installation</a>
-    </li>
-    <li>
-      <a href="../articles/running-mira-cli-ont.html">Running Genome Assembly with MIRA-CLI -- NANOPORE DATA</a>
-    </li>
-    <li>
-      <a href="../articles/running-mira-cli-illumina.html">Running Genome Assembly with MIRA-CLI -- ILLUMINA DATA</a>
-    </li>
-    <li>
-      <a href="../articles/upgrading-mira-cli.html">Upgrading MIRA-CLI</a>
-    </li>
+<li class="active nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-mira-cli" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">MIRA-CLI</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-mira-cli">
+<li><a class="dropdown-item" href="../articles/quick-start-ubuntu.html">Quick Start in Ubuntu</a></li>
+    <li><a class="dropdown-item" href="../articles/getting-started.html">PC Getting Started</a></li>
+    <li><a class="dropdown-item" href="../articles/mira-cli-mac-getting-started.html">MAC Getting Started</a></li>
+    <li><a class="dropdown-item" href="../articles/mira-cli-installation.html">MIRA installation</a></li>
+    <li><a class="dropdown-item" href="../articles/running-mira-cli-ont.html">Running Genome Assembly with MIRA-CLI -- NANOPORE DATA</a></li>
+    <li><a class="dropdown-item" href="../articles/running-mira-cli-illumina.html">Running Genome Assembly with MIRA-CLI -- ILLUMINA DATA</a></li>
+    <li><a class="dropdown-item" href="../articles/upgrading-mira-cli.html">Upgrading MIRA-CLI</a></li>
   </ul>
 </li>
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-    Lab Protocols
-
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
-<li class="dropdown-header">Sequencing Template Generation</li>
-    <li>
-      <a href="../articles/automated-rna-extraction.html">Automated RNA Extraction using QIAcube HT</a>
-    </li>
-    <li>
-      <a href="../articles/influenza-a-and-b-mrt-pcr.html">Multi-segment Reverse Transcription-PCR (MRT-PCR) of Influenza A and B Viruses</a>
-    </li>
-    <li>
-      <a href="../articles/influenza-mrt-pcr.html">
-        <span class="fa fa-star"></span>
-
-        Influenza A Virus MRT-PCR
-      </a>
-    </li>
-    <li>
-      <a href="../articles/sars-cov-2-rt-pcr.html">
-        <span class="fa fa-star"></span>
-
-        SARS-COV-2 Virus RT-PCR
-      </a>
-    </li>
-    <li>
-      <a href="../articles/mrt-pcr-purification.html">MRT-PCR Purification using Exonuclease</a>
-    </li>
-    <li>
-      <a href="../articles/QIAxcel-sample-preparation-and-quality-control.html">QIAxcel Sample Preparation and Quality Control Procedure</a>
-    </li>
-    <li class="dropdown-header">Illumina Library Preparation and Sequencing</li>
-    <li>
-      <a href="../articles/manual-illumina-dna-prep-library.html">Manual Procedure Illumina DNA Library Preparation</a>
-    </li>
-    <li>
-      <a href="../articles/dna-quantification.html">DNA Quantification with Qubit ds DNA High Sensitivity Kit</a>
-    </li>
-    <li>
-      <a href="../articles/miseq-next-generation-seq-run.html">Performing a MiSeq Next Generation Sequencing Run</a>
-    </li>
-    <li>
-      <a href="../articles/miseq-library-loading-preparation.html">Preparation of the DNA Libraries for Loading onto the MiSeq</a>
-    </li>
-    <li class="dropdown-header">Oxford Nanopore Library Preparation and Sequencing</li>
-    <li>
-      <a href="../articles/influenza-sars-cov-2-s-gene-amplicons-nanopore.html">
-        <span class="fa fa-star"></span>
-
-        Library Preparation and Nanopore Sequencing of Influenza and SARS-COV-2 S-gene Amplicons
-      </a>
-    </li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-lab-protocols" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Lab Protocols</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-lab-protocols">
+<li><h6 class="dropdown-header" data-toc-skip>Sequencing Template Generation</h6></li>
+    <li><a class="dropdown-item" href="../articles/automated-rna-extraction.html">Automated RNA Extraction using QIAcube HT</a></li>
+    <li><a class="dropdown-item" href="../articles/influenza-a-and-b-mrt-pcr.html">Multi-segment Reverse Transcription-PCR (MRT-PCR) of Influenza A and B Viruses</a></li>
+    <li><a class="dropdown-item" href="../articles/influenza-mrt-pcr.html"><span class="fa fa-star"></span> Influenza A Virus MRT-PCR</a></li>
+    <li><a class="dropdown-item" href="../articles/sars-cov-2-rt-pcr.html"><span class="fa fa-star"></span> SARS-COV-2 Virus RT-PCR</a></li>
+    <li><a class="dropdown-item" href="../articles/mrt-pcr-purification.html">MRT-PCR Purification using Exonuclease</a></li>
+    <li><a class="dropdown-item" href="../articles/QIAxcel-sample-preparation-and-quality-control.html">QIAxcel Sample Preparation and Quality Control Procedure</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Illumina Library Preparation and Sequencing</h6></li>
+    <li><a class="dropdown-item" href="../articles/manual-illumina-dna-prep-library.html">Manual Procedure Illumina DNA Library Preparation</a></li>
+    <li><a class="dropdown-item" href="../articles/dna-quantification.html">DNA Quantification with Qubit ds DNA High Sensitivity Kit</a></li>
+    <li><a class="dropdown-item" href="../articles/miseq-next-generation-seq-run.html">Performing a MiSeq Next Generation Sequencing Run</a></li>
+    <li><a class="dropdown-item" href="../articles/miseq-library-loading-preparation.html">Preparation of the DNA Libraries for Loading onto the MiSeq</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Oxford Nanopore Library Preparation and Sequencing</h6></li>
+    <li><a class="dropdown-item" href="../articles/influenza-sars-cov-2-s-gene-amplicons-nanopore.html"><span class="fa fa-star"></span> Library Preparation and Nanopore Sequencing of Influenza and SARS-COV-2 S-gene Amplicons</a></li>
   </ul>
 </li>
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-    Help
-
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
-<li>
-      <a href="../articles/FAQs.html">FAQs</a>
-    </li>
-    <li>
-      <a href="../articles/troubleshooting.html">Troubleshooting</a>
-    </li>
-    <li>
-      <a href="../articles/sequence-qc.html">QC Standards</a>
-    </li>
-    <li>
-      <a href="../articles/development-tips.html">Development Tips</a>
-    </li>
-    <li>
-      <a href="../articles/nanopore-frameshift-correction.html">Nanopore Frameshift Correction</a>
-    </li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-help" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Help</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-help">
+<li><a class="dropdown-item" href="../articles/FAQs.html">FAQs</a></li>
+    <li><a class="dropdown-item" href="../articles/troubleshooting.html">Troubleshooting</a></li>
+    <li><a class="dropdown-item" href="../articles/sequence-qc.html">QC Standards</a></li>
+    <li><a class="dropdown-item" href="../articles/development-tips.html">Development Tips</a></li>
+    <li><a class="dropdown-item" href="../articles/nanopore-frameshift-correction.html">Nanopore Frameshift Correction</a></li>
   </ul>
 </li>
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-    Legacy
-
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
-<li>
-      <a href="../articles/getting-started.html">Retired PC Getting Started</a>
-    </li>
-    <li>
-      <a href="../articles/mac-getting-started.html">Retired MAC Getting Started</a>
-    </li>
-    <li>
-      <a href="../articles/mira-installation.html">Retired MIRA installation</a>
-    </li>
-    <li>
-      <a href="../articles/data-transfer.html">Retired Data Transfer with Mk1C</a>
-    </li>
-    <li>
-      <a href="../articles/running-mira.html">Retired Running Genome Assembly -- NANOPORE DATA</a>
-    </li>
-    <li>
-      <a href="../articles/running-mira-illumina.html">Retired Running Genome Assembly -- ILLUMINA DATA</a>
-    </li>
-    <li>
-      <a href="../articles/training-post-mira.html">Retired Post MIRA sequence analysis with Nextclade</a>
-    </li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-legacy" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Legacy</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-legacy">
+<li><a class="dropdown-item" href="../articles/getting-started.html">Retired PC Getting Started</a></li>
+    <li><a class="dropdown-item" href="../articles/mac-getting-started.html">Retired MAC Getting Started</a></li>
+    <li><a class="dropdown-item" href="../articles/mira-installation.html">Retired MIRA installation</a></li>
+    <li><a class="dropdown-item" href="../articles/data-transfer.html">Retired Data Transfer with Mk1C</a></li>
+    <li><a class="dropdown-item" href="../articles/running-mira.html">Retired Running Genome Assembly -- NANOPORE DATA</a></li>
+    <li><a class="dropdown-item" href="../articles/running-mira-illumina.html">Retired Running Genome Assembly -- ILLUMINA DATA</a></li>
+    <li><a class="dropdown-item" href="../articles/training-post-mira.html">Retired Post MIRA sequence analysis with Nextclade</a></li>
   </ul>
 </li>
       </ul>
-<ul class="nav navbar-nav navbar-right">
-<li>
-  <a href="../news/index.html">Change Log</a>
-</li>
-<li>
-  <a href="../mailto:idseqsupport@cdc.gov">
-    <span class="fa fa-envelope"></span>
-
-  </a>
-</li>
-<li>
-  <a href="https://github.com/CDCgov/MIRA/issues" class="external-link">
-    <span class="fa fa-comments"></span>
-
-  </a>
-</li>
-<li>
-  <a href="https://github.com/CDCgov/MIRA" class="external-link">
-    <span class="fa fa-github"></span>
-
-  </a>
+<ul class="navbar-nav">
+<li class="nav-item"><form class="form-inline" role="search">
+ <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
+</form></li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Change Log</a></li>
+<li class="nav-item"><a class="nav-link" href="https://github.com/CDCgov/MIRA/issues"><span class="fa fa-comments"></span></a></li>
+<li class="nav-item"><a class="nav-link" href="https://github.com/CDCgov/MIRA"><span class="fa fa-github"></span></a></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-lightswitch" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true" aria-label="Light switch"><span class="fa fa-sun"></span></button>
+  <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown-lightswitch">
+<li><button class="dropdown-item" data-bs-theme-value="light"><span class="fa fa-sun"></span> Light</button></li>
+    <li><button class="dropdown-item" data-bs-theme-value="dark"><span class="fa fa-moon"></span> Dark</button></li>
+    <li><button class="dropdown-item" data-bs-theme-value="auto"><span class="fa fa-adjust"></span> Auto</button></li>
+  </ul>
 </li>
       </ul>
 </div>
-<!--/.nav-collapse -->
+
+
   </div>
-<!--/.container -->
-</div>
-<!--/.navbar -->
+</nav><div class="container template-article">
 
 
 
-      </header><div class="row">
-  <div class="col-md-9 contents">
-    <div class="page-header toc-ignore">
-      <h1 data-toc-skip></h1>
+
+<div class="row">
+  <main id="main" class="col-md-9"><div class="page-header">
+      <img src="../logo.png" class="logo" alt=""><h1></h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/CDCgov/MIRA/blob/HEAD/vignettes/running-mira-cli-illumina.Rmd" class="external-link"><code>vignettes/running-mira-cli-illumina.Rmd</code></a></small>
-      <div class="hidden name"><code>running-mira-cli-illumina.Rmd</code></div>
-
+      <small class="dont-index">Source: <a href="https://github.com/CDCgov/MIRA/blob/HEAD/vignettes/running-mira-cli-illumina.Rmd"><code>vignettes/running-mira-cli-illumina.Rmd</code></a></small>
+      <div class="d-none name"><code>running-mira-cli-illumina.Rmd</code></div>
     </div>
 
     
@@ -261,7 +139,7 @@
 <div class="section level2">
 <h2 id="running-mira-cli-with-illumina-data">Running MIRA-CLI with Illumina Data<a class="anchor" aria-label="anchor" href="#running-mira-cli-with-illumina-data"></a>
 </h2>
-<p><img src="images/mira-logo-midjourney_20230526_rmbkgnd.png"></p>
+<p><img src="images%2Fmira-logo-midjourney_20230526_rmbkgnd.png"></p>
 <p><em>This documentation assumes you have the MIRA Docker container
 already running. If not, please start with <a href="getting-started.html">PC Getting Started</a>, <a href="mira-cli-mac-getting-started.html">MAC Getting Started</a> and <a href="mira-cli-installation.html">MIRA install</a>
 instructions.</em></p>
@@ -302,36 +180,41 @@ helpful to name your runs with a consistent naming system, such as
 </ul>
 <p><strong><em>DO NOT PUT SPACES OR SLASHES IN YOU RUN FOLDER
 NAMES!</em></strong></p>
-<p><img src="images/mira_cli_run_directory_structure.png"></p>
+<p><img src="images%2Fmira_cli_run_directory_structure.png"></p>
 <ul>
 <li>Copy the run’s demultiplexed fastqs into the RUN-FOLDER.
 <ul>
 <li>Create another folder inside your RUN-FOLDER called “fastqs” and
-copy the folder containing demultiplexed fastqs into this newly created
-fastqs folder so that the folder structure is
-MIRA_NGS/RUN-FOLDER/fastqs/demultiplexed-fastqs/sample-reads.fastq.
-There will be two fastq files per sample.</li>
+copy the folder containing demultiplexed, gunzipped fastqs into this
+newly created fastqs folder so that the folder structure is
+MIRA_NGS/RUN-FOLDER/fastqs/sample_R[1 and 2].fastq.gz There will be two
+fastq files per sample.</li>
 </ul>
 </li>
 </ul>
-<p><img src="images/mira_cli_run_directory_structure_fastq_illumina.png"></p>
-<p><br><strong>This screenshot shows “Ubuntu-20.04” but many users just
-see “Ubuntu”. This can vary, particularly if you happen to have multiple
-Ubuntu versions installed. If you have multiple Ubuntu distributions
-installed, move the fastqs to whichever “Ubuntu” contains MIRA_NGS
-within home&gt;USERNAME&gt;MIRA-NF</strong></p>
+<p><img src="images%2Fmira_cli_run_directory_structure_fastq_illumina.png"></p>
+<p><br><strong>This screenshot shows WSL distro “Ubuntu-20.04” but many
+users just see “Ubuntu”. This can vary, particularly if you happen to
+have multiple Ubuntu versions installed. If you have multiple Ubuntu
+distributions installed, move the fastqs to whichever “Ubuntu” contains
+MIRA_NGS within home&gt;USERNAME&gt;MIRA-NF</strong></p>
 <hr>
 </div>
 <div class="section level2">
 <h2 id="run-genome-assembly-with-mira-cli">Run Genome Assembly with MIRA-CLI<a class="anchor" aria-label="anchor" href="#run-genome-assembly-with-mira-cli"></a>
 </h2>
 <div class="section level3">
-<h3 id="start-the-containers">Start the containers<a class="anchor" aria-label="anchor" href="#start-the-containers"></a>
+<h3 id="start-the-mira-container">Start the MIRA container<a class="anchor" aria-label="anchor" href="#start-the-mira-container"></a>
 </h3>
+<ul>
+<li>If MIRA is running, you should see it listed when you run
+<code>docker ps</code>
+</li>
+</ul>
 <p>Move to the MIRA_NGS folder</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a> <span class="bu">cd</span> ~/MIRA_NGS</span></code></pre></div>
 <p>To run MIRA in the command line you will execute this command:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a> <span class="ex">docker</span> exec <span class="at">-w</span> /data mira MIRA.sh <span class="at">-s</span> run_folder/samplesheet.csv <span class="at">-r</span> run_folder <span class="at">-e</span> exp_type <span class="at">-p</span> primer <span class="er">(</span><span class="ex">optional</span><span class="kw">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a> <span class="ex">docker</span> exec <span class="at">-w</span> /data mira MIRA.sh <span class="at">-s</span> run_folder/samplesheet.csv <span class="at">-r</span> run_folder <span class="at">-e</span> experiment_type <span class="at">-p</span> primer_schema <span class="er">(</span><span class="ex">optional</span><span class="kw">)</span></span></code></pre></div>
 <p>Within the command you will change these flags to match your
 data:</p>
 <ul>
@@ -342,25 +225,25 @@ data:</p>
 swift, swift_211206 or RSV options: RSV_CDC_8amplicon_230901,
 dong_et_al</li>
 </ul>
-<p>There will be many messaging that print out in the command line while
-MIRA is running. It will look like the picture below: <img src="images/mira-cli-run-messages.png"></p>
+<p>There will be a lot of standard error messages that print while MIRA
+is running. It will look like the picture below: <img src="images%2Fmira-cli-run-messages.png"></p>
 </div>
 <div class="section level3">
 <h3 id="mira-cli-ouputs">MIRA-CLI Ouputs<a class="anchor" aria-label="anchor" href="#mira-cli-ouputs"></a>
 </h3>
-<p>After MIRA has successfully completed it’s analysis, the following
+<p>After MIRA has successfully completed its analysis, the following
 outputs should be within the run folder regardless of the experiment
 type indicated:</p>
-<p><img src="images/mira-cli-outputs.png"><strong>Note that files are
+<p><img src="images%2Fmira-cli-outputs.png"><strong>Note that files are
 named with the name given to the run folder</strong></p>
 <p>If you open the MIRA-summary HTML it will look very similar to the
 summary provided in the GUI. It contains many of the same summary
 figures. To view the outputs in the MIRA GUI see <a href="https://cdcgov.github.io/MIRA/running-mira-cli-illumina#view-results-in-mira-gui" class="external-link">below</a></p>
-<p><img src="images/mira-summary-html.png"></p>
+<p><img src="images%2Fmira-summary-html.png"></p>
 <p><strong>For all of the download links to work within the MIRA-summary
-HTML, it must have the other files that were created with it
-present(i.e. the amended_consensus.fasta, minorvariants.xlsx,
-etc.).</strong></p>
+HTML, it must have the other files that were created with it present in
+the same directory (e.g. the amended_consensus.fasta,
+minorvariants.xlsx, etc.).</strong></p>
 <p>Key differences between the summary html and the summary in the
 GUI:</p>
 <ul>
@@ -384,20 +267,22 @@ not pass QC</li>
 characters <a href="https://cdcgov.github.io/MIRA/articles/running-mira-cli-illumina.html#special-translated-characters" class="external-link">see
 below</a>
 </li>
-<li>minorvariants.xlsx - The single nucleotide variants table</li>
-<li>minorindels.xlsx - The indels table</li>
+<li>minorvariants.xlsx - The single nucleotide variants (minor SNVs)
+table</li>
+<li>minorindels.xlsx - The minor insertions and deletions table</li>
 <li>summary.xlsx - This summaries the coverage stats from the IRMA
 assemblies, QC information determined by IRMA and read count
 information.</li>
 </ul>
 <p>There will also be individual coverage HTML files for each sample
-that was give to MIRA for analysis.</p>
-<p>The IRMA folder contains the IRAM assemblies divided by sample with
-each sample getting their own folder. There will also be a folder within
-the IRMA folder label ‘dais_results’ that contains the inputs and output
-forom DAIS Ribsome. The subsampled (and trimmed if applicable) fastq
-files will also be stored within this folder. We summarize all the
-information found in these folder in the reports listed above.</p>
+input.</p>
+<p>The IRMA folder contains the <a href="https://wonder.cdc.gov/amd/flu/irma/irma.html" class="external-link">IRMA</a> assemblies
+and full output with each sample getting its own folder. There will also
+be a folder within the IRMA folder label ‘dais_results’ that contains
+the inputs and output from <a href="https://hub.docker.com/r/cdcgov/dais-ribosome" class="external-link">DAIS Ribsome</a>.
+The subsampled (and trimmed if applicable) fastq files will also be
+stored within this folder. We summarize all the information found in
+these folder in the reports listed above.</p>
 <p>The dash-json folder contains all of the json files from which the
 GUI builds it’s figures. We recommend that you keep these files as they
 contain the key results from your analysis. See below for more
@@ -413,7 +298,7 @@ archival process</a></p>
 <p>Open MIRA by clicking the blue link “8020:8050”. This will open
 MIRA into your default internet browser. You can “bookmark” this site in
 your browser.</p>
-<p><img src="images/mira_cli_docker_rolldown.png"></p>
+<p><img src="images%2Fmira_cli_docker_rolldown.png"></p>
 </li>
 </ul>
 <div class="section level3">
@@ -423,12 +308,12 @@ your browser.</p>
 <li>
 <p>Click the <code>REFRESH RUN LISTING</code> button and select your
 run from the dropdown box.</p>
-<p><img src="images/mira_run_selection_v2.png"></p>
+<p><img src="images%2Fmira_run_selection_v2.png"></p>
 <ul>
 <li>Next, click the box that say “What kind of data is this” and select
 the data type you used for analysis</li>
 </ul>
-<p><img src="images/mira_whatkindofdata_illumina_v2.png"></p>
+<p><img src="images%2Fmira_whatkindofdata_illumina_v2.png"></p>
 </li>
 <li>
 <p>If you select SC2-Whole-Genome-Illumina or RSV-Illumina, a new
@@ -439,17 +324,17 @@ approach</p>
 <em>NOTE: MIRA SC2-Whole-Genome-Illumina and RSV-Illumina module’s
 primer trimming steps have been tested and optimized for the primer
 panels provided. We cannot guarantee perfect trimming for other
-panels.</em> <img src="images/mira_whatkindofdata_illumina_primer_v2.png">
+panels.</em> <img src="images%2Fmira_whatkindofdata_illumina_primer_v2.png">
 </li>
 </ul>
 </li>
 </ul>
 <p>After filling out those fields you should see your samplesheet in the
 GUI.</p>
-<p><img src="images/mira_dash_table_illumina_v2.png"></p>
+<p><img src="images%2Fmira_dash_table_illumina_v2.png"></p>
 <p>It will also say “IRMA is finished” and you can now click on “DISPLAY
 IRMA RESULTS”.</p>
-<p><img src="images/mira_display_results_v2.png"></p>
+<p><img src="images%2Fmira_display_results_v2.png"></p>
 <hr>
 </div>
 <div class="section level3">
@@ -464,20 +349,21 @@ per sample. Samples with a low proportion of reads may indicate higher
 Ct of starting material or less performant PCR during library
 preparation. What is most important for sequencing assembly is raw count
 of reads and their quality.</p>
-<p><img src="images/mira_barcode_distribution.png"></p>
+<p><img src="images%2Fmira_barcode_distribution.png"></p>
 </li>
 <li>
 <p>Review the “Automatic Quality Control Decisions” heatmap. In
 addition to IRMA’s built in quality control, MIRA requires a minimum
 median coverage of 100x, a minimum coverage of the reference length of
-90%, and less than 10 minor variants &gt;=5%. These are marked in yellow
-to orange according to the number of these failure types. Samples that
-failed to generate any assembly are marked in red. In addition,
-premature stop codons are flagged in yellow. CDC does not submit
-sequences with premature stop codons, particularly in HA, NA or
-SARS-CoV-2 Spike. Outside of those genes, premature stop codons near the
-end of the gene may be ok for submission. Hover your mouse over the
-figure to see individual results.</p>
+90%, and checks for minor variant counts indicative of contamination.
+See our <a href="sequence-qc.html">QC standars page</a> for all
+thresholds. These are marked in yellow to orange according to the number
+of these failure types. Samples that failed to generate any assembly are
+marked in red. In addition, premature stop codons are flagged in yellow.
+CDC does not submit sequences with premature stop codons, particularly
+in HA, NA or SARS-CoV-2 Spike. Outside of those genes, premature stop
+codons near the end of the gene may be ok for submission. Hover your
+mouse over the figure to see individual results.</p>
 <table class="table">
 <colgroup>
 <col width="50%">
@@ -485,12 +371,12 @@ figure to see individual results.</p>
 </colgroup>
 <tbody>
 <tr class="odd">
-<td><img src="images/mira_auto_qc_heatmap_paleyellow.png" alt="Light yellow"></td>
-<td><img src="images/mira_auto_qc_heatmap_yellow.png" alt="Yellow"></td>
+<td><img src="images%2Fmira_auto_qc_heatmap_paleyellow.png" alt="Light yellow"></td>
+<td><img src="images%2Fmira_auto_qc_heatmap_yellow.png" alt="Yellow"></td>
 </tr>
 <tr class="even">
-<td><img src="images/mira_auto_qc_heatmap_orange.png" alt="Orange"></td>
-<td><img src="images/mira_auto_qc_heatmap_red.png" alt="Red"></td>
+<td><img src="images%2Fmira_auto_qc_heatmap_orange.png" alt="Orange"></td>
+<td><img src="images%2Fmira_auto_qc_heatmap_red.png" alt="Red"></td>
 </tr>
 <tr class="odd">
 <td>–</td>
@@ -500,33 +386,32 @@ figure to see individual results.</p>
 </table>
 </li>
 <li>
-<p>Review <code>Irma Summary</code>. This summarizes the above
+<p>Review <code>MIRA Summary</code>. This summarizes the above
 information, as well as detailed read assignment to specific referencs,
 in a table. Columns can be sorted and filtered, ie.
 <code>&gt;1000</code>. Click <code>Export</code> to save this as an
 Excel file.</p>
-<p><img src="images/mira_irma_summary.png"></p>
+<p><img src="images%2Fmira_irma_summary.png"></p>
 </li>
 <li>
 <p>Review genome coverage depth. The heatmap summarizes the mean
-coverage per sample per gene. All the images in MIRA can be interacted
-with. Click the gray buttons on the top right of the images. The camera
-icon will save the image. Clicking on a sample in the heatmap, or
-selecting one in the drop down menu will display two plots. On the left
-is a “sankey plot” that shows the number of reads assigned to the
-barcode, how many of those passed IRMA’s QC, and how many are assigned
-to each gene reference. The plot on the right shows the sample’s
-complete coverage per gene. Try toggling the
-<code>log y --- linear y</code> button. In log space, you likely need to
-reset the view by clicking the gray button in the top right that looks
-like an X inside of a box. You can also try panning and zooming the
-plot.</p>
-<p><img src="images/mira_coverage_heatmap.png"><img src="images/mira_coverage.png"><img src="images/mira_coverage_zooming.png"><img src="images/mira_coverage_zoomed.png"></p>
+coverage per sample per gene. For all MIRA figures, you can click the
+gray buttons on the top right of the images. The camera icon will save
+the image. Clicking on a sample in the heatmap, or selecting one in the
+drop down menu will display two plots. On the left is a “sankey plot”
+that shows the number of reads assigned to the barcode, how many of
+those passed IRMA’s QC, and how many are assigned to each gene
+reference. The plot on the right shows the sample’s complete coverage
+per gene. Try toggling the <code>log y --- linear y</code> button. In
+log space, you likely need to reset the view by clicking the gray button
+in the top right that looks like an X inside of a box. You can also try
+panning and zooming the plot.</p>
+<p><img src="images%2Fmira_coverage_heatmap.png"><img src="images%2Fmira_coverage.png"><img src="images%2Fmira_coverage_zooming.png"><img src="images%2Fmira_coverage_zoomed.png"></p>
 </li>
 <li>
 <p>Inspect amino acid variants against popular reference
 sequences.</p>
-<p><img src="images/mira_aa_vars.png"></p>
+<p><img src="images%2Fmira_aa_vars.png"></p>
 </li>
 </ol>
 <p>Here, you may see some mutations that do not match Amino Acid
@@ -598,7 +483,7 @@ deletions <em>relative to the sample’s generated consensus
 sequence.</em> These tables are for your own usage and not necessary to
 review in detail. They can be sorted and filtered and exported to excel
 sheets for further analyses.</p>
-<p><img src="images/mira_minor_vars.png"></p>
+<p><img src="images%2Fmira_minor_vars.png"></p>
 <ul>
 <li>Minor variants greater than 5% frequency are shown</li>
 <li>Indels greater than 20% frequency are shown</li>
@@ -615,14 +500,14 @@ sheets for further analyses.</p>
 <p>Export IRMA’s <em>amended consensus</em> nucleotide sequences and
 amino acid fasta files. This includes only those passing MIRA’s QC
 criteria and are ready for submission to public databases!</p>
-<p><img src="images/mira_fasta_dl.png"></p>
+<p><img src="images%2Fmira_fasta_dl.png"></p>
 <ul>
 <li><p>The <code>DOWNLOAD FASTAS</code> button will only return passing
 samples. To investigate failed sequences, click the
 <code>DOWNLOAD FAILED FASTAS</code> button. Do not submit failed samples
 to public repositories!</p></li>
 <li><p>You can open and view these Amino Acid and Nucleotide fastas in
-any sequence viewing application <img src="images/mira_fastas.png"></p></li>
+any sequence viewing application <img src="images%2Fmira_fastas.png"></p></li>
 </ul>
 </li>
 </ul>
@@ -657,6 +542,10 @@ your own data!<a class="anchor" aria-label="anchor" href="#wow-you-are-doing-suc
 </h3>
 <ul>
 <li>GISAID: <a href="https://gisaid.org/" class="external-link">https://gisaid.org/</a>
+<ul>
+<li>Please indicate in your GISAID submission “MIRA” for the
+<code>assembly method</code> metadata field</li>
+</ul>
 </li>
 <li>NCBI-Genbank: <a href="https://www.ncbi.nlm.nih.gov/genbank/" class="external-link">https://www.ncbi.nlm.nih.gov/genbank/</a>
 </li>
@@ -667,29 +556,22 @@ your own data!<a class="anchor" aria-label="anchor" href="#wow-you-are-doing-suc
 </ul>
 </div>
 </div>
-  </div>
-
-  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
-
-      </div>
-
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside>
 </div>
 
 
 
-      <footer><div class="copyright">
-  <p></p>
-<p>Developed by <a href="https://github.com/nbx0" class="external-link">Ben Rambo-Martin</a>, <a href="https://github.com/kristinelacek" class="external-link">Kristine Lacek</a>, <a href="https://github.com/rchau88" class="external-link">Reina Chau</a>, <a href="https://github.com/mandysulli" class="external-link">Amanda Sullivan</a>.</p>
+    <footer><div class="pkgdown-footer-left">
+  <p>Developed by <a href="https://github.com/kristinelacek" class="external-link">Kristine Lacek</a>, <a href="https://github.com/rchau88" class="external-link">Reina Chau</a>, <a href="https://github.com/mandysulli" class="external-link">Amanda Sullivan</a>, <a href="https://github.com/nbx0" class="external-link">Ben Rambo-Martin</a>.</p>
 </div>
 
-<div class="pkgdown">
-  <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
+<div class="pkgdown-footer-right">
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
-      </footer>
+    </footer>
 </div>
-
 
 
 

@@ -1,33 +1,42 @@
-url: https://github.com/CDCgov/MIRA/, https://cdcgov.github.io/MIRA/
+url: https://github.com/CDCgov/MIRA/
 
 template:
-  params:
-    bootstrap: 5
-    bootswatch: cosmo
+  bootstrap: 5
+  light-switch: true
 
 authors:
+  Ben Rambo-Martin:
+    href: https://github.com/nbx0
   Kristine Lacek:
     href: https://github.com/kristinelacek
   Reina Chau:
     href: https://github.com/rchau88
   Amanda Sullivan:
     href: https://github.com/mandysulli
-  Ben Rambo-Martin:
-    href: https://github.com/nbx0
 
 news:
   one_page: false
    
 home:
+  title: MIRA Documentation
   sidebar:
-    structure: [license, citation, authors]
-    
+    structure: [license, citation, authors, resources]
+    components:
+      resources:
+        title: "Resources"
+        text: "<a href='mailto:idseqsupport@cdc.gov'><span class='fa fa-envelope'></span> Contact Us</a>"
+          
 navbar:
   title: "MIRA"
-  left:
-    - icon: fa-home
+  structure:
+    left: [home, mira_desktop, mira_cli, lab_protocols, help, legacy]
+    right: [search, change_log, issue, github, lightswitch]
+  components:
+    home:
+      icon: fa-home
       href: index.html
-    - text: "MIRA in Docker Desktop"
+    mira_desktop:
+      text: "MIRA in Docker Desktop"
       menu:
         - text: Getting Started and Installation
           href: articles/mira-dd-getting-started.html
@@ -39,7 +48,8 @@ navbar:
           href: articles/data-transfer.html  
         - text: Upgrading MIRA Docker Desktop
           href: articles/upgrading-mira-dd.html
-    - text: "MIRA-CLI"
+    mira_cli:
+      text: "MIRA-CLI"
       menu:
         - text: Quick Start in Ubuntu
           href: articles/quick-start-ubuntu.html
@@ -55,7 +65,8 @@ navbar:
           href: articles/running-mira-cli-illumina.html
         - text: Upgrading MIRA-CLI
           href: articles/upgrading-mira-cli.html
-    - text: "Lab Protocols"
+    lab_protocols:
+      text: "Lab Protocols"
       menu:
         - text: Sequencing Template Generation
         - text: Automated RNA Extraction using QIAcube HT
@@ -84,20 +95,23 @@ navbar:
         - text: Oxford Nanopore Library Preparation and Sequencing
         - text: Library Preparation and Nanopore Sequencing of Influenza and SARS-COV-2 S-gene Amplicons
           icon: fa-star
-          href: articles/influenza-sars-cov-2-s-gene-amplicons-nanopore.html          
-    - text: Help
+          href: articles/influenza-sars-cov-2-s-gene-amplicons-nanopore.html 
+          
+    help:
+      text: "Help"
       menu:
-      - text: FAQs
-        href: articles/FAQs.html
-      - text: Troubleshooting
-        href: articles/troubleshooting.html
-      - text: QC Standards
-        href: articles/sequence-qc.html
-      - text: Development Tips
-        href: articles/development-tips.html
-      - text: Nanopore Frameshift Correction
-        href: articles/nanopore-frameshift-correction.html
-    - text: Legacy
+        - text: FAQs
+          href: articles/FAQs.html
+        - text: Troubleshooting
+          href: articles/troubleshooting.html
+        - text: QC Standards
+          href: articles/sequence-qc.html
+        - text: Development Tips
+          href: articles/development-tips.html
+        - text: Nanopore Frameshift Correction
+          href: articles/nanopore-frameshift-correction.html
+    legacy:
+      text: "Legacy"
       menu:
         - text: Retired PC Getting Started
           href: articles/getting-started.html
@@ -113,17 +127,16 @@ navbar:
           href: articles/running-mira-illumina.html
         - text: Retired Post MIRA sequence analysis with Nextclade
           href: articles/training-post-mira.html
-  search:
-    exclude: ['news/index.html']
-  right:
-    - text: "Change Log"
+    change_log:
+      text: "Change Log"
       href: news/index.html
-    - icon: fa-envelope
-      href: "mailto:idseqsupport@cdc.gov"
-    - icon: fa-comments
+    issue:
+      icon: fa-comments
       href: https://github.com/CDCgov/MIRA/issues
-    - icon: fa-github
+    github:
+      icon: fa-github
       href: https://github.com/CDCgov/MIRA
+      
 footer:
   structure: 
     left: developed_by

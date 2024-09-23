@@ -1,5 +1,6 @@
 
 # MIRA 2.0.0
+
 * Github Repo: https://github.com/CDCgov/MIRA
 * Documentation: https://cdcgov.github.io/MIRA
 
@@ -11,6 +12,8 @@
 - Associated .html result files generated from command-line pipeline
 - Documentation overhaul
 
+
+# MIRA 1.0.0
 
 ### v1.1.4
 - Empty Illumina fastq error-handling
