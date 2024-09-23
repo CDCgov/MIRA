@@ -1,0 +1,26 @@
+version: "3.9"
+
+x-spyne-image:
+  &spyne-image
+  spyne_image: cdcgov/spyne:v2.0.0
+
+x-data-volume:
+  &data-volume
+  type: bind
+  source: ~/FLU_SC2_SEQUENCING
+  target: /data
+
+services:
+  mira:
+    container_name: mira
+    image: mira:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        << : [*spyne-image]
+    restart: always
+    ports:
+      - 8020:8050
+    volumes:
+      - *data-volume

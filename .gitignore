@@ -14,10 +14,11 @@ scripts/__pycache__/muscle.cpython-37.pyc
 *.Rhistory
 *.Rbuildignore
 *.Rproj
-vignettes/*.html
+*.Rproj.user
 
 # ignore folders
 **/.Rproj.user
 
-
-.Rproj.user
+# ignore specific files
+change_log.txt
+docker-compose-dev.yml
