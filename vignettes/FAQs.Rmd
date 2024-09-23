@@ -51,15 +51,15 @@ docker rmi irma-spy
     docker ps
     
     # Stop running container you want to update. In this example we are updating mira and spyne.
-    docker stop mira spyne
+    docker stop mira spyne irma dais
 
     # Delete containers
-    docker rm mira spyne
+    docker rm mira spyne irma dais
 
     # Delete images
-    docker rmi mira spyne
+    docker rmi mira spyne irma dais
     ```
-3. Install the new MIRA and spyne containers: [See NGS Training: Setting Up Containers](setting-up-containers.html)
+3. Install the new MIRA and spyne containers: [See Docker Desktop MIRA installation](mira-dd-getting-started.html)
 
 ## How do I customize the number of cores MIRA uses?
 This is best achieved by setting `resources` in the `docker-compose.yml` for a container's `deploy` settings:

@@ -1,4 +1,4 @@
-## Running MIRA with Illumina Data
+## Running MIRA-CLI with Illumina Data
 
 ![](images/mira-logo-midjourney_20230526_rmbkgnd.png)
 
