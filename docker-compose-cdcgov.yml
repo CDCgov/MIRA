@@ -2,7 +2,7 @@ version: "3.9"
 
 x-mira-image:
   &mira-image
-  cdcgov/mira-dev:v2.0.0
+  cdcgov/mira:v2.0.0
 
 x-data-volume:
   &data-volume
