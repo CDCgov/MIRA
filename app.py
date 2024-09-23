@@ -531,7 +531,7 @@ def display_irma_progress(run, toggle, n_intervals, n_clicks):
     if not toggle:
         return html.Div()
     if len(glob(f"{data_root}/{run}/*amended_consensus.fasta")) >= 1:
-        return html.Div('IRMA is finished! Click "DISPLAY IRMA RESULTS"')
+        return html.Div('MIRA is finished! Click "DISPLAY MIRA RESULTS"')
     if (len(glob(f"{data_root}/{run}/dash-json")) == 1) or (
         len(glob(f"{data_root}/{run}/DAIS_ribosome_input.fasta")) == 1
     ):
@@ -551,7 +551,7 @@ def display_irma_progress(run, toggle, n_intervals, n_clicks):
             "Run has failed. If you need further help, please contact us at IDSeqsupport@cdc.gov"
         )
     if len(logs) == 0:
-        return html.Div("No IRMA data is available")
+        return html.Div("No MIRA data is available")
     log_dic = {}
     for l in logs:
         sample = l.split("/")[-1].split(".")[0]
@@ -568,7 +568,7 @@ def display_irma_progress(run, toggle, n_intervals, n_clicks):
         or len(glob(f"{data_root}/{run}/spyne_logs.tar.gz")) == 1
     ):
         return html.Div(
-            "IRMA has finished running. Once the MIRA tab header has stopped displaying 'Update', click 'Display IRMA Results'"
+            "MIRA has finished running. Once the MIRA tab header has stopped displaying 'Update', click 'Display MIRA Results'"
         )
     df = pd.DataFrame.from_dict(running_samples, orient="index")
     df = df.reset_index()
@@ -576,7 +576,7 @@ def display_irma_progress(run, toggle, n_intervals, n_clicks):
         df.columns = ["Sample", "IRMA Stage"]
         out = html.Div(
             [
-                html.Div(f"IRMA finished samples: {', '.join(finished_samples)}"),
+                html.Div(f"MIRA finished samples: {', '.join(finished_samples)}"),
                 html.Div(
                     dash_table.DataTable(
                         columns=[{"name": i, "id": i} for i in df.columns],
@@ -992,7 +992,7 @@ sidebar = html.Div(
                     "Barcode Assignment", href="#demux_head", external_link=True
                 ),
                 dbc.NavLink("Automatic QC", href="#auto_qc_head", external_link=True),
-                dbc.NavLink("IRMA Summary", href="#irma_head", external_link=True),
+                dbc.NavLink("MIRA Summary", href="#irma_head", external_link=True),
                 dbc.NavLink(
                     "Reference Coverage", href="#coverage_head", external_link=True
                 ),
@@ -1175,7 +1175,7 @@ content = html.Div(
                     dbc.Col(
                         daq.ToggleSwitch(
                             id="watch-irma-progress",
-                            label="Watch IRMA progress",
+                            label="Watch MIRA progress",
                             labelPosition="right",
                             value=False,
                         ),
@@ -1188,7 +1188,7 @@ content = html.Div(
     ]
     + [
         html.Div(
-            dbc.Button("Display IRMA results", id="irma-results-button", n_clicks=0),
+            dbc.Button("Display MIRA results", id="irma-results-button", n_clicks=0),
         )
     ]
     + [html.P("Barcode Assignment", id="demux_head", className="display-6")]
@@ -1258,7 +1258,7 @@ content = html.Div(
             ]
         )
     ]
-    + [html.P("IRMA Summary", id="irma_head", className="display-6")]
+    + [html.P("MIRA Summary", id="irma_head", className="display-6")]
     + [html.Br()]
     + [dbc.Row([html.Div(id="irma_summary")])]
     + [html.Br()]
