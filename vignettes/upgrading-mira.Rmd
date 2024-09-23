@@ -1,5 +1,6 @@
 ## How to upgrade MIRA to the lastest version
 
+MIRA version 1 was installed with a data directory of `FLU_SC2_SEQUENCING`, versions 2.0.0+ are reccomended to be installed with `MIRA_NGS` as the data directory. If you are upgrading from v1.1.X, you may wish to retain your `FLU_SC2_SEQUENCING` folder as the MIRA data location.
    
 ### Upgrading MIRA with four containers (version 1.1.4) to MIRA single container (version 2.0.0)
    
@@ -35,7 +36,7 @@
     sudo docker compose up -d
    ```
 
-### Upagrading MIRA single container (version 2.0.0+)
+### Upgrading MIRA single container (version 2.0.0+)
 
 1. Open a terminal (Ubuntu if you installed WSL2 with this instructions, Terminal if you are using a Mac). `cd` to the folder with your sequence run data:
    

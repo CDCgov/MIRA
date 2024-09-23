@@ -26,6 +26,8 @@ Save these settings by clicking "Apply & restart"
 
 ### Open the terminal, and copy/paste these commands ###
 
+*NOTE: This `MIRA_NGS` folder was previously called `FLU_SC2_SEQUENCING` in documentation predating September 2024
+
 ```bash
 mkdir ~/MIRA_NGS
 
