@@ -959,7 +959,7 @@ CONTENT_STYLE = {
 sidebar = html.Div(
     [
         html.A(
-            href="https://cdcgov.github.io/MIRA/articles/running-mira.html",
+            href="https://cdcgov.github.io/MIRA/articles/running-mira-dd-ont.html",
             target="_blank",
             children=[
                 html.Img(
