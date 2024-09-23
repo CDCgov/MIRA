@@ -6,6 +6,16 @@ _This documentation assumes you have pulled the MIRA docker image into your Dock
 
 <hr>
 
+#### Contents
+
+* [Stage your demultiplexed data](#stage-your-demultiplexed-data)
+* [Open MIRA](#open-mira)
+* [Select run, date type, and enter sample information](#select-run-data-type-and-enter-sample-information)
+* [Start Genome Assembly](#start-genome-assembly)
+* [Review MIRA results](#review-mira-results)
+
+<hr>
+
 ## Stage your demultiplexed data
 
 * In your "MIRA_NGS" folder, make a folder for your run. It is very helpful to name your runs with a consistent naming system, such as "YEAR-MONTH-DATE-FLOWCELL_ID", ie. 2022-11-13-ABC1234. 
@@ -21,28 +31,28 @@ _This documentation assumes you have pulled the MIRA docker image into your Dock
 
 
 <br>
-**This screenshot shows a Windows file system. The file system set up may vary between users. Be sure that you are able to access the folder where the "MIRA_NGS" folder was created.**
+**This screenshot shows a Windows file system. The file system set up may vary between users.**
 <hr>
 
 ## Run Genome Assembly with MIRA
 
 ### Open MIRA    
-* Open MIRA by clicking the blue link "8020:8050". This will open MIRA into your default internet browser. You can "bookmark" this site in your browser.
+* In Docker Desktop, open MIRA by clicking the blue link "8020:8050". This will open MIRA into your default internet browser. You can "bookmark" this [site](http://localhost:8020/) in your browser.
 
  ![](images/mira_dd_docker_rolldown.png)
 
-### Select runs, data type, and enter sample information
+### Select run, data type, and enter sample information
 
 * Click the `REFRESH RUN LISTING` button and select your run from  the dropdown box.
 
     ![](images/mira_run_selection_v2.png)
 
-    * Next, click the box that say "What kind of data is this" and select Flu-Illumina or SC2-Whole-Genome-Illumina
+    * Next, click the box that say "What kind of data is this" and select Flu-Illumina, SC2-Whole-Genome-Illumina or RSV-Illumina.
 
     ![](images/mira_whatkindofdata_illumina_v2.png)
 
 * If you select SC2-Whole-Genome-Illumina or RSV-Illumina, a new box will appear for you to select your primer schema/amplicon approach 
-    * _NOTE: MIRA SC2-Whole-Genome-Illumina and RSV-Illumina module's primer trimming steps have been tested and optimized for the primer panels provided. We cannot guarantee perfect trimming for other panels._
+    * _NOTE: MIRA SC2-Whole-Genome-Illumina and RSV-Illumina module's primer trimming steps have been tested and optimized for the primer panels provided._
     ![](images/mira_whatkindofdata_illumina_primer_v2.png)
 
 * Next, click `DOWNLOAD SAMPLESHEET TEMPLATE` and open the resulting Excel spreadsheet
@@ -50,9 +60,8 @@ _This documentation assumes you have pulled the MIRA docker image into your Dock
     ![](images/mira_samplesheet_illumina_barcode_entry_v2.png)
     
     
-* Your sample names will be inferred from the fastq filenames in your fastq directory. **Do not change these sample names**
+* Your sample names will be inferred from the fastq filenames in your fastq directory. **Do not change these sample names.**
     * If you do not see a sample that you expect, this is because that sample name does not have a fastq to process.
-    * Sample names should only be numbers, letters, dashes, and underscores ("-" or "_"). **Do not use any other characters such as "/".** 
 * Next, select your `Sample Type`. Most of your sample's are test samples, so each row defaults to `test`, but select `- control` or `+ control` for your **negative** and **positive** controls respectively. 
 * Save your samplesheet with changes in Excel
 
@@ -63,20 +72,20 @@ _This documentation assumes you have pulled the MIRA docker image into your Dock
 
 ### Start Genome Assembly
 * Now select `UNLOCK ASSEMBLY BUTTON` and click `START GENOME ASSEMBLY`. Now is a good time to go have a coffee. 
-    * _ESPECIALLY for Whole-Genome SARS-CoV-2: covering a 30kb genome with up to 200,000 short reads can take a very long time to process._
+    * _Whole-Genome SARS-CoV-2 is the slowest assembly module as its genome is much larger than Influenza or RSV._
 
 
 
-    * Click on the toggle button `Watch IRMA Progress`. Assembly will take some time, how long exactly is dependent on your sample number, the number of raw sequencing reads, and the power of your computer.
+    * Click on the toggle button `Watch MIRA Progress`. Assembly will take some time, how long exactly is dependent on your sample number, the number of raw sequencing reads, and the power of your computer.
     ![](images/mira_run_status_illumina_v2.png)
 
-7. When IRMA has finished, it will say "IRMA is finished" and you can now click on "DISPLAY IRMA RESULTS".
+7. When MIRA has finished, it will say "MIRA is finished" and you can now click on "DISPLAY MIRA RESULTS".
 
     ![](images/mira_display_results_v2.png)
 
 <hr>
 
-## Review IRMA results
+## Review MIRA results
 
 1. Review the distribution of reads assigned to each barcode. The ideal result would be a similar number of reads assigned to each test and positive control. However, it is ok to not have similar read numbers per sample. Samples with a low proportion of reads may indicate higher Ct of starting material or less performant PCR during library preparation. What is most important for sequencing assembly is raw count of reads and their quality.
 
@@ -90,7 +99,7 @@ _This documentation assumes you have pulled the MIRA docker image into your Dock
     |![Orange](images/mira_auto_qc_heatmap_orange.png)|![Red](images/mira_auto_qc_heatmap_red.png)|
     |--|--|
 
-3. Review `Irma Summary`. This summarizes the above information, as well as detailed read assignment to specific referencs, in a table. Columns can be sorted and filtered, ie. `>1000`. Click `Export` to save this as an Excel file.
+3. Review `MIRA Summary`. This table shows assembly QC data for each reference identified and mapped to for each sample. Columns can be sorted and filtered, ie. `>1000`. Click `Export` to save this as an Excel file.
 
     ![](images/mira_irma_summary.png)
 
@@ -160,7 +169,7 @@ th, td {
 
 ## Save your sequences in a fasta file
 
-- Export IRMA's _amended consensus_ nucleotide sequences and amino acid fasta files. This includes only those passing MIRA's QC criteria and are ready for submission to public databases!
+- Export MIRA's _amended consensus_ nucleotide sequences and amino acid fasta files. This includes only those passing MIRA's QC criteria and are ready for submission to public databases!
 
     ![](images/mira_fasta_dl.png)
     * The `DOWNLOAD FASTAS` button will only return passing samples. To investigate failed sequences, click the `DOWNLOAD FAILED FASTAS` button. Do not submit failed samples to public repositories!
