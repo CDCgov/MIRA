@@ -48,7 +48,9 @@ sample_4,Test
 
 ## Run Genome Assembly with MIRA-CLI
 
-### Start the containers
+### Start the MIRA container
+
+* If MIRA is running, you should see it listed when you run `docker ps`
 
 Move to the MIRA_NGS folder
 
@@ -69,7 +71,7 @@ Within the command you will change these flags to match your data:
  * e - Flu-Illumina, SC2-Whole-Genome-Illumina, RSV-Illumina
  * p - SC2 options: articv3, articv4, articv4.1, articv5.3.2, qiagen, swift, swift_211206 or RSV options: RSV_CDC_8amplicon_230901, dong_et_al
  
-There will be a lot of standard error messages that print out in the command line while MIRA is running. It will look like the picture below:
+There will be a lot of standard error messages that print while MIRA is running. It will look like the picture below:
 ![](images/mira-cli-run-messages.png)
  
 ### MIRA-CLI Ouputs
@@ -106,7 +108,7 @@ Excel files:
  
 There will also be individual coverage HTML files for each sample input.
 
-The IRMA folder contains the [IRMA](https://wonder.cdc.gov/amd/flu/irma/irma.html) assemblies and full output with each sample getting their own folder. There will also be a folder within the IRMA folder label 'dais_results' that contains the inputs and output from [DAIS Ribsome](https://hub.docker.com/r/cdcgov/dais-ribosome). The subsampled (and trimmed if applicable) fastq files will also be stored within this folder. We summarize all the information found in these folder in the reports listed above.
+The IRMA folder contains the [IRMA](https://wonder.cdc.gov/amd/flu/irma/irma.html) assemblies and full output with each sample getting its own folder. There will also be a folder within the IRMA folder label 'dais_results' that contains the inputs and output from [DAIS Ribsome](https://hub.docker.com/r/cdcgov/dais-ribosome). The subsampled (and trimmed if applicable) fastq files will also be stored within this folder. We summarize all the information found in these folder in the reports listed above.
 
 The dash-json folder contains all of the json files from which the GUI builds it's figures. We recommend that you keep these files as they contain the key results from your analysis. See below for more information about the [file archival process](https://cdcgov.github.io/MIRA/running-mira-cli-illumina#archiving-files)
 
