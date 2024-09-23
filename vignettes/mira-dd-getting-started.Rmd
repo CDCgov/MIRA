@@ -59,7 +59,12 @@ and click the 'pull' button.
  * Set the "Host Port" to 8020
  * Under Volumes click the "Host Path" box and find and select your "MIRA_NGS" folder.
   ![](./images/select_folders_with_runs.png)
- * Under Volumes you will make the "Container Path" data.
+ 
+ **If you would like your "Host Path" to be a folder within your linux environment, use the drop down in your file browser to find it. See the screenshot below for an example.** 
+ 
+ ![](./images/mira-dd-mount-to-unbuntu.png)
+ 
+ * Under Volumes you will make the "Container Path" type in '/data'.
 
 ## Test your MIRA Setup
     
