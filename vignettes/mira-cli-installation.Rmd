@@ -77,7 +77,7 @@ If this command returns an error relating to permissions, try again with `sudo` 
 - unzip the file and find two folders:
     1. `tiny_test_run_flu`
     2. `tiny_test_run_sc2`
-- move these folders into `MIRA_NGS`
+- move these 2b folders into `MIRA_NGS` so that the file structure looks like: `/MIRA_NGS/tiny_test_run_flu/fastq_pass/barcode##s/` and `/MIRA_NGS/tiny_test_run_sc2/fastq_pass/barcode##s/`
   - if you cannot find the MIRA_NGS folder in your Linux section of file explorer, look in Linux-->home-->your username
 
 ### Upon successful installation, you can proceed to running MIRA with [Oxford Nanopore data](./running-mira-cli.html) or [Illumina data](./running-mira-cli-illumina.html)
