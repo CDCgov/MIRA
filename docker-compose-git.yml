@@ -1,85 +1,71 @@
 version: "3.9"
-
-x-dais-version:
-  &dais-version 
-  cdcgov/dais-ribosome:v1.3.2
-
-x-irma-version:
-  &irma-version 
-  cdcgov/irma:v1.1.4
-
-x-spyne-version:
-  &spyne-version  
-  cdcgov/spyne:v1.1.4
-
-x-mira-version:
-  &mira-version  
-  cdcgov/mira:v1.1.4
-
-x-data-volumes:
+ 
+x-spyne-git-repo:
+  &spyne-git-repo
+  https://github.com/CDCgov/spyne.git#prod
+ 
+x-mira-git-repo:
+  &mira-git-repo
+  https://github.com/CDCgov/MIRA.git#prod
+ 
+x-irma-image:
+  &irma-image
+  cdcgov/irma:v1.2.0
+ 
+x-dais-image:
+  &dais-image
+  cdcgov/dais-ribosome:v1.5.4
+ 
+x-spyne-image:
+  &spyne-image
+  spyne:v2.0.0  
+ 
+x-mira-image:
+  &mira-image
+  mira:v2.0.0    
+ 
+x-data-volume:
   &data-volume
   type: bind
-  source: /path/to/data
+  source: /home/snu3/Github/FLU_SC2_SEQUENCING
   target: /data
-
-x-docker-volumes:
-  &docker-socket
-  type: bind
-  source: /var/run/docker.sock 
-  target: /var/run/docker.sock 
-
+ 
 services:
-  dais: 
-    container_name: dais
-    image: *dais-version
-    restart: always
-    networks:
-      - backend
-    volumes: 
-      - *data-volume
-    command: tail -f /dev/null
-
-  irma: 
-    container_name: irma
-    image: *irma-version
-    restart: always
-    networks:
-      - backend
-    volumes:
-      - *data-volume
-    command: tail -f /dev/null
-    
-  spyne: 
+  spyne:
     container_name: spyne
-    image: *spyne-version
-    depends_on:
-      - dais
-      - irma
+    image: *spyne-image
+    build:
+      context: *spyne-git-repo
+      dockerfile: Dockerfile
+      args:
+        irma_image: *irma-image
+        dais_image: *dais-image
     restart: always
     networks:
       - backend
     volumes:
       - *data-volume
-      - *docker-socket
     command: tail -f /dev/null
-
-  mira: 
+ 
+  mira:
     container_name: mira
-    image: *mira-version
+    image: *mira-image
+    build:
+      context: *mira-git-repo
+      dockerfile: Dockerfile
+      args:
+        spyne_image: *spyne-image
     depends_on:
-      - dais
-      - irma
-      - spyne
+      - spyne    
     restart: always
     networks:
       - frontend
       - backend
-    ports: 
+    ports:
       - 8020:8050
     volumes:
       - *data-volume
-      - *docker-socket
-
+ 
 networks:
   backend:
     name: backend
