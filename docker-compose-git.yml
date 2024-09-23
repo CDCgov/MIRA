@@ -2,16 +2,16 @@ version: "3.9"
 
 x-mira-git-repo:
   &mira-git-repo
-  https://github.com/CDCgov/MIRA.git#single_mira_container
+  https://github.com/CDCgov/MIRA.git#prod
 
 x-spyne-image:
   &spyne-image
-  spyne_image: cdcgov/spyne-dev:v2.0.0
+  spyne_image: cdcgov/spyne:v2.0.0
 
 x-data-volume:
   &data-volume
   type: bind
-  source: /home/snu3/Github/FLU_SC2_SEQUENCING
+  source: /path/to/data
   target: /data
 
 services:
