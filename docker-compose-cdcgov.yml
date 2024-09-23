@@ -1,0 +1,21 @@
+version: "3.9"
+
+x-mira-image:
+  &mira-image
+  cdcgov/mira-dev:v2.0.0
+
+x-data-volume:
+  &data-volume
+  type: bind
+  source: /path/to/data
+  target: /data
+
+services:
+  mira:
+    container_name: mira
+    image: *mira-image
+    restart: always
+    ports:
+      - 8020:8050
+    volumes:
+      - *data-volume

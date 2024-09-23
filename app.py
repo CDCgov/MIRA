@@ -69,13 +69,30 @@ def refreshRuns(n_clicks):
     return options
 
 
-@app.callback(Output("Amplicon_Library", "style"), Input("experiment_type", "value"))
-def select_primers(exp_type):
+@app.callback(Output("Amplicon_Library_SC2", "style"), Input("experiment_type", "value"))
+def select_primers_sc2(exp_type):
     if exp_type == "SC2-Whole-Genome-Illumina":
         return {"display": "block"}
     else:
         return {"display": "none"}
 
+@app.callback(Output("Amplicon_Library_RSV", "style"), Input("experiment_type", "value"))
+def select_primers_rsv(exp_type):
+    if exp_type == "RSV-Illumina":
+        return {"display": "block"}
+    else:
+        return {"display": "none"}
+
+def current_version():
+    descript_dict = {}
+    description_file = f"{dirname(realpath(__file__))}/DESCRIPTION"
+    with open(description_file, 'r') as infi:
+        for line in infi:
+            try:
+                descript_dict[line.split(':')[0]]=line.split(":")[1]
+            except:
+                continue
+    return descript_dict['Version'].strip()
 
 @app.callback(
     [Output("select_sample", "options"), Output("select_sample", "value")],
@@ -409,12 +426,13 @@ def generate_samplesheet(run, upload_data, experiment_type):
         Input("assembly-button", "n_clicks"),
         Input("select_run", "value"),
         Input("experiment_type", "value"),
-        Input("Amplicon_Library", "value"),
+        Input("Amplicon_Library_SC2", "value"),
+        Input("Amplicon_Library_RSV", "value"),
         Input("unlock-assembly-button", "n_clicks"),
     ],
 )
 def run_snake_script_onClick(
-    assembly_n_clicks, run, experiment_type, Amplicon_Library, unlock_n_clicks
+    assembly_n_clicks, run, experiment_type, Amplicon_Library_SC2, Amplicon_Library_RSV, unlock_n_clicks
 ):
     if dash.ctx.triggered_id == "unlock-assembly-button":
         return False
@@ -432,13 +450,17 @@ def run_snake_script_onClick(
     if dash.ctx.triggered_id == "select_run":
         return True
     if dash.ctx.triggered_id == "assembly-button":
-        docker_cmd = "docker exec -w /data spyne bash snake-kickoff "
-        docker_cmd += f"{run}/samplesheet.csv "
-        docker_cmd += f"{run} "
-        docker_cmd += f"{experiment_type} "
+        docker_cmd = "bash /spyne/MIRA.sh "
+        docker_cmd += f"-s {run}/samplesheet.csv "
+        docker_cmd += f"-r {run} "
+        docker_cmd += f"-e {experiment_type} "
+        docker_cmd += "-a "
+        print(docker_cmd)
         if "sc2-whole-genome-illumina" in experiment_type.lower():
-            docker_cmd += f"{Amplicon_Library} "
-        docker_cmd += f"CLEANUP-FOOTPRINT"
+            docker_cmd += f"-p {Amplicon_Library_SC2} "
+        elif  "rsv-illumina" in experiment_type.lower():
+            docker_cmd += f"-p {Amplicon_Library_RSV} "
+        docker_cmd += f"-c CLEANUP-FOOTPRINT"
         print(f'launching docker_cmd == "{docker_cmd}"\n\n')
         subprocess.Popen(docker_cmd.split(), close_fds=True)
         if len(glob(f"{data_root}/{run}/{run}_samplesheet.xlsx")) > 0:
@@ -509,7 +531,7 @@ def display_irma_progress(run, toggle, n_intervals, n_clicks):
     if not toggle:
         return html.Div()
     if len(glob(f"{data_root}/{run}/*amended_consensus.fasta")) >= 1:
-        return html.Div('IRMA is finished! Click "DISPLAY IRMA RESULTS"')
+        return html.Div('MIRA is finished! Click "DISPLAY MIRA RESULTS"')
     if (len(glob(f"{data_root}/{run}/dash-json")) == 1) or (
         len(glob(f"{data_root}/{run}/DAIS_ribosome_input.fasta")) == 1
     ):
@@ -529,7 +551,7 @@ def display_irma_progress(run, toggle, n_intervals, n_clicks):
             "Run has failed. If you need further help, please contact us at IDSeqsupport@cdc.gov"
         )
     if len(logs) == 0:
-        return html.Div("No IRMA data is available")
+        return html.Div("No MIRA data is available")
     log_dic = {}
     for l in logs:
         sample = l.split("/")[-1].split(".")[0]
@@ -546,7 +568,7 @@ def display_irma_progress(run, toggle, n_intervals, n_clicks):
         or len(glob(f"{data_root}/{run}/spyne_logs.tar.gz")) == 1
     ):
         return html.Div(
-            "IRMA has finished running. Once the MIRA tab header has stopped displaying 'Update', click 'Display IRMA Results'"
+            "MIRA has finished running. Once the MIRA tab header has stopped displaying 'Update', click 'Display MIRA Results'"
         )
     df = pd.DataFrame.from_dict(running_samples, orient="index")
     df = df.reset_index()
@@ -554,7 +576,7 @@ def display_irma_progress(run, toggle, n_intervals, n_clicks):
         df.columns = ["Sample", "IRMA Stage"]
         out = html.Div(
             [
-                html.Div(f"IRMA finished samples: {', '.join(finished_samples)}"),
+                html.Div(f"MIRA finished samples: {', '.join(finished_samples)}"),
                 html.Div(
                     dash_table.DataTable(
                         columns=[{"name": i, "id": i} for i in df.columns],
@@ -937,7 +959,7 @@ CONTENT_STYLE = {
 sidebar = html.Div(
     [
         html.A(
-            href="https://cdcgov.github.io/MIRA/articles/running-mira.html",
+            href="https://cdcgov.github.io/MIRA/articles/running-mira-dd-ont.html",
             target="_blank",
             children=[
                 html.Img(
@@ -950,7 +972,7 @@ sidebar = html.Div(
         html.H2(f"MIRA v{current_version()}", className="display-4"),
         html.P(
             [
-                "Influenza genome and SARS-CoV-2 spike sequence assembly with ",
+                "Influenza, SARS-CoV-2, and RSV sequence assembly with ",
                 dcc.Link(
                     "IRMA",
                     href="https://bmcgenomics.biomedcentral.com/articles/10.1186/s12864-016-3030-6",
@@ -970,7 +992,7 @@ sidebar = html.Div(
                     "Barcode Assignment", href="#demux_head", external_link=True
                 ),
                 dbc.NavLink("Automatic QC", href="#auto_qc_head", external_link=True),
-                dbc.NavLink("IRMA Summary", href="#irma_head", external_link=True),
+                dbc.NavLink("MIRA Summary", href="#irma_head", external_link=True),
                 dbc.NavLink(
                     "Reference Coverage", href="#coverage_head", external_link=True
                 ),
@@ -1036,17 +1058,16 @@ content = html.Div(
                     {"label": "SC2-Spike-Only-ONT", "value": "SC2-Spike-Only-ONT"},
                     {"label": "Flu-Illumina", "value": "Flu-Illumina"},
                     {"label": "SC2-Whole-Genome-ONT", "value":"SC2-Whole-Genome-ONT"},
-                    {
-                        "label": "SC2-Whole-Genome-Illumina",
-                        "value": "SC2-Whole-Genome-Illumina",
-                    },
+                    {"label": "SC2-Whole-Genome-Illumina", "value": "SC2-Whole-Genome-Illumina"},
+                    {"label": "RSV-Illumina", "value": "RSV-Illumina"},
+                    {"label": "RSV-ONT", "value": "RSV-ONT",},
                 ],
                 id="experiment_type",
                 placeholder="What kind of data is this?",
             )
         )
     ]
-    + [  # html.Div(id="Amplicon_Library")
+    + [
         dbc.Row(
             dcc.Dropdown(
                 [
@@ -1063,8 +1084,20 @@ content = html.Div(
                     {"label": "VarSkip", "value": "varskip"},
                     {"label": "None", "value": ""},
                 ],  # add handling here for no primers used
-                id="Amplicon_Library",
+                id="Amplicon_Library_SC2",
                 placeholder="For Illumina SC2, which primer schema was used?",
+            )
+        )
+    ]
+    + [
+        dbc.Row(
+            dcc.Dropdown(
+                [
+                    {"label": "RSV CDC 8 amplicon 230901", "value": "RSV_CDC_8amplicon_230901"},
+                    {"label": "Dong et al. 230312", "value": "dong_et_al"}
+                ],  # add handling here for no primers used
+                id="Amplicon_Library_RSV",
+                placeholder="For Illumina RSV, which primer schema was used?",
             )
         )
     ]
@@ -1142,7 +1175,7 @@ content = html.Div(
                     dbc.Col(
                         daq.ToggleSwitch(
                             id="watch-irma-progress",
-                            label="Watch IRMA progress",
+                            label="Watch MIRA progress",
                             labelPosition="right",
                             value=False,
                         ),
@@ -1155,7 +1188,7 @@ content = html.Div(
     ]
     + [
         html.Div(
-            dbc.Button("Display IRMA results", id="irma-results-button", n_clicks=0),
+            dbc.Button("Display MIRA results", id="irma-results-button", n_clicks=0),
         )
     ]
     + [html.P("Barcode Assignment", id="demux_head", className="display-6")]
@@ -1225,7 +1258,7 @@ content = html.Div(
             ]
         )
     ]
-    + [html.P("IRMA Summary", id="irma_head", className="display-6")]
+    + [html.P("MIRA Summary", id="irma_head", className="display-6")]
     + [html.Br()]
     + [dbc.Row([html.Div(id="irma_summary")])]
     + [html.Br()]
