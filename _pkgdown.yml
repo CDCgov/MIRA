@@ -3,7 +3,9 @@ url: https://cdcgov.github.io/MIRA/
 template:
   bootstrap: 5
   light-switch: true
-
+  includes:
+    in_header: <link rel="stylesheet" type="text/css" href="https://..." />
+    
 authors:
   Ben Rambo-Martin:
     href: https://github.com/nbx0
@@ -18,7 +20,7 @@ news:
   one_page: false
    
 home:
-  title: MIRA Documentation
+  title: Documentation
   sidebar:
     structure: [license, citation, authors, resources]
     components:

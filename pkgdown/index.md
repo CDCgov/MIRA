@@ -116,8 +116,6 @@ Key features:
     1. `tiny_test_run_flu`
     2. `tiny_test_run_sc2`
 - move these folders into `MIRA_NGS`
-  - if you cannot find the MIRA_NGS folder in your Linux section of file explorer, look in Linux-->home-->your username
+  - if you cannot find the MIRA_NGS folder in your Linux section of file explorer, look in <br> Linux --> home --> your username
 
-
-<hr>
 
