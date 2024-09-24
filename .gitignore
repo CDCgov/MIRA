@@ -22,3 +22,4 @@ scripts/__pycache__/muscle.cpython-37.pyc
 # ignore specific files
 change_log.txt
 docker-compose-dev.yml
+.Rproj.user
