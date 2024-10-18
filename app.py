@@ -1055,8 +1055,9 @@ content = html.Div(
             dcc.Dropdown(
                 [
                     {"label": "Flu-ONT", "value": "Flu-ONT"},
-                    {"label": "SC2-Spike-Only-ONT", "value": "SC2-Spike-Only-ONT"},
                     {"label": "Flu-Illumina", "value": "Flu-Illumina"},
+                    {"label": "SC2-Spike-Only-ONT", "value": "SC2-Spike-Only-ONT"},
+                    {"label": "SC2-Spike-Only-Illumina", "value":"SC2-Spike-Only-Illumina"}
                     {"label": "SC2-Whole-Genome-ONT", "value":"SC2-Whole-Genome-ONT"},
                     {"label": "SC2-Whole-Genome-Illumina", "value": "SC2-Whole-Genome-Illumina"},
                     {"label": "RSV-Illumina", "value": "RSV-Illumina"},
