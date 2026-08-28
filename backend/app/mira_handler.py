@@ -286,8 +286,8 @@ def retrieve_sample_coverage_plot(run_name: str, experiment_type: str, sample_id
         # Get pathogen and instrument type from experiment_type
         pathogen = experiment_type.split("-")[0]
         instrument = experiment_type.split("-")[-1]
-        # Get sample coverage plot result from storage
-        sample_coverage_plot_path = os.path.join(_DEFAULT_MIRA_STORAGE_PATH, pathogen, instrument, run_name, "outputs", "aggregate_outputs", "dash-json", f"coveragefig_{sample_id}_linear.json")
+        # Get sample segment coverage plot result from storage
+        sample_coverage_plot_path = os.path.join(_DEFAULT_MIRA_STORAGE_PATH, pathogen, instrument, run_name, "outputs", "aggregate_outputs", "dash-json", f"coveragefig_{sample_id}_seg.json")
         # Check if the sample coverage plot result file exists
         if os.path.exists(sample_coverage_plot_path):
             with open(sample_coverage_plot_path, "r") as f:
@@ -297,6 +297,23 @@ def retrieve_sample_coverage_plot(run_name: str, experiment_type: str, sample_id
     except Exception as err:
         raise Exception(str(err))
     return sample_coverage_plot
+
+# Get sample combined (linear) coverage plot from storage
+def retrieve_sample_coverage_linearfig(run_name: str, experiment_type: str, sample_id: str) -> dict | None:
+    try:
+        # Get pathogen and instrument type from experiment_type
+        pathogen = experiment_type.split("-")[0]
+        instrument = experiment_type.split("-")[-1]
+        # Get the combined coverage plot (all segments on one axis) result from storage
+        sample_coverage_linear_path = os.path.join(_DEFAULT_MIRA_STORAGE_PATH, pathogen, instrument, run_name, "outputs", "aggregate_outputs", "dash-json", f"coveragefig_{sample_id}_linear.json")
+        if os.path.exists(sample_coverage_linear_path):
+            with open(sample_coverage_linear_path, "r") as f:
+                sample_coverage_linear = json.load(f)
+        else:
+            sample_coverage_linear = None
+    except Exception as err:
+        raise Exception(str(err))
+    return sample_coverage_linear
 
 # Get variants from storage
 def retrieve_variants(run_name: str, experiment_type: str) -> dict | None:
@@ -327,8 +344,17 @@ def retrieve_minor_snvs(run_name: str, experiment_type: str) -> dict | None:
         # Get pathogen and instrument type from experiment_type
         pathogen = experiment_type.split("-")[0]
         instrument = experiment_type.split("-")[-1]
+        aggregate_dir = os.path.join(_DEFAULT_MIRA_STORAGE_PATH, pathogen, instrument, run_name, "outputs", "aggregate_outputs")
+        # For influenza, prefer the annotated minor variants table, which adds codon/amino-acid columns
+        if pathogen.lower() == "flu":
+            annotated_matches = sorted(
+                glob.glob(os.path.join(aggregate_dir, "csv-reports", "mira_*_annotated_minor_variants.csv")),
+                reverse=True,
+            )
+            if annotated_matches:
+                return pl.read_csv(annotated_matches[0]).to_dicts()
         # Get minor snvs result from storage
-        minor_snvs_result_path = os.path.join(_DEFAULT_MIRA_STORAGE_PATH, pathogen, instrument, run_name, "outputs", "aggregate_outputs", "dash-json", "minor_variants.json")
+        minor_snvs_result_path = os.path.join(aggregate_dir, "dash-json", "minor_variants.json")
         # Check if the minor snvs result file exists
         if os.path.exists(minor_snvs_result_path):
             with open(minor_snvs_result_path, "r") as f:
@@ -497,7 +523,7 @@ def retrieve_nextclade_aligned_fasta(run_name: str, experiment_type: str) -> str
         raise ValueError(str(err))
     except Exception as err:
         raise Exception(str(err))
-    
+
 ####################################################
 #
 # MIRA CREATION FUNCTIONS
@@ -1214,6 +1240,7 @@ def run_mira_docker(
         subsample_reads = assembly_row.get("subsample_reads", 0)
         parquet_files = _as_bool(assembly_row.get("parquet_files", False))
         nextclade = _as_bool(assembly_row.get("nextclade", True))
+        keep_workdir = _as_bool(assembly_row.get("keep_workdir", False))
 
         # Extract custom primer from assembly_row
         custom_primers = _as_bool(assembly_row.get("custom_primers", None))
@@ -1331,6 +1358,8 @@ def run_mira_docker(
             cmd.extend(["--parquet_files", "true"])
         if nextclade:
             cmd.extend(["--nextclade", "true"])
+        if keep_workdir:
+            cmd.extend(["--keep_workdir", "true"])
 
         # Log the command for reference
         if _DEPLOY_TYPE == "Local":
@@ -1360,7 +1389,8 @@ def run_mira_docker(
                 (f" --custom_qc_settings {run_dir}/{CUSTOM_QC_SETTINGS_FILENAME}\n" if custom_qc_settings else "") +
                 (f" --subsample_reads {int(subsample_reads)}\n" if subsample_reads and int(subsample_reads) >= 0 else "") +
                 (f" --parquet_files true\n" if parquet_files else "") +
-                (f" --nextclade true\n" if nextclade else ""),
+                (f" --nextclade true\n" if nextclade else "") +
+                (f" --keep_workdir true\n" if keep_workdir else ""),
             )
         else:
             logger.info(
@@ -1381,7 +1411,8 @@ def run_mira_docker(
                 (f" --custom_qc_settings {run_dir}/{CUSTOM_QC_SETTINGS_FILENAME}\n" if custom_qc_settings else "") +
                 (f" --subsample_reads {int(subsample_reads)}\n" if subsample_reads and int(subsample_reads) >= 0 else "") +
                 (f" --parquet_files true\n" if parquet_files else "") +
-                (f" --nextclade true\n" if nextclade else ""),
+                (f" --nextclade true\n" if nextclade else "") +
+                (f" --keep_workdir true\n" if keep_workdir else ""),
             )
 
         # Fire and forget — launch in background, do not block. Capture the pipeline's
@@ -1629,7 +1660,7 @@ def create_mira_dag(
         complete_re = re.compile(r"(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}|\w+-\d+ \d{2}:\d{2}:\d{2}).*WorkflowStats")
         error_re = re.compile(r"(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}|\w+-\d+ \d{2}:\d{2}:\d{2}).*ERROR")
         starting_re = re.compile(r"Starting process\s*>\s*(\S+)")
-        submitted_re = re.compile(r"Submitted process\s*>\s*(\S+)\s*\(([^)]+)\)")
+        submitted_re = re.compile(r"\[([a-f0-9]{2}/[a-f0-9]+)\]\s*Submitted process\s*>\s*(\S+)\s*\(([^)]+)\)")
         with open(nextflow_log, errors="replace") as fh:
             for line in fh:
                 if workflow["started_at"] is None:
@@ -1646,9 +1677,10 @@ def create_mira_dag(
                         all_process_names.append(process_name)
                 sub = submitted_re.search(line)
                 if sub:
-                    sub_process = sub.group(1).strip().split(":")[-1]
-                    sub_sample = sub.group(2).strip()
-                    submitted_pairs.append((sub_process, sub_sample))
+                    sub_hash = sub.group(1).strip()
+                    sub_process = sub.group(2).strip().split(":")[-1]
+                    sub_sample = sub.group(3).strip()
+                    submitted_pairs.append((sub_process, sub_sample, sub_hash))
 
     elif assembly_status == "CANCELED" and not os.path.exists(nextflow_log):
         message.append(f"MIRA run was canceled or interrupted.")
@@ -1659,12 +1691,12 @@ def create_mira_dag(
     # Nextflow prints its completion summary ("Completed at" / "Duration") to stdout,
     # which run_mira_docker captures to nextflow.stdout.log (overwritten each run, so
     # it always reflects the most recent run).
+    parsed_runtime = None
+    parsed_finished = None
     if os.path.exists(nextflow_stdout):
         ansi_re      = re.compile(r"\x1b\[[0-9;]*m")
         duration_re  = re.compile(r"(?:Execution\s+duration|Duration)\s*:\s*(.+)", re.IGNORECASE)
         completed_re = re.compile(r"Completed\s+at\s*:\s*(.+)", re.IGNORECASE)
-        parsed_runtime = None
-        parsed_finished = None
         with open(nextflow_stdout, errors="replace") as fh:
             for line in fh:
                 clean = ansi_re.sub("", line)
@@ -1674,28 +1706,36 @@ def create_mira_dag(
                 c = completed_re.search(clean)
                 if c:
                     parsed_finished = c.group(1).strip()
-        if parsed_runtime:
-            workflow["runtime"] = parsed_runtime
-        if parsed_finished:
-            workflow["finished_at"] = parsed_finished
-        # Persist any new values to the DB so they survive log cleanup
-        updates = {}
-        if parsed_runtime and parsed_runtime != db_runtime:
-            updates["runtime"] = parsed_runtime
-        if parsed_finished and parsed_finished != db_finished_at:
-            updates["finished_at"] = parsed_finished
-        if updates:
-            try:
-                update_tbl_in_database(
-                    db_tbl_name = ["assembly"],
-                    table = pl.DataFrame({k: [v] for k, v in updates.items()}),
-                    filter_coln_var = ["assembly_id"],
-                    filter_coln_val = {"assembly_id": [assembly_id]},
-                    filter_var_by = ["AND"]
-                )
-            except Exception as err:
-                # Persisting runtime/finish time is best-effort; never fail the DAG response over it
-                logger.warning(f"Failed to persist runtime/finish time for run '{run_name}': {err}")
+
+    # The pipeline routes its "Completed at:" summary to the notification email rather
+    # than stdout, so stdout rarely carries a finish time. Fall back to the completion
+    # timestamp parsed from .nextflow.log's "Workflow completed" (WorkflowStats) line.
+    if not parsed_finished and workflow.get("completed_at"):
+        parsed_finished = workflow["completed_at"]
+
+    if parsed_runtime:
+        workflow["runtime"] = parsed_runtime
+    if parsed_finished:
+        workflow["finished_at"] = parsed_finished
+
+    # Persist any new values to the DB so they survive log cleanup
+    updates = {}
+    if parsed_runtime and parsed_runtime != db_runtime:
+        updates["runtime"] = parsed_runtime
+    if parsed_finished and parsed_finished != db_finished_at:
+        updates["finished_at"] = parsed_finished
+    if updates:
+        try:
+            update_tbl_in_database(
+                db_tbl_name = ["assembly"],
+                table = pl.DataFrame({k: [v] for k, v in updates.items()}),
+                filter_coln_var = ["assembly_id"],
+                filter_coln_val = {"assembly_id": [assembly_id]},
+                filter_var_by = ["AND"]
+            )
+        except Exception as err:
+            # Persisting runtime/finish time is best-effort; never fail the DAG response over it
+            logger.warning(f"Failed to persist runtime/finish time for run '{run_name}': {err}")
 
     # ── 2. Find the latest trace file ──────────────────────────────
     trace_file: Optional[str] = None
@@ -1746,14 +1786,14 @@ def create_mira_dag(
     if assembly_status == "PROCESSING":
         terminal_keys = {(t["process_name"], t["sample"]) for t in tasks}
         seen_running = set()
-        for proc, smp in submitted_pairs:
+        for proc, smp, hsh in submitted_pairs:
             key = (proc, smp)
             if key in terminal_keys or key in seen_running:
                 continue
             seen_running.add(key)
             tasks.append({
                 "task_id":      -1,
-                "hash":         "",
+                "hash":         hsh,
                 "process_name": proc,
                 "sample":       smp,
                 "status":       "RUNNING",
@@ -1796,15 +1836,44 @@ def create_mira_dag(
     }
 
 # Define function to retrieve the error log for a single failed task
+def _extract_nextflow_task_lines(nextflow_log: str, prefix: str, rest: str) -> List[str]:
+    """
+    Return the lines from a run's .nextflow.log that reference a single task,
+    identified by its truncated trace hash "<prefix>/<rest>" (e.g. "9f/df6545").
+    Used as a fallback log feed for tasks (everything but IRMA) that don't write
+    anything to their command streams.
+    """
+    if not nextflow_log or not os.path.exists(nextflow_log):
+        return []
+    needle = f"[{prefix}/{rest}"
+    matched: List[str] = []
+    try:
+        with open(nextflow_log, errors="replace") as fh:
+            for raw in fh:
+                if needle in raw:
+                    matched.append(raw.rstrip("\n"))
+    except Exception:
+        return []
+    return matched
+
+
 def retrieve_task_log(
     run_name: str,
     experiment_type: str,
     task_hash: str,
+    stream: Optional[str] = None,
+    full: bool = False,
 ) -> Dict[str, Any]:
     """
     Locate the Nextflow work directory for a single task (identified by its
-    execution-trace hash, e.g. "9f/df6545") and return its error log with the
+    execution-trace hash, e.g. "9f/df6545") and return its log with the
     relative path, filename, exit code, and the error lines with line numbers.
+
+    When ``stream`` is "stdout", the process output (.command.out / .command.log)
+    is preferred; otherwise the error log (.command.err) is preferred. Tasks that
+    write nothing to their command streams fall back to the task-specific lines
+    from the run's .nextflow.log. When ``full`` is true the untruncated file
+    contents are also returned in ``full_text``.
     """
     if not task_hash or "/" not in task_hash:
         raise ValueError("A valid task hash (e.g. '9f/df6545') is required.")
@@ -1816,13 +1885,40 @@ def retrieve_task_log(
 
     # The trace hash is truncated ("<a>/<short>"); the real directory name starts with it.
     prefix, rest = task_hash.split("/", 1)
-    parent = os.path.join(work_dir, prefix)
+
+    # Locate the task directory (name starts with the truncated hash) under a work root.
+    def _find_task_dir(work_root: str) -> Optional[str]:
+        parent = os.path.join(work_root, prefix)
+        if os.path.isdir(parent):
+            for name in os.listdir(parent):
+                if name.startswith(rest):
+                    candidate = os.path.join(parent, name)
+                    if os.path.isdir(candidate):
+                        return candidate
+        return None
+
+    # 1. Original processing place — the absolute workDir Nextflow records in .nextflow.log
+    #    while the task runs (e.g. "workDir: /data/MIRA/.../work/9f/df6545...").
     task_dir: Optional[str] = None
-    if os.path.isdir(parent):
-        for name in os.listdir(parent):
-            if name.startswith(rest):
-                task_dir = os.path.join(parent, name)
-                break
+    nextflow_log = os.path.join(run_dir, ".nextflow.log")
+    if os.path.exists(nextflow_log):
+        workdir_re = re.compile(
+            r"workDir:\s*(\S+/work/" + re.escape(prefix) + r"/" + re.escape(rest) + r"\S*)"
+        )
+        with open(nextflow_log, errors="replace") as fh:
+            for line in fh:
+                m = workdir_re.search(line)
+                if not m:
+                    continue
+                candidate = m.group(1).strip().rstrip("];")
+                if os.path.isdir(candidate):
+                    task_dir = candidate
+                    break
+
+    # 2. Fallback — mira-nf leaves the task directories under <run_dir>/work once it
+    #    finishes, so search there when the original processing place is gone.
+    if task_dir is None:
+        task_dir = _find_task_dir(work_dir)
 
     if task_dir is None or not os.path.isdir(task_dir):
         raise ValueError(f"Could not find the work directory for task '{task_hash}'. It may have been cleaned up.")
@@ -1841,7 +1937,11 @@ def retrieve_task_log(
     # 1-based line numbers, and flag the ones that look like errors.
     error_re = re.compile(r"error|exception|traceback|fail|not found|no such file|command not found|killed", re.IGNORECASE)
     chosen_file: Optional[str] = None
-    for candidate in (".command.err", ".command.log", ".command.out"):
+    if (stream or "").lower() == "stdout":
+        candidates = (".command.out", ".command.log", ".command.err")
+    else:
+        candidates = (".command.err", ".command.log", ".command.out")
+    for candidate in candidates:
         candidate_path = os.path.join(task_dir, candidate)
         if os.path.exists(candidate_path) and os.path.getsize(candidate_path) > 0:
             chosen_file = candidate
@@ -1849,24 +1949,44 @@ def retrieve_task_log(
 
     lines: List[Dict[str, Any]] = []
     error_lines: List[Dict[str, Any]] = []
+    full_text: str = ""
+    log_source_path: Optional[str] = None
     if chosen_file is not None:
-        log_full_path = os.path.join(task_dir, chosen_file)
-        with open(log_full_path, errors="replace") as fh:
-            for i, raw in enumerate(fh, start=1):
-                text = raw.rstrip("\n")
-                entry = {"line_number": i, "text": text}
-                lines.append(entry)
-                if error_re.search(text):
-                    error_lines.append(entry)
-        # Keep the payload reasonable: cap the returned lines.
-        if len(lines) > 500:
-            lines = lines[-500:]
+        log_source_path = os.path.join(task_dir, chosen_file)
+        with open(log_source_path, errors="replace") as fh:
+            full_text = fh.read()
+        for i, raw in enumerate(full_text.splitlines(), start=1):
+            entry = {"line_number": i, "text": raw}
+            lines.append(entry)
+            if error_re.search(raw):
+                error_lines.append(entry)
     else:
-        chosen_file = ".command.err"
+        # Only IRMA writes to its command streams; other tasks leave them empty.
+        # Fall back to the task-specific lines from the run's .nextflow.log so the
+        # modal still shows a (live) feed of the task's lifecycle.
+        fallback = _extract_nextflow_task_lines(nextflow_log, prefix, rest)
+        if fallback:
+            chosen_file = ".nextflow.log"
+            log_source_path = nextflow_log
+            full_text = "\n".join(fallback)
+            for i, raw in enumerate(fallback, start=1):
+                entry = {"line_number": i, "text": raw}
+                lines.append(entry)
+                if error_re.search(raw):
+                    error_lines.append(entry)
+        else:
+            chosen_file = candidates[0]
 
-    rel_log_path = os.path.relpath(os.path.join(task_dir, chosen_file), run_dir)
+    # Keep the display payload reasonable: cap the returned lines to the tail.
+    if len(lines) > 500:
+        lines = lines[-500:]
 
-    return {
+    rel_log_path = os.path.relpath(
+        log_source_path if log_source_path else os.path.join(task_dir, chosen_file),
+        run_dir,
+    )
+
+    result: Dict[str, Any] = {
         "task_hash":   task_hash,
         "log_file":    chosen_file,
         "log_path":    rel_log_path,
@@ -1875,6 +1995,9 @@ def retrieve_task_log(
         "error_lines": error_lines,
         "lines":       lines,
     }
+    if full:
+        result["full_text"] = full_text
+    return result
 
 # Define function to extract per-sample pass/fail status from the Nextflow execution log
 def get_sample_workflow_status(

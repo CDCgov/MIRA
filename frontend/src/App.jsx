@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect, useCallback, useMemo, lazy, Suspense, Fragment } from "react";
 import { createPortal } from "react-dom";
 const Plot = lazy(() => import("react-plotly.js"));
-import ShaderAura from "./ShaderAura";
 import {
   Dna,
   Home,
@@ -39,6 +38,7 @@ import {
   ExternalLink,
   FileSearch,
   AlertCircle,
+  ShieldQuestionMark,
   Network,
   Package,
   GitFork,
@@ -53,6 +53,10 @@ import {
   Square,
   Trash2,
   Pencil,
+  CloudFog,
+  CloudBackup,
+  Cloud,
+  BadgeQuestionMark,
 } from "lucide-react";
 
 /* ── utility ─────────────────────────────────────── */
@@ -130,6 +134,7 @@ const API_BASE = "/api";
 const API = {
   checkVersion:     `${API_BASE}/version`,
   listRuns:         `${API_BASE}/list/runs`,
+  statsSummary:     `${API_BASE}/stats/summary`,
   retrieveRun:      `${API_BASE}/retrieve/run`,
   createRun:        `${API_BASE}/create/run`,
   deleteSample:     `${API_BASE}/delete/sample`,
@@ -138,11 +143,7 @@ const API = {
   copyRun:          `${API_BASE}/copy/run`,
   uploadFastqs:     `${API_BASE}/upload/fastqs`,
   uploadCustomPrimerConfig:     `${API_BASE}/upload/custom_primer_config`,
-  uploadCustomIrmaConfig:       `${API_BASE}/upload/custom_irma_config`,
-  uploadCustomQcSettings:       `${API_BASE}/upload/custom_qc_settings`,
-  downloadCustomIrmaConfig:     `${API_BASE}/download/custom_irma_config`,
   downloadCustomPrimerConfig:   `${API_BASE}/download/custom_primer_config`,
-  downloadCustomQcSettings:     `${API_BASE}/download/custom_qc_settings`,
   validateRun:                  `${API_BASE}/validate/run`,
   validateCustomConfigs:        `${API_BASE}/validate/custom_configs`,
   runMIRA:                      `${API_BASE}/run/MIRA`,
@@ -158,6 +159,7 @@ const API = {
   retrieveSampleCoverageList:   `${API_BASE}/retrieve/sample_coverage_list`,
   retrieveSampleCoverageSankey: `${API_BASE}/retrieve/sample_coverage_sankeyfig`,
   retrieveSampleCoveragePlot:   `${API_BASE}/retrieve/sample_coverage_plot`,
+  retrieveSampleCoverageLinear: `${API_BASE}/retrieve/sample_coverage_linearfig`,
   retrieveVariants:             `${API_BASE}/retrieve/variants`,
   retrieveMinorSnvs:            `${API_BASE}/retrieve/minor_snvs`,
   retrieveIndels:               `${API_BASE}/retrieve/indels`,
@@ -176,11 +178,24 @@ const API = {
   downloadSeqsenderMetadataTemplate: `${API_BASE}/download/seqsender_metadata_template`,
 };
 
+// Persist the in-flight MIRA run so it keeps processing (and stays cancellable) after the
+// user navigates away, closes the browser, and reopens it. The backend process is unaffected
+// by the browser; we only need to remember which run/PID to resume polling for.
+const ACTIVE_RUN_KEY = "mira.activeRun";
+const readActiveRun = () => {
+  try { return JSON.parse(localStorage.getItem(ACTIVE_RUN_KEY) || "null"); }
+  catch { return null; }
+};
+const writeActiveRun = (run) => {
+  try { localStorage.setItem(ACTIVE_RUN_KEY, JSON.stringify(run)); } catch { /* storage unavailable */ }
+};
+const clearActiveRun = () => {
+  try { localStorage.removeItem(ACTIVE_RUN_KEY); } catch { /* storage unavailable */ }
+};
+
 // Standardized on-disk filenames the backend always saves custom config uploads
 // under, regardless of the originally-picked filename (must match schema_validator.py).
 const CUSTOM_PRIMER_CONFIG_FILENAME = "custom_primers.fasta";
-const CUSTOM_IRMA_CONFIG_FILENAME = "custom_irma_config.sh";
-const CUSTOM_QC_SETTINGS_FILENAME = "custom_qc_settings.yaml";
 
 /* ── simple dropdown hook ────────────────────────── */
 function useDropdown() {
@@ -234,9 +249,9 @@ const TABS = [
 
 /* ── Home Tab ────────────────────────────────────── */
 const STATS = [
-  { label: "Sequencing Runs",          value: "1,284",  sub: "Click here to see past runs",  icon: Cpu,        color: "text-teal-600"     },
-  { label: "Sequences to NCBI",        value: "48,312", sub: "GenBank + SRA combined",  icon: Database,   color: "text-purple-500"     },
-  { label: "Sequences to GISAID",      value: "31,047", sub: "EpiFlu + EpiCoV",         icon: Database,   color: "text-purple-500" },
+  { label: "Sequencing Runs",          value: "…",  hover: "Click here to see past runs",  icon: Cpu,        color: "text-teal-600"     },
+  { label: "Sequences to NCBI",        value: "…", sub: "GenBank + SRA combined",  icon: Cloud,   color: "text-purple-500"     },
+  { label: "Sequences to GISAID",      value: "…", sub: "EpiFlu + EpiCoV",         icon: Cloud,   color: "text-purple-500" },
 ];
 
 const FEATURES = [
@@ -244,31 +259,6 @@ const FEATURES = [
   { icon: ShieldCheck,  title: "QC & Clade Assignment", desc: "Automated quality control metrics per segment and Nextclade-powered clade/lineage assignment for all supported pathogens." },
   { icon: Send,         title: "SeqSender",          desc: "One-click submission pipeline to NCBI BioSample, SRA, GenBank, and GISAID with configurable metadata and validation." },
   { icon: Network,      title: "Nextclade Integration", desc: "Build pre-configured Nextclade Web URLs to visualize clade assignments, mutations, and phylogenetic placement." },
-];
-
-// Illustrative placeholder trends for the Home dashboard charts.
-// Each run holds one value per sample; charts show every sample as a dot
-// with a trend line drawn through the per-run medians.
-const SEGMENTS_PER_SAMPLE_TREND = [
-  { run: "Jan '25", runId: "R2025-01", samples: [8, 7, 8, 6, 8, 7, 5, 8, 7, 8] },
-  { run: "Feb '25", runId: "R2025-02", samples: [8, 8, 7, 8, 6, 8, 8, 7, 8, 8, 7, 8] },
-  { run: "Mar '25", runId: "R2025-03", samples: [7, 8, 6, 8, 7, 8, 8, 5, 7, 8] },
-  { run: "Apr '25", runId: "R2025-04", samples: [8, 8, 8, 7, 8, 8, 6, 8, 7, 8, 8] },
-  { run: "May '25", runId: "R2025-05", samples: [8, 7, 8, 8, 6, 8, 7, 8, 8, 4, 8] },
-  { run: "Jun '25", runId: "R2025-06", samples: [8, 8, 8, 8, 7, 8, 8, 6, 8, 8, 7, 8, 8] },
-  { run: "Jul '25", runId: "R2025-07", samples: [8, 8, 7, 8, 8, 8, 8, 7, 8, 8] },
-  { run: "Aug '25", runId: "R2025-08", samples: [8, 8, 8, 8, 8, 7, 8, 8, 8, 6, 8, 8] },
-];
-
-const TURNAROUND_TREND = [
-  { run: "Jan '25", runId: "R2025-01", samples: [12, 18, 14, 20, 11, 16, 22, 13, 15] },
-  { run: "Feb '25", runId: "R2025-02", samples: [10, 14, 12, 16, 13, 11, 18, 12] },
-  { run: "Mar '25", runId: "R2025-03", samples: [13, 15, 14, 17, 12, 16, 11, 19, 14] },
-  { run: "Apr '25", runId: "R2025-04", samples: [9, 12, 11, 14, 10, 13, 8, 12, 11] },
-  { run: "May '25", runId: "R2025-05", samples: [10, 13, 12, 11, 14, 9, 12, 15, 10] },
-  { run: "Jun '25", runId: "R2025-06", samples: [8, 11, 10, 12, 9, 13, 7, 10] },
-  { run: "Jul '25", runId: "R2025-07", samples: [7, 9, 10, 8, 11, 6, 9, 8, 10] },
-  { run: "Aug '25", runId: "R2025-08", samples: [6, 9, 8, 7, 10, 8, 5, 9, 7, 8] },
 ];
 
 // Median of a numeric array.
@@ -280,7 +270,8 @@ function median(values) {
 }
 
 // Dashboard card: a dot per sample plus a trend line through the per-run medians.
-function HomeChartCard({ icon: Icon, title, statValue, statLabel, data, color, unit, yTitle }) {
+function HomeChartCard({ icon: Icon, title, statValue, statLabel, data, color, unit, yTitle, loading = false, emptyMessage }) {
+  const hasData = Array.isArray(data) && data.length > 0;
   const xDots = [];
   const yDots = [];
   const dotMeta = [];
@@ -316,6 +307,7 @@ function HomeChartCard({ icon: Icon, title, statValue, statLabel, data, color, u
         </div>
       </div>
       <div className="flex-1 min-h-0 p-2">
+        {hasData ? (
         <Suspense fallback={<div className="flex items-center justify-center h-full text-xs text-muted-foreground">Loading chart…</div>}>
           <Plot
             data={[
@@ -365,6 +357,13 @@ function HomeChartCard({ icon: Icon, title, statValue, statLabel, data, color, u
             useResizeHandler
           />
         </Suspense>
+        ) : (
+          <div className="flex h-full items-center justify-center text-center px-6">
+            <p className="text-xs text-muted-foreground">
+              {loading ? "Loading run data…" : (emptyMessage || "No run data yet.")}
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -372,22 +371,84 @@ function HomeChartCard({ icon: Icon, title, statValue, statLabel, data, color, u
 
 function HomeTab({ onNewRun, onLoadRun }) {
   const [runCount, setRunCount] = useState(null);
+  const [ncbiCount, setNcbiCount] = useState(null);     // sequences submitted to NCBI (GenBank + SRA)
+  const [gisaidCount, setGisaidCount] = useState(null); // sequences submitted to GISAID
+  const [segmentsTrend, setSegmentsTrend] = useState(null); // null = loading, [] = no data
 
   useEffect(() => {
     let cancelled = false;
-    fetch(API.listRuns)
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
-        if (cancelled) return;
-        const runs = Array.isArray(data?.run_info) ? data.run_info : [];
-        setRunCount(runs.filter((r) => r.assembly_status === "COMPLETED").length);
-      })
-      .catch(() => { if (!cancelled) setRunCount(0); });
+    (async () => {
+      try {
+        const res = await fetch(API.statsSummary);
+        const data = res.ok ? await res.json() : null;
+        if (!cancelled) {
+          setNcbiCount(Number.isFinite(data?.ncbi_sequences) ? data.ncbi_sequences : 0);
+          setGisaidCount(Number.isFinite(data?.gisaid_sequences) ? data.gisaid_sequences : 0);
+        }
+      } catch {
+        if (!cancelled) { setNcbiCount(0); setGisaidCount(0); }
+      }
+    })();
     return () => { cancelled = true; };
   }, []);
 
-  const medSegments = Math.round(median(SEGMENTS_PER_SAMPLE_TREND.flatMap((d) => d.samples)));
-  const medTurnaround = Math.round(median(TURNAROUND_TREND.flatMap((d) => d.samples)));
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(API.listRuns);
+        const data = res.ok ? await res.json() : null;
+        const runs = Array.isArray(data?.run_info) ? data.run_info : [];
+        const completed = runs.filter((r) => r.assembly_status === "COMPLETED");
+        if (!cancelled) setRunCount(completed.length);
+
+        // Oldest→newest by run date; keep the most recent runs for a readable trend.
+        const runTime = (r) => {
+          const t = Date.parse((r.finished_at || r.created_at || "").replace(" ", "T"));
+          return Number.isNaN(t) ? 0 : t;
+        };
+        // Segment counts are only meaningful for segmented (flu) genomes, so limit the chart to flu runs.
+        const fluCompleted = completed.filter((r) => /^flu/i.test(r.experiment_type || ""));
+        const recent = [...fluCompleted].sort((a, b) => runTime(a) - runTime(b)).slice(-12);
+
+        // For each run, count assembled segments per sample from its MIRA summary
+        // (one summary row per sample-segment), so the trend reflects live run data.
+        const trend = await Promise.all(recent.map(async (run) => {
+          try {
+            const sres = await fetch(`${API.retrieveMiraSummary}?run_name=${encodeURIComponent(run.run_name)}&experiment_type=${encodeURIComponent(run.experiment_type)}`);
+            if (!sres.ok) return null;
+            const summary = await sres.json();
+            const rows = Array.isArray(summary)
+              ? summary
+              : (summary?.columns && summary?.data)
+                ? summary.data.map((r) => Object.fromEntries(summary.columns.map((c, i) => [c, r[i]])))
+                : [];
+            const perSample = {};
+            rows.forEach((row) => {
+              const sid = row.sample_id ?? row.Sample ?? row.sample ?? null;
+              if (sid == null || sid === "") return;
+              perSample[sid] = (perSample[sid] || 0) + 1;
+            });
+            const samples = Object.values(perSample);
+            if (!samples.length) return null;
+            const t = runTime(run);
+            const label = t ? new Date(t).toLocaleDateString(undefined, { month: "short", day: "numeric" }) : run.run_name;
+            return { run: label, runId: run.run_name, samples };
+          } catch {
+            return null;
+          }
+        }));
+
+        if (!cancelled) setSegmentsTrend(trend.filter(Boolean));
+      } catch {
+        if (!cancelled) { setRunCount(0); setSegmentsTrend([]); }
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  const segData = segmentsTrend ?? [];
+  const medSegments = segData.length ? Math.round(median(segData.flatMap((d) => d.samples))) : "—";
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
@@ -395,7 +456,7 @@ function HomeTab({ onNewRun, onLoadRun }) {
       
 
       {/* ── Body grid ────────────────────────────── */}
-      <div className="flex-1 overflow-hidden p-4 grid grid-cols-2 grid-rows-[auto_minmax(0,1fr)] gap-4">
+      <div className="flex-1 overflow-hidden p-8 grid grid-cols-2 grid-rows-[auto_minmax(0,1fr)] gap-4">
 
         {/* ── Stats row — spans both columns ─────── */}
         <div className="col-span-2 grid grid-cols-7 gap-3">
@@ -411,9 +472,11 @@ function HomeTab({ onNewRun, onLoadRun }) {
             </div>
           </button>
           {STATS.map(({ label, value, sub, icon: Icon, color }, i) => {
-            const displayValue = label === "Sequencing Runs"
-              ? (runCount === null ? "…" : runCount.toLocaleString())
-              : value;
+            const displayValue =
+              label === "Sequencing Runs"     ? (runCount === null ? "…" : runCount.toLocaleString()) :
+              label === "Sequences to NCBI"   ? (ncbiCount === null ? "…" : ncbiCount.toLocaleString()) :
+              label === "Sequences to GISAID" ? (gisaidCount === null ? "…" : gisaidCount.toLocaleString()) :
+              value;
             const isRuns = label === "Sequencing Runs";
             const cardClass = cn(
               "rounded-xl border border-border bg-card px-4 py-3 flex items-center gap-3",
@@ -438,25 +501,28 @@ function HomeTab({ onNewRun, onLoadRun }) {
           })}
         </div>
 
-        {/* ── Segments per sample over time ─── */}
+        {/* ── Segments per sample over time (real run data) ─── */}
         <HomeChartCard
           icon={BarChart3}
           title="Segments per Sample"
           statValue={medSegments}
           statLabel="median segments / sample"
-          data={SEGMENTS_PER_SAMPLE_TREND}
+          data={segData}
+          loading={segmentsTrend === null}
+          emptyMessage="No completed runs yet. Segment counts appear here after your first assembly."
           color="#0081A1"
           unit="segments"
           yTitle="Segment Count"
         />
 
-        {/* ── Turnaround time over time ─────── */}
+        {/* ── Turnaround time (pending metadata & SeqSender integration) ─── */}
         <HomeChartCard
           icon={Clock}
           title="Turnaround Time"
-          statValue={`${medTurnaround} days`}
+          statValue="—"
           statLabel="median days: submission − collection"
-          data={TURNAROUND_TREND}
+          data={[]}
+          emptyMessage="Turnaround time will populate once sample metadata and SeqSender submission dates are available."
           color="#722161"
           unit="days"
           yTitle="Days"
@@ -468,6 +534,11 @@ function HomeTab({ onNewRun, onLoadRun }) {
 }
 
 /* ── Assembly Tab ────────────────────────────────── */
+// Inline width that grows an input/select to fit its text, clamped between a default min and max (in ch).
+const fitWidth = (text, min = 20, max = 44) => ({
+  width: `${Math.min(max, Math.max(min, String(text ?? "").length + 4))}ch`,
+});
+
 const ASSEMBLY_STEPS = [
   { id: "setup",    title: "Step 1: Setup",  subtitle: "Define run, configure sample sheet, and set assembly parameters", icon: Upload },
   { id: "progress", title: "Step 2: Processing",  subtitle: "Monitor assembly progress and stage status",                      icon: RefreshCw },
@@ -493,6 +564,10 @@ function StepHeader({ icon: Icon, title, subtitle, open }) {
 
 function StepPanel({ children }) {
   return <div className="flex flex-col items-center px-4 pb-4 pt-2 space-y-4">{children}</div>;
+}
+
+function ResultSection({ id, children }) {
+  return <div id={id} className="w-full max-w-full min-w-0 overflow-x-auto overscroll-x-contain">{children}</div>;
 }
 
 function ResultSection({ id, children }) {
@@ -605,38 +680,86 @@ const PLOT_CONFIG = {
   }],
 };
 
+// Plotly figure pinned to its container's measured width and a viewport-capped
+// height, so multi-subplot grids never overflow their box horizontally.
+function ResponsivePlot({ data, layout, config, style, minHeight = 320, maxHeight = 640, heightVh = 0.72, ...rest }) {
+  const ref = useRef(null);
+  const [size, setSize] = useState({ width: 0, height: 0 });
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return undefined;
+    const measure = () => {
+      const width = el.clientWidth;
+      const height = Math.max(minHeight, Math.min(Math.round(window.innerHeight * heightVh), maxHeight));
+      setSize((prev) => (prev.width === width && prev.height === height ? prev : { width, height }));
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    window.addEventListener("resize", measure);
+    return () => { ro.disconnect(); window.removeEventListener("resize", measure); };
+  }, [minHeight, maxHeight, heightVh]);
+  return (
+    <div ref={ref} className="w-full">
+      {size.width > 0 && (
+        <Suspense fallback={<div className="flex items-center justify-center h-40 text-xs text-muted-foreground">Loading chart…</div>}>
+          <Plot
+            data={data}
+            layout={{ ...layout, autosize: false, width: size.width, height: size.height }}
+            config={config}
+            style={{ ...style, width: `${size.width}px`, height: `${size.height}px` }}
+            {...rest}
+          />
+        </Suspense>
+      )}
+    </div>
+  );
+}
+
 /* ── Reusable paginated + sortable result table ──── */
 const N_BINS = 8;
 const PUBUGN_8 = ['#fff7fb','#ece2f0','#d0d1e6','#a6bddb','#67a9cf','#3690c0','#02818a','#016450'];
 
-// Columns shown by default in the Mira Summary table (all others start hidden).
+// Columns shown by default in the Mira Summary table. Covers every column
+// mira-oxide can emit across virus types (flu, sc2-wgs, sc2-spike, rsv),
+// including all nextclade call columns. Names absent from a given run's data
+// are simply ignored.
 const MIRA_SUMMARY_DEFAULT_COLS = [
   "sample_id",
   "total_reads",
-  "pass_qc",
   "reads_mapped",
   "reference",
   "percent_reference_coverage",
   "median_coverage",
   "count_minor_snv_at_or_over_5_pct",
+  "spike_percent_coverage",
+  "spike_median_coverage",
   "di_5prime;di_3prime",
   "pass_fail_reason",
   "subtype",
+  // nextclade calls (virus-specific keys; only those present in the data render)
+  "clade",
+  "clade_who",
+  "nextclade_pango",
   "nextclade_alias",
 ];
 
-function ResultTable({ title, data: rawData, page, setPage, pageSize = 100, colorize = false, compact = false, defaultVisibleCols = null }) {
+function ResultTable({ title, data: rawData, page, setPage, pageSize = 100, colorize = false, compact = false, defaultVisibleCols = null, defaultHiddenCols = null, fitCols = 0, rotateHeaders = false, stickyFirstCol = false }) {
   const [sortCol, setSortCol] = useState(null);
   const [sortDir, setSortDir] = useState("asc");
   const [searchQuery, setSearchQuery] = useState("");
   const [colWidths, setColWidths] = useState({});          // { colName: px } — manually resized columns
   const [hiddenCols, setHiddenCols] = useState(() => {
     // When a default visible-column set is supplied, hide every other (existing) column up front.
-    if (!defaultVisibleCols) return new Set();
-    const allCols = Array.isArray(rawData)
-      ? (rawData[0] ? Object.keys(rawData[0]) : [])
-      : (rawData?.columns ?? []);
-    return new Set(allCols.filter(c => !defaultVisibleCols.includes(c)));
+    if (defaultVisibleCols) {
+      const allCols = Array.isArray(rawData)
+        ? (rawData[0] ? Object.keys(rawData[0]) : [])
+        : (rawData?.columns ?? []);
+      return new Set(allCols.filter(c => !defaultVisibleCols.includes(c)));
+    }
+    // Otherwise hide only the explicitly listed columns up front.
+    if (defaultHiddenCols) return new Set(defaultHiddenCols);
+    return new Set();
   });
   const [colFilters, setColFilters] = useState({});        // { colName: filterText } — per-column filters
   const [colMenuOpen, setColMenuOpen] = useState(false);   // column visibility menu
@@ -651,6 +774,21 @@ function ResultTable({ title, data: rawData, page, setPage, pageSize = 100, colo
 
   const cols = data.length > 0 && data[0] ? Object.keys(data[0]) : [];
   const visibleCols = cols.filter(c => !hiddenCols.has(c));
+
+  // Width (in ch) for the first `fitCols` visible columns, sized to their longest header/cell value.
+  const fitColWidths = useMemo(() => {
+    if (!fitCols) return {};
+    const out = {};
+    visibleCols.slice(0, fitCols).forEach(c => {
+      let maxLen = String(c).length;
+      for (const row of data) {
+        const v = row[c] == null ? "" : String(row[c]);
+        if (v.length > maxLen) maxLen = v.length;
+      }
+      out[c] = `${Math.min(48, maxLen + 2)}ch`;
+    });
+    return out;
+  }, [fitCols, visibleCols, data]);
 
   // Precompute numeric column min/max for heatmap coloring (fill_irma_summary_tbl logic)
   const colRanges = useMemo(() => {
@@ -861,7 +999,7 @@ function ResultTable({ title, data: rawData, page, setPage, pageSize = 100, colo
         <table className={cn("w-full text-xs", (compact || Object.keys(colWidths).length > 0) && "table-fixed")}>
           <colgroup>
             {visibleCols.map(c => (
-              <col key={c} style={colWidths[c] ? { width: colWidths[c] } : undefined} />
+              <col key={c} style={colWidths[c] ? { width: colWidths[c] } : (fitColWidths[c] ? { width: fitColWidths[c] } : undefined)} />
             ))}
           </colgroup>
           <thead className="bg-muted sticky top-0 z-10">
@@ -869,12 +1007,7 @@ function ResultTable({ title, data: rawData, page, setPage, pageSize = 100, colo
               {visibleCols.map(c => (
                 <th key={c} className={cn("relative px-3 py-2 text-left font-semibold text-muted-foreground font-mono select-none", (compact || colWidths[c]) ? "" : "whitespace-nowrap")}>
                   <span onClick={() => handleSort(c)} className="flex items-center gap-1 cursor-pointer hover:text-foreground transition-colors">
-                    <span
-                      title={(compact || colWidths[c]) ? c : undefined}
-                      className={(compact || colWidths[c]) ? "truncate" : undefined}
-                    >
-                      {c}
-                    </span>
+                    <span className={(compact || colWidths[c]) ? "truncate" : undefined}>{c}</span>
                     {sortCol === c
                       ? sortDir === "asc" ? <ArrowUp size={9} className="text-primary shrink-0" /> : <ArrowDown size={9} className="text-primary shrink-0" />
                       : <ArrowUpDown size={9} className="opacity-30 shrink-0" />}
@@ -891,8 +1024,8 @@ function ResultTable({ title, data: rawData, page, setPage, pageSize = 100, colo
             </tr>
             {showFilters && (
               <tr className="bg-background">
-                {visibleCols.map(c => (
-                  <th key={c} className="px-1.5 py-1 border-t border-border">
+                {visibleCols.map((c, ci) => (
+                  <th key={c} className={cn("px-1.5 py-1 border-t border-border", stickyFirstCol && ci === 0 && "sticky left-0 z-20 bg-background")}>
                     <input
                       value={colFilters[c] ?? ""}
                       onChange={(e) => setColFilter(c, e.target.value)}
@@ -913,10 +1046,10 @@ function ResultTable({ title, data: rawData, page, setPage, pageSize = 100, colo
               </tr>
             ) : pageRows.map((row, i) => (
               <tr key={pageStart + i} className="border-t border-border hover:bg-muted/10">
-                {visibleCols.map(c => {
+                {visibleCols.map((c, ci) => {
                   const cellStyle = getCellStyle(c, row[c]);
                   return (
-                    <td key={c} title={row[c] == null ? undefined : String(row[c])} className={cn("px-3 py-1.5 font-mono", (compact || colWidths[c]) ? "truncate" : "whitespace-nowrap", !cellStyle.backgroundColor && "text-foreground")} style={cellStyle}>
+                    <td key={c} title={row[c] == null ? undefined : String(row[c])} className={cn("px-3 py-1.5 font-mono", (compact || colWidths[c]) ? "truncate" : "whitespace-nowrap", !cellStyle.backgroundColor && "text-foreground", stickyFirstCol && ci === 0 && "sticky left-0 z-10 bg-background")} style={cellStyle}>
                       {row[c] == null ? <span className="text-muted-foreground/50">—</span> : String(row[c])}
                     </td>
                   );
@@ -1021,7 +1154,7 @@ function OntFastqCell({ fastqList, uploadedMap }) {
 }
 
 function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
-  const [openStep, setOpenStep]                           = useState(() => new Set(ASSEMBLY_STEPS.map((s) => s.id)));
+  const [openStep, setOpenStep]                           = useState(() => new Set()); // step accordions start collapsed
   const [runName, setRunName]                             = useState("");
   const [experimentType, setExperimentType]               = useState("");
   const [primer, setPrimer]                               = useState("");
@@ -1031,22 +1164,13 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
   const [primerRestrictWindow, setPrimerRestrictWindow]   = useState(""); // required alongside customPrimers
   const [subSample, setSubSample]                         = useState("0");
   const [irmaModule, setIrmaModule]                       = useState("");   // "" = FLU (default) | secondary | sensitive | utr
-  const [useCustomIrmaConfig, setUseCustomIrmaConfig]     = useState(false); // whether a custom IRMA config file is used
-  const [customIrmaConfig, setCustomIrmaConfig]           = useState("");    // file path to a custom IRMA config file
-  const [useCustomQcSettings, setUseCustomQcSettings]     = useState(false); // whether custom QC pass/fail settings are used
-  const [customQcSettings, setCustomQcSettings]           = useState("");    // file path to a custom QC settings file
   const [customPrimersFile, setCustomPrimersFile]         = useState(null); // File object selected via Browse, for actual upload
-  const [customIrmaConfigFile, setCustomIrmaConfigFile]   = useState(null); // File object selected via Browse, for actual upload
-  const [customQcSettingsFile, setCustomQcSettingsFile]   = useState(null); // File object selected via Browse, for actual upload
   const [loadedCustomPrimersName, setLoadedCustomPrimersName] = useState(""); // filename already stored server-side for a loaded run
-  const [loadedCustomIrmaConfigName, setLoadedCustomIrmaConfigName] = useState(""); // filename already stored server-side for a loaded run
-  const [loadedCustomQcSettingsName, setLoadedCustomQcSettingsName] = useState(""); // filename already stored server-side for a loaded run
   const [customConfigDownloadError, setCustomConfigDownloadError] = useState(null); // { field, message } for a failed custom config download
   const [primersFileError, setPrimersFileError] = useState(null); // validation error when a non-.fasta file is picked for Custom Primers
-  const [irmaConfigFileError, setIrmaConfigFileError] = useState(null); // validation error when a non-.sh file is picked for Custom IRMA Config
-  const [qcSettingsFileError, setQcSettingsFileError] = useState(null); // validation error when a non-YAML file is picked for Custom QC Settings
   const [createParquet, setCreateParquet]           = useState(false);
   const [nextclade, setNextclade]                   = useState(true);
+  const [keepWorkdir, setKeepWorkdir]               = useState(false); // preserve Nextflow work dir after a successful run (for reviewing per-task logs)
   const [exportFmt, setExportFmt]                   = useState("fasta");
   const [assembled, setAssembled]                   = useState(false);
   const [rightWidth, setRightWidth]                 = useState(440);
@@ -1063,7 +1187,7 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
   const [selectedRun, setSelectedRun]               = useState(null); // the run currently loaded/polled on the page
   const [loadRunSelectedRow, setLoadRunSelectedRow] = useState(null); // row highlighted inside the Load Run modal only
   const [runSearch, setRunSearch]                   = useState("");
-  const [runSortDir, setRunSortDir]                 = useState("asc"); // "asc" | "desc" — run_name sort order
+  const [runSortDir, setRunSortDir]                 = useState("desc"); // "asc" | "desc" — run date sort order (desc = most recent first)
   const [uploadedOntFileObjects, setUploadedOntFileObjects]           = useState({}); // ONT filename → File object
   const [uploadedIlluminaFileObjects, setUploadedIlluminaFileObjects] = useState({}); // Illumina filename → File object
 
@@ -1091,7 +1215,9 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
 
   const [isNewRun, setIsNewRun]                       = useState(true);   // true = new run, false = loaded existing run
   const [confirmRemoveIdx, setConfirmRemoveIdx]       = useState(null); // index of sample row pending removal confirmation
-  const [taskLog, setTaskLog]                         = useState(null); // { loading, error, data, process, sample } for the failed-task log popup
+  const [taskLog, setTaskLog]                         = useState(null); // { loading, error, data, process, sample, stream } for the task log popup
+  const [taskLogCopied, setTaskLogCopied]             = useState(false); // brief "copied" feedback for the log modal's copy button
+  const [taskHover, setTaskHover]                     = useState(null); // { key, process, sample, x, y, loading, error, data } for the streaming stdout hover box
   const [ontConfirmFiles, setOntConfirmFiles]         = useState(null); // [{ file, name }] awaiting confirmation when no flowcell-ID files were found
   const [ontConfirmSelected, setOntConfirmSelected]   = useState(() => new Set()); // sanitized filenames checked in the confirm dialog
   const [uploadOntFastq, setUploadOntFastq]           = useState([]);      // list of sanitized ONT fastq filenames uploaded this session
@@ -1111,6 +1237,8 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
   const [resultSampleCoverageList, setResultSampleCoverageList]       = useState(null);
   const [resultSampleCoverageSankey, setResultSampleCoverageSankey]   = useState(null); // {sample_id: plotly_figure}
   const [resultSampleCoveragePlot, setResultSampleCoveragePlot]       = useState(null); // {sample_id: plotly_figure}
+  const [resultSampleCoverageLinear, setResultSampleCoverageLinear]   = useState(null); // {sample_id: combined coverage figure}
+  const [focusedCovSegment, setFocusedCovSegment]                     = useState(null); // segment name focused in combined view, or null
   const [selectedSampleForCoverage, setSelectedSampleForCoverage]     = useState("");   // selected sample in dropdown
   const [resultVariants, setResultVariants]                           = useState(null);
   const [resultMinorSnvs, setResultMinorSnvs]                         = useState(null);
@@ -1157,6 +1285,7 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
             setSubmitting(false);
             setSubmitSuccess(null);
             setPipelinePolling(false);
+            clearActiveRun();
           }
           return;
         }
@@ -1242,7 +1371,7 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
                 }
               }
 
-              // Also fetch linear coverage plot for the first sample
+              // Also fetch segment coverage plot for the first sample
               if (_sankeyFirst) {
                 const coveragePlotRes = await fetch(
                   `${API.retrieveSampleCoveragePlot}?run_name=${encodeURIComponent(selectedRun?.run_name)}&experiment_type=${encodeURIComponent(selectedRun?.experiment_type)}&sample_id=${encodeURIComponent(_sankeyFirst)}`
@@ -1310,6 +1439,7 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
               setSubmitting(false);
               setSubmitSuccess(null);
               setPipelinePolling(false);
+              clearActiveRun();
 
             }
           }
@@ -1321,26 +1451,34 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
     return () => { cancelled = true; clearInterval(timer); };
   }, [pipelinePolling, submitProcessId, selectedRun, cancelRun]);
 
-  // ── Cancel the in-flight MIRA run if the tab is closed/refreshed while it's still running ──
-  useEffect(() => {
-    if (!pipelinePolling || !submitProcessId || cancelRun) return;
-    const cancelOnExit = () => {
-      const url = `${API.miraCancel}?run_name=${encodeURIComponent(selectedRun?.run_name)}&experiment_type=${encodeURIComponent(selectedRun?.experiment_type)}&pid=${submitProcessId}`;
-      // keepalive lets the request survive page unload; response is never read
-      fetch(url, { keepalive: true }).catch(() => {});
-    };
-    window.addEventListener("beforeunload", cancelOnExit);
-    window.addEventListener("pagehide", cancelOnExit);
-    return () => {
-      window.removeEventListener("beforeunload", cancelOnExit);
-      window.removeEventListener("pagehide", cancelOnExit);
-    };
-  }, [pipelinePolling, submitProcessId, selectedRun, cancelRun]);
-
   // ── Sample sheet state ───────────────────────
   const SAMPLE_TYPES = ["- Control", "+ Control", "Test"];
   const [ontSampleRows, setOntSampleRows]           = useState([]);
   const [illuminaSampleRows, setIlluminaSampleRows] = useState([]);
+  const [sampleColWidths, setSampleColWidths]       = useState({}); // { colName: px } — manually resized sample-sheet columns
+
+  // Drag-to-resize a sample-sheet column: capture the starting width and follow the pointer.
+  const startSampleColResize = (col, e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const th = e.currentTarget.closest("th");
+    const startX = e.clientX;
+    const startW = sampleColWidths[col] ?? (th ? th.offsetWidth : 120);
+    const onMove = (me) => {
+      const w = Math.max(50, startW + (me.clientX - startX));
+      setSampleColWidths(prev => ({ ...prev, [col]: w }));
+    };
+    const onUp = () => {
+      document.body.style.userSelect = "";
+      document.body.style.cursor = "";
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+    };
+    document.body.style.userSelect = "none";
+    document.body.style.cursor = "col-resize";
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+  };
   const toggleSampleStatus = (idx) => {
     if (experimentType.toLowerCase().endsWith("ont")) {
       setOntSampleRows((prev) => prev.map((r, i) => i === idx ? { ...r, status: r.status === "Keep" ? "Exclude" : "Keep" } : r));
@@ -1416,22 +1554,126 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
     setConfirmRemoveIdx(null);
   };
 
-  // Fetch and show the error log for a failed task-sample (clicked X in the Task Progress grid).
-  const openTaskLog = async (task, process, sample) => {
+  // Fetch and show the log for a task-sample in a modal. When `stream` is "stdout" the
+  // process output (.command.out/.command.log) is shown; otherwise the error log.
+  const openTaskLog = async (task, process, sample, stream) => {
+    closeTaskHover(); // stop the live hover box while the modal is open
     if (!task?.hash || !selectedRun?.run_name || !selectedRun?.experiment_type) {
-      setTaskLog({ loading: false, error: "No log is available for this task (its work directory may have been cleaned up).", data: null, process, sample });
+      setTaskLog({ loading: false, error: "No log is available for this task (its work directory may have been cleaned up).", data: null, process, sample, stream, hash: task?.hash ?? null });
       return;
     }
-    setTaskLog({ loading: true, error: null, data: null, process, sample });
+    setTaskLog({ loading: true, error: null, data: null, process, sample, stream, hash: task.hash });
     try {
-      const res = await fetch(`${API.miraTaskLog}?run_name=${encodeURIComponent(selectedRun.run_name)}&experiment_type=${encodeURIComponent(selectedRun.experiment_type)}&hash=${encodeURIComponent(task.hash)}`);
+      const streamParam = stream ? `&stream=${encodeURIComponent(stream)}` : "";
+      const res = await fetch(`${API.miraTaskLog}?run_name=${encodeURIComponent(selectedRun.run_name)}&experiment_type=${encodeURIComponent(selectedRun.experiment_type)}&hash=${encodeURIComponent(task.hash)}${streamParam}`);
       const data = await res.json();
       if (!res.ok) throw new Error(data.detail || "Failed to load task log");
-      setTaskLog({ loading: false, error: null, data, process, sample });
+      setTaskLog(prev => (prev && prev.hash === task.hash && prev.stream === stream) ? { loading: false, error: null, data, process, sample, stream, hash: task.hash } : prev);
     } catch (err) {
-      setTaskLog({ loading: false, error: err.message, data: null, process, sample });
+      setTaskLog(prev => (prev && prev.hash === task.hash && prev.stream === stream) ? { loading: false, error: err.message, data: null, process, sample, stream, hash: task.hash } : prev);
     }
   };
+
+  // Copy the entire log file's contents to the clipboard (not just the displayed
+  // tail), with brief feedback.
+  const copyTaskLog = async () => {
+    if (!taskLog?.hash || !selectedRun?.run_name || !selectedRun?.experiment_type) return;
+    try {
+      const streamParam = taskLog.stream ? `&stream=${encodeURIComponent(taskLog.stream)}` : "";
+      const res = await fetch(`${API.miraTaskLog}?run_name=${encodeURIComponent(selectedRun.run_name)}&experiment_type=${encodeURIComponent(selectedRun.experiment_type)}&hash=${encodeURIComponent(taskLog.hash)}${streamParam}&full=1`);
+      const data = await res.json();
+      const text = res.ok
+        ? (data.full_text ?? (data.lines ?? []).map(ln => ln.text).join("\n"))
+        : (taskLog.data?.lines ?? []).map(ln => ln.text).join("\n");
+      if (!text) return;
+      await navigator.clipboard.writeText(text);
+      setTaskLogCopied(true);
+      setTimeout(() => setTaskLogCopied(false), 1500);
+    } catch {
+      /* clipboard unavailable — ignore */
+    }
+  };
+
+  // ── Task log modal: live feed ──
+  // While the modal is open on a task that hasn't exited yet, keep re-fetching its
+  // log so the feed stays current. Depends only on primitives so data updates don't
+  // reset the polling interval.
+  const taskLogRunning = taskLog?.data != null && taskLog.data.exit_code == null;
+  useEffect(() => {
+    if (!taskLog?.hash || taskLog.loading || taskLog.error) return;
+    if (!taskLogRunning) return;
+    if (!selectedRun?.run_name || !selectedRun?.experiment_type) return;
+    const { hash, stream, process, sample } = taskLog;
+    const streamParam = stream ? `&stream=${encodeURIComponent(stream)}` : "";
+    const id = setInterval(async () => {
+      try {
+        const res = await fetch(`${API.miraTaskLog}?run_name=${encodeURIComponent(selectedRun.run_name)}&experiment_type=${encodeURIComponent(selectedRun.experiment_type)}&hash=${encodeURIComponent(hash)}${streamParam}`);
+        const data = await res.json();
+        if (!res.ok) return;
+        setTaskLog(prev => (prev && prev.hash === hash && prev.stream === stream)
+          ? { ...prev, loading: false, error: null, data, process, sample }
+          : prev);
+      } catch {
+        /* transient fetch error — keep the last good feed */
+      }
+    }, 2000);
+    return () => clearInterval(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [taskLog?.hash, taskLog?.stream, taskLog?.loading, taskLog?.error, taskLogRunning, selectedRun]);
+
+  // Auto-scroll the log body to the bottom as new lines stream in, unless the user
+  // has scrolled up to read earlier output.
+  const taskLogBodyRef  = useRef(null);
+  const taskLogStickRef = useRef(true);
+  const onTaskLogScroll = (e) => {
+    const el = e.currentTarget;
+    taskLogStickRef.current = el.scrollHeight - el.scrollTop - el.clientHeight < 40;
+  };
+  useEffect(() => {
+    const el = taskLogBodyRef.current;
+    if (el && taskLogStickRef.current) el.scrollTop = el.scrollHeight;
+  }, [taskLog?.data?.lines?.length]);
+
+  // ── Task Progress hover box: stream a task's stdout while the cursor is over its cell ──
+  const taskHoverPollRef = useRef(null); // setInterval id for the streaming refresh
+  const taskHoverKeyRef  = useRef(null); // key of the cell currently hovered (guards stale responses)
+
+  // Fetch the stdout for a single task and apply it only if its cell is still hovered.
+  const fetchTaskStdout = useCallback(async (task, process, sample, key) => {
+    try {
+      const res = await fetch(`${API.miraTaskLog}?run_name=${encodeURIComponent(selectedRun.run_name)}&experiment_type=${encodeURIComponent(selectedRun.experiment_type)}&hash=${encodeURIComponent(task.hash)}&stream=stdout`);
+      const data = await res.json();
+      if (taskHoverKeyRef.current !== key) return; // moved to another cell — ignore
+      if (!res.ok) throw new Error(data.detail || "Failed to load task output");
+      setTaskHover(prev => (prev && prev.key === key) ? { ...prev, loading: false, error: null, data } : prev);
+    } catch (err) {
+      if (taskHoverKeyRef.current !== key) return;
+      setTaskHover(prev => (prev && prev.key === key) ? { ...prev, loading: false, error: err.message, data: null } : prev);
+    }
+  }, [selectedRun]);
+
+  // Begin streaming stdout for the hovered task cell.
+  const openTaskHover = (e, task, process, sample) => {
+    if (!task?.hash || !selectedRun?.run_name || !selectedRun?.experiment_type) return;
+    const key = `${process}||${sample ?? ""}`;
+    const rect = e.currentTarget.getBoundingClientRect();
+    taskHoverKeyRef.current = key;
+    setTaskHover({ key, process, sample, x: rect.right, y: rect.top, loading: true, error: null, data: null });
+    fetchTaskStdout(task, process, sample, key);
+    if (taskHoverPollRef.current) clearInterval(taskHoverPollRef.current);
+    taskHoverPollRef.current = setInterval(() => fetchTaskStdout(task, process, sample, key), 2000);
+  };
+
+  // Stop streaming and hide the hover box.
+  const closeTaskHover = () => {
+    taskHoverKeyRef.current = null;
+    if (taskHoverPollRef.current) { clearInterval(taskHoverPollRef.current); taskHoverPollRef.current = null; }
+    setTaskHover(null);
+  };
+
+  // Clear the streaming interval if the component unmounts mid-hover.
+  useEffect(() => () => { if (taskHoverPollRef.current) clearInterval(taskHoverPollRef.current); }, []);
+
 
   // Export the sample sheet in CSV or Excel format
   const exportSampleSheet = (format) => {
@@ -1736,17 +1978,32 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
   }, []);
 
   // Hide the app header when the accordion is scrolled down, reveal it when scrolling back up.
+  // The header collapses via a height transition, which grows this scroll container and makes
+  // the browser clamp scrollTop back down mid-animation. On pages too short to sustain the
+  // scroll, that clamp reads as "scrolling up" and re-reveals the header, causing a jitter loop.
+  // A brief lock after each toggle absorbs those reflow-driven scroll events.
   const lastScrollTopRef = useRef(0);
+  const headerToggleLockRef = useRef(0);
   const handleContentScroll = useCallback((e) => {
     const st = e.currentTarget.scrollTop;
-    const last = lastScrollTopRef.current;
-    if (st > last && st > 60) setHeaderHidden?.(true);
-    else if (st < last) setHeaderHidden?.(false);
+    const delta = st - lastScrollTopRef.current;
     lastScrollTopRef.current = st;
+    if (performance.now() < headerToggleLockRef.current) return;
+    if (delta > 0 && st > 60) {
+      setHeaderHidden?.(true);
+      headerToggleLockRef.current = performance.now() + 350;
+    } else if (delta < 0) {
+      setHeaderHidden?.(false);
+      headerToggleLockRef.current = performance.now() + 350;
+    }
   }, [setHeaderHidden]);
 
   // Always restore the header when this tab unmounts.
   useEffect(() => () => setHeaderHidden?.(false), [setHeaderHidden]);
+
+  // Auto-expand a step the moment its content first appears (steps start collapsed).
+  useEffect(() => { if (showDAG) setOpenStep(prev => new Set(prev).add("progress")); }, [showDAG]);
+  useEffect(() => { if (assembled) setOpenStep(prev => new Set(prev).add("results")); }, [assembled]);
 
   // 
   const toggle = (id) => setOpenStep((prev) => {
@@ -1758,6 +2015,7 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
   // Fetch the sankey figure for a specific sample (lazy-loads, caches in resultSampleCoverageSankey)
   const fetchSankeyForSample = useCallback(async (sampleId) => {
     setSelectedSampleForCoverage(sampleId);
+    setFocusedCovSegment(null); // switching samples returns to the separate-plots (grid) view
     if (!selectedRun || !sampleId) return;
     const fetchPromises = [];
     if (!resultSampleCoverageSankey?.[sampleId]) {
@@ -1779,6 +2037,15 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
     await Promise.all(fetchPromises);
   }, [selectedRun, resultSampleCoverageSankey, resultSampleCoveragePlot]);
 
+  // Lazy-load the combined (all-segment) coverage figure for a sample, caching it.
+  const fetchLinearForSample = useCallback((sampleId) => {
+    if (!selectedRun || !sampleId || resultSampleCoverageLinear?.[sampleId]) return;
+    fetch(`${API.retrieveSampleCoverageLinear}?run_name=${encodeURIComponent(selectedRun.run_name)}&experiment_type=${encodeURIComponent(selectedRun.experiment_type)}&sample_id=${encodeURIComponent(sampleId)}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d) setResultSampleCoverageLinear(prev => ({ ...(prev ?? {}), [sampleId]: d })); })
+      .catch(() => {});
+  }, [selectedRun, resultSampleCoverageLinear]);
+
   // Reset all state variables to their initial values, effectively clearing the form and any loaded run data
   const resetRun = useCallback(() => {
 
@@ -1787,6 +2054,7 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
       fetch(`${API.miraCancel}?run_name=${encodeURIComponent(selectedRun.run_name)}&experiment_type=${encodeURIComponent(selectedRun.experiment_type)}&pid=${submitProcessId}`)
         .catch(() => {});
     }
+    clearActiveRun();
 
     // Reset all state variables to their initial values
     setRunName("");
@@ -1799,21 +2067,12 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
     setPrimerRestrictWindow("");
     setSubSample("0");
     setIrmaModule("");
-    setUseCustomIrmaConfig(false);
-    setCustomIrmaConfig("");
-    setIrmaConfigFileError(null);
-    setUseCustomQcSettings(false);
-    setCustomQcSettings("");
-    setQcSettingsFileError(null);
     setCustomPrimersFile(null);
-    setCustomIrmaConfigFile(null);
-    setCustomQcSettingsFile(null);
     setLoadedCustomPrimersName("");
-    setLoadedCustomIrmaConfigName("");
-    setLoadedCustomQcSettingsName("");
     setCustomConfigDownloadError(null);
     setCreateParquet(false);
     setNextclade(true);
+    setKeepWorkdir(false);
     setExportFmt("fasta");
     setAssembled(false);
     setSortConfig({ key: "sample_id", dir: "asc" });
@@ -1874,6 +2133,8 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
     setResultSampleCoverageList(null);
     setResultSampleCoverageSankey(null);
     setResultSampleCoveragePlot(null);
+    setResultSampleCoverageLinear(null);
+    setFocusedCovSegment(null);
     setSelectedSampleForCoverage("");
     setResultCoverageHeatmap(null);
     setResultNtPassedFasta(null);
@@ -1886,7 +2147,7 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
     setMinorSnvsPage(0);
     setResultMiraSummary(null);
     setMiraSummaryPage(0);
-    setOpenStep(new Set(ASSEMBLY_STEPS.map((s) => s.id)));
+    setOpenStep(new Set());
   }, []);
 
   // ── Load run modal: fetches available runs from the backend and displays them in a table ──
@@ -1925,22 +2186,13 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
     setCustomPrimers("");
     setPrimerKmerLen("");
     setPrimerRestrictWindow("");
-    setUseCustomIrmaConfig(false);
-    setCustomIrmaConfig("");
-    setUseCustomQcSettings(false);
-    setCustomQcSettings("");
     setCustomPrimersFile(null);
-    setCustomIrmaConfigFile(null);
-    setCustomQcSettingsFile(null);
     setLoadedCustomPrimersName("");
-    setLoadedCustomIrmaConfigName("");
-    setLoadedCustomQcSettingsName("");
     setCustomConfigDownloadError(null);
     setPrimersFileError(null);
-    setIrmaConfigFileError(null);
-    setQcSettingsFileError(null);
     setCreateParquet(false);
     setNextclade(true);
+    setKeepWorkdir(false);
     // Sample sheet + uploads
     setOntSampleRows([]);
     setIlluminaSampleRows([]);
@@ -1967,6 +2219,7 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
     setShowDAG(false);
     setPipelineDAG(null);
     setPipelinePolling(false);
+    clearActiveRun();
   }, []);
 
   // Refresh the inputs when signaled from outside (e.g. the Home "New Run" card).
@@ -2193,20 +2446,15 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
       setExperimentType(info.experiment_type ?? "");
       setPrimer(info.sc2_primer || info.rsv_primer || "");
       setCustomPrimers(info.custom_primers ? CUSTOM_PRIMER_CONFIG_FILENAME : "");
-      setUseCustomPrimers(Boolean(info.custom_primers));
+      setUseCustomPrimers(false);
       setLoadedCustomPrimersName(info.custom_primers ? CUSTOM_PRIMER_CONFIG_FILENAME : "");
       setPrimerKmerLen(info.primer_kmer_len ? String(info.primer_kmer_len) : "");
       setPrimerRestrictWindow(info.primer_restrict_window ? String(info.primer_restrict_window) : "");
       setSubSample(String(info.subsample_reads ?? 0));
       setIrmaModule(info.irma_module || "");
-      setCustomIrmaConfig(info.custom_irma_config ? CUSTOM_IRMA_CONFIG_FILENAME : "");
-      setUseCustomIrmaConfig(Boolean(info.custom_irma_config));
-      setLoadedCustomIrmaConfigName(info.custom_irma_config ? CUSTOM_IRMA_CONFIG_FILENAME : "");
-      setCustomQcSettings(info.custom_qc_settings ? CUSTOM_QC_SETTINGS_FILENAME : "");
-      setUseCustomQcSettings(Boolean(info.custom_qc_settings));
-      setLoadedCustomQcSettingsName(info.custom_qc_settings ? CUSTOM_QC_SETTINGS_FILENAME : "");
       setCreateParquet(info.parquet_files ?? false);
       setNextclade(info.nextclade ?? true);
+      setKeepWorkdir(info.keep_workdir ?? false);
       const isOnt = (info.experiment_type ?? "").toLowerCase().endsWith("ont");
       const rows = Array.isArray(data.samplesheet) ? data.samplesheet : [];
       if (isOnt) {
@@ -2247,11 +2495,7 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
       setUploadedOntFileObjects({});
       setUploadedIlluminaFileObjects({});
       setCustomPrimersFile(null);
-      setCustomIrmaConfigFile(null);
-      setCustomQcSettingsFile(null);
       setCustomConfigDownloadError(null);
-      setIrmaConfigFileError(null);
-      setQcSettingsFileError(null);
       setPrimersFileError(null);
 
       // This run is now the page's actively loaded/polled run — set it here rather than
@@ -2271,6 +2515,8 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
       setSelectedSampleForCoverage("");
       setResultSampleCoverageSankey(null);
       setResultSampleCoveragePlot(null);
+      setResultSampleCoverageLinear(null);
+      setFocusedCovSegment(null);
       setResultVariants(null);
       setVariantsPage(0);
       setResultMinorSnvs(null);
@@ -2308,6 +2554,31 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
       setLoadRunLoading(false);
     }
   }, [loadRunSelectedRow]);
+
+  // ── Resume an in-flight run after a browser reload/reopen ──
+  // The backend process keeps running independently of the browser, so if a run was still
+  // processing when the app was last closed, reload its context and resume live polling.
+  useEffect(() => {
+    const active = readActiveRun();
+    if (!active?.run_name || !active?.experiment_type) return;
+    (async () => {
+      try {
+        const statusRes = await fetch(`${API.miraStatus}?run_name=${encodeURIComponent(active.run_name)}&experiment_type=${encodeURIComponent(active.experiment_type)}&pid=${active.pid ?? -1}`);
+        const statusData = await statusRes.json().catch(() => ({}));
+        if (statusRes.ok && statusData?.status === "PROCESSING") {
+          // Repopulate the form/DAG for this run, then restore the PID so the Cancel Run
+          // button reappears and status polling can reach the still-running process.
+          await handleLoadRun({ run_name: active.run_name, experiment_type: active.experiment_type, assembly_status: "PROCESSING" });
+          setSubmitProcessId(active.pid);
+          setSubmitting(true);
+        } else {
+          // Run already finished while the browser was closed — nothing to resume.
+          clearActiveRun();
+        }
+      } catch { /* backend unreachable — leave the marker so a later reload can retry */ }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // ── Submit assembly to backend API ─────────────
   const submitAssembly = useCallback(async () => {
@@ -2363,26 +2634,6 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
         setSubmitError({ title: "Assembly Error", items: ["primer_restrict_window is required and must be a non-negative integer when Custom Primers is used."], missing: null });
         return;
       }
-    }
-
-    // Custom IRMA Config requires a file path when enabled
-    if (isNewRun === true && assembled === false && useCustomIrmaConfig && !customIrmaConfig) {
-      setSubmitError({ title: "Assembly Error", items: ["Please provide a custom IRMA config file or turn off Custom IRMA Config."], missing: null });
-      return;
-    }
-    if (isNewRun === true && assembled === false && useCustomIrmaConfig && customIrmaConfig && !/\.sh$/i.test(customIrmaConfig)) {
-      setSubmitError({ title: "Assembly Error", items: ["Custom IRMA Config file must be a shell script (.sh)."], missing: null });
-      return;
-    }
-
-    // Custom QC Settings requires a file path when enabled, and it must be a YAML file
-    if (isNewRun === true && assembled === false && useCustomQcSettings && !customQcSettings) {
-      setSubmitError({ title: "Assembly Error", items: ["Please provide a custom QC settings file or turn off Custom QC Settings."], missing: null });
-      return;
-    }
-    if (isNewRun === true && assembled === false && useCustomQcSettings && customQcSettings && !/\.(yaml|yml)$/i.test(customQcSettings)) {
-      setSubmitError({ title: "Assembly Error", items: ["Custom QC Settings file must be a YAML file (.yaml or .yml)."], missing: null });
-      return;
     }
 
     // Make sure at least one sample exists and with "Keep" status in the samplesheet
@@ -2448,10 +2699,9 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
       primer_kmer_len:        useCustomPrimers && primerKmerLen ? (parseInt(primerKmerLen) || 0) : 0,
       primer_restrict_window: useCustomPrimers && primerRestrictWindow ? (parseInt(primerRestrictWindow) || 0) : 0,
       irma_module:            experimentType === "Flu-Illumina" ? irmaModule : "",
-      custom_irma_config:     useCustomIrmaConfig,
-      custom_qc_settings:     useCustomQcSettings,
       parquet_files:          createParquet,
       nextclade:              nextclade,
+      keep_workdir:           keepWorkdir,
       samplesheet:            formattedSamplesheet,
       assembly_status:        "SUBMITTED",
     };
@@ -2513,7 +2763,7 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
         }
       }
 
-      // ── Step 2.2: Upload custom primer, custom IRMA config, and custom QC settings files if a new file was selected ──
+      // ── Step 2.2: Upload the custom primer file if a new file was selected ──
       if (useCustomPrimers && customPrimersFile) {
         const primerForm = new FormData();
         primerForm.append("run_name", runName);
@@ -2522,24 +2772,6 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
         const primerRes = await fetch(API.uploadCustomPrimerConfig, { method: "POST", body: primerForm });
         const primerData = await primerRes.json().catch(() => ({}));
         if (!primerRes.ok) throw new Error(primerData.detail || "Failed to upload custom primer config file");
-      }
-      if (useCustomIrmaConfig && customIrmaConfigFile) {
-        const irmaForm = new FormData();
-        irmaForm.append("run_name", runName);
-        irmaForm.append("experiment_type", experimentType);
-        irmaForm.append("custom_irma_config_file", customIrmaConfigFile);
-        const irmaRes = await fetch(API.uploadCustomIrmaConfig, { method: "POST", body: irmaForm });
-        const irmaData = await irmaRes.json().catch(() => ({}));
-        if (!irmaRes.ok) throw new Error(irmaData.detail || "Failed to upload custom IRMA config file");
-      }
-      if (useCustomQcSettings && customQcSettingsFile) {
-        const qcForm = new FormData();
-        qcForm.append("run_name", runName);
-        qcForm.append("experiment_type", experimentType);
-        qcForm.append("custom_qc_settings_file", customQcSettingsFile);
-        const qcRes = await fetch(API.uploadCustomQcSettings, { method: "POST", body: qcForm });
-        const qcData = await qcRes.json().catch(() => ({}));
-        if (!qcRes.ok) throw new Error(qcData.detail || "Failed to upload custom QC settings file");
       }
 
       // ── Step 3.1: Validate samplesheet and fastq files exist for each sample ──
@@ -2553,7 +2785,7 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
         return;
       }
 
-      // ── Step 3.2: Validate custom primers, custom irma config, and custom qc settings files if provided ──
+      // ── Step 3.2: Validate custom primers file if provided ──
       const customValRes = await fetch(`${API.validateCustomConfigs}?run_name=${encodeURIComponent(runName)}&experiment_type=${encodeURIComponent(experimentType)}`);
       const customValData = await customValRes.json();
       if (!customValRes.ok) throw new Error(customValData.detail || "Custom configuration validation failed");
@@ -2594,6 +2826,8 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
         setSelectedSampleForCoverage("");      
         setResultSampleCoverageSankey(null);
         setResultSampleCoveragePlot(null);
+        setResultSampleCoverageLinear(null);
+        setFocusedCovSegment(null);
         setResultVariants(null);      
         setVariantsPage(0);
         setResultMinorSnvs(null);
@@ -2613,6 +2847,9 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
         setShowDAG(true);
         setPipelinePolling(true);
 
+        // Remember this run so it keeps processing (and stays cancellable) across browser reloads
+        writeActiveRun({ pid: miraData.pid, run_name: runName, experiment_type: experimentType });
+
       } else {
         // No pid to poll — nothing further will clear the "Processing..." state, so reset it now.
         setSubmitting(false);
@@ -2624,7 +2861,7 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
       setSubmitting(false);
     }
 
-  }, [runName, experimentType, ontSampleRows, illuminaSampleRows, subSample, primer, customPrimers, useCustomPrimers, primerKmerLen, primerRestrictWindow, irmaModule, useCustomIrmaConfig, customIrmaConfig, useCustomQcSettings, customQcSettings, customPrimersFile, customIrmaConfigFile, customQcSettingsFile, createParquet, nextclade, isNewRun, assembled]);
+  }, [runName, experimentType, ontSampleRows, illuminaSampleRows, subSample, primer, customPrimers, useCustomPrimers, primerKmerLen, primerRestrictWindow, irmaModule, customPrimersFile, createParquet, nextclade, keepWorkdir, isNewRun, assembled]);
 
   // True once assembly finishes but every result field is still empty (nothing to display).
   const hasNoResults = [
@@ -2717,9 +2954,13 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
       <div className="flex flex-1 overflow-hidden">
 
       {/* ── Left: accordion steps ─────────────────── */}
-      <div className="flex-1 overflow-auto p-4 space-y-2" onScroll={handleContentScroll}>
+      <div className="relative flex-1 overflow-auto p-4 space-y-2" onScroll={handleContentScroll}>
+        {loadRunModal && (
+          // Click anywhere on the main panel to dismiss the open Load Existing Run panel.
+          <div className="absolute inset-0 z-10" onClick={() => setLoadRunModal(false)} />
+        )}
         {ASSEMBLY_STEPS.map(({ id, title, subtitle, icon }) => (
-          <div key={id} id={`step-${id}`} className="w-fit max-w-full mx-auto rounded-xl border border-border overflow-hidden">
+          <div key={id} id={`step-${id}`} className={cn("w-fit max-w-full rounded-xl border border-border overflow-hidden transition-all duration-300", openStep.has(id) ? "mx-auto" : "mr-auto")}>
             <button
               onClick={() => toggle(id)}
               className="w-full px-4 py-3 bg-muted/20 hover:bg-muted/40 transition-colors"
@@ -2761,7 +3002,8 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
                             }
                           }}
                           disabled={!isNewRun}
-                          className="w-full max-w-xs h-9 px-3 rounded-md border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-60 disabled:cursor-not-allowed disabled:bg-muted"
+                          style={fitWidth(experimentType || "— Select experiment type —")}
+                          className="h-9 px-3 rounded-md border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-60 disabled:cursor-not-allowed disabled:bg-muted"
                         >
                           <option value="">— Select experiment type —</option>
                           {EXPERIMENT_TYPES.map((p) => <option key={p}>{p}</option>)}
@@ -2772,9 +3014,10 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
                         <input
                           value={runName}
                           onChange={(e) => setRunName(e.target.value.replace(/\s+/g, "_"))}
-                          placeholder="e.g. Flu_Illumina_2024-01-01"
+                          placeholder="e.g. YYYYMMDD_experiment-type"
                           disabled={!isNewRun}
-                          className="w-full max-w-xs h-9 px-3 rounded-md border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-60 disabled:cursor-not-allowed disabled:bg-muted"
+                          style={fitWidth(runName || "e.g. YYYYMMDD_experiment-type")}
+                          className="h-9 px-3 rounded-md border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-60 disabled:cursor-not-allowed disabled:bg-muted"
                         />
                       </div>
                     </div>
@@ -2785,7 +3028,8 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
                         <select
                           value={primer}
                           onChange={(e) => setPrimer(e.target.value)}
-                          className="w-full max-w-md h-9 px-3 rounded-md border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                          style={fitWidth([...SC2_PRIMERS, ...RSV_PRIMERS].find((p) => p.value === primer)?.label ?? "")}
+                          className="h-9 px-3 rounded-md border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                         >
                           {experimentType?.startsWith("SC2") && experimentType?.endsWith("Illumina") && SC2_PRIMERS.map(({ value, label }) => (
                             <option key={value} value={value}>{label}</option>
@@ -2888,8 +3132,16 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
                     )}
 
                     <div className="rounded-xl border border-border overflow-hidden">
-                      <div className="overflow-y-auto max-h-[300px]">
-                      <table className="w-full text-xs">
+                      <div className="overflow-auto max-h-[300px]">
+                      <table className={cn("w-full text-xs", Object.keys(sampleColWidths).length > 0 && "table-fixed")}>
+                        <colgroup>
+                          {(experimentType.toLowerCase().endsWith("ont")
+                            ? ["barcode", "sample_id", "sample_type", "single_end", "fastq", "status"]
+                            : ["sample_id", "sample_type", "single_end", "fastq_1", "fastq_2", "status"]
+                          ).map((h) => (
+                            <col key={h} style={sampleColWidths[h] ? { width: sampleColWidths[h] } : undefined} />
+                          ))}
+                        </colgroup>
                         <thead className="bg-muted sticky top-0 z-10">
                           <tr>
                             {(experimentType.toLowerCase().endsWith("ont")
@@ -2898,14 +3150,16 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
                             ).map((h) => (
                               <th
                                 key={h}
-                                className="px-3 py-2 text-left font-semibold text-muted-foreground font-mono cursor-pointer select-none hover:text-foreground transition-colors"
-                                onClick={() => setSortConfig(prev => ({
-                                  key: h,
-                                  dir: prev.key === h && prev.dir === "asc" ? "desc" : "asc",
-                                }))}
+                                className="relative px-3 py-2 text-left font-semibold text-muted-foreground font-mono select-none"
                               >
-                                <span className="flex items-center gap-1">
-                                  {h}
+                                <span
+                                  onClick={() => setSortConfig(prev => ({
+                                    key: h,
+                                    dir: prev.key === h && prev.dir === "asc" ? "desc" : "asc",
+                                  }))}
+                                  className="flex items-center gap-1 cursor-pointer hover:text-foreground transition-colors"
+                                >
+                                  <span className={sampleColWidths[h] ? "truncate" : undefined}>{h}</span>
                                   {sortConfig.key === h ? (
                                     sortConfig.dir === "asc"
                                       ? <ArrowUp size={10} className="text-primary shrink-0" />
@@ -2914,6 +3168,13 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
                                     <ArrowUpDown size={10} className="opacity-30 shrink-0" />
                                   )}
                                 </span>
+                                {/* resize grip */}
+                                <span
+                                  onMouseDown={(e) => startSampleColResize(h, e)}
+                                  onClick={(e) => e.stopPropagation()}
+                                  title="Drag to resize column"
+                                  className="absolute top-0 right-0 h-full w-1.5 cursor-col-resize hover:bg-primary/40"
+                                />
                               </th>
                             ))}
                           </tr>
@@ -3034,10 +3295,12 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
                       <span className="text-xs font-bold tracking-wider text-muted-foreground uppercase">Assembly Parameters</span>
                       <div className="flex-1 h-px bg-border" />
                     </div>
+                    
                     <div>
                       <FieldLabel>
                         <span className="relative inline-flex items-center group">
-                          <span className="cursor-help decoration-dotted underline underline-offset-2 decoration-muted-foreground/50">Subsample Reads</span>
+                          <span className="cursor-help decoration-muted-foreground/50">Subsample Reads</span>
+                          <BadgeQuestionMark size={13} className="text-muted-foreground cursor-help" />
                           <span
                             role="tooltip"
                             className="pointer-events-none absolute bottom-full left-0 z-50 mb-1.5 w-max max-w-xs rounded-md border border-border bg-popover px-2.5 py-1.5 text-xs font-normal text-popover-foreground shadow-lg opacity-0 translate-y-1 transition-all duration-150 group-hover:opacity-100 group-hover:translate-y-0"
@@ -3059,7 +3322,29 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
                         className="w-[182px] max-w-full h-9 px-3 rounded-md border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                       />
                     </div>
-
+<button
+                      onClick={() => setNextclade((v) => !v)}
+                      className="w-fit flex items-center justify-start gap-4 p-3 rounded-lg border border-border bg-muted/10 hover:bg-muted/20 transition-colors text-left"
+                    >
+                      <div className="flex items-center gap-1.5">
+                        <p className="text-sm font-medium">Run Nextclade</p>
+                        <span
+                          role="link"
+                          tabIndex={0}
+                          title="Learn more about Nextclade"
+                          onClick={(e) => { e.stopPropagation(); window.open("https://github.com/nextstrain/nextclade", "_blank", "noopener,noreferrer"); }}
+                          className="text-muted-foreground hover:text-primary transition-colors cursor-pointer"
+                        >
+                          <ExternalLink size={13} />
+                        </span>
+                      </div>
+                      <span className={cn(
+                        "relative w-10 h-5 rounded-full transition-colors shrink-0 pointer-events-none",
+                        nextclade ? "bg-primary" : "bg-muted"
+                      )}>
+                        <span className={cn("absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform", nextclade ? "translate-x-5" : "translate-x-0.5")} />
+                      </span>
+                    </button>
                     <button
                       onClick={() => setUseCustomPrimers((v) => !v)}
                       className="w-fit flex items-center justify-start gap-4 p-3 rounded-lg border border-border bg-muted/10 hover:bg-muted/20 transition-colors text-left"
@@ -3215,7 +3500,8 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
                         <select
                           value={irmaModule}
                           onChange={(e) => setIrmaModule(e.target.value)}
-                          className="w-full max-w-md h-9 px-3 rounded-md border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                          style={fitWidth(irmaModule || "FLU (default)")}
+                          className="h-9 px-3 rounded-md border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                         >
                           <option value="">FLU (default)</option>
                           <option value="secondary">secondary</option>
@@ -3233,6 +3519,17 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
                     >
                       <div className="flex items-center gap-1.5">
                         <p className="text-sm font-medium">Output Parquet</p>
+                        <span className="relative inline-flex items-center group">
+                            <BadgeQuestionMark size={13} className="text-muted-foreground cursor-help" />
+                            <span
+                              role="tooltip"
+                              className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 z-50 mb-1.5 w-max max-w-xs rounded-md border border-border bg-popover px-2.5 py-1.5 text-xs font-normal text-popover-foreground shadow-lg opacity-0 translate-y-1 transition-all duration-150 group-hover:opacity-100 group-hover:translate-y-0"
+                            >
+                              Parquet is a columnar storage file format that is optimized for use with large datasets.<br></br><br></br>
+                              It is read by database engines like Apache Hive and Apache Impala.<br></br><br></br>
+                              It is not commonly used by laboratories.
+                            </span>
+                          </span>
                         <span
                           role="link"
                           tabIndex={0}
@@ -3250,27 +3547,31 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
                         <span className={cn("absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform", createParquet ? "translate-x-5" : "translate-x-0.5")} />
                       </span>
                     </button>
+                    
                     <button
-                      onClick={() => setNextclade((v) => !v)}
+                      onClick={() => setKeepWorkdir((v) => !v)}
                       className="w-fit flex items-center justify-start gap-4 p-3 rounded-lg border border-border bg-muted/10 hover:bg-muted/20 transition-colors text-left"
                     >
-                      <div className="flex items-center gap-1.5">
-                        <p className="text-sm font-medium">Run Nextclade</p>
-                        <span
-                          role="link"
-                          tabIndex={0}
-                          title="Learn more about Nextclade"
-                          onClick={(e) => { e.stopPropagation(); window.open("https://github.com/nextstrain/nextclade", "_blank", "noopener,noreferrer"); }}
-                          className="text-muted-foreground hover:text-primary transition-colors cursor-pointer"
-                        >
-                          <ExternalLink size={13} />
-                        </span>
+                      <div>
+                        <div className="flex items-center gap-1.5">
+                          <p className="text-sm font-medium">Preserve Work Directory</p>
+                          <span className="relative inline-flex items-center group">
+                            <BadgeQuestionMark size={13} className="text-muted-foreground cursor-help" />
+                            <span
+                              role="tooltip"
+                              className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 z-50 mb-1.5 w-max max-w-xs rounded-md border border-border bg-popover px-2.5 py-1.5 text-xs font-normal text-popover-foreground shadow-lg opacity-0 translate-y-1 transition-all duration-150 group-hover:opacity-100 group-hover:translate-y-0"
+                            >
+                              This will greatly increase disc space used and is not recommended for routine use.
+                            </span>
+                          </span>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-0.5">Keep all intermediate processing data</p>
                       </div>
                       <span className={cn(
                         "relative w-10 h-5 rounded-full transition-colors shrink-0 pointer-events-none",
-                        nextclade ? "bg-primary" : "bg-muted"
+                        keepWorkdir ? "bg-primary" : "bg-muted"
                       )}>
-                        <span className={cn("absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform", nextclade ? "translate-x-5" : "translate-x-0.5")} />
+                        <span className={cn("absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform", keepWorkdir ? "translate-x-5" : "translate-x-0.5")} />
                       </span>
                     </button>
                     {submitSuccess && submitError === null && (
@@ -3343,6 +3644,7 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
                               if (!statusRes.ok) throw new Error(data.detail || "Failed to cancel Mira run");
                               setCancelRun(true);
                               setSubmitting(false);
+                              clearActiveRun();
                               setSubmitError({
                                 title: "Canceled Status",
                                 items: Array.isArray(data.message) ? data.message : [data.message || "Mira run was canceled or interrupted."],
@@ -3385,11 +3687,6 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
                             <div className="flex items-center gap-1.5 shrink-0">
                               <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Type</span>
                               <span className="text-xs font-mono text-foreground">{selectedRun?.experiment_type || "—"}</span>
-                            </div>
-                            <div className="w-px h-4 bg-border shrink-0" />
-                            <div className="flex items-center gap-1.5 shrink-0">
-                              <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">PID</span>
-                              <span className="text-xs font-mono text-foreground">{submitProcessId || "—"}</span>
                             </div>
                           </div>
                           {pipelineDAG?.workflows?.status && (() => {
@@ -3446,6 +3743,11 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
                           samples.sort((a, b) => a.localeCompare(b));
                           const knownSet = new Set(samples);
 
+                          // Rotated -80deg labels: vertical extent ≈ (char width) × length × sin(80°).
+                          // At text-xs mono that's ~7px/char; add padding so the longest name fits comfortably.
+                          const maxSampleLen = samples.reduce((m, s) => Math.max(m, String(s).length), 0);
+                          const headerHeightPx = Math.max(56, Math.round(maxSampleLen * 7) + 40);
+
                           const rank = { failed: 3, running: 2, success: 1 };
                           // A task-sample is FAILED only when it has a non-zero exit code; a "0"
                           // exit (or COMPLETED status) is success; anything still in-flight is running.
@@ -3454,9 +3756,17 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
                             const e = exitOf(t);
                             return e !== "" && e !== "-" && !isNaN(Number(e)) && Number(e) !== 0;
                           };
-                          const bucketOf = (t) => isFailedExit(t)
-                            ? "failed"
-                            : (t.status === "COMPLETED" || exitOf(t) === "0") ? "success" : "running";
+                          // PASSFAILED's non-zero exit encodes a sample's QC verdict, not a task failure —
+                          // it succeeds as long as the process ran to completion.
+                          const isVerdictProcess = (t) => /passfailed/i.test(t.process_name || "");
+                          const bucketOf = (t) => {
+                            if (isVerdictProcess(t)) {
+                              return (t.status === "COMPLETED" || exitOf(t) !== "") ? "success" : "running";
+                            }
+                            return isFailedExit(t)
+                              ? "failed"
+                              : (t.status === "COMPLETED" || exitOf(t) === "0") ? "success" : "running";
+                          };
                           const bump = (map, key, bucket) => {
                             const prev = map.get(key);
                             if (!prev || rank[bucket] > rank[prev]) map.set(key, bucket);
@@ -3466,6 +3776,7 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
                           const cellMap = new Map();
                           const rowLevelMap = new Map();
                           const failedTaskMap = new Map(); // key -> the failed task (for its log/hash on click)
+                          const cellTaskMap = new Map(); // key -> { task, bucket } representative task (for the hover stdout box)
                           tasks.forEach(t => {
                             const p = t.process_name || "unknown";
                             const bucket = bucketOf(t);
@@ -3474,19 +3785,27 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
                             if (perSample) bump(cellMap, `${p}||${t.sample}`, bucket);
                             else bump(rowLevelMap, p, bucket);
                             if (bucket === "failed") failedTaskMap.set(key, t);
+                            // Track the highest-ranked (and, at equal rank, most recent) task per cell
+                            // so hovering can stream that task's stdout.
+                            const prevT = cellTaskMap.get(key);
+                            if (t.hash && (!prevT || rank[bucket] >= rank[prevT.bucket])) cellTaskMap.set(key, { task: t, bucket });
                           });
                           return (
                             <div className="rounded-xl border border-border overflow-hidden">
                               <div className="flex items-center justify-between px-3 py-2 bg-muted/20 border-b border-border">
                                 <p className="text-xs font-bold text-foreground uppercase tracking-wider">Task Progress</p>
                               </div>
-                              <div className="max-h-[360px] overflow-auto">
+                              <div className="overflow-x-auto">
                                 <table className="text-xs border-collapse">
                                   <thead>
                                     <tr>
-                                      <th className="sticky left-0 top-0 z-20 bg-muted px-3 py-2 text-left font-semibold text-muted-foreground border-b border-r border-border whitespace-nowrap">Task \ Sample</th>
+                                      <th className="sticky left-0 top-0 z-20 bg-muted px-3 py-2 text-left align-bottom font-semibold text-muted-foreground border-b border-r border-border whitespace-nowrap">Task \ Sample</th>
                                       {samples.map(s => (
-                                        <th key={s} className="sticky top-0 z-10 bg-muted px-3 py-2 text-center font-mono font-semibold text-foreground border-b border-border whitespace-nowrap">{s}</th>
+                                        <th key={s} style={{ height: `${headerHeightPx}px` }} className="sticky top-0 z-10 bg-muted border-b border-border p-0 align-bottom">
+                                          <div className="flex h-full items-end justify-center px-1 pb-8">
+                                            <span className="origin-bottom rotate-[-80deg] whitespace-nowrap font-mono font-semibold text-foreground leading-none">{s}</span>
+                                          </div>
+                                        </th>
                                       ))}
                                     </tr>
                                   </thead>
@@ -3499,12 +3818,21 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
                                           const failedTask = bucket === "failed"
                                             ? (failedTaskMap.get(`${p}||${s}`) ?? failedTaskMap.get(`__row__${p}`))
                                             : null;
+                                          const hoverTask = (cellTaskMap.get(`${p}||${s}`) ?? cellTaskMap.get(`__row__${p}`))?.task;
+                                          const canHover = !!hoverTask?.hash;
                                           return (
-                                            <td key={s} className="px-3 py-1.5 text-center align-middle">
+                                            <td
+                                              key={s}
+                                              className={cn("px-3 py-1.5 text-center align-middle", canHover && "cursor-pointer")}
+                                              onMouseEnter={canHover ? (e) => openTaskHover(e, hoverTask, p, s) : undefined}
+                                              onMouseLeave={canHover ? closeTaskHover : undefined}
+                                              onClick={canHover && bucket !== "failed" ? () => openTaskLog(hoverTask, p, s, "stdout") : undefined}
+                                              title={canHover && bucket !== "failed" ? "Click to open log" : undefined}
+                                            >
                                               {bucket === "success" && <Check size={13} className="inline text-emerald-500" />}
                                               {bucket === "failed" && (
                                                 <button
-                                                  onClick={() => openTaskLog(failedTask, p, s)}
+                                                  onClick={(e) => { e.stopPropagation(); openTaskLog(failedTask, p, s); }}
                                                   title="View error log"
                                                   className="inline-flex items-center justify-center text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 rounded transition-colors"
                                                 >
@@ -3526,10 +3854,10 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
 
                         {/* timing footer */}
                         {pipelineDAG?.workflows && (
-                          <div className="text-xs text-muted-foreground border-t border-border pt-2 flex items-center justify-between flex-wrap gap-y-1">
-                            <div className="flex gap-x-4 flex-wrap gap-y-0.5">
-                              <span>Started: <span className="text-foreground">{pipelineDAG?.workflows?.started_at || "—"}</span></span>
-                              <span>Completed: <span className="text-foreground">{pipelineDAG?.workflows?.completed_at || "—"}</span></span>
+                          <div className="text-xs text-muted-foreground border-t border-border pt-2 grid grid-cols-2 gap-x-4">
+                            <div className="flex flex-col gap-y-1">
+                              <span>Began: <span className="text-foreground">{pipelineDAG?.workflows?.started_at || "—"}</span></span>
+                              <span>Ended: <span className="text-foreground">{pipelineDAG?.workflows?.completed_at || "—"}</span></span>
                               {pipelineDAG?.workflows?.runtime && (
                                 <span>Runtime: <span className="text-foreground font-mono">{pipelineDAG.workflows.runtime}</span></span>
                               )}
@@ -3551,14 +3879,14 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
                                 return <span>Duration: <span className="text-foreground font-mono">{parts.join(" ")}</span></span>;
                               })()}
                             </div>
-                            <div className="flex items-center gap-2 shrink-0">
-                              <span className="px-1.5 py-0.5 rounded bg-muted text-muted-foreground font-mono">
+                            <div className="flex flex-col items-start gap-y-1">
+                              <span className="w-fit px-1.5 py-0.5 rounded bg-muted text-muted-foreground font-mono">
                                 {pipelineDAG?.workflows?.number_of_samples ?? 0} total samples
                               </span>
-                              <span className="px-1.5 py-0.5 rounded bg-red-100 text-red-700 dark:bg-red-900/10 dark:text-red-400 font-mono">
+                              <span className="w-fit px-1.5 py-0.5 rounded bg-red-100 text-red-700 dark:bg-red-900/10 dark:text-red-400 font-mono">
                                 {pipelineDAG?.workflows?.number_of_samples_with_failed_tasks ?? 0} samples failed
                               </span>
-                              <span className="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700 dark:bg-emerald-900/05 dark:text-emerald-400 font-mono">
+                              <span className="w-fit px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700 dark:bg-emerald-900/05 dark:text-emerald-400 font-mono">
                                 {pipelineDAG?.workflows?.number_of_samples_with_successful_tasks ?? 0} samples passed
                               </span>
                             </div>
@@ -3609,14 +3937,13 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
                                 <Plot
                                   data={resultBarcodeAssignments.data ?? []}
                                   layout={{
-                                    ...(resultBarcodeAssignments.layout ?? {}),
                                     autosize: true,
-                                    margin: { l: 20, r: 20, t: 40, b: 20 },
                                     paper_bgcolor: "transparent",
                                     plot_bgcolor: "transparent",
                                     font: { size: 11 },
-                                    showlegend: true,
-                                    legend: { orientation: "h", x: 0.5, xanchor: "center", y: -0.1 },
+                                    // Respect the layout mira-oxide emits (margin, annotations, height,
+                                    // axes, legend) so the stacked-bar plot renders as designed.
+                                    ...(resultBarcodeAssignments.layout ?? {}),
                                   }}
                                   config={PLOT_CONFIG}
                                   style={{ width: "100%", minHeight: 300 }}
@@ -3746,6 +4073,25 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
                       const rawHeatmapY = resultCoverageHeatmap.data?.[0]?.y ?? [];
                       const heatmapCols = [...new Set(rawHeatmapX)];
                       const heatmapRows = [...new Set(rawHeatmapY)];
+                      // The trace ships x/y/z as parallel per-cell 1D arrays; Plotly needs z as a
+                      // 2D [row][col] matrix for a proper grid and reliable click points.
+                      const rawHeatmapZ = resultCoverageHeatmap.data?.[0]?.z ?? [];
+                      const zByCell = new Map();
+                      for (let i = 0; i < rawHeatmapX.length; i++) {
+                        zByCell.set(`${rawHeatmapY[i]}\u0000${rawHeatmapX[i]}`, rawHeatmapZ[i]);
+                      }
+                      const heatmapZ = heatmapRows.map((r) =>
+                        heatmapCols.map((c) => {
+                          const v = zByCell.get(`${r}\u0000${c}`);
+                          return v === undefined ? null : v;
+                        })
+                      );
+                      const heatmapTrace = {
+                        ...(resultCoverageHeatmap.data?.[0] ?? {}),
+                        x: heatmapCols,
+                        y: heatmapRows,
+                        z: heatmapZ,
+                      };
                       const heatmapManyCols = heatmapCols.length > 12;
                       const heatmapMinHeight = Math.max(
                         120,
@@ -3761,7 +4107,7 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
                             <div style={{ width: "100%" }}>
                               <Suspense fallback={<div className="flex items-center justify-center h-40 text-xs text-muted-foreground">Loading chart…</div>}>
                                 <Plot
-                                  data={resultCoverageHeatmap.data ?? []}
+                                  data={[heatmapTrace]}
                                   layout={{
                                     ...(resultCoverageHeatmap.layout ?? {}),
                                     autosize: true,
@@ -3791,16 +4137,20 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
                                     },
                                   }}
                                   config={PLOT_CONFIG}
-                                  style={{ width: "100%", height: heatmapMinHeight }}
+                                  style={{ width: "100%", height: heatmapMinHeight, cursor: "pointer" }}
                                   useResizeHandler
                                   onClick={(e) => {
-                                    // Clicking a cell selects that sample (x value) in the
+                                    // A cell's x category is the sample; select it in the
                                     // Per-Sample Coverage and Sankey Plots section below.
-                                    const sample = e?.points?.[0]?.x;
-                                    if (sample != null) {
-                                      fetchSankeyForSample(String(sample));
-                                      setTimeout(() => document.getElementById("result-section-coverage")?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
+                                    const pt = e?.points?.[0];
+                                    if (!pt) return;
+                                    let sample = pt.x;
+                                    if (sample == null && Array.isArray(pt.data?.x) && typeof pt.pointNumber?.[1] === "number") {
+                                      sample = pt.data.x[pt.pointNumber[1]];
                                     }
+                                    if (sample == null) return;
+                                    fetchSankeyForSample(String(sample));
+                                    setTimeout(() => document.getElementById("result-section-coverage")?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
                                   }}
                                 />
                               </Suspense>
@@ -3821,10 +4171,9 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
                       const figure = resultSampleCoverageSankey?.[currentSample] ?? null;
                       const covFigure = resultSampleCoveragePlot?.[currentSample] ?? null;
                       return (
-                        <ResultSection id="result-section-coverage">
-                        <div className="min-w-[80vw] rounded-xl border border-border overflow-hidden">
+                        <div id="result-section-coverage" className="min-w-[80vw] rounded-xl border border-border overflow-hidden">
                           <div className="flex items-center justify-between px-3 py-2 bg-muted/20 border-b border-border">
-                            <p className="text-xs font-bold text-foreground uppercase tracking-wider">Per-Sample Coverage and Sankey Plots</p>
+                            <p className="text-xs font-bold text-foreground uppercase tracking-wider">Read Assignment and Coverage Plots</p>
                             <select
                               value={currentSample}
                               onChange={e => fetchSankeyForSample(e.target.value)}
@@ -3836,16 +4185,17 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
                           <div className="p-2">
                             {figure ? (
                               <>
-                                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1 pb-1">Sankey Plot - {currentSample}</p>
+                                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1 pb-1">Read Assignment - {currentSample}</p>
                                 <div className="overflow-x-auto">
-                                  <div style={{ minWidth: figure.layout?.width ? `${figure.layout.width}px` : "100%" }}>
+                                  <div style={{ width: "75%", margin: "0 auto", minWidth: figure.layout?.width ? `${figure.layout.width}px` : undefined }}>
                                     <Suspense fallback={<div className="flex items-center justify-center h-40 text-xs text-muted-foreground">Loading chart…</div>}>
                                     <Plot
                                       data={figure.data ?? []}
                                       layout={{
                                         ...(figure.layout ?? {}),
+                                        title: undefined,
                                         autosize: true,
-                                        margin: { l: 20, r: 20, t: 30, b: 20 },
+                                        margin: { l: 20, r: 20, t: 10, b: 20 },
                                         paper_bgcolor: "transparent",
                                         plot_bgcolor: "transparent",
                                         font: { size: 11 },
@@ -3865,35 +4215,80 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
                             )}
                           </div>
 
-                          {/* ── Linear Coverage Plot ── */}
+                          {/* ── Segment Coverage Plot ── */}
                           {(() => {
+                            const linearFig = resultSampleCoverageLinear?.[currentSample] ?? null;
+                            // All traces of a segment share a legendgroup (the segment name);
+                            // fall back to the trace name to identify the clicked segment.
+                            const onSegmentClick = (e) => {
+                              const pt = e?.points?.[0];
+                              if (!pt) return;
+                              const seg = pt.data?.legendgroup || pt.data?.name;
+                              if (!seg) return;
+                              fetchLinearForSample(currentSample);
+                              setFocusedCovSegment(seg);
+                            };
                             return (
                               <div className="border-t border-border p-2">
-                                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1 pb-1">Coverage Plot - {currentSample}</p>
-                                {covFigure ? (
-                                  <div className="overflow-x-auto">
-                                    <div style={{ minWidth: covFigure.layout?.width ? `${covFigure.layout.width}px` : "100%" }}>
-                                      <Suspense fallback={<div className="flex items-center justify-center h-40 text-xs text-muted-foreground">Loading chart…</div>}>
-                                        <Plot
-                                          data={covFigure.data ?? []}
-                                          layout={{
-                                            ...(covFigure.layout ?? {}),
-                                            autosize: true,
-                                            margin: { l: 50, r: 20, t: 30, b: 40 },
-                                            paper_bgcolor: "transparent",
-                                            plot_bgcolor: "transparent",
-                                            font: { size: 11 },
-                                          }}
-                                          config={{ ...(covFigure.config ?? {}), ...PLOT_CONFIG }}
-                                          style={{ width: "100%", minHeight: 260 }}
-                                          useResizeHandler
-                                        />
-                                      </Suspense>
+                                <div className="flex items-center justify-between px-1 pb-1">
+                                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                                    {focusedCovSegment ? `Coverage - ${currentSample} · ${focusedCovSegment}` : `Segment Coverage - ${currentSample}`}
+                                  </p>
+                                  {focusedCovSegment && (
+                                    <button
+                                      onClick={() => setFocusedCovSegment(null)}
+                                      className="flex items-center gap-1 h-7 px-2 rounded-md border border-border bg-background text-xs font-medium text-foreground hover:border-primary hover:text-primary transition-colors"
+                                    >
+                                      <ChevronLeft size={13} className="shrink-0" /> Back to separate plots
+                                    </button>
+                                  )}
+                                </div>
+                                {focusedCovSegment ? (
+                                  linearFig ? (
+                                    <ResponsivePlot
+                                      data={(linearFig.data ?? []).map((tr) => {
+                                        // Isolate the clicked segment, like a legend double-click.
+                                        const match = (tr.legendgroup ?? tr.name) === focusedCovSegment;
+                                        return { ...tr, visible: match ? true : "legendonly" };
+                                      })}
+                                      layout={{
+                                        ...(linearFig.layout ?? {}),
+                                        title: undefined,
+                                        margin: { l: 55, r: 15, t: 10, b: 40 },
+                                        paper_bgcolor: "transparent",
+                                        plot_bgcolor: "transparent",
+                                        font: { size: 11 },
+                                        // Autoscale axes to the isolated segment.
+                                        xaxis: { ...(linearFig.layout?.xaxis ?? {}), autorange: true, range: undefined },
+                                        yaxis: { ...(linearFig.layout?.yaxis ?? {}), autorange: true, range: undefined },
+                                      }}
+                                      config={{ ...(linearFig.config ?? {}), ...PLOT_CONFIG }}
+                                      maxHeight={520}
+                                      useResizeHandler
+                                    />
+                                  ) : (
+                                    <div className="flex items-center gap-2 text-xs text-muted-foreground px-3 py-4">
+                                      <Database size={13} className="shrink-0" /> Loading combined coverage…
                                     </div>
-                                  </div>
+                                  )
+                                ) : covFigure ? (
+                                  <ResponsivePlot
+                                    data={covFigure.data ?? []}
+                                    layout={{
+                                      ...(covFigure.layout ?? {}),
+                                      title: undefined,
+                                      margin: { l: 45, r: 15, t: 20, b: 30 },
+                                      paper_bgcolor: "transparent",
+                                      plot_bgcolor: "transparent",
+                                      font: { size: 10 },
+                                    }}
+                                    config={{ ...(covFigure.config ?? {}), ...PLOT_CONFIG }}
+                                    onClick={onSegmentClick}
+                                    useResizeHandler
+                                  />
                                 ) : (
                                   <div className="flex items-center gap-2 text-xs text-muted-foreground px-3 py-4">
-                                    <Database size={13} className="shrink-0" /> No coverage plot found for this sample.
+                                    <Database size={13} className="shrink-0" /> No segment coverage plot found for this sample.
                                   </div>
                                 )}
                               </div>
@@ -3911,7 +4306,7 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
                         {resultVariants.length === 0 ? (
                           <EmptyResultTable title="AA Variants Table" />
                         ) : (
-                          <ResultTable title="AA Variants Table" data={resultVariants} page={variantsPage} setPage={setVariantsPage} />
+                          <ResultTable title="AA Variants Table" data={resultVariants} page={variantsPage} setPage={setVariantsPage} compact fitCols={5} defaultHiddenCols={["positional_reference_id"]} />
                         )}
                       </ResultSection>
                     )}
@@ -3922,7 +4317,7 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
                         {resultMinorSnvs.length === 0 ? (
                           <EmptyResultTable title="Minor Variants Table" message="No Minor Variants found for this run." />
                         ) : (
-                          <ResultTable title="Minor Variants Table" data={resultMinorSnvs} page={minorSnvsPage} setPage={setMinorSnvsPage} />
+                          <ResultTable title="Minor Variants Table" data={resultMinorSnvs} page={minorSnvsPage} setPage={setMinorSnvsPage} compact fitCols={5} defaultHiddenCols={["dais_reference"]} stickyFirstCol />
                         )}
                       </ResultSection>
                     )}
@@ -3981,10 +4376,7 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
                       ))}
                       {/* Nextclade FASTA files (one per subtype/segment) */}
                       {resultNextcladeFasta && typeof resultNextcladeFasta === "object" && Object.keys(resultNextcladeFasta).map(key => {
-                        const nextcladeFastaUrl = new URL(
-                          `${API.downloadNextcladeFasta}?run_name=${encodeURIComponent(selectedRun?.run_name ?? "")}&experiment_type=${encodeURIComponent(selectedRun?.experiment_type ?? "")}&key=${encodeURIComponent(key)}`,
-                          window.location.origin
-                        ).toString();
+                        const nextcladeFastaUrl = `${API.downloadNextcladeFasta}?run_name=${encodeURIComponent(selectedRun?.run_name ?? "")}&experiment_type=${encodeURIComponent(selectedRun?.experiment_type ?? "")}&key=${encodeURIComponent(key)}`;
                         const nextcladeViewUrl = `${NEXTCLADE_BASE}?dataset-name=${encodeURIComponent(key)}&input-fasta=${encodeURIComponent(nextcladeFastaUrl)}`;
                         return (
                           <div key={key} className="flex items-start justify-between gap-3 p-3 rounded-xl border border-border bg-muted/10">
@@ -3999,7 +4391,7 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
                                 rel="noopener noreferrer"
                                 className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-primary text-primary text-xs font-medium hover:bg-primary/10 transition-colors"
                               >
-                                <ExternalLink size={11} /> View NextClade Assignment
+                                <ExternalLink size={11} /> View on NextClade
                               </a>
                               <a
                                 href={nextcladeFastaUrl}
@@ -4072,15 +4464,24 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
                   <p className="text-xs text-muted-foreground text-center py-4">There are no runs found in storage.</p>
                 ) : (() => {
                   const q = runSearch.trim().toLowerCase();
+                  // Sort by run date (finished, else created); undated runs sink to the bottom.
+                  const runTime = (r) => {
+                    const t = Date.parse((r.finished_at || r.created_at || "").replace(" ", "T"));
+                    return Number.isNaN(t) ? null : t;
+                  };
                   const filtered = (q
                     ? availableRuns.filter(r =>
                         [r.run_name, r.experiment_type, r.assembly_status, r.finished_at, r.created_at]
                           .some(v => (v ?? "").toLowerCase().includes(q))
                       )
                     : availableRuns
-                  ).sort((a, b) => runSortDir === "asc"
-                    ? (a.run_name ?? "").localeCompare(b.run_name ?? "")
-                    : (b.run_name ?? "").localeCompare(a.run_name ?? ""));
+                  ).slice().sort((a, b) => {
+                    const ta = runTime(a), tb = runTime(b);
+                    if (ta === null && tb === null) return (a.run_name ?? "").localeCompare(b.run_name ?? "");
+                    if (ta === null) return 1;
+                    if (tb === null) return -1;
+                    return runSortDir === "asc" ? ta - tb : tb - ta;
+                  });
                   return (
                     <>
                       <div className="flex items-center gap-2">
@@ -4095,7 +4496,7 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
                         </div>
                         <button
                           type="button"
-                          title={`Sort ${runSortDir === "asc" ? "Z→A" : "A→Z"}`}
+                          title={`Sort ${runSortDir === "asc" ? "newest first" : "oldest first"}`}
                           onClick={() => setRunSortDir(d => d === "asc" ? "desc" : "asc")}
                           className="h-8 w-8 shrink-0 flex items-center justify-center rounded-lg border border-border text-muted-foreground hover:text-primary hover:border-primary transition-colors"
                         >
@@ -4111,7 +4512,7 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
                               <tr>
                                 <th className="px-4 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Name</th>
                                 <th className="px-4 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Type</th>
-                                <th className="px-4 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Timestamp</th>
+                                <th className="px-4 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Ended time</th>
                               </tr>
                             </thead>
                             <tbody className="divide-y divide-border">
@@ -4129,8 +4530,8 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
                                   <td className="px-4 py-2 font-mono font-semibold text-foreground truncate max-w-[240px]">{run.run_name}</td>
                                   <td className="px-4 py-2 font-mono text-foreground whitespace-nowrap">{run.experiment_type}</td>
                                   <td className="px-4 py-2 font-mono text-muted-foreground whitespace-nowrap">{(() => {
-                                    // Prefer Nextflow's reported finish time; trim seconds to minute precision
-                                    const ts = run.finished_at || run.created_at;
+                                    // Nextflow's reported finish time; trim seconds to minute precision
+                                    const ts = run.finished_at;
                                     return ts ? ts.replace(/(\d{1,2}:\d{2}):\d{2}/, "$1") : "—";
                                   })()}</td>
                                 </tr>
@@ -4443,7 +4844,7 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
                     <input
                       value={editNewName}
                       onChange={(e) => setEditNewName(e.target.value.replace(/\s+/g, "_"))}
-                      placeholder="e.g. Flu_Illumina_2024-01-01"
+                      placeholder="e.g. YYYYMMDD_experiment-type"
                       className="w-full max-w-md h-9 px-3 rounded-md border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                     />
                     <div className="flex gap-2 justify-end pt-1">
@@ -4552,17 +4953,64 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
         );
       })()}
 
-      {/* ── Failed task error-log modal ────────────── */}
+      {/* ── Task Progress stdout hover box (streams a task's stdout while hovered) ── */}
+      {taskHover !== null && (() => {
+        const boxW = 440;
+        const boxH = 300;
+        const left = Math.min(Math.max(8, taskHover.x + 12), window.innerWidth - boxW - 8);
+        const top = Math.min(Math.max(8, taskHover.y), window.innerHeight - boxH - 8);
+        const lines = taskHover.data?.lines ?? [];
+        return (
+          <div
+            style={{ left, top, width: boxW, maxHeight: boxH }}
+            className="fixed z-[60] pointer-events-none flex flex-col rounded-xl border border-border bg-background shadow-2xl overflow-hidden"
+          >
+            <div className="flex items-center gap-2 px-3 py-2 border-b border-border bg-muted/30 shrink-0">
+              <Terminal size={13} className="text-sky-500 shrink-0" />
+              <span className="text-xs font-bold font-mono text-foreground truncate">{taskHover.process}</span>
+              {taskHover.sample && <span className="text-xs font-mono text-muted-foreground truncate">({taskHover.sample})</span>}
+              {taskHover.loading
+                ? <RefreshCw size={11} className="ml-auto shrink-0 text-muted-foreground animate-spin" />
+                : <span className="ml-auto shrink-0 flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-sky-500"><span className="w-1.5 h-1.5 rounded-full bg-sky-500 animate-pulse" />live</span>}
+            </div>
+            <div
+              ref={el => { if (el) el.scrollTop = el.scrollHeight; }}
+              className="flex-1 overflow-auto bg-muted/10 px-3 py-2 font-mono text-[11px] leading-relaxed text-foreground whitespace-pre-wrap break-all"
+            >
+              {taskHover.error && <span className="text-destructive">{taskHover.error}</span>}
+              {!taskHover.error && lines.length === 0 && (
+                <span className="text-muted-foreground">{taskHover.loading ? "Loading stdout…" : "No stdout output yet."}</span>
+              )}
+              {!taskHover.error && lines.map((ln, i) => (
+                <div key={i}>{ln.text || "\u00A0"}</div>
+              ))}
+            </div>
+            <div className="px-3 py-1 border-t border-border bg-muted/20 shrink-0 text-[10px] font-mono text-muted-foreground truncate flex items-center gap-2">
+              {taskHover.data?.log_file && <span className="truncate">{taskHover.data.log_file}</span>}
+              <span className="ml-auto shrink-0 not-italic text-muted-foreground/70">click to open &amp; copy</span>
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* ── Task log modal (stdout / error) ────────────── */}
       {taskLog !== null && (
         <div onClick={() => setTaskLog(null)} className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
           <div onClick={(e) => e.stopPropagation()} className="bg-background border border-border rounded-xl p-0 max-w-3xl w-full mx-4 shadow-xl flex flex-col gap-0 max-h-[85vh]">
             <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-muted/20 shrink-0">
               <div className="flex items-center gap-2 min-w-0">
-                <AlertCircle size={15} className="text-destructive shrink-0" />
+                {taskLog.stream === "stdout"
+                  ? <Terminal size={15} className="text-sky-500 shrink-0" />
+                  : <AlertCircle size={15} className="text-destructive shrink-0" />}
                 <h3 className="text-sm font-bold text-foreground truncate">
-                  Task Error — <span className="font-mono">{taskLog.process}</span>
+                  {taskLog.stream === "stdout" ? "Task Log" : "Task Error"} — <span className="font-mono">{taskLog.process}</span>
                   {taskLog.sample ? <span className="font-mono text-muted-foreground"> ({taskLog.sample})</span> : null}
                 </h3>
+                {taskLog.data && taskLog.data.exit_code == null && (
+                  <span className="flex items-center gap-1 shrink-0 text-[10px] font-semibold uppercase tracking-wider text-sky-500">
+                    <span className="h-1.5 w-1.5 rounded-full bg-sky-500 animate-pulse" /> Live
+                  </span>
+                )}
               </div>
               <button onClick={() => setTaskLog(null)} className="text-muted-foreground hover:text-foreground transition-colors shrink-0">
                 <X size={15} />
@@ -4623,7 +5071,7 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
                   {taskLog.data.lines?.length > 0 && (
                     <div>
                       <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">Log ({taskLog.data.log_file})</p>
-                      <div className="rounded-lg border border-border overflow-auto max-h-72 bg-muted/10">
+                      <div ref={taskLogBodyRef} onScroll={onTaskLogScroll} className="rounded-lg border border-border overflow-auto max-h-96 bg-muted/10">
                         <table className="w-full text-xs font-mono">
                           <tbody>
                             {taskLog.data.lines.map((ln, i) => (
@@ -4645,7 +5093,14 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden }) {
               )}
             </div>
 
-            <div className="flex justify-end px-4 py-3 border-t border-border bg-muted/10 shrink-0">
+            <div className="flex justify-end gap-2 px-4 py-3 border-t border-border bg-muted/10 shrink-0">
+              <button
+                onClick={copyTaskLog}
+                disabled={!taskLog.data?.lines?.length}
+                className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg border border-border text-xs text-muted-foreground hover:bg-muted/60 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                {taskLogCopied ? <><Check size={13} className="text-emerald-500" /> Copied</> : <><Copy size={13} /> Copy log</>}
+              </button>
               <button
                 onClick={() => setTaskLog(null)}
                 className="px-4 py-1.5 rounded-lg border border-border text-xs text-muted-foreground hover:bg-muted/60 transition-colors"
@@ -4974,30 +5429,31 @@ function ContactCard({ name, role, email, github }) {
 function ResourcesTab() {
   return (
     <div className="h-full overflow-auto p-4">
-      <div className="h-full grid grid-cols-2 grid-rows-2 gap-4" style={{ minHeight: "fit-content" }}>
-
-        {/* ── Installation ─────────────────────── */}
+      <div className="h-full grid grid-cols-2 grid-rows-1 gap-4" style={{ minHeight: "fit-content" }}>
+        {/* ── Installation (disabled) ─────────────────────── */}
+        {false && (
         <ResourceCard icon={Package} title="Installation">
           <p className="text-xs text-muted-foreground mb-1">Mira requires Python 3.8+ and conda/mamba. Supports Linux and macOS.</p>
           <ResourceLink href="https://github.com/CDCgov/MIRA" icon={GitFork}>GitHub — CDCgov/MIRA</ResourceLink>
-          <ResourceLink href="https://github.com/CDCgov/MIRA/blob/master/MIRA-INSTALL.sh" icon={Download} badge="script">MIRA-INSTALL.sh</ResourceLink>
+          <ResourceLink href="https://github.com/CDCgov/MIRA/blob/master/MIRA-INSTALL.sh" icon={Download} >MIRA-INSTALL.sh</ResourceLink>
           <ResourceLink href="https://github.com/CDCgov/MIRA/blob/master/requirements.txt" icon={FileStack}>requirements.txt</ResourceLink>
           <div className="mt-2 rounded-lg bg-muted/30 border border-border px-3 py-2">
             <p className="text-xs font-mono text-foreground">bash MIRA-INSTALL.sh</p>
             <p className="text-xs font-mono text-muted-foreground mt-0.5">conda activate mira &amp;&amp; python app.py</p>
           </div>
-          <ResourceLink href="https://github.com/CDCgov/MIRA/blob/master/docker-compose.yml" icon={ExternalLink} badge="docker">Docker Compose</ResourceLink>
+          <ResourceLink href="https://github.com/CDCgov/MIRA/blob/master/docker-compose.yml" icon={ExternalLink} >Docker Compose</ResourceLink>
         </ResourceCard>
-
-        {/* ── Documentation ────────────────────── */}
+        )}
+        {/* ── Documentation (disabled) ────────────────────── */}
+        {false && (
         <ResourceCard icon={BookOpen} title="Documentation">
           <ResourceLink href="https://github.com/CDCgov/MIRA/blob/master/README.md">Mira README</ResourceLink>
           <ResourceLink href="https://github.com/CDCgov/MIRA/wiki">Mira Wiki</ResourceLink>
           <div className="mt-1 pt-2 border-t border-border">
             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Related Tools</p>
-            <ResourceLink href="https://docs.nextstrain.org/projects/nextclade/en/stable/" badge="nextclade">Nextclade Documentation</ResourceLink>
+            <ResourceLink href="https://docs.nextstrain.org/projects/nextclade/en/stable/" >Nextclade Documentation</ResourceLink>
             <ResourceLink href="https://docs.nextstrain.org/projects/nextclade/en/stable/user/nextclade-web/url-parameters.html">Nextclade URL Parameters</ResourceLink>
-            <ResourceLink href="https://github.com/CDCgov/seqsender" badge="seqsender">SeqSender Documentation</ResourceLink>
+            <ResourceLink href="https://github.com/CDCgov/seqsender" >SeqSender Documentation</ResourceLink>
             <ResourceLink href="https://github.com/CDCgov/irma-core">IRMA-core Documentation</ResourceLink>
           </div>
           <div className="mt-1 pt-2 border-t border-border">
@@ -5007,15 +5463,19 @@ function ResourcesTab() {
             <ResourceLink href="https://clades.nextstrain.org">Nextclade Web</ResourceLink>
           </div>
         </ResourceCard>
+        )}
 
         {/* ── GitHub Repositories ──────────────── */}
         <ResourceCard icon={GitFork} title="GitHub Repositories">
           {[
-            { repo: "CDCgov/MIRA",          desc: "Main Mira application",              badge: "main" },
-            { repo: "CDCgov/seqsender",      desc: "Sequence submission pipeline",       badge: "tool" },
-            { repo: "CDCgov/irma-core",      desc: "IRMA assembly core",                badge: "tool" },
-            { repo: "nextstrain/nextclade",  desc: "Clade assignment & QC tool",         badge: "ext" },
-            { repo: "nextstrain/augur",       desc: "Phylogenetic analysis pipeline",    badge: "ext" },
+            { repo: "CDCgov/MIRA",          desc: "Mira + Graphical User Interface (GUI)"             },
+            { repo: "CDCgov/Mira-nf",          desc: "Mira nextflow pipeline used by GUI or CLI "             },
+            { repo: "CDCgov/mira-oxide",          desc: "Rust tools used by Mira"             },
+            { repo: "CDCgov/IRMA",          desc: "The Assembler used by Mira"             },
+            { repo: "CDCgov/irma-core",      desc: "Rust tools used by IRMA"               },
+            { repo: "CDCgov/dais-ribosome",      desc: "ORF annotator used by Mira"               },
+            { repo: "CDCgov/seqsender",      desc: "Sequence submission tool used by Mira"      },
+            { repo: "nextstrain/nextclade",  desc: "Clade assignment tool used by Mira"       },
           ].map(({ repo, desc, badge }) => (
             <a key={repo} href={`https://github.com/${repo}`} target="_blank" rel="noopener noreferrer"
               className="flex items-start gap-2.5 px-3 py-2 rounded-lg hover:bg-muted/60 transition-colors group">
@@ -5037,23 +5497,18 @@ function ResourcesTab() {
         {/* ── Contact ──────────────────────────── */}
         <ResourceCard icon={Mail} title="Who to Contact">
           <ContactCard
-            name="Mira Development Team"
+            name="Mira And Laboratory Support"
             role="CDC VSDB — Virus Surveillance and Diagnostic Branch"
-            email="flu@cdc.gov"
-            github="CDCgov"
+            email="idseqsupport@cdc.gov"
           />
           <ContactCard
-            name="SeqSender Team"
-            role="CDC — Sequence submission support"
-            github="CDCgov"
+            name="Ben Rambo-Martin"
+            role="Mira project lead"
+            email="brambomartin@cdc.gov"
           />
           <div className="mt-2 pt-2 border-t border-border space-y-1.5">
             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Report Issues</p>
-            <ResourceLink href="https://github.com/CDCgov/MIRA/issues" icon={MessageSquare} badge="bugs">Mira GitHub Issues</ResourceLink>
-            <ResourceLink href="https://github.com/CDCgov/seqsender/issues" icon={MessageSquare} badge="bugs">SeqSender GitHub Issues</ResourceLink>
-          </div>
-          <div className="mt-2 pt-2 border-t border-border">
-            <p className="text-xs text-muted-foreground">For general inquiries about CDC influenza surveillance tools, visit <a href="https://www.cdc.gov/flu" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">cdc.gov/flu</a>.</p>
+            <ResourceLink href="https://github.com/CDCgov/MIRA/issues" icon={MessageSquare} >Mira GitHub Issues</ResourceLink>
           </div>
         </ResourceCard>
 
@@ -5156,11 +5611,10 @@ export default function App() {
           className="flex items-center gap-3 text-white hover:opacity-90 transition-opacity"
         >
           <div className="relative shrink-0">
-            <ShaderAura className="absolute -inset-2 w-[calc(100%+1rem)] h-[calc(100%+1rem)] pointer-events-none" />
             <img
               src="/mira-logo.png"
               alt="MIRA logo"
-              className="relative h-20 w-20 object-contain drop-shadow-[0_2px_6px_rgba(0,0,0,0.35)]"
+              className="relative h-24 w-24 object-contain drop-shadow-[0_2px_6px_rgba(0,0,0,0.35)]"
             />
           </div>
           <div className="flex flex-col leading-tight">

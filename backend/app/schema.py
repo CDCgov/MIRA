@@ -57,6 +57,7 @@ class AssemblyInfo(BaseModel):
     custom_qc_settings: bool = Field(False, description="Whether to use custom QC settings for assembly.")
     parquet_files: bool = Field(False, description="Whether to generate parquet files for the assembly outputs.")
     nextclade: bool = Field(True, description="Whether to run NextClade for lineage assignment.")
+    keep_workdir: bool = Field(False, description="Whether to preserve the Nextflow work directory after a successful run (for reviewing per-task logs).")
     assembly_status: _AssemblyStatus = Field(..., description="Assembly status for the sequencing run")
     @model_validator(mode='after')
     def validate_against_assembly_schema(self) -> 'AssemblyInfo':
@@ -120,6 +121,8 @@ class RunStatusRequest(RunRequest):
 # ------  TASK LOG REQUEST (REQUIRED: RUN NAME, EXPERIMENT TYPE, HASH) ----------
 class TaskLogRequest(RunRequest):
     hash: str = Field(..., description="Execution-trace hash of the task whose error log to retrieve (e.g. '9f/df6545').")
+    stream: Optional[str] = Field(None, description="Which stream to prefer: 'stdout' reads .command.out/.command.log first; otherwise the error log is preferred.")
+    full: Optional[bool] = Field(False, description="When true, also return the untruncated file contents in 'full_text' (used for copy).")
 
 # ------  DOWNLOAD FASTA REQUEST (REQUIRED: RUN NAME, EXPERIMENT TYPE, KEY) ----------
 class DownloadFastaRequest(RunRequest):

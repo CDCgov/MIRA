@@ -86,6 +86,7 @@ from .mira_handler import (
     retrieve_sample_coverage_list,
     retrieve_sample_coverage_sankeyfig,
     retrieve_sample_coverage_plot,
+    retrieve_sample_coverage_linearfig,
     retrieve_variants,
     retrieve_minor_snvs,
     retrieve_indels,
@@ -387,6 +388,36 @@ async def get_runs():
     except Exception as err:
         raise HTTPException(status_code=500, detail=str(err))
 
+# ---------- Dashboard Summary Counts ----------
+@app.get("/stats/summary", response_model=Dict[str, int], summary="Dashboard summary counts (submitted sequences)", tags=["MIRA Utils"])
+async def get_stats_summary():
+    """
+    Return real counts for the home dashboard: sequences submitted to NCBI
+    (GenBank + SRA) and to GISAID, derived from assigned accessions in the
+    submission-status tables.
+    """
+    def _count_assigned(table: str, accession_col: str) -> int:
+        # Count distinct rows that have a non-null accession assigned; treat a
+        # missing/empty table as zero so the dashboard still renders.
+        try:
+            df = lookup_tbl_in_database(db_tbl_name=[table], return_var=[accession_col])
+        except Exception:
+            return 0
+        if df.is_empty():
+            return 0
+        return df.filter(pl.col(accession_col).is_not_null()).height
+
+    try:
+        genbank = await asyncio.to_thread(_count_assigned, "gb_submission_status", "genbank_accession")
+        sra = await asyncio.to_thread(_count_assigned, "sra_submission_status", "sra_accession")
+        gisaid = await asyncio.to_thread(_count_assigned, "gs_submission_status", "gisaid_accession_epi_isl_id")
+        return {
+            "ncbi_sequences": genbank + sra,
+            "gisaid_sequences": gisaid,
+        }
+    except Exception as err:
+        raise HTTPException(status_code=500, detail=str(err))
+
 # ---------- Retrieve Specific Run Information ----------
 @app.get("/retrieve/run", response_model=Optional[Dict[str, Any]], summary="Retrieve a run information", tags=["MIRA Utils"])
 async def get_run_info(req: RunRequest = Depends()):
@@ -513,6 +544,7 @@ async def create_run(req: AssemblyRequest):
             "custom_qc_settings":       [req.custom_qc_settings],
             "parquet_files":            [req.parquet_files],
             "nextclade":                [req.nextclade],
+            "keep_workdir":             [req.keep_workdir],
             "assembly_status":          [req.assembly_status],
             "created_at":               [datetime.now().strftime("%Y-%m-%d %H:%M:%S")],
         })
@@ -532,6 +564,7 @@ async def create_run(req: AssemblyRequest):
             f"custom_qc_settings='{req.custom_qc_settings}'\n"
             f"parquet_files='{req.parquet_files}'\n"
             f"nextclade='{req.nextclade}'\n"
+            f"keep_workdir='{req.keep_workdir}'\n"
             f"assembly_status='{req.assembly_status}'\n",
         )
         # Validate assembly table based on assembly schema
@@ -871,6 +904,8 @@ async def get_mira_task_log(req: TaskLogRequest = Depends()):
             run_name        = req.run_name,
             experiment_type = req.experiment_type,
             task_hash       = req.hash,
+            stream          = req.stream,
+            full            = bool(req.full),
         )
         return result
     except ValueError as err:
@@ -1079,18 +1114,38 @@ async def get_sample_coverage_sankeyfig(
         raise HTTPException(status_code=500, detail=str(err))
 
 # ---------- Retrieve Sample Coverage Plot ----------
-@app.get("/retrieve/sample_coverage_plot", response_model=Optional[Dict[str, Any]], summary="Retrieve Sample Coverage Plot (Linear)", tags=["MIRA Results"])
+@app.get("/retrieve/sample_coverage_plot", response_model=Optional[Dict[str, Any]], summary="Retrieve Sample Segment Coverage Plot", tags=["MIRA Results"])
 async def get_sample_coverage_plot(
     req: RunRequest = Depends(),
-    sample_id: str = Query(..., description="Sample ID to retrieve the coverage plot for"),
+    sample_id: str = Query(..., description="Sample ID to retrieve the segment coverage plot for"),
 ):
     """
-    Retrieve sample coverage plot for a given sequencing run and sample.
+    Retrieve sample segment coverage plot for a given sequencing run and sample.
     """
     try:
         result = await asyncio.to_thread(
             retrieve_sample_coverage_plot,
             run_name = req.run_name, 
+            experiment_type = req.experiment_type,
+            sample_id = sample_id,
+        )
+        return result
+    except ValueError as err:
+        raise HTTPException(status_code=404, detail=str(err))
+
+# ---------- Retrieve Sample Combined (linear) Coverage Plot ----------
+@app.get("/retrieve/sample_coverage_linearfig", response_model=Optional[Dict[str, Any]], summary="Retrieve Sample Combined Coverage Plot", tags=["MIRA Results"])
+async def get_sample_coverage_linearfig(
+    req: RunRequest = Depends(),
+    sample_id: str = Query(..., description="Sample ID to retrieve the combined coverage plot for"),
+):
+    """
+    Retrieve sample combined (all-segment) coverage plot for a given sequencing run and sample.
+    """
+    try:
+        result = await asyncio.to_thread(
+            retrieve_sample_coverage_linearfig,
+            run_name = req.run_name,
             experiment_type = req.experiment_type,
             sample_id = sample_id,
         )
