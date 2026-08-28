@@ -107,6 +107,7 @@ from .seqsender_handler import (
     retrieve_seqsender_fasta,
     retrieve_seqsender_gff,
     retrieve_seqsender_table2asn,
+    retrieve_seqsender_gisaid_cli,
     retrieve_seqsender_submission_log,
     retrieve_seqsender_submission_status,
 )

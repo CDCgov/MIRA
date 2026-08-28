@@ -574,3 +574,28 @@ def retrieve_seqsender_submission_status(
         raise ValueError(str(err))
     except Exception as err:
         raise Exception(str(err))
+
+# Define function to launch seqsender pipeline for a given submission name, organism, database, and submission type
+def run_seqsender(
+    submission_name: str,
+    organism: str,
+    database: List[str],
+    submission_type: str
+) -> Dict[str, Any]:
+    try:
+        # Pull submission info from DB
+        db_submission_tbl = lookup_tbl_in_database(
+            db_tbl_name     = ["submission"],
+            return_var       = ["*"],
+            filter_coln_var  = ["submission_name", "organism", "database", "submission_type"],
+            filter_coln_val  = {"submission_name": [submission_name], "organism": [organism], "database": [database], "submission_type": [submission_type]},
+            filter_var_by    = ["AND", "AND", "AND", "AND"]
+        )
+
+        # Check if submission info exists in DB
+        if db_submission_tbl.is_empty():
+            raise ValueError(f"No submissions found for submission_name '{submission_name}' and organism '{organism}'.")
+
+        # Extract parameters from the submission table
+        submission_row = db_submission_tbl.row(0, named=True)
+        
