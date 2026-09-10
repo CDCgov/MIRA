@@ -83,7 +83,7 @@ def compare_and_update_db_table(unique_cols: List[str], compare_tbl: pl.DataFram
                 table = update_tbl.slice(l, 1),
                 filter_coln_var = [*unique_cols],
                 filter_coln_val = {col: [update_tbl[col][l]] for col in unique_cols},
-                filter_var_by = ["AND"] * (len(unique_cols) - 1),
+                filter_var_by = ["AND"] * len(unique_cols),
             )
             
 # SQLite BOOLEAN columns are read back by Polars as strings ("0"/"1"), and

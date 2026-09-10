@@ -7,9 +7,11 @@ from .schema_validator import (
     validate_tbl,
     organisms,
     database_targets,
-    database_status,
+    database_statuses,
     submission_types,
-    submission_status,
+    submission_portals,
+    submission_statuses,
+    ncbi_publication_statuses,
     experiment_types,
     sample_types,
     sample_status,
@@ -18,17 +20,20 @@ from .schema_validator import (
     irma_modules,
     assembly_status,
     assembly_pa_schema,
-    submission_pa_schema,
     ont_samplesheet_pa_schema,
     illumina_samplesheet_pa_schema,
+    submission_pa_schema,
+    submitter_pa_schema,
 )
 
 # Pre-compute Literal types for SeqSender submission
-Organism = Literal[tuple(organisms)]
-DatabaseTargets = Literal[tuple(database_targets)]
-DatabaseStatus = Literal[tuple(database_status)]
-SubmissionTypes = Literal[tuple(submission_types)]
-SubmissionStatus = Literal[tuple(submission_status)]
+_Organisms = Literal[tuple(organisms)]
+_DatabaseTargets = Literal[tuple(database_targets)]
+_DatabaseStatuses = Literal[tuple(database_statuses)]
+_SubmissionTypes = Literal[tuple(submission_types)]
+_SubmissionStatuses = Literal[tuple(submission_statuses)]
+_SubmissionPortals = Literal[tuple(submission_portals)]
+_NcbiPublicationStatuses = Literal[tuple(ncbi_publication_statuses)]
 
 # Pre-compute Literal types for MIRA assembly
 _ExperimentTypes  = Literal[tuple(experiment_types)]
@@ -81,7 +86,7 @@ class OntSamplesheet(BaseModel):
     def validate_against_samplesheet_schema(self) -> 'OntSamplesheet':
         tbl = pl.DataFrame([self.model_dump()])
         validate_tbl(tbl, ont_samplesheet_pa_schema, "ont_samplesheet")
-        return self
+        return self    
     
 # ------ DB ONT SAMPLESHEET MODEL ----------
 class DBOntSamplesheet(OntSamplesheet):
@@ -100,7 +105,7 @@ class IlluminaSamplesheet(BaseModel):
         tbl = pl.DataFrame([self.model_dump()])
         validate_tbl(tbl, illumina_samplesheet_pa_schema, "illumina_samplesheet")
         return self
-    
+        
 # ------ DB ILLUMINA SAMPLESHEET MODEL ----------
 class DBIlluminaSamplesheet(IlluminaSamplesheet):
     assembly_id: int = Field(..., description="Assembly ID.") 
@@ -147,37 +152,102 @@ class CopyRunRequest(RunRequest):
 class AssemblyRequest(AssemblyInfo):
     samplesheet: List[OntSamplesheet] | List[IlluminaSamplesheet] = Field(..., description="Samplesheet for the sequencing run.")
 
-# -------- SEQSENDER MODELS --------
+# -------------------------------------------
+#
+#  SEQSENDER MODELS --------
+#
+# -------------------------------------------
 class SubmissionInfo(BaseModel):
     submission_name: str = Field(..., description="Name of the submission.")
-    organism: Literal[Organism] = Field(..., description="Organism for which to send sequences.")
-    database: List[Literal[DatabaseTargets]] = Field(..., description="One or more databases to submit to.")
-    database_status: List[Literal[DatabaseStatus]] = Field(..., description="Status of the submission to each database.")
-    submission_type: Literal[SubmissionTypes] = Field(..., description="Type of submission.")
+    organism: _Organisms = Field(..., description="Organism for which to send sequences.")
+    submission_portal: _SubmissionPortals = Field(..., description="Submission portal (NCBI or GISAID).")
+    database: _DatabaseTargets = Field(..., description="Database being submitted to.")
+    database_status: _DatabaseStatuses = Field(..., description="Status of the submission to the database.")
+    submission_type: _SubmissionTypes = Field(..., description="Type of submission.")
     gff_file: bool = Field(..., description="Indicates if a GFF file is included in the submission.")
     table2asn: bool = Field(..., description="Indicates if a table2asn file is included in the submission.")
-    submission_id: Optional[str] = Field(None, description="Unique identifier for the submission.")
-    submission_status: Literal[SubmissionStatus] = Field(..., description="Status of the submission.")
+    submitter_name: Optional[str] = Field(None, description="Submitter name for the submission.")
+    ncbi_publication_title: Optional[str] = Field(None, description="NCBI publication title.")
+    ncbi_publication_status: _NcbiPublicationStatuses = Field(..., description="NCBI publication status.")
+    ncbi_release_date: Optional[str] = Field(None, description="NCBI release date.")    
+    submission_status: _SubmissionStatuses = Field(..., description="Status of the submission.")
     @model_validator(mode='after')
     def validate_against_submission_schema(self) -> 'SubmissionInfo':
         tbl = pl.DataFrame([self.model_dump()])
         validate_tbl(tbl, submission_pa_schema, "submission")
         return self
-    
+        
 class DBSubmissionInfo(SubmissionInfo):
-    submission_id_pk: str = Field(..., description="Unique identifier for the submission.")
+    submission_id: int = Field(..., description="Unique identifier for the submission.")
 
 class ListSubmissionResponse(BaseModel):
     submission_info: Optional[List[DBSubmissionInfo]] = Field(None, description="Information about the submissions.")
 
+class SubmitterInfo(BaseModel):
+    submitter_name: str = Field(..., description="Name of the submitter.")
+    submitter_password: str = Field(..., description="Password for the submitter.")
+    submission_portal: _SubmissionPortals = Field(..., description="Submission portal (NCBI or GISAID).")
+    # Portal-specific credential fields
+    ncbi_spuid_namespace: Optional[str] = Field(None, description="NCBI SPUID namespace for the submitter.")
+    gisaid_client_id: Optional[str] = Field(None, description="GISAID client ID for the submitter.")
+    # NCBI Description.Organization
+    ncbi_org_role: Optional[str] = Field(None, description="NCBI organization role for the submitter.")
+    ncbi_org_type: Optional[str] = Field(None, description="NCBI organization type for the submitter.")
+    ncbi_org_name: Optional[str] = Field(None, description="NCBI organization name for the submitter.")
+    ncbi_org_affiliation: Optional[str] = Field(None, description="NCBI organization affiliation for the submitter.")
+    ncbi_org_division: Optional[str] = Field(None, description="NCBI organization division for the submitter.")
+    # NCBI Description.Organization.Address
+    ncbi_addr_street: Optional[str] = Field(None, description="NCBI address street for the submitter.")
+    ncbi_addr_city: Optional[str] = Field(None, description="NCBI address city for the submitter.")
+    ncbi_addr_state: Optional[str] = Field(None, description="NCBI address state for the submitter.")
+    ncbi_addr_postal_code: Optional[str] = Field(None, description="NCBI address postal code for the submitter.")
+    ncbi_addr_country: Optional[str] = Field(None, description="NCBI address country for the submitter.")
+    ncbi_addr_email: Optional[str] = Field(None, description="NCBI address email for the submitter.")
+    ncbi_addr_phone: Optional[str] = Field(None, description="NCBI address phone for the submitter.")
+    # NCBI Description.Organization.Address.Submitter
+    ncbi_submitter_email: Optional[str] = Field(None, description="NCBI submitter email.")
+    ncbi_submitter_alt_email: Optional[str] = Field(None, description="NCBI submitter alternate email.")
+    ncbi_submitter_first_name: Optional[str] = Field(None, description="NCBI submitter first name.")
+    ncbi_submitter_last_name: Optional[str] = Field(None, description="NCBI submitter last name.")
+    @model_validator(mode='after')
+    def validate_against_submitter_schema(self) -> 'SubmitterInfo':
+        tbl = pl.DataFrame([self.model_dump()])
+        validate_tbl(tbl, submitter_pa_schema, "submitter")
+        return self
+    
+class DBSubmitterInfo(SubmitterInfo):
+    submitter_id: int = Field(..., description="Unique identifier for the submitter.")
+
+class ListSubmitterResponse(BaseModel):
+    SubmitterInfo: Optional[List[DBSubmitterInfo]] = Field(None, description="Information about the submitters.")
+
 class SubmissionRequest(BaseModel):
     submission_name: str = Field(..., description="Name of the submission.")
-    organism: Literal[Organism] = Field(..., description="Organism for which to send sequences.")
-    database: List[Literal[DatabaseTargets]] = Field(..., description="One or more databases to submit to.")
-    submission_type: Literal[SubmissionTypes] = Field(..., description="Type of submission.")
+    organism: _Organisms = Field(..., description="Organism for which to send sequences.")
+    database: List[_DatabaseTargets] = Field(..., description="One or more databases to submit to.")
+    submission_type: _SubmissionTypes = Field(..., description="Type of submission.")
 
-class SeqSenderRequest(SubmissionRequest):
-    database_status: List[Literal[DatabaseStatus]] = Field(..., description="Status of the submission to each database.")
+class CreateSubmissionRequest(SubmissionRequest):
+    ncbi_submitter_info: Optional[SubmitterInfo] = Field(None, description="NCBI submitter information for the submission.")
+    gisaid_submitter_info: Optional[SubmitterInfo] = Field(None, description="GISAID submitter information for the submission.")
     gff_file: bool = Field(..., description="Indicates if a GFF file is included in the submission.")
     table2asn: bool = Field(..., description="Indicates if a table2asn file is included in the submission.")
+    ncbi_publication_title: Optional[str] = Field(None, description="NCBI publication title for the submission.")
+    ncbi_publication_status: _NcbiPublicationStatuses = Field(..., description="NCBI publication status for the submission.")
+    ncbi_release_date: Optional[str] = Field(None, description="NCBI release date for the submission.")
+
+    @model_validator(mode='after')
+    def validate_ncbi_submitter_info(self) -> 'CreateSubmissionRequest':
+        if self.ncbi_submitter_info is not None:
+            postal_code = (self.ncbi_submitter_info.ncbi_addr_postal_code or "").strip()
+            if not postal_code.isdigit():
+                raise ValueError("NCBI postal code must contain only digits for SeqSender.")
+            if not (self.ncbi_submitter_info.ncbi_org_affiliation or "").strip():
+                raise ValueError("NCBI organization affiliation is required for SeqSender.")
+            if not (self.ncbi_submitter_info.ncbi_org_division or "").strip():
+                raise ValueError("NCBI organization division is required for SeqSender.")
+            if not (self.ncbi_submitter_info.ncbi_addr_email or "").strip():
+                raise ValueError("NCBI organization email is required for SeqSender.")
+        return self
+
 

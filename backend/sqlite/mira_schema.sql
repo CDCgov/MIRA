@@ -8,7 +8,7 @@ PRAGMA foreign_keys=OFF;
 -- Table structure for table `assembly`
 --
 CREATE TABLE IF NOT EXISTS assembly (
-  assembly_id             INTEGER PRIMARY KEY AUTOINCREMENT,
+  assembly_id             INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
   run_name                TEXT NOT NULL,
   alias_name              TEXT DEFAULT NULL,
   experiment_type         TEXT NOT NULL
@@ -47,10 +47,10 @@ CREATE TABLE IF NOT EXISTS assembly (
   custom_qc_settings      BOOLEAN NOT NULL DEFAULT 0 CHECK (custom_qc_settings IN (0, 1)),
   parquet_files           BOOLEAN NOT NULL DEFAULT 0 CHECK (parquet_files IN (0, 1)),
   nextclade               BOOLEAN NOT NULL DEFAULT 1 CHECK (nextclade IN (0, 1)),  
-  assembly_status         TEXT NOT NULL DEFAULT 'SUBMITTED' 
+  assembly_status         TEXT NOT NULL DEFAULT 'CREATED' 
                             CHECK (assembly_status IN (
-                              'SUBMITTED', 'PROCESSING', 'CANCELED',
-                              'FAILED', 'COMPLETED'
+                              'CREATED', 'SUBMITTED', 'PROCESSING', 
+                              'CANCELED', 'FAILED', 'COMPLETED'
                             )),
   created_at              TEXT DEFAULT CURRENT_TIMESTAMP,
   finished_at             TEXT DEFAULT NULL,

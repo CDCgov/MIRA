@@ -48,11 +48,16 @@ def _ensure_schema_tables(connection: sqlite3.Connection, schema_files: tuple[st
                 statement = "".join(statement_lines)
                 if not sqlite3.complete_statement(statement):
                     continue
-                match = _CREATE_TABLE_PATTERN.match(statement)
+                # Strip full-line SQL comments before matching so a CREATE TABLE preceded
+                # by a header comment block (e.g. "-- Table structure for ...") is still found.
+                uncommented = "\n".join(
+                    l for l in statement.splitlines() if not l.strip().startswith("--")
+                ).strip()
+                match = _CREATE_TABLE_PATTERN.match(uncommented)
                 if match:
                     table_name = next(group for group in match.groups() if group is not None)
                     if table_name not in existing_tables:
-                        connection.execute(statement)
+                        connection.execute(uncommented)
                         existing_tables.add(table_name)
                 statement_lines.clear()
     # Commit any changes made to the database
@@ -102,12 +107,12 @@ def init_connection() -> sqlite3.Connection:
                 )
             finally:
                 conn.close()
-        # Open the connection with check_same_thread=False to allow usage across threads
-        connection = sqlite3.connect(_DEFAULT_SQLITE_FILE, check_same_thread=False)
-        connection.row_factory = sqlite3.Row   # column-name access on cursors
-        connection.execute("PRAGMA foreign_keys = ON;")
-        # Lightweight, idempotent migrations for columns added after a DB was first created
-        _apply_migrations(connection)
+            # Keep migrations under the initialization lock so concurrent requests
+            # cannot both attempt to add the same missing column.
+            connection = sqlite3.connect(_DEFAULT_SQLITE_FILE, check_same_thread=False)
+            connection.row_factory = sqlite3.Row   # column-name access on cursors
+            connection.execute("PRAGMA foreign_keys = ON;")
+            _apply_migrations(connection)
         return connection
     except sqlite3.Error as err:
         raise Exception(f"SQLite Connection Error: {err}") from err
@@ -122,12 +127,42 @@ def _apply_migrations(connection: sqlite3.Connection) -> None:
         ("assembly", "finished_at", "TEXT DEFAULT NULL"),
         ("assembly", "runtime", "TEXT DEFAULT NULL"),
         ("assembly", "keep_workdir", "BOOLEAN NOT NULL DEFAULT 0"),
+        ("submission", "submission_portal", "TEXT NOT NULL"),
+        ("submission", "database_status", "TEXT NOT NULL DEFAULT 'ACTIVE'"),
+        ("submission", "gff_file", "BOOLEAN NOT NULL DEFAULT 0"),
+        ("submission", "table2asn", "BOOLEAN NOT NULL DEFAULT 0"),
+        ("submission", "submitter_name", "TEXT NOT NULL"),
+        ("submission", "ncbi_publication_title", "TEXT DEFAULT NULL"),
+        ("submission", "ncbi_publication_status", "TEXT NOT NULL DEFAULT 'Unpublished'"),
+        ("submission", "ncbi_release_date", "TEXT DEFAULT NULL"),
+        ("submission", "ncbi_submission_id", "TEXT DEFAULT NULL"),
+        ("submission", "ncbi_submission_status", "TEXT DEFAULT NULL"),
     ]
+    # A stale "submission_id" TEXT column (an old external-accession field) collides with the
+    # surrogate integer primary key the current schema expects under that same name — drop the
+    # stale one and rename the real primary key ("submission_id_pk") into its place.
+    submission_cols = [row[1] for row in connection.execute('PRAGMA table_info("submission")').fetchall()]
+    if "submission_id_pk" in submission_cols:
+        if "submission_id" in submission_cols:
+            connection.execute('ALTER TABLE "submission" DROP COLUMN "submission_id"')
+        connection.execute('ALTER TABLE "submission" RENAME COLUMN "submission_id_pk" TO "submission_id"')
+        connection.commit()
     for table, column, definition in _required_columns:
         existing = [row[1] for row in connection.execute(f'PRAGMA table_info("{table}")').fetchall()]
         # Only migrate when the table exists but the column is missing
         if existing and column not in existing:
             connection.execute(f'ALTER TABLE "{table}" ADD COLUMN {column} {definition}')
             connection.commit()
+    # (table, old_column, new_column) tuples to rename on pre-existing databases
+    _required_renames = [
+        ("submission", "db", "database"),
+    ]
+    for table, old_column, new_column in _required_renames:
+        existing = [row[1] for row in connection.execute(f'PRAGMA table_info("{table}")').fetchall()]
+        # Only rename when the old column is still present and the new one hasn't been added yet
+        if old_column in existing and new_column not in existing:
+            connection.execute(f'ALTER TABLE "{table}" RENAME COLUMN "{old_column}" TO "{new_column}"')
+            connection.commit()
+
 
 
