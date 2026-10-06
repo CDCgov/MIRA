@@ -86,8 +86,8 @@ sra-library_strategy,Required,The sequencing technique intended for the library.
 sra-library_source,Required,The type of source material that is being sequenced.
 sra-library_selection,Required,The method used to select and/or enrich the material being sequenced.
 sra-library_layout,Required,"Whether to expect SINGLE or PAIRED end reads. Options: ""single"" or ""paired""."
-sra-platform,Optional,Instrument platform.
 sra-instrument_model,Required,Instrument model used for sequencing.
+sra-platform,Optional,Instrument platform.
 sra-design_description,Optional,Brief description of materials/methods used for creating sequencing library.
 sra-title,Optional,"Optional internal field for how the SRA submission should be named when viewed from the NCBI submission portal. If not provided, when performing submissions <--submission_name> with the suffix ""-SRA"" will be used instead."
 sra-comment,Optional,Optional internal field explaining the purpose of the submission for when interacting and resolving submission issues with NCBI.

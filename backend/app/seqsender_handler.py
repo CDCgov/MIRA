@@ -424,13 +424,10 @@ def _reconcile_fasta_with_metadata_samples(metadata_file: str, fasta_file: str) 
                     fh.write(line + "\n")
 
 
-# The installed SeqSender build resolves a bare (non-absolute) "sra-file_N" filename against
-# "<submission_dir>/raw_reads" (it omits the submission_name segment SeqSender's own error
-# message claims to use), which never matches where this backend actually stores uploaded raw
-# reads ("<submission_dir>/<submission_name>/raw_reads/<file>"). Rewriting bare filenames to
-# their absolute path here sidesteps that bug entirely, since SeqSender uses the path as-is
-# whenever it's already absolute.
-def _absolutize_raw_reads_paths(metadata_file: str, submission_name_dir: str) -> None:
+# Validate every "sra-file_N" reference and rewrite relative filenames to absolute paths.
+# Absolute paths may point outside the submission's raw_reads directory, while relative paths
+# must resolve inside it.
+def _absolutize_raw_reads_paths(metadata_file: str, submission_name_dir: str) -> List[str]:
     raw_reads_dir = os.path.realpath(os.path.join(submission_name_dir, "raw_reads"))
     sra_file_column_re = re.compile(r"^sra-file_[1-9]\d*$", re.IGNORECASE)
 
@@ -439,31 +436,42 @@ def _absolutize_raw_reads_paths(metadata_file: str, submission_name_dir: str) ->
         fieldnames = reader.fieldnames or []
         sra_file_columns = [column for column in fieldnames if sra_file_column_re.match(column)]
         if not sra_file_columns:
-            return
+            return []
         rows = list(reader)
 
     resolved_paths: Dict[Tuple[int, str], str] = {}
-    missing_files = []
+    missing_samples: List[str] = []
     for row_number, row in enumerate(rows, start=2):
+        sample_name = (
+            (row.get("sra-sample_name") or "").strip()
+            or (row.get("sequence_name") or "").strip()
+            or f"row {row_number}"
+        )
         for column in sra_file_columns:
             value = (row.get(column) or "").strip()
             if not value:
-                missing_files.append(f"row {row_number}, {column}: <empty>")
+                if sample_name not in missing_samples:
+                    missing_samples.append(sample_name)
                 continue
-            candidate = os.path.realpath(
-                value if os.path.isabs(value) else os.path.join(raw_reads_dir, value)
-            )
-            is_in_raw_reads = os.path.commonpath([raw_reads_dir, candidate]) == raw_reads_dir
-            if not is_in_raw_reads or not os.path.isfile(candidate):
-                missing_files.append(f"row {row_number}, {column}: {value}")
+
+            if os.path.isabs(value):
+                candidate = os.path.realpath(value)
+                valid_path = os.path.isfile(candidate)
+            else:
+                candidate = os.path.realpath(os.path.join(raw_reads_dir, value))
+                valid_path = (
+                    os.path.commonpath([raw_reads_dir, candidate]) == raw_reads_dir
+                    and os.path.isfile(candidate)
+                )
+
+            if not valid_path:
+                if sample_name not in missing_samples:
+                    missing_samples.append(sample_name)
                 continue
             resolved_paths[(row_number, column)] = candidate
 
-    if missing_files:
-        raise FileNotFoundError(
-            "Raw read file(s) referenced by metadata were not found in "
-            f"'{raw_reads_dir}':\n" + "\n".join(missing_files)
-        )
+    if missing_samples:
+        return missing_samples
 
     changed = False
     for row_number, row in enumerate(rows, start=2):
@@ -479,6 +487,8 @@ def _absolutize_raw_reads_paths(metadata_file: str, submission_name_dir: str) ->
             writer = csv.DictWriter(fh, fieldnames=fieldnames)
             writer.writeheader()
             writer.writerows(rows)
+
+    return []
 
 
 # Function to update the submitter information in the database with the provided submitter information
@@ -1765,7 +1775,12 @@ def submit_ncbi_submission(
         # due to a known bug in the installed SeqSender build where relative paths in the metadata
         # file can cause submission failures.
         if "SRA" in selected_databases:
-            _absolutize_raw_reads_paths(metadata_file, submission_name_dir)
+            missing_raw_read_samples = _absolutize_raw_reads_paths(metadata_file, submission_name_dir)
+            if missing_raw_read_samples:
+                raise FileNotFoundError(
+                    "Raw read files do not exist for sample(s): "
+                    + ", ".join(missing_raw_read_samples)
+                )
 
         # Check if fasta file exists in the submission directory. Only pass --fasta_file when
         # GenBank is selected -- SeqSender validates the path even for BioSample/SRA-only runs.
@@ -1989,7 +2004,12 @@ def prep_seqsender_submission(
 
         # Work around the installed SeqSender build's raw_reads path bug (see helper docstring).
         if "SRA" in selected_databases:
-            _absolutize_raw_reads_paths(metadata_file, submission_name_dir)
+            missing_raw_read_samples = _absolutize_raw_reads_paths(metadata_file, submission_name_dir)
+            if missing_raw_read_samples:
+                raise FileNotFoundError(
+                    "Raw read files do not exist for sample(s): "
+                    + ", ".join(missing_raw_read_samples)
+                )
 
         # Reconcile sequence records when GenBank is selected, then record each database's
         # unique sample count using its own sample_name column.
