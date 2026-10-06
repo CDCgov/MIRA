@@ -9608,7 +9608,7 @@ export default function App() {
         >
           <div className="relative shrink-0">
             <img
-              src="/mira-logo.png"
+              src={`${import.meta.env.BASE_URL}mira-logo.png`}
               alt="MIRA logo"
               className="relative h-24 w-24 object-contain drop-shadow-[0_2px_6px_rgba(0,0,0,0.35)]"
             />

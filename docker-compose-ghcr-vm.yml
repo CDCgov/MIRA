@@ -1,0 +1,41 @@
+x-mira-backend-codebase:
+  &mira-backend-codebase
+  /scicomp/groups-pure/ID-VSDB-BIA/MIRA_VM/apps/MIRA/backend
+
+x-mira-frontend-codebase:
+  &mira-frontend-codebase
+  /scicomp/groups-pure/ID-VSDB-BIA/MIRA_VM/apps/MIRA/frontend
+
+x-data-storage-path:
+  &data-storage-path
+  /scicomp/groups-pure/ID-VSDB-BIA/MIRA_VM/MIRA_Data
+
+x-mira-image:
+  &mira-image
+  ghcr.io/rchau88/mira-dev:v3.0.2
+
+services:
+  mira:
+    container_name: mira
+    image: *mira-image
+    networks:
+      - mira
+    privileged: true
+    ports:
+      - 5174:5175
+    restart: always
+    volumes:
+      - type: bind
+        source: *data-storage-path
+        target: /data
+      - type: bind
+        source: *mira-backend-codebase
+        target: /MIRA/backend
+      - type: bind
+        source: *mira-frontend-codebase
+        target: /MIRA/frontend
+    working_dir: /data
+
+networks:
+  mira:
+    name: mira

@@ -15,8 +15,15 @@ const allowLargeUploads = {
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: '/mira-app/',
+
   plugins: [react(), allowLargeUploads],
+  
   server: {
+    allowedHosts: [
+      'mira-app-dev-01.biotech.cdc.gov',
+    ],
+    
     proxy: {
       '/api': {
         target: 'http://127.0.0.1:8080',
