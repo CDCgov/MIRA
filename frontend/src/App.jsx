@@ -1516,6 +1516,8 @@ function OntFastqCell({ fastqList, uploadedMap }) {
   );
 }
 
+const PAST_RUNS_PAGE_SIZE = 10;
+
 function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden, onOpenSeqSender }) {
   const [openStep, setOpenStep]                           = useState(() => new Set()); // step accordions start collapsed
   const [stepNavCollapsed, setStepNavCollapsed]           = useState(false);
@@ -1556,6 +1558,7 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden, onOpenSeqSe
   const [loadRunSelectedRow, setLoadRunSelectedRow] = useState(null); // row highlighted inside the Load Run modal only
   const [runSearch, setRunSearch]                   = useState("");
   const [runSortDir, setRunSortDir]                 = useState("desc"); // "asc" | "desc" — run date sort order (desc = most recent first)
+  const [runPage, setRunPage]                       = useState(0);
   const [uploadedOntFileObjects, setUploadedOntFileObjects]           = useState({}); // ONT filename → File object
   const [uploadedIlluminaFileObjects, setUploadedIlluminaFileObjects] = useState({}); // Illumina filename → File object
 
@@ -2492,6 +2495,7 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden, onOpenSeqSe
     setLoadRunSelectedRow(null);
     setRunSearch("");
     setRunSortDir("desc");
+    setRunPage(0);
     setExportRunModal(false);
     setExportRunSearch("");
     setExportRunSortDir("asc");
@@ -2558,6 +2562,7 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden, onOpenSeqSe
     setLoadRunError(null);
     setLoadRunSelectedRow(null);
     setRunSearch("");
+    setRunPage(0);
     try {
       setAvailableRuns(await fetchRuns());
     } catch (err) {
@@ -5077,6 +5082,9 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden, onOpenSeqSe
                     const timeComparison = ta - tb;
                     return direction * (timeComparison || nameComparison);
                   });
+                  const totalPages = Math.max(1, Math.ceil(filtered.length / PAST_RUNS_PAGE_SIZE));
+                  const pageStart = runPage * PAST_RUNS_PAGE_SIZE;
+                  const pagedRuns = filtered.slice(pageStart, pageStart + PAST_RUNS_PAGE_SIZE);
                   return (
                     <>
                       <div className="flex items-center gap-2">
@@ -5084,7 +5092,7 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden, onOpenSeqSe
                           <FileSearch size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
                           <input
                             value={runSearch}
-                            onChange={(e) => { setRunSearch(e.target.value); setLoadRunSelectedRow(null); }}
+                            onChange={(e) => { setRunSearch(e.target.value); setLoadRunSelectedRow(null); setRunPage(0); }}
                             placeholder="Search runs…"
                             className="w-full h-8 pl-8 pr-3 rounded-lg border border-border bg-background text-xs font-mono focus:outline-none focus:ring-1 focus:ring-ring"
                           />
@@ -5092,7 +5100,7 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden, onOpenSeqSe
                         <button
                           type="button"
                           title={`Sort ${runSortDir === "asc" ? "newest first" : "oldest first"}`}
-                          onClick={() => setRunSortDir(d => d === "asc" ? "desc" : "asc")}
+                          onClick={() => { setRunSortDir(d => d === "asc" ? "desc" : "asc"); setRunPage(0); }}
                           className="h-8 w-8 shrink-0 flex items-center justify-center rounded-lg border border-border text-muted-foreground hover:text-primary hover:border-primary transition-colors"
                         >
                           {runSortDir === "asc" ? <ArrowUp size={13} /> : <ArrowDown size={13} />}
@@ -5111,7 +5119,7 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden, onOpenSeqSe
                               </tr>
                             </thead>
                             <tbody className="divide-y divide-border">
-                              {filtered.map(run => (
+                              {pagedRuns.map(run => (
                                 <tr
                                   key={run.assembly_id}
                                   onClick={() => { setLoadRunSelectedRow(run); handleLoadRun(run); }}
@@ -5133,6 +5141,36 @@ function AssemblyTab({ loadRunSignal, newRunSignal, setHeaderHidden, onOpenSeqSe
                               ))}
                             </tbody>
                           </table>
+                          {filtered.length > PAST_RUNS_PAGE_SIZE && (
+                            <div className="flex items-center justify-between border-t border-border bg-muted/10 px-3 py-2">
+                              <span className="text-xs text-muted-foreground">
+                                Showing {pageStart + 1}–{Math.min(pageStart + PAST_RUNS_PAGE_SIZE, filtered.length)} of {filtered.length}
+                              </span>
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs text-muted-foreground">Page {runPage + 1} of {totalPages}</span>
+                                <button
+                                  type="button"
+                                  title="Previous page"
+                                  aria-label="Previous page"
+                                  disabled={runPage === 0}
+                                  onClick={() => setRunPage((currentPage) => Math.max(0, currentPage - 1))}
+                                  className="flex h-7 w-7 items-center justify-center rounded-md border border-border text-muted-foreground transition-colors hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"
+                                >
+                                  <ChevronLeft size={13} />
+                                </button>
+                                <button
+                                  type="button"
+                                  title="Next page"
+                                  aria-label="Next page"
+                                  disabled={runPage >= totalPages - 1}
+                                  onClick={() => setRunPage((currentPage) => Math.min(totalPages - 1, currentPage + 1))}
+                                  className="flex h-7 w-7 items-center justify-center rounded-md border border-border text-muted-foreground transition-colors hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"
+                                >
+                                  <ChevronRight size={13} />
+                                </button>
+                              </div>
+                            </div>
+                          )}
                         </div>
                       )}
                     </>
@@ -8288,8 +8326,8 @@ const PAST_SUBMISSIONS_COLUMNS = [
   { key: "date_updated", label: "Updated" },
 ];
 
-// Table body rows beyond this count get a scrollable, sticky-header container instead of growing forever.
-const PAST_SUBMISSIONS_MAX_VISIBLE_ROWS = 20;
+// Number of submissions to display per page in the Past Submissions table.
+const PAST_SUBMISSIONS_PAGE_SIZE = 10;
 
 function PastSubmissionsPanel({ onSelectSubmission, onDeleteSubmission, isActive }) {
   const [submissions, setSubmissions] = useState([]);
@@ -8298,6 +8336,7 @@ function PastSubmissionsPanel({ onSelectSubmission, onDeleteSubmission, isActive
   const [search, setSearch] = useState("");
   const [sortColumn, setSortColumn] = useState("date_submitted"); // which column header is currently sorted
   const [sortDir, setSortDir] = useState("desc"); // "asc" | "desc"
+  const [page, setPage] = useState(0);
   const [selectedRow, setSelectedRow] = useState(null); // row highlighted by a single click (Copy/Delete/Update Status act on this)
   const [actionMode, setActionMode] = useState(null); // null | "copy" | "delete" — which confirmation modal is open
   const [copyName, setCopyName] = useState("");
@@ -8316,7 +8355,10 @@ function PastSubmissionsPanel({ onSelectSubmission, onDeleteSubmission, isActive
     setError(null);
     fetchSubmissions(options)
       .then((rows) => {
-        if (!cancelled) setSubmissions(rows);
+        if (!cancelled) {
+          setSubmissions(rows);
+          setPage(0);
+        }
       })
       .catch((fetchError) => {
         if (!cancelled) setError(fetchError.message || "Failed to load submissions.");
@@ -8534,6 +8576,7 @@ function PastSubmissionsPanel({ onSelectSubmission, onDeleteSubmission, isActive
   // Toggle sort direction when clicking the already-active column header, otherwise switch to the
   // clicked column ascending.
   const handleSort = (column) => {
+    setPage(0);
     if (sortColumn === column) {
       setSortDir((d) => (d === "asc" ? "desc" : "asc"));
     } else {
@@ -8585,6 +8628,9 @@ function PastSubmissionsPanel({ onSelectSubmission, onDeleteSubmission, isActive
     if (!bs) return -1;
     return direction * as.localeCompare(bs, undefined, { numeric: true, sensitivity: "base" }) || nameComparison;
   });
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAST_SUBMISSIONS_PAGE_SIZE));
+  const pageStart = page * PAST_SUBMISSIONS_PAGE_SIZE;
+  const pagedSubmissions = filtered.slice(pageStart, pageStart + PAST_SUBMISSIONS_PAGE_SIZE);
 
   return (
     <div className="flex flex-col gap-3">
@@ -8593,7 +8639,7 @@ function PastSubmissionsPanel({ onSelectSubmission, onDeleteSubmission, isActive
           <FileSearch size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
           <input
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => { setSearch(e.target.value); setPage(0); }}
             placeholder="Search submissions…"
             className="w-full h-8 pl-8 pr-3 rounded-lg border border-border bg-background text-xs font-mono focus:outline-none focus:ring-1 focus:ring-ring"
           />
@@ -8673,7 +8719,7 @@ function PastSubmissionsPanel({ onSelectSubmission, onDeleteSubmission, isActive
         <p className="py-6 text-left text-xs text-muted-foreground">No submissions match your search.</p>
       ) : (
         <div className="overflow-hidden rounded-xl border border-border">
-          <div className={cn("overflow-auto", filtered.length > PAST_SUBMISSIONS_MAX_VISIBLE_ROWS && "max-h-[720px]")}>
+          <div className="overflow-auto">
             <table className="w-full text-xs">
               <thead className="bg-muted sticky top-0 z-10">
                 <tr>
@@ -8694,7 +8740,7 @@ function PastSubmissionsPanel({ onSelectSubmission, onDeleteSubmission, isActive
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
-                {filtered.map((submission, index) => (
+                {pagedSubmissions.map((submission, index) => (
                   <tr
                     key={submission.submission_id ?? `${submission.submission_name}-${index}`}
                     role="button"
@@ -8766,6 +8812,36 @@ function PastSubmissionsPanel({ onSelectSubmission, onDeleteSubmission, isActive
               </tbody>
             </table>
           </div>
+          {filtered.length > PAST_SUBMISSIONS_PAGE_SIZE && (
+            <div className="flex items-center justify-between border-t border-border bg-muted/10 px-3 py-2">
+              <span className="text-xs text-muted-foreground">
+                Showing {pageStart + 1}–{Math.min(pageStart + PAST_SUBMISSIONS_PAGE_SIZE, filtered.length)} of {filtered.length}
+              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground">Page {page + 1} of {totalPages}</span>
+                <button
+                  type="button"
+                  title="Previous page"
+                  aria-label="Previous page"
+                  disabled={page === 0}
+                  onClick={() => setPage((currentPage) => Math.max(0, currentPage - 1))}
+                  className="flex h-7 w-7 items-center justify-center rounded-md border border-border text-muted-foreground transition-colors hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  <ChevronLeft size={13} />
+                </button>
+                <button
+                  type="button"
+                  title="Next page"
+                  aria-label="Next page"
+                  disabled={page >= totalPages - 1}
+                  onClick={() => setPage((currentPage) => Math.min(totalPages - 1, currentPage + 1))}
+                  className="flex h-7 w-7 items-center justify-center rounded-md border border-border text-muted-foreground transition-colors hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  <ChevronRight size={13} />
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
